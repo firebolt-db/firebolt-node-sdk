@@ -1,13 +1,13 @@
 import { Context } from "../context";
 import { Parameter } from "../paramter";
-import { Authenticator } from "../auth";
 
 export type ConnectionOptions = {
   api_url: string;
   username: string;
   password: string;
   database: string;
-  engine: string;
+  engineName?: string;
+  engineUrl?: string;
 };
 
 type QuerySettings = {
@@ -23,29 +23,38 @@ const defaultQuerySettings = {
   output_format: "FB_JSONCompactLimited"
 };
 
-const engineSuffix = "firebolt.us-east-1.dev.firebolt.io";
-
 export class Connection {
   context: Context;
   options: ConnectionOptions;
-  auth!: Authenticator;
 
   constructor(context: Context, options: ConnectionOptions) {
     this.context = context;
     this.options = options;
   }
 
-  async connect() {
-    const auth = new Authenticator(this.context, this.options);
-    this.auth = auth;
-    await auth.authenticate();
+  async resolveEngineDomain() {
+    const { resourceManager } = this.context;
+    const { engineName, engineUrl } = this.options;
+    if (engineUrl) {
+      return engineUrl;
+    }
+    if (engineName) {
+      try {
+        const engine = await resourceManager.engine.getByName(engineName);
+        return "";
+      } catch (error) {
+        throw new Error("unable to retrieve engine endpoint: ${error}");
+      }
+    }
+    throw new Error("engineName or engineUrl should be provided");
   }
 
-  getRequestPath(settings: QuerySettings) {
-    const { engine, database } = this.options;
+  async getRequestPath(settings: QuerySettings) {
+    const { database } = this.options;
     const querySettings = { ...defaultQuerySettings, ...settings };
     const queryParams = new URLSearchParams({ database, ...querySettings });
-    return `https://${engine}.${engineSuffix}?${queryParams}`;
+    const engineDomain = await this.resolveEngineDomain();
+    return `https://${engineDomain}?${queryParams}`;
   }
 
   getRequestBody(query: string) {
@@ -55,10 +64,9 @@ export class Connection {
   async execute(query: string, executeQueryOptions: ExecuteQueryOptions = {}) {
     const { httpClient } = this.context;
     const { settings = {} } = executeQueryOptions;
-    const headers = this.auth.getRequestHeaders({});
     const body = this.getRequestBody(query);
-    const path = this.getRequestPath(settings);
-    const response = await httpClient.request("POST", path, { headers, body });
+    const path = await this.getRequestPath(settings);
+    const response = await httpClient.request("POST", path, { body });
     const rows = await response.json();
     return rows;
   }

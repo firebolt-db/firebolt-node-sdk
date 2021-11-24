@@ -12,7 +12,8 @@ describe("integration test", () => {
       username: process.env.FIREBOLT_USERNAME as string,
       password: process.env.FIREBOLT_PASSWORD as string,
       database: process.env.FIREBOLT_DATABASE as string,
-      engine: process.env.FIREBOLT_ENGINE as string
+      engineUrl: process.env.FIREBOLT_ENGINE_URL as string
+      //engineName: process.env.FIREBOLT_ENGINE_NAME as string
     });
 
     const rows = await connection.execute("SELECT 1");

@@ -1,3 +1,4 @@
+import { LOGIN } from "../common/api";
 import { ConnectionOptions } from "../connection";
 import { Context } from "../context";
 
@@ -14,7 +15,7 @@ export class Authenticator {
   async authenticate() {
     const { httpClient } = this.context;
     const { api_url, username, password } = this.options;
-    const path = `https://${api_url}/auth/v1/login`;
+    const path = `https://${api_url}/${LOGIN}`;
     const body = JSON.stringify({
       username,
       password
@@ -26,15 +27,11 @@ export class Authenticator {
     if (data) {
       const { access_token } = data;
       this.accessToken = access_token;
-    }
-  }
-
-  getRequestHeaders(headers: Record<string, string>) {
-    if (this.accessToken) {
-      return Object.assign(headers, {
-        Authorization: `Bearer ${this.accessToken}`
+      httpClient.setAuthMiddleware(() => {
+        return {
+          Authorization: `Bearer ${this.accessToken}`
+        };
       });
     }
-    return headers;
   }
 }

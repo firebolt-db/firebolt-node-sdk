@@ -1,5 +1,6 @@
 import { Context } from "../context";
 import { Connection, ConnectionOptions } from "../connection";
+import { Authenticator } from "../auth";
 import { Options } from "../options";
 
 export class FireboltCore {
@@ -13,9 +14,10 @@ export class FireboltCore {
   }
 
   async connect(connectionOptions: ConnectionOptions) {
+    const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
+    await auth.authenticate();
     this.connection = connection;
-    await connection.connect();
     return connection;
   }
 }
