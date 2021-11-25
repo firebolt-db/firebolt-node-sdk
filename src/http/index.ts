@@ -9,7 +9,7 @@ export interface HttpClientInterface {
   request(
     method: string,
     path: string,
-    options: Record<string, unknown>
+    options?: Record<string, unknown>
   ): Promise<any>;
 }
 

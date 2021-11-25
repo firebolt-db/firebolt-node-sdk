@@ -6,4 +6,5 @@ export type Context = {
   logger: LoggerInterface;
   httpClient: HttpClientInterface;
   resourceManager: ResourceManager;
+  apiUrl: string;
 };

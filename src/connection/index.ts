@@ -2,7 +2,6 @@ import { Context } from "../context";
 import { Parameter } from "../paramter";
 
 export type ConnectionOptions = {
-  api_url: string;
   username: string;
   password: string;
   database: string;
@@ -41,7 +40,7 @@ export class Connection {
     if (engineName) {
       try {
         const engine = await resourceManager.engine.getByName(engineName);
-        return "";
+        return engine.endpoint;
       } catch (error) {
         throw new Error("unable to retrieve engine endpoint: ${error}");
       }
@@ -66,8 +65,7 @@ export class Connection {
     const { settings = {} } = executeQueryOptions;
     const body = this.getRequestBody(query);
     const path = await this.getRequestPath(settings);
-    const response = await httpClient.request("POST", path, { body });
-    const rows = await response.json();
+    const rows = await httpClient.request("POST", path, { body });
     return rows;
   }
 }

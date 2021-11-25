@@ -13,16 +13,15 @@ export class Authenticator {
   }
 
   async authenticate() {
-    const { httpClient } = this.context;
-    const { api_url, username, password } = this.options;
-    const path = `https://${api_url}/${LOGIN}`;
+    const { httpClient, apiUrl } = this.context;
+    const { username, password } = this.options;
+    const path = `https://${apiUrl}/${LOGIN}`;
     const body = JSON.stringify({
       username,
       password
     });
 
-    const response = await httpClient.request("POST", path, { body });
-    const data = await response.json();
+    const data = await httpClient.request("POST", path, { body });
 
     if (data) {
       const { access_token } = data;

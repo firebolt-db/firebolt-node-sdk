@@ -1,6 +1,12 @@
 import fetch from "node-fetch";
 import { AuthMiddleware } from ".";
 
+type RequestOptions = {
+  headers: Headers;
+  body: string;
+  raw?: boolean;
+};
+
 export class NodeHttpClient {
   authMiddleware!: AuthMiddleware;
 
@@ -8,22 +14,15 @@ export class NodeHttpClient {
     this.authMiddleware = middleware;
   }
 
-  async request(
-    method: string,
-    path: string,
-    options: {
-      headers: Headers;
-      body: string;
-    }
-  ) {
-    const { headers = {}, body } = options;
+  async request(method: string, url: string, options?: RequestOptions) {
+    const { headers = {}, body } = options || {};
 
     if (this.authMiddleware) {
       const authHeaders = await this.authMiddleware();
       Object.assign(headers, authHeaders);
     }
 
-    const response = await fetch(path, {
+    const response = await fetch(url, {
       method,
       headers: {
         "user-agent": "javascript-sdk",
@@ -33,6 +32,11 @@ export class NodeHttpClient {
       body
     });
 
-    return response;
+    if (options?.raw) {
+      return response;
+    }
+
+    const json = await response.json();
+    return json;
   }
 }
