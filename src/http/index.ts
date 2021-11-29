@@ -8,7 +8,7 @@ export interface HttpClientInterface {
   setAuthMiddleware: (authMiddleware: AuthMiddleware) => void;
   request(
     method: string,
-    path: string,
+    url: string,
     options?: Record<string, unknown>
   ): Promise<any>;
 }

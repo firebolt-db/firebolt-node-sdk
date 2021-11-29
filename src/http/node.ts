@@ -1,10 +1,12 @@
 import fetch from "node-fetch";
 import { AuthMiddleware } from ".";
+import { assignProtocol } from "../common/util";
 
 type RequestOptions = {
   headers: Headers;
   body: string;
   raw?: boolean;
+  text?: boolean;
 };
 
 export class NodeHttpClient {
@@ -22,7 +24,9 @@ export class NodeHttpClient {
       Object.assign(headers, authHeaders);
     }
 
-    const response = await fetch(url, {
+    const withProtocol = assignProtocol(url);
+
+    const response = await fetch(withProtocol, {
       method,
       headers: {
         "user-agent": "javascript-sdk",
@@ -31,6 +35,10 @@ export class NodeHttpClient {
       },
       body
     });
+
+    if (options?.text) {
+      return response.text();
+    }
 
     if (options?.raw) {
       return response;

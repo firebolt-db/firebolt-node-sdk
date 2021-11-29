@@ -1,5 +1,5 @@
 import { Context } from "../context";
-import { ENGINE_ID_BY_NAME } from "../common/api";
+import { ENGINE_ID_BY_NAME, ACCOUNTS } from "../common/api";
 
 export class EngineService {
   context: Context;
@@ -11,15 +11,15 @@ export class EngineService {
   private async getEngineId(engineName: string) {
     const { httpClient, apiUrl } = this.context;
     const queryParams = new URLSearchParams({ engine_name: engineName });
-    const path = `https://${apiUrl}/${ENGINE_ID_BY_NAME}?${queryParams}`;
-    const response = await httpClient.request("GET", path);
+    const url = `${apiUrl}/${ENGINE_ID_BY_NAME}?${queryParams}`;
+    const response = await httpClient.request("GET", url);
     return response.engine_id;
   }
 
   async getById(engineId: string, accountId: string) {
     const { httpClient, apiUrl } = this.context;
-    const path = `https://${apiUrl}/core/v1/accounts/${accountId}/engines/${engineId}`;
-    const { engine } = await httpClient.request("GET", path);
+    const url = `${apiUrl}/${ACCOUNTS}/${accountId}/engines/${engineId}`;
+    const { engine } = await httpClient.request("GET", url);
     return engine;
   }
 
@@ -28,8 +28,4 @@ export class EngineService {
     const engine = await this.getById(engine_id, account_id);
     return engine;
   }
-
-  async create(engineName: string) {}
-
-  async start(engineName: string) {}
 }

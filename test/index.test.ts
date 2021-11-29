@@ -17,7 +17,5 @@ describe("integration test", () => {
     });
 
     const rows = await connection.execute("SELECT 1");
-
-    console.log(rows);
   });
 });
