@@ -1,9 +1,13 @@
 import JSONbig from "json-bigint";
 import { isDataQuery } from "../common/util";
 import { Context } from "../context";
-import { Parameter } from "../paramter";
 import { normalizeResponse } from "./normalizeResponse";
-import { QueryResponse, QuerySettings } from "./types";
+import {
+  ExecuteQueryOptions,
+  OutputFormat,
+  QueryResponse,
+  QuerySettings
+} from "./types";
 
 export type ConnectionOptions = {
   username: string;
@@ -13,13 +17,12 @@ export type ConnectionOptions = {
   engineUrl?: string;
 };
 
-type ExecuteQueryOptions = {
-  settings?: QuerySettings;
-  paramters?: Parameter[];
+const defaultQuerySettings = {
+  output_format: OutputFormat.JSON_COMPACT_LIMITED
 };
 
-const defaultQuerySettings = {
-  output_format: "FB_JSONCompactLimited"
+const defaultResponseSettings = {
+  normalizeData: true
 };
 
 export class Connection {
@@ -50,8 +53,7 @@ export class Connection {
 
   private async getRequestUrl(settings: QuerySettings) {
     const { database } = this.options;
-    const querySettings = { ...defaultQuerySettings, ...settings };
-    const queryParams = new URLSearchParams({ database, ...querySettings });
+    const queryParams = new URLSearchParams({ database, ...settings });
     const engineDomain = await this.resolveEngineDomain();
     return `${engineDomain}?${queryParams}`;
   }
@@ -90,10 +92,19 @@ export class Connection {
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<QueryResponse> {
     const { httpClient } = this.context;
-    const { settings = {} } = executeQueryOptions;
+
+    executeQueryOptions.settings = {
+      ...defaultQuerySettings,
+      ...(executeQueryOptions.settings || {})
+    };
+
+    executeQueryOptions.response = {
+      ...defaultResponseSettings,
+      ...(executeQueryOptions.response || {})
+    };
 
     const body = this.getRequestBody(query);
-    const url = await this.getRequestUrl(settings);
+    const url = await this.getRequestUrl(executeQueryOptions.settings);
 
     const response: string = await httpClient.request("POST", url, {
       body,
@@ -101,7 +112,7 @@ export class Connection {
     });
 
     const parsed = this.parseResponse(response, { query });
-    const normalized = normalizeResponse(parsed, settings);
+    const normalized = normalizeResponse(parsed, executeQueryOptions);
 
     const { data, meta, statistics } = normalized;
     console.log("data", data);

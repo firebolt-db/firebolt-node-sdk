@@ -1,4 +1,5 @@
 import BigNumber from "bignumber.js";
+import { Parameter } from "../paramter";
 
 export type Statistics = {
   duration: number | BigNumber;
@@ -27,4 +28,14 @@ export enum OutputFormat {
 
 export type QuerySettings = {
   output_format?: OutputFormat;
+};
+
+export type ResponseSettings = {
+  normalizeData: boolean;
+};
+
+export type ExecuteQueryOptions = {
+  settings?: QuerySettings;
+  paramters?: Parameter[];
+  response?: ResponseSettings;
 };

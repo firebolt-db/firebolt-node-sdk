@@ -1,4 +1,10 @@
-import { QueryResponse, QuerySettings, Meta, OutputFormat } from "./types";
+import {
+  QueryResponse,
+  QuerySettings,
+  Meta,
+  OutputFormat,
+  ExecuteQueryOptions
+} from "./types";
 
 type ParsedResponse = {
   data: any;
@@ -69,10 +75,17 @@ const getNormalizedStatistics = (response: ParsedResponse) => {
 
 export const normalizeResponse = (
   response: ParsedResponse,
-  settings: QuerySettings
+  executeQueryOptions: ExecuteQueryOptions
 ): QueryResponse => {
+  const querySettings = executeQueryOptions.settings || {};
+  const normalizeData = executeQueryOptions.response?.normalizeData;
+
+  const data = normalizeData
+    ? getNormalizedData(response, querySettings)
+    : response.data;
+
   return {
-    data: getNormalizedData(response, settings),
+    data,
     meta: getNormalizedMeta(response),
     statistics: getNormalizedStatistics(response)
   };
