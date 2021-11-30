@@ -2,6 +2,10 @@ import { LOGIN } from "../common/api";
 import { ConnectionOptions } from "../connection";
 import { Context } from "../context";
 
+type Login = {
+  access_token: string;
+};
+
 export class Authenticator {
   context: Context;
   options: ConnectionOptions;
@@ -21,7 +25,7 @@ export class Authenticator {
       password
     });
 
-    const data = await httpClient.request("POST", url, { body });
+    const data = await httpClient.request<Login>("POST", url, { body });
 
     if (data) {
       const { access_token } = data;

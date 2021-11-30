@@ -6,11 +6,11 @@ export type AuthMiddleware = () =>
 
 export interface HttpClientInterface {
   setAuthMiddleware: (authMiddleware: AuthMiddleware) => void;
-  request(
+  request<T>(
     method: string,
     url: string,
     options?: Record<string, unknown>
-  ): Promise<any>;
+  ): Promise<T>;
 }
 
 export type HttpClient = {

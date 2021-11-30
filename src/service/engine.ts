@@ -1,6 +1,12 @@
 import { Context } from "../context";
 import { ENGINE_ID_BY_NAME, ACCOUNTS } from "../common/api";
 
+type Engine = {
+  endpoint: string;
+};
+
+type EngineId = { engine_id: string; account_id: string };
+
 export class EngineService {
   context: Context;
 
@@ -12,14 +18,17 @@ export class EngineService {
     const { httpClient, apiUrl } = this.context;
     const queryParams = new URLSearchParams({ engine_name: engineName });
     const url = `${apiUrl}/${ENGINE_ID_BY_NAME}?${queryParams}`;
-    const response = await httpClient.request("GET", url);
-    return response.engine_id;
+    const { engine_id } = await httpClient.request<{ engine_id: EngineId }>(
+      "GET",
+      url
+    );
+    return engine_id;
   }
 
   async getById(engineId: string, accountId: string) {
     const { httpClient, apiUrl } = this.context;
     const url = `${apiUrl}/${ACCOUNTS}/${accountId}/engines/${engineId}`;
-    const { engine } = await httpClient.request("GET", url);
+    const { engine } = await httpClient.request<{ engine: Engine }>("GET", url);
     return engine;
   }
 
