@@ -1,13 +1,6 @@
-import JSONbig from "json-bigint";
-import { isDataQuery } from "../common/util";
 import { Context } from "../context";
-import { normalizeResponse } from "./normalizeResponse";
-import {
-  ExecuteQueryOptions,
-  OutputFormat,
-  QueryResponse,
-  QuerySettings
-} from "./types";
+import { ExecuteQueryOptions, OutputFormat } from "../types";
+import { Statement } from "../statement";
 
 export type ConnectionOptions = {
   username: string;
@@ -26,8 +19,8 @@ const defaultResponseSettings = {
 };
 
 export class Connection {
-  context: Context;
-  options: ConnectionOptions;
+  private context: Context;
+  private options: ConnectionOptions;
 
   constructor(context: Context, options: ConnectionOptions) {
     this.context = context;
@@ -51,7 +44,8 @@ export class Connection {
     throw new Error("engineName or engineUrl should be provided");
   }
 
-  private async getRequestUrl(settings: QuerySettings) {
+  private async getRequestUrl(executeQueryOptions: ExecuteQueryOptions) {
+    const { settings } = executeQueryOptions;
     const { database } = this.options;
     const queryParams = new URLSearchParams({ database, ...settings });
     const engineDomain = await this.resolveEngineDomain();
@@ -62,35 +56,10 @@ export class Connection {
     return query.replace(/;\s*$/, "").trim();
   }
 
-  private parseResponse(response: string, { query }: { query: string }) {
-    const { logger } = this.context;
-    try {
-      const parsed = JSONbig.parse(response);
-      const { data, meta, statistics } = parsed;
-      return {
-        data,
-        meta,
-        statistics
-      };
-    } catch (e) {
-      logger.log("Failed to parse response");
-      logger.log(e);
-      const isData = isDataQuery(query);
-      if (isData || (response.length && !isData)) {
-        throw new Error("Query failed - internal execution error");
-      }
-      return {
-        data: null,
-        meta: null,
-        statistics: null
-      };
-    }
-  }
-
   async execute(
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
-  ): Promise<QueryResponse> {
+  ): Promise<Statement> {
     const { httpClient } = this.context;
 
     executeQueryOptions.settings = {
@@ -104,20 +73,19 @@ export class Connection {
     };
 
     const body = this.getRequestBody(query);
-    const url = await this.getRequestUrl(executeQueryOptions.settings);
+    const url = await this.getRequestUrl(executeQueryOptions);
 
     const response: string = await httpClient.request<string>("POST", url, {
       body,
       text: true
     });
 
-    const parsed = this.parseResponse(response, { query });
-    const normalized = normalizeResponse(parsed, executeQueryOptions);
+    const statement = new Statement(this.context, {
+      query,
+      response,
+      executeQueryOptions
+    });
 
-    const { data, meta, statistics } = normalized;
-    console.log("data", data);
-    console.log("meta", meta);
-    console.log("stats", statistics);
-    return normalized;
+    return statement;
   }
 }

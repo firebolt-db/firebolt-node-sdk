@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { Parameter } from "../paramter";
+import { Parameter } from "./paramter";
 
 export type Statistics = {
   duration: number | BigNumber;
@@ -17,7 +17,7 @@ export type Meta = {
 export type QueryResponse = {
   meta: Meta[];
   statistics: Statistics | null;
-  data: Record<string, unknown>[];
+  data?: Record<string, unknown>[];
 };
 
 export enum OutputFormat {
@@ -31,7 +31,7 @@ export type QuerySettings = {
 };
 
 export type ResponseSettings = {
-  normalizeData: boolean;
+  normalizeData?: boolean;
 };
 
 export type ExecuteQueryOptions = {

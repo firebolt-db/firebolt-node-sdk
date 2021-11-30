@@ -4,7 +4,7 @@ import {
   Meta,
   OutputFormat,
   ExecuteQueryOptions
-} from "./types";
+} from "../types";
 
 type ParsedResponse = {
   data: any;

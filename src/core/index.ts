@@ -4,9 +4,8 @@ import { Authenticator } from "../auth";
 import { Options } from "../options";
 
 export class FireboltCore {
-  options: Options;
-  context: Context;
-  connection!: Connection;
+  private options: Options;
+  private context: Context;
 
   constructor(context: Context, options: Options) {
     this.context = context;
