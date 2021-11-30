@@ -34,12 +34,8 @@ export class Connection {
       return engineUrl;
     }
     if (engineName) {
-      try {
-        const engine = await resourceManager.engine.getByName(engineName);
-        return engine.endpoint;
-      } catch (error) {
-        throw new Error(`unable to retrieve engine endpoint: ${error}`);
-      }
+      const engine = await resourceManager.engine.getByName(engineName);
+      return engine.endpoint;
     }
     throw new Error("engineName or engineUrl should be provided");
   }

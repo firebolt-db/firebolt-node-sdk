@@ -21,6 +21,41 @@ describe("integration test", () => {
     console.log("meta", meta);
     console.log("stats", statistics);
   });
+  it("fails on no engine found", async () => {
+    const firebolt = Firebolt({
+      logger: {},
+      client: {},
+      apiUrl: process.env.FIREBOLT_API_URL as string
+    });
+
+    await expect(async () => {
+      const connection = await firebolt.connect({
+        username: process.env.FIREBOLT_USERNAME as string,
+        password: process.env.FIREBOLT_PASSWORD as string,
+        database: process.env.FIREBOLT_DATABASE as string,
+        engineName: "unknown_engine"
+      });
+      await connection.execute("SELECT 1");
+    }).rejects.toThrow("Record not found");
+  });
+
+  it("fails on wrong engine url", async () => {
+    const firebolt = Firebolt({
+      logger: {},
+      client: {},
+      apiUrl: process.env.FIREBOLT_API_URL as string
+    });
+
+    await expect(async () => {
+      const connection = await firebolt.connect({
+        username: process.env.FIREBOLT_USERNAME as string,
+        password: process.env.FIREBOLT_PASSWORD as string,
+        database: process.env.FIREBOLT_DATABASE as string,
+        engineUrl: "bad engine url"
+      });
+      await connection.execute("SELECT 1");
+    }).rejects.toThrow();
+  });
 
   it("stream", async () => {
     const firebolt = Firebolt({
@@ -33,7 +68,6 @@ describe("integration test", () => {
       username: process.env.FIREBOLT_USERNAME as string,
       password: process.env.FIREBOLT_PASSWORD as string,
       database: process.env.FIREBOLT_DATABASE as string,
-      //engineUrl: process.env.FIREBOLT_ENGINE_URL as string
       engineName: process.env.FIREBOLT_ENGINE_NAME as string
     });
 

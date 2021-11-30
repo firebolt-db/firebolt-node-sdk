@@ -18,22 +18,20 @@ export class EngineService {
     const { httpClient, apiUrl } = this.context;
     const queryParams = new URLSearchParams({ engine_name: engineName });
     const url = `${apiUrl}/${ENGINE_ID_BY_NAME}?${queryParams}`;
-    const { engine_id } = await httpClient.request<{ engine_id: EngineId }>(
-      "GET",
-      url
-    );
-    return engine_id;
+    const data = await httpClient.request<{ engine_id: EngineId }>("GET", url);
+    return data.engine_id;
   }
 
   async getById(engineId: string, accountId: string) {
     const { httpClient, apiUrl } = this.context;
     const url = `${apiUrl}/${ACCOUNTS}/${accountId}/engines/${engineId}`;
-    const { engine } = await httpClient.request<{ engine: Engine }>("GET", url);
-    return engine;
+    const data = await httpClient.request<{ engine: Engine }>("GET", url);
+    return data.engine;
   }
 
   async getByName(engineName: string) {
-    const { engine_id, account_id } = await this.getEngineId(engineName);
+    const data = await this.getEngineId(engineName);
+    const { engine_id, account_id } = data;
     const engine = await this.getById(engine_id, account_id);
     return engine;
   }

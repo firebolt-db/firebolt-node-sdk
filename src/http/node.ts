@@ -45,6 +45,11 @@ export class NodeHttpClient {
     }
 
     const json = await response.json();
+
+    if (json.error) {
+      throw new Error(json.message);
+    }
+
     return json;
   }
 }
