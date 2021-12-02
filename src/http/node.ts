@@ -1,26 +1,28 @@
 import fetch from "node-fetch";
-import { AuthMiddleware } from ".";
 import { assignProtocol } from "../common/util";
+import { ApiError, AuthenticationError } from "../common/errors";
+import { Authenticator } from "../auth";
 
 type RequestOptions = {
-  headers: Headers;
-  body: string;
+  headers: Record<string, string>;
+  body?: string;
   raw?: boolean;
   text?: boolean;
+  retry?: boolean;
 };
 
 export class NodeHttpClient {
-  authMiddleware!: AuthMiddleware;
+  authenticator!: Authenticator;
 
-  setAuthMiddleware(middleware: AuthMiddleware) {
-    this.authMiddleware = middleware;
-  }
+  async request<T>(
+    method: string,
+    url: string,
+    options?: RequestOptions
+  ): Promise<T> {
+    const { headers = {}, body, retry = true } = options || {};
 
-  async request(method: string, url: string, options?: RequestOptions) {
-    const { headers = {}, body } = options || {};
-
-    if (this.authMiddleware) {
-      const authHeaders = await this.authMiddleware();
+    if (this.authenticator) {
+      const authHeaders = await this.authenticator.getHeaders();
       Object.assign(headers, authHeaders);
     }
 
@@ -36,20 +38,36 @@ export class NodeHttpClient {
       body
     });
 
+    if (response.status === 401 && retry) {
+      try {
+        await this.authenticator.refreshAccessToken();
+      } catch (error) {
+        throw new AuthenticationError({ message: "AuthenticationError" });
+      }
+
+      return this.request<T>(method, url, options);
+    }
+
+    if (response.status > 300) {
+      const contentType = response.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
+        const parsed = await response.json();
+        const { message = "Server error", code } = parsed;
+        throw new ApiError({ message, code, status: response.status });
+      }
+      throw new ApiError({
+        message: "Server error",
+        code: "",
+        status: response.status
+      });
+    }
+
     if (options?.text) {
-      return response.text();
+      return response.text() as unknown as T;
     }
 
-    if (options?.raw) {
-      return response;
-    }
-
-    const json = await response.json();
-
-    if (json.error) {
-      throw new Error(json.message);
-    }
-
-    return json;
+    const parsed = await response.json();
+    return parsed;
   }
 }

@@ -36,7 +36,7 @@ describe("integration test", () => {
         engineName: "unknown_engine"
       });
       await connection.execute("SELECT 1");
-    }).rejects.toThrow("Record not found");
+    }).rejects.toThrow();
   });
 
   it("fails on wrong engine url", async () => {

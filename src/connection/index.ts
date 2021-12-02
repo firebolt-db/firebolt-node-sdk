@@ -71,7 +71,7 @@ export class Connection {
     const body = this.getRequestBody(query);
     const url = await this.getRequestUrl(executeQueryOptions);
 
-    const response: string = await httpClient.request<string>("POST", url, {
+    const response = await httpClient.request<string>("POST", url, {
       body,
       text: true
     });
