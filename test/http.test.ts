@@ -65,7 +65,6 @@ describe("http client", () => {
         return res(ctx.json({ ok: true }));
       })
     );
-    server.printHandlers();
     await authenticator.authenticate();
     await httpClient.request("POST", `${apiUrl}/engines`);
   });

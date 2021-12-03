@@ -1,5 +1,4 @@
-import { Context } from "../context";
-import { ExecuteQueryOptions, OutputFormat } from "../types";
+import { ExecuteQueryOptions, OutputFormat, Context } from "../types";
 import { Statement } from "../statement";
 
 export type ConnectionOptions = {

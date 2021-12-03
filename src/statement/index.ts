@@ -1,7 +1,6 @@
 import JSONbig from "json-bigint";
-import { Statistics, Meta, ExecuteQueryOptions } from "../types";
+import { Statistics, Meta, ExecuteQueryOptions, Context } from "../types";
 import { isDataQuery } from "../common/util";
-import { Context } from "../context";
 import { RowStream } from "./rowStream";
 import { normalizeResponse } from "./normalizeResponse";
 
@@ -45,9 +44,9 @@ export class Statement {
         meta,
         statistics
       };
-    } catch (e) {
+    } catch (error) {
       logger.log("Failed to parse response");
-      logger.log(e);
+      logger.log(error);
       const isData = isDataQuery(query);
       if (isData || (response.length && !isData)) {
         throw new Error("Query failed - internal execution error");

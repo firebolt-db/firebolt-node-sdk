@@ -1,7 +1,7 @@
-import { Context } from "../context";
 import { Connection, ConnectionOptions } from "../connection";
 import { Authenticator } from "../auth";
 import { Options } from "../options";
+import { Context } from "../types";
 
 export class FireboltCore {
   private options: Options;

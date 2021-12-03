@@ -1,5 +1,8 @@
 import BigNumber from "bignumber.js";
 import { Parameter } from "./paramter";
+import { HttpClientInterface } from "./http";
+import { LoggerInterface } from "./logger";
+import { ResourceManager } from "./service";
 
 export type Statistics = {
   duration: number | BigNumber;
@@ -38,4 +41,11 @@ export type ExecuteQueryOptions = {
   settings?: QuerySettings;
   paramters?: Parameter[];
   response?: ResponseSettings;
+};
+
+export type Context = {
+  logger: LoggerInterface;
+  httpClient: HttpClientInterface;
+  resourceManager: ResourceManager;
+  apiUrl: string;
 };

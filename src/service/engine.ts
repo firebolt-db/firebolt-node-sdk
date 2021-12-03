@@ -1,5 +1,5 @@
-import { Context } from "../context";
 import { ENGINE_ID_BY_NAME, ACCOUNTS } from "../common/api";
+import { Context } from "../types";
 
 type Engine = {
   endpoint: string;

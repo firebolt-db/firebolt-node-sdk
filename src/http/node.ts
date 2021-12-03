@@ -11,6 +11,8 @@ type RequestOptions = {
   retry?: boolean;
 };
 
+const DEFAULT_ERROR = "Server error";
+
 export class NodeHttpClient {
   authenticator!: Authenticator;
 
@@ -52,15 +54,21 @@ export class NodeHttpClient {
       const contentType = response.headers.get("content-type");
 
       if (contentType && contentType.includes("application/json")) {
-        const parsed = await response.json();
-        const { message = "Server error", code } = parsed;
-        throw new ApiError({ message, code, status: response.status });
+        const json = await response.json();
+        const { message = DEFAULT_ERROR, code } = json;
+        throw new ApiError({
+          message,
+          code,
+          status: response.status
+        });
+      } else {
+        const text = await response.text();
+        throw new ApiError({
+          message: text || DEFAULT_ERROR,
+          code: "",
+          status: response.status
+        });
       }
-      throw new ApiError({
-        message: "Server error",
-        code: "",
-        status: response.status
-      });
     }
 
     if (options?.text) {
