@@ -19,7 +19,6 @@ export class EngineService {
     const queryParams = new URLSearchParams({ engine_name: engineName });
     const url = `${apiUrl}/${ENGINE_ID_BY_NAME}?${queryParams}`;
     const data = await httpClient.request<{ engine_id: EngineId }>("GET", url);
-    console.log(data);
     return data.engine_id;
   }
 
