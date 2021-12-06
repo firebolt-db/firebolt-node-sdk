@@ -1,12 +1,12 @@
 import JSONbig from "json-bigint";
-import { Statistics, Meta, ExecuteQueryOptions, Context } from "../types";
+import { Statistics, Meta, Row, ExecuteQueryOptions, Context } from "../types";
 import { isDataQuery } from "../common/util";
 import { RowStream } from "./rowStream";
 import { normalizeResponse } from "./normalizeResponse";
 
 export class Statement {
   private context: Context;
-  data?: Record<string, unknown>[];
+  data?: Row[];
   meta: Meta[];
   statistics: Statistics | null;
 

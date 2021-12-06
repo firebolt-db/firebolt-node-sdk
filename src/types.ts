@@ -17,15 +17,17 @@ export type Meta = {
   type: string;
 };
 
+export type Row = Record<string, unknown> | unknown[];
+
 export type QueryResponse = {
   meta: Meta[];
   statistics: Statistics | null;
-  data?: Record<string, unknown>[];
+  data?: Row[];
 };
 
 export enum OutputFormat {
   JSON_COMPACT_LIMITED = "FB_JSONCompactLimited",
-  JSON_COMPACT = "FB_JSONCompact",
+  JSON_COMPACT = "JSONCompact",
   JSON = "JSON"
 }
 

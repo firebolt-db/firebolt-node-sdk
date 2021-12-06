@@ -1,9 +1,11 @@
+import { withNullableType } from "../common/util";
 import {
   QueryResponse,
   QuerySettings,
   Meta,
   OutputFormat,
-  ExecuteQueryOptions
+  ExecuteQueryOptions,
+  Row
 } from "../types";
 
 type ParsedResponse = {
@@ -12,35 +14,96 @@ type ParsedResponse = {
   meta: any;
 };
 
-const getNormalizedData = (
+const getTypedValue = (
+  value: string | number | null,
+  meta: { type: string }
+) => {
+  const { type } = meta;
+  switch (type.toUpperCase()) {
+    case withNullableType("DATETIME"):
+    case withNullableType("DATE"):
+    case "DATETIME":
+    case "DATE": {
+      if (value) {
+        return new Date(value);
+      }
+      return value;
+    }
+    default: {
+      return value;
+    }
+  }
+};
+
+const getTypedData = (
   response: ParsedResponse,
   settings: QuerySettings
-) => {
+): Row[] => {
   if (!response.data) {
     return [];
   }
+
   const { data, meta } = response;
 
+  const isJSON = settings.output_format === OutputFormat.JSON;
+  for (const row of data) {
+    for (const index in meta) {
+      const column = meta[index];
+      const elementIndex = isJSON ? column.name : +index;
+      row[elementIndex] = getTypedValue(row[elementIndex], column);
+    }
+  }
+  return data;
+};
+
+const getNormalizedValue = ({
+  index,
+  row,
+  meta,
+  settings
+}: {
+  index: number;
+  row: Row;
+  meta: Meta[];
+  settings: QuerySettings;
+}) => {
+  const { name } = meta[index];
+  if (settings.output_format === OutputFormat.JSON) {
+    return (row as Record<string, unknown>)[name];
+  }
+
+  if (
+    settings.output_format === OutputFormat.JSON_COMPACT ||
+    settings.output_format === OutputFormat.JSON_COMPACT_LIMITED ||
+    !settings.output_format
+  ) {
+    return (row as unknown[])[index];
+  }
+};
+
+const getNormalizedData = (
+  response: ParsedResponse,
+  settings: QuerySettings
+): Row[] => {
+  const { meta } = response;
+  const typedData = getTypedData(response, settings);
   const rows = [];
-  for (const item of data) {
-    const row: Record<string, unknown> = {};
+
+  for (const row of typedData) {
+    const normalizedRow: Row = {};
 
     for (const index in meta) {
       const { name } = meta[index];
 
-      if (settings.output_format === OutputFormat.JSON) {
-        row[name] = item[name];
-      }
-
-      if (
-        settings.output_format === OutputFormat.JSON_COMPACT ||
-        settings.output_format === OutputFormat.JSON_COMPACT_LIMITED ||
-        !settings.output_format
-      ) {
-        row[name] = item[index];
-      }
+      const normalizedValue = getNormalizedValue({
+        index: +index,
+        row,
+        meta,
+        settings
+      });
+      normalizedRow[name] = normalizedValue;
     }
-    rows.push(row);
+    rows.push(normalizedRow);
   }
   return rows;
 };
@@ -77,16 +140,20 @@ export const normalizeResponse = (
   response: ParsedResponse,
   executeQueryOptions: ExecuteQueryOptions
 ): QueryResponse => {
-  const querySettings = executeQueryOptions.settings || {};
-  const normalizeData = executeQueryOptions.response?.normalizeData;
+  const { settings = {}, response: { normalizeData = false } = {} } =
+    executeQueryOptions;
+
+  const meta = getNormalizedMeta(response);
+
+  const statistics = getNormalizedStatistics(response);
 
   const data = normalizeData
-    ? getNormalizedData(response, querySettings)
-    : response.data;
+    ? getNormalizedData(response, settings)
+    : getTypedData(response, settings);
 
   return {
     data,
-    meta: getNormalizedMeta(response),
-    statistics: getNormalizedStatistics(response)
+    meta,
+    statistics
   };
 };

@@ -17,3 +17,5 @@ export const isDataQuery = (query: string): boolean => {
 
   return isSelect || isWith || isExplain || isShow || isDescribe;
 };
+
+export const withNullableType = (type: string) => `NULLABLE(${type})`;
