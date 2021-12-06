@@ -12,7 +12,7 @@ type Dependencies = {
 const DEFAULT_API_URL = "api.firebolt.io";
 
 export const FireboltClient = (dependencies: Dependencies) => {
-  return (options: Options) => {
+  return (options: Options = {}) => {
     const {
       logger: loggerOptions,
       client: clientOptions,

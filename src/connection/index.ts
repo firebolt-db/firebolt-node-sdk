@@ -14,37 +14,39 @@ const defaultQuerySettings = {
 };
 
 const defaultResponseSettings = {
-  normalizeData: true
+  normalizeData: false
 };
 
 export class Connection {
   private context: Context;
   private options: ConnectionOptions;
+  engineDomain!: string;
 
   constructor(context: Context, options: ConnectionOptions) {
     this.context = context;
     this.options = options;
   }
 
-  private async resolveEngineDomain() {
+  async resolveEngineDomain() {
     const { resourceManager } = this.context;
     const { engineName, engineUrl } = this.options;
     if (engineUrl) {
-      return engineUrl;
+      this.engineDomain = engineUrl;
+      return this.engineDomain;
     }
     if (engineName) {
       const engine = await resourceManager.engine.getByName(engineName);
-      return engine.endpoint;
+      this.engineDomain = engine.endpoint;
+      return this.engineDomain;
     }
     throw new Error("engineName or engineUrl should be provided");
   }
 
-  private async getRequestUrl(executeQueryOptions: ExecuteQueryOptions) {
+  private getRequestUrl(executeQueryOptions: ExecuteQueryOptions) {
     const { settings } = executeQueryOptions;
     const { database } = this.options;
     const queryParams = new URLSearchParams({ database, ...settings });
-    const engineDomain = await this.resolveEngineDomain();
-    return `${engineDomain}?${queryParams}`;
+    return `${this.engineDomain}?${queryParams}`;
   }
 
   private getRequestBody(query: string) {
@@ -68,7 +70,7 @@ export class Connection {
     };
 
     const body = this.getRequestBody(query);
-    const url = await this.getRequestUrl(executeQueryOptions);
+    const url = this.getRequestUrl(executeQueryOptions);
 
     const response = await httpClient.request<string>("POST", url, {
       body,
