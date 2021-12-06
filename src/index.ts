@@ -1,4 +1,4 @@
-//node entry point
+// node entry point
 import { FireboltClient } from "./firebolt";
 import { NodeHttpClient } from "./http/node";
 import { Logger } from "./logger/node";

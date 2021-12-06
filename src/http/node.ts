@@ -63,8 +63,9 @@ export class NodeHttpClient {
         });
       } else {
         const text = await response.text();
+        const message = text || DEFAULT_ERROR;
         throw new ApiError({
-          message: text || DEFAULT_ERROR,
+          message,
           code: "",
           status: response.status
         });

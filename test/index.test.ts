@@ -1,21 +1,20 @@
 import { Firebolt } from "../src/index";
 import { OutputFormat } from "../src/types";
 
+const connectionParams = {
+  username: process.env.FIREBOLT_USERNAME as string,
+  password: process.env.FIREBOLT_PASSWORD as string,
+  database: process.env.FIREBOLT_DATABASE as string,
+  engineName: process.env.FIREBOLT_ENGINE_NAME as string
+};
+
 describe("integration test", () => {
   it("works", async () => {
     const firebolt = Firebolt({
-      logger: {},
-      client: {},
       apiUrl: process.env.FIREBOLT_API_URL as string
     });
 
-    const connection = await firebolt.connect({
-      username: process.env.FIREBOLT_USERNAME as string,
-      password: process.env.FIREBOLT_PASSWORD as string,
-      database: process.env.FIREBOLT_DATABASE as string,
-      //engineUrl: process.env.FIREBOLT_ENGINE_URL as string
-      engineName: process.env.FIREBOLT_ENGINE_NAME as string
-    });
+    const connection = await firebolt.connect(connectionParams);
 
     const { data, statistics, meta } = await connection.execute("SELECT 1");
     console.log("data", data);
@@ -24,17 +23,10 @@ describe("integration test", () => {
   });
   it("json output format", async () => {
     const firebolt = Firebolt({
-      logger: {},
-      client: {},
       apiUrl: process.env.FIREBOLT_API_URL as string
     });
 
-    const connection = await firebolt.connect({
-      username: process.env.FIREBOLT_USERNAME as string,
-      password: process.env.FIREBOLT_PASSWORD as string,
-      database: process.env.FIREBOLT_DATABASE as string,
-      engineName: process.env.FIREBOLT_ENGINE_NAME as string
-    });
+    const connection = await firebolt.connect(connectionParams);
     const { data } = await connection.execute("SELECT 1", {
       settings: { output_format: OutputFormat.JSON },
       response: { normalizeData: false }
@@ -43,32 +35,21 @@ describe("integration test", () => {
   });
   it("returns Date type", async () => {
     const firebolt = Firebolt({
-      logger: {},
-      client: {},
       apiUrl: process.env.FIREBOLT_API_URL as string
     });
 
-    const connection = await firebolt.connect({
-      username: process.env.FIREBOLT_USERNAME as string,
-      password: process.env.FIREBOLT_PASSWORD as string,
-      database: process.env.FIREBOLT_DATABASE as string,
-      engineName: process.env.FIREBOLT_ENGINE_NAME as string
-    });
+    const connection = await firebolt.connect(connectionParams);
     const { data, meta } = await connection.execute("SELECT now()");
     console.log(data);
   });
   it("fails on no engine found", async () => {
     const firebolt = Firebolt({
-      logger: {},
-      client: {},
       apiUrl: process.env.FIREBOLT_API_URL as string
     });
 
     await expect(async () => {
       const connection = await firebolt.connect({
-        username: process.env.FIREBOLT_USERNAME as string,
-        password: process.env.FIREBOLT_PASSWORD as string,
-        database: process.env.FIREBOLT_DATABASE as string,
+        ...connectionParams,
         engineName: "unknown_engine"
       });
       await connection.execute("SELECT 1");
@@ -77,8 +58,6 @@ describe("integration test", () => {
 
   it("fails on wrong engine url", async () => {
     const firebolt = Firebolt({
-      logger: {},
-      client: {},
       apiUrl: process.env.FIREBOLT_API_URL as string
     });
 
@@ -95,17 +74,10 @@ describe("integration test", () => {
 
   it("stream", async () => {
     const firebolt = Firebolt({
-      logger: {},
-      client: {},
       apiUrl: process.env.FIREBOLT_API_URL as string
     });
 
-    const connection = await firebolt.connect({
-      username: process.env.FIREBOLT_USERNAME as string,
-      password: process.env.FIREBOLT_PASSWORD as string,
-      database: process.env.FIREBOLT_DATABASE as string,
-      engineName: process.env.FIREBOLT_ENGINE_NAME as string
-    });
+    const connection = await firebolt.connect(connectionParams);
 
     const statement = await connection.execute("SELECT 1");
     const stream = statement.streamRows();
