@@ -22,7 +22,7 @@ export type Row = Record<string, unknown> | unknown[];
 export type QueryResponse = {
   meta: Meta[];
   statistics: Statistics | null;
-  data?: Row[];
+  data: Row[];
 };
 
 export enum OutputFormat {

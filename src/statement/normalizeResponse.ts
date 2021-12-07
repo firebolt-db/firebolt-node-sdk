@@ -22,8 +22,10 @@ const getTypedValue = (
   switch (type.toUpperCase()) {
     case withNullableType("DATETIME"):
     case withNullableType("DATE"):
+    case withNullableType("TIMESTAMP"):
     case "DATETIME":
-    case "DATE": {
+    case "DATE":
+    case "TIMESTAMP": {
       if (value) {
         return new Date(value);
       }

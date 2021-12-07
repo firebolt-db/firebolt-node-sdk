@@ -8,6 +8,8 @@ const connectionParams = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
+jest.setTimeout(15000);
+
 describe("integration test", () => {
   it("works", async () => {
     const firebolt = Firebolt({
@@ -16,10 +18,9 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const { data, statistics, meta } = await connection.execute("SELECT 1");
-    console.log("data", data);
-    console.log("meta", meta);
-    console.log("stats", statistics);
+    const { data, meta } = await connection.execute("SELECT 1");
+    expect(data.length).toEqual(1);
+    expect(meta.length).toEqual(1);
   });
   it("json output format", async () => {
     const firebolt = Firebolt({
@@ -31,7 +32,8 @@ describe("integration test", () => {
       settings: { output_format: OutputFormat.JSON },
       response: { normalizeData: false }
     });
-    console.log(data);
+    const row = data[0];
+    expect(row).toMatchObject({ "1": 1 });
   });
   it("returns Date type", async () => {
     const firebolt = Firebolt({
@@ -39,8 +41,12 @@ describe("integration test", () => {
     });
 
     const connection = await firebolt.connect(connectionParams);
-    const { data, meta } = await connection.execute("SELECT now()");
-    console.log(data);
+    const { data } = await connection.execute("SELECT now()");
+    const row = data[0];
+    if (Array.isArray(row)) {
+      const value = row[0];
+      expect(value).toBeInstanceOf(Date);
+    }
   });
   it("fails on no engine found", async () => {
     const firebolt = Firebolt({
