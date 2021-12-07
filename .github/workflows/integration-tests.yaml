@@ -1,0 +1,37 @@
+name: Run integration tests
+on:
+  workflow_dispatch:
+  workflow_call:
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+    
+      - name: Set up node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+    
+      - name: Install dependencies
+        run: npm install
+      - name: Setup database and engine
+        id: setup
+        uses: firebolt-db/integration-testing-setup@master
+        with:
+          firebolt-username: ${{ secrets.FIREBOLT_USERNAME }}
+          firebolt-password: ${{ secrets.FIREBOLT_PASSWORD }}
+          api-endpoint: "api.dev.firebolt.io"
+          region: "us-east-1"
+
+      - name: Run integration tests
+        env:
+          FIREBOLT_USERNAME: ${{ secrets.FIREBOLT_USERNAME }}
+          FIREBOLT_PASSWORD: ${{ secrets.FIREBOLT_PASSWORD }}
+          FIREBOLT_DATABASE: ${{ steps.setup.outputs.database_name }}
+          FIREBOLT_ENGINE_NAME: ${{ steps.setup.outputs.engine_name }}
+          FIREBOLT_ENGINE_URL: ${{ steps.setup.outputs.engine_url }}
+          FIREBOLT_API_URL: "api.dev.firebolt.io"
+        run: |
+          npm test tests/integration

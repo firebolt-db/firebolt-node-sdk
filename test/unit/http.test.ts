@@ -1,9 +1,9 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Authenticator } from "../src/auth";
-import { NodeHttpClient } from "../src/http/node";
-import { Logger } from "../src/logger/node";
-import { ResourceManager } from "../src/service";
+import { Authenticator } from "../../src/auth";
+import { NodeHttpClient } from "../../src/http/node";
+import { Logger } from "../../src/logger/node";
+import { ResourceManager } from "../../src/service";
 
 const apiUrl = "fake.api.com";
 const logger = new Logger();

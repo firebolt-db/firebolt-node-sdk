@@ -1,9 +1,9 @@
 // browser entry point
 import { FireboltClient } from "./firebolt";
-import { HttpClient } from "./http/browser";
-import { Logger } from "./logger/browser";
+import { NodeHttpClient } from "./http/node";
+import { Logger } from "./logger/node";
 
 export const Firebolt = FireboltClient({
   logger: Logger,
-  httpClient: HttpClient
+  httpClient: NodeHttpClient
 });

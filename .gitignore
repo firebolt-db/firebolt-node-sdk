@@ -6,6 +6,7 @@ README.html
 node_modules
 *.log
 .*
+!.github
 !.env.example
 !.editorconfig
 !.eslintignore

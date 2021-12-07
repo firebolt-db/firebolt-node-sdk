@@ -1,5 +1,5 @@
-import { Firebolt } from "../src/index";
-import { OutputFormat } from "../src/types";
+import { Firebolt } from "../../src/index";
+import { OutputFormat } from "../../src/types";
 
 const connectionParams = {
   username: process.env.FIREBOLT_USERNAME as string,
