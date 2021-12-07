@@ -37,10 +37,14 @@ export class Authenticator {
       refresh_token: this.refreshToken
     });
 
-    const { access_token } = await httpClient.request<{
-      access_token: string;
-    }>("POST", url, { body, retry: false });
-    this.accessToken = access_token;
+    try {
+      const { access_token } = await httpClient.request<{
+        access_token: string;
+      }>("POST", url, { body, retry: false });
+      this.accessToken = access_token;
+    } catch (error) {
+      await this.authenticate();
+    }
   }
 
   async authenticate() {
