@@ -30,8 +30,7 @@ export class EngineService {
   }
 
   async getByName(engineName: string) {
-    const data = await this.getEngineId(engineName);
-    const { engine_id, account_id } = data;
+    const { engine_id, account_id } = await this.getEngineId(engineName);
     const engine = await this.getById(engine_id, account_id);
     return engine;
   }
