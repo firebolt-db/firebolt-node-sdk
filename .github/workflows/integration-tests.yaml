@@ -34,4 +34,4 @@ jobs:
           FIREBOLT_ENGINE_URL: ${{ steps.setup.outputs.engine_url }}
           FIREBOLT_API_URL: "api.dev.firebolt.io"
         run: |
-          npm test tests/integration
+          npm test integration
