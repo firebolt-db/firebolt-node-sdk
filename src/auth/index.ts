@@ -38,9 +38,11 @@ export class Authenticator {
     });
 
     try {
-      const { access_token } = await httpClient.request<{
-        access_token: string;
-      }>("POST", url, { body, retry: false });
+      const { access_token } = await httpClient
+        .request<{
+          access_token: string;
+        }>("POST", url, { body, retry: false })
+        .ready();
       this.accessToken = access_token;
     } catch (error) {
       await this.authenticate();
@@ -56,14 +58,12 @@ export class Authenticator {
       password
     });
 
-    const { access_token, refresh_token } = await httpClient.request<Login>(
-      "POST",
-      url,
-      {
+    const { access_token, refresh_token } = await httpClient
+      .request<Login>("POST", url, {
         body,
         retry: false
-      }
-    );
+      })
+      .ready();
 
     this.accessToken = access_token;
     this.refreshToken = refresh_token;

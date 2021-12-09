@@ -1,7 +1,10 @@
+import Abort from "abort-controller";
 import fetch from "node-fetch";
 import { assignProtocol } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
 import { Authenticator } from "../auth";
+
+const AbortController = globalThis.AbortController || Abort;
 
 type RequestOptions = {
   headers: Record<string, string>;
@@ -11,72 +14,91 @@ type RequestOptions = {
   retry?: boolean;
 };
 
+type ErrorResponse = {
+  message: string;
+  code: string;
+};
+
 const DEFAULT_ERROR = "Server error";
 
 export class NodeHttpClient {
   authenticator!: Authenticator;
 
-  async request<T>(
+  request<T>(
     method: string,
     url: string,
     options?: RequestOptions
-  ): Promise<T> {
+  ): { ready: () => Promise<T>; abort: () => void } {
     const { headers = {}, body, retry = true } = options || {};
+    const controller = new AbortController();
 
-    if (this.authenticator) {
-      const authHeaders = await this.authenticator.getHeaders();
-      Object.assign(headers, authHeaders);
-    }
+    const abort = () => {
+      controller.abort();
+    };
 
-    const withProtocol = assignProtocol(url);
-
-    const response = await fetch(withProtocol, {
-      method,
-      headers: {
-        "user-agent": "javascript-sdk",
-        "Content-Type": "application/json",
-        ...headers
-      },
-      body
-    });
-
-    if (response.status === 401 && retry) {
-      try {
-        await this.authenticator.refreshAccessToken();
-      } catch (error) {
-        throw new AuthenticationError({ message: "AuthenticationError" });
+    const ready = async () => {
+      if (this.authenticator) {
+        const authHeaders = await this.authenticator.getHeaders();
+        Object.assign(headers, authHeaders);
       }
 
-      return this.request<T>(method, url, options);
-    }
+      const withProtocol = assignProtocol(url);
 
-    if (response.status > 300) {
-      const contentType = response.headers.get("content-type");
+      const response = await fetch(withProtocol, {
+        signal: controller.signal,
+        method,
+        headers: {
+          "user-agent": "javascript-sdk",
+          "Content-Type": "application/json",
+          ...headers
+        },
+        body
+      });
 
-      if (contentType && contentType.includes("application/json")) {
-        const json = await response.json();
-        const { message = DEFAULT_ERROR, code } = json;
-        throw new ApiError({
-          message,
-          code,
-          status: response.status
-        });
-      } else {
-        const text = await response.text();
-        const message = text || DEFAULT_ERROR;
-        throw new ApiError({
-          message,
-          code: "",
-          status: response.status
-        });
+      if (response.status === 401 && retry) {
+        try {
+          await this.authenticator.refreshAccessToken();
+        } catch (error) {
+          throw new AuthenticationError({ message: "AuthenticationError" });
+        }
+
+        const request = this.request<T>(method, url, options);
+        return request.ready();
       }
-    }
 
-    if (options?.text) {
-      return response.text() as unknown as T;
-    }
+      if (response.status > 300) {
+        const contentType = response.headers.get("content-type");
 
-    const parsed = await response.json();
-    return parsed;
+        if (contentType && contentType.includes("application/json")) {
+          const json = (await response.json()) as ErrorResponse;
+          const { message = DEFAULT_ERROR, code } = json;
+          throw new ApiError({
+            message,
+            code,
+            status: response.status
+          });
+        } else {
+          const text = await response.text();
+          const message = text || DEFAULT_ERROR;
+          throw new ApiError({
+            message,
+            code: "",
+            status: response.status
+          });
+        }
+      }
+
+      if (options?.text) {
+        return response.text() as unknown as T;
+      }
+
+      const parsed = await response.json();
+      return parsed as T;
+    };
+
+    return {
+      abort,
+      ready
+    };
   }
 }

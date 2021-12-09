@@ -35,7 +35,6 @@ export class Statement {
   }
 
   private parseResponse(response: string, query: string) {
-    const { logger } = this.context;
     try {
       const parsed = JSONbig.parse(response);
       const { data, meta, statistics } = parsed;
@@ -45,11 +44,9 @@ export class Statement {
         statistics
       };
     } catch (error) {
-      logger.log("Failed to parse response");
-      logger.log(error);
       const isData = isDataQuery(query);
       if (isData || (response.length && !isData)) {
-        throw new Error("Query failed - internal execution error");
+        throw new Error("Failed to parse response");
       }
       return {
         data: null,

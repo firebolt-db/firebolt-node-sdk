@@ -66,7 +66,7 @@ describe("http client", () => {
       })
     );
     await authenticator.authenticate();
-    await httpClient.request("POST", `${apiUrl}/engines`);
+    await httpClient.request("POST", `${apiUrl}/engines`).ready();
   });
   it("throw error if status > 300", async () => {
     const httpClient = new NodeHttpClient();
@@ -90,7 +90,7 @@ describe("http client", () => {
     );
     await authenticator.authenticate();
     expect(async () => {
-      await httpClient.request("POST", `${apiUrl}/engines`);
+      await httpClient.request("POST", `${apiUrl}/engines`).ready();
     }).rejects.toThrow("Record not found");
   });
   it("refresh token on 401", async () => {
@@ -123,7 +123,7 @@ describe("http client", () => {
     );
     await authenticator.authenticate();
     const initialAccessToken = authenticator.accessToken;
-    await httpClient.request("POST", `${apiUrl}/engines`);
+    await httpClient.request("POST", `${apiUrl}/engines`).ready();
     expect(initialAccessToken).not.toEqual(authenticator.accessToken);
   });
 });

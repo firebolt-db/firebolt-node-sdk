@@ -77,6 +77,17 @@ describe("integration test", () => {
       await connection.execute("SELECT 1");
     }).rejects.toThrow();
   });
+  it("destroyed unfinished statements should throw", async () => {
+    const firebolt = Firebolt({
+      apiUrl: process.env.FIREBOLT_API_URL as string
+    });
+    const connection = await firebolt.connect(connectionParams);
+    const st1 = connection.execute("SELECT 1");
+    const st2 = connection.execute("SELECT 2");
+    await connection.destroy();
+    expect(st1).rejects.toThrow("Request was aborted");
+    expect(st2).rejects.toThrow("Request was aborted");
+  });
 
   it("stream", async () => {
     const firebolt = Firebolt({

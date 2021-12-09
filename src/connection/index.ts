@@ -21,6 +21,7 @@ export class Connection {
   private context: Context;
   private options: ConnectionOptions;
   engineDomain!: string;
+  activeRequests = new Set<{ abort: () => void }>();
 
   constructor(context: Context, options: ConnectionOptions) {
     this.context = context;
@@ -72,10 +73,21 @@ export class Connection {
     const body = this.getRequestBody(query);
     const url = this.getRequestUrl(executeQueryOptions);
 
-    const response = await httpClient.request<string>("POST", url, {
+    const request = httpClient.request<string>("POST", url, {
       body,
       text: true
     });
+
+    this.activeRequests = this.activeRequests.add(request);
+
+    const response = await request.ready().catch(error => {
+      if (error.type === "aborted") {
+        throw new Error("Request was aborted");
+      }
+      throw error;
+    });
+
+    this.activeRequests.delete(request);
 
     const statement = new Statement(this.context, {
       query,
@@ -84,5 +96,12 @@ export class Connection {
     });
 
     return statement;
+  }
+
+  async destroy() {
+    for (const request of this.activeRequests) {
+      request.abort();
+      this.activeRequests.delete(request);
+    }
   }
 }

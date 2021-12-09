@@ -8,7 +8,7 @@ export interface HttpClientInterface {
     method: string,
     url: string,
     options?: Record<string, unknown>
-  ): Promise<T>;
+  ): { ready: () => Promise<T>; abort: () => void };
 }
 
 export type HttpClient = {
