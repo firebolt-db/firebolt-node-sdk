@@ -36,7 +36,7 @@ export class NodeHttpClient {
       controller.abort();
     };
 
-    const ready = async () => {
+    const makeRequest = async () => {
       if (this.authenticator) {
         const authHeaders = await this.authenticator.getHeaders();
         Object.assign(headers, authHeaders);
@@ -95,6 +95,10 @@ export class NodeHttpClient {
       const parsed = await response.json();
       return parsed as T;
     };
+
+    const promise = makeRequest();
+
+    const ready = () => promise;
 
     return {
       abort,

@@ -18,7 +18,8 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const { data, meta } = await connection.execute("SELECT 1");
+    const statement = await connection.execute("SELECT 1");
+    const { data, meta } = await statement.fetchRows();
     expect(data.length).toEqual(1);
     expect(meta.length).toEqual(1);
   });
@@ -28,10 +29,11 @@ describe("integration test", () => {
     });
 
     const connection = await firebolt.connect(connectionParams);
-    const { data } = await connection.execute("SELECT 1", {
+    const statement = await connection.execute("SELECT 1", {
       settings: { output_format: OutputFormat.JSON },
       response: { normalizeData: false }
     });
+    const { data } = await statement.fetchRows();
     const row = data[0];
     expect(row).toMatchObject({ "1": 1 });
   });
@@ -41,7 +43,8 @@ describe("integration test", () => {
     });
 
     const connection = await firebolt.connect(connectionParams);
-    const { data } = await connection.execute("SELECT now()");
+    const statement = await connection.execute("SELECT now()");
+    const { data } = await statement.fetchRows();
     const row = data[0];
     if (Array.isArray(row)) {
       const value = row[0];
@@ -67,14 +70,16 @@ describe("integration test", () => {
       apiUrl: process.env.FIREBOLT_API_URL as string
     });
 
+    const connection = await firebolt.connect({
+      username: process.env.FIREBOLT_USERNAME as string,
+      password: process.env.FIREBOLT_PASSWORD as string,
+      database: process.env.FIREBOLT_DATABASE as string,
+      engineUrl: "bad engine url"
+    });
+
     await expect(async () => {
-      const connection = await firebolt.connect({
-        username: process.env.FIREBOLT_USERNAME as string,
-        password: process.env.FIREBOLT_PASSWORD as string,
-        database: process.env.FIREBOLT_DATABASE as string,
-        engineUrl: "bad engine url"
-      });
-      await connection.execute("SELECT 1");
+      const statement = await connection.execute("SELECT 1");
+      await statement.fetchRows();
     }).rejects.toThrow();
   });
   it("destroyed unfinished statements should throw", async () => {
@@ -85,8 +90,8 @@ describe("integration test", () => {
     const st1 = connection.execute("SELECT 1");
     const st2 = connection.execute("SELECT 2");
     await connection.destroy();
-    expect(st1).rejects.toThrow("Request was aborted");
-    expect(st2).rejects.toThrow("Request was aborted");
+    expect(st1).rejects.toThrow("The user aborted a request.");
+    expect(st2).rejects.toThrow("The user aborted a request.");
   });
 
   it("stream", async () => {
@@ -97,7 +102,6 @@ describe("integration test", () => {
     const connection = await firebolt.connect(connectionParams);
 
     const statement = await connection.execute("SELECT 1");
-    const stream = statement.streamRows();
-    console.log("stream", stream);
+    const stream = await statement.streamRows();
   });
 });

@@ -43,6 +43,10 @@ export class Connection {
     throw new Error("engineName or engineUrl should be provided");
   }
 
+  async ensureEngineRunning() {
+    return true;
+  }
+
   private getRequestUrl(executeQueryOptions: ExecuteQueryOptions) {
     const { settings } = executeQueryOptions;
     const { database } = this.options;
@@ -51,7 +55,7 @@ export class Connection {
   }
 
   private getRequestBody(query: string) {
-    return query.replace(/;\s*$/, "").trim();
+    return query.trim();
   }
 
   async execute(
@@ -80,22 +84,17 @@ export class Connection {
 
     this.activeRequests = this.activeRequests.add(request);
 
-    const response = await request.ready().catch(error => {
-      if (error.type === "aborted") {
-        throw new Error("Request was aborted");
-      }
-      throw error;
-    });
-
-    this.activeRequests.delete(request);
-
-    const statement = new Statement(this.context, {
-      query,
-      response,
-      executeQueryOptions
-    });
-
-    return statement;
+    try {
+      await request.ready();
+      const statement = new Statement(this.context, {
+        query,
+        request,
+        executeQueryOptions
+      });
+      return statement;
+    } finally {
+      this.activeRequests.delete(request);
+    }
   }
 
   async destroy() {

@@ -1,37 +1,32 @@
 import JSONbig from "json-bigint";
-import { Statistics, Meta, Row, ExecuteQueryOptions, Context } from "../types";
+import { ExecuteQueryOptions, Context } from "../types";
 import { isDataQuery } from "../common/util";
 import { RowStream } from "./stream/rowStream";
 import { normalizeResponse } from "./normalizeResponse";
 
 export class Statement {
   private context: Context;
-  data: Row[];
-  meta: Meta[];
-  statistics: Statistics | null;
+  private query: string;
+  private executeQueryOptions: ExecuteQueryOptions;
+  request: { ready: () => Promise<string>; abort: () => void };
 
   constructor(
     context: Context,
     {
       query,
-      response,
+      request,
       executeQueryOptions
     }: {
       query: string;
-      response: string;
+      request: { ready: () => Promise<string>; abort: () => void };
       executeQueryOptions: ExecuteQueryOptions;
     }
   ) {
     this.context = context;
 
-    const parsed = this.parseResponse(response, query);
-    const normalized = normalizeResponse(parsed, executeQueryOptions);
-
-    const { data, statistics, meta } = normalized;
-
-    this.data = data;
-    this.statistics = statistics;
-    this.meta = meta;
+    this.request = request;
+    this.query = query;
+    this.executeQueryOptions = executeQueryOptions;
   }
 
   private parseResponse(response: string, query: string) {
@@ -56,7 +51,21 @@ export class Statement {
     }
   }
 
-  streamRows(): RowStream {
+  async streamRows(): Promise<RowStream> {
+    await this.request.ready();
     return new RowStream();
+  }
+
+  async fetchRows() {
+    const response = await this.request.ready();
+    const parsed = this.parseResponse(response, this.query);
+    const normalized = normalizeResponse(parsed, this.executeQueryOptions);
+
+    const { data, statistics, meta } = normalized;
+    return {
+      data,
+      statistics,
+      meta
+    };
   }
 }

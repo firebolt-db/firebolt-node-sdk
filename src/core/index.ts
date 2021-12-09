@@ -17,6 +17,7 @@ export class FireboltCore {
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineDomain();
+    await connection.ensureEngineRunning();
     return connection;
   }
 }
