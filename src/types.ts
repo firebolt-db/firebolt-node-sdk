@@ -45,6 +45,14 @@ export type ExecuteQueryOptions = {
   response?: ResponseSettings;
 };
 
+export type ConnectionOptions = {
+  username: string;
+  password: string;
+  database: string;
+  engineName?: string;
+  engineUrl?: string;
+};
+
 export type Context = {
   logger: LoggerInterface;
   httpClient: HttpClientInterface;

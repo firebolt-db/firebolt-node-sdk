@@ -1,13 +1,10 @@
-import { ExecuteQueryOptions, OutputFormat, Context } from "../types";
+import {
+  ExecuteQueryOptions,
+  ConnectionOptions,
+  OutputFormat,
+  Context
+} from "../types";
 import { Statement } from "../statement";
-
-export type ConnectionOptions = {
-  username: string;
-  password: string;
-  database: string;
-  engineName?: string;
-  engineUrl?: string;
-};
 
 const defaultQuerySettings = {
   output_format: OutputFormat.JSON_COMPACT_LIMITED

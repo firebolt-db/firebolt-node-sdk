@@ -1,11 +1,7 @@
-import { ENGINE_ID_BY_NAME, ACCOUNTS } from "../common/api";
-import { Context } from "../types";
-
-type Engine = {
-  endpoint: string;
-};
-
-type EngineId = { engine_id: string; account_id: string };
+import { ENGINE_ID_BY_NAME, ACCOUNTS } from "../../common/api";
+import { Context } from "../../types";
+import { EngineModel } from "./model";
+import { ID, Engine } from "./types";
 
 export class EngineService {
   context: Context;
@@ -15,27 +11,27 @@ export class EngineService {
   }
 
   private async getEngineId(engineName: string) {
-    const { httpClient, apiUrl } = this.context;
+    const { apiUrl, httpClient } = this.context;
     const queryParams = new URLSearchParams({ engine_name: engineName });
     const url = `${apiUrl}/${ENGINE_ID_BY_NAME}?${queryParams}`;
     const data = await httpClient
-      .request<{ engine_id: EngineId }>("GET", url)
+      .request<{ engine_id: ID }>("GET", url)
       .ready();
     return data.engine_id;
   }
 
   async getById(engineId: string, accountId: string) {
-    const { httpClient, apiUrl } = this.context;
+    const { apiUrl, httpClient } = this.context;
     const url = `${apiUrl}/${ACCOUNTS}/${accountId}/engines/${engineId}`;
     const data = await httpClient
       .request<{ engine: Engine }>("GET", url)
       .ready();
-    return data.engine;
+    return new EngineModel(this.context, data.engine);
   }
 
   async getByName(engineName: string) {
     const { engine_id, account_id } = await this.getEngineId(engineName);
     const engine = await this.getById(engine_id, account_id);
-    return engine;
+    return new EngineModel(this.context, engine);
   }
 }

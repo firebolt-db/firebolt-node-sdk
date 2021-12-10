@@ -104,4 +104,27 @@ describe("integration test", () => {
     const statement = await connection.execute("SELECT 1");
     const stream = await statement.streamRows();
   });
+  it("failed test connection", async () => {
+    const firebolt = Firebolt({
+      apiUrl: process.env.FIREBOLT_API_URL as string
+    });
+
+    const response = await firebolt.testConnection({
+      username: process.env.FIREBOLT_USERNAME as string,
+      password: process.env.FIREBOLT_PASSWORD as string,
+      database: process.env.FIREBOLT_DATABASE as string,
+      engineName: "unknown_engine"
+    });
+
+    expect(response.success).toBeFalsy();
+  });
+  it("test connection", async () => {
+    const firebolt = Firebolt({
+      apiUrl: process.env.FIREBOLT_API_URL as string
+    });
+
+    const response = await firebolt.testConnection(connectionParams);
+
+    expect(response.success).toBeTruthy();
+  });
 });

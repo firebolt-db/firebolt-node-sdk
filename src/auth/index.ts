@@ -1,6 +1,5 @@
 import { LOGIN, REFRESH } from "../common/api";
-import { ConnectionOptions } from "../connection";
-import { Context } from "../types";
+import { Context, ConnectionOptions } from "../types";
 
 type Login = {
   access_token: string;
