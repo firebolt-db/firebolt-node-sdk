@@ -1,5 +1,6 @@
 import { Firebolt } from "../../src/index";
 import { OutputFormat } from "../../src/types";
+import * as fs from "fs";
 
 const connectionParams = {
   username: process.env.FIREBOLT_USERNAME as string,
@@ -113,6 +114,10 @@ describe("integration test", () => {
       console.log(metadata);
     });
 
+    data.on("error", error => {
+      console.log("could be parse error", error);
+    });
+
     const meta = await metaPromise;
 
     for await (const row of data) {
@@ -144,5 +149,17 @@ describe("integration test", () => {
     const response = await firebolt.testConnection(connectionParams);
 
     expect(response.success).toBeTruthy();
+  });
+  it.only("custom parser", async () => {
+    const firebolt = Firebolt({
+      apiUrl: process.env.FIREBOLT_API_URL as string
+    });
+
+    const response = await firebolt.testConnection({
+      username: process.env.FIREBOLT_USERNAME as string,
+      password: process.env.FIREBOLT_PASSWORD as string,
+      database: process.env.FIREBOLT_DATABASE as string,
+      engineName: "unknown_engine"
+    });
   });
 });

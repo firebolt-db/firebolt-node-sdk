@@ -1,3 +1,4 @@
+import JSONbig from "json-bigint";
 import { RowStream } from "./rowStream";
 
 export class JSONStream {
@@ -59,7 +60,8 @@ export class JSONStream {
 
   handleMetaArray(line: string) {
     if (line.match(/^},?$/)) {
-      const column = JSON.parse(this.objBuffer + "}");
+      const columnStr = this.objBuffer + "}";
+      const column = JSONbig.parse(columnStr);
       this.columns.push(column);
       this.objBuffer = undefined;
     } else if (line === "{") {
@@ -74,16 +76,18 @@ export class JSONStream {
 
   handleDataArray(line: string) {
     if (line.match(/^[\]}],?$/) && this.objBuffer) {
-      this.rows.push(JSON.parse(this.objBuffer + line[0]));
+      const rowStr = this.objBuffer + line[0];
+      const row = JSON.parse(rowStr);
+      this.rows.push(row);
       this.objBuffer = undefined;
     } else if (line === "{" || line === "[") {
       this.objBuffer = line;
     } else if (line.match(/^],?$/)) {
       this.state = "rootKeys";
     } else if (this.objBuffer === undefined) {
-      const lineStr =
+      const rowStr =
         line[line.length - 1] !== "," ? line : line.substr(0, line.length - 1);
-      const row = JSON.parse(lineStr);
+      const row = JSON.parse(rowStr);
       this.rows.push(row);
     } else {
       this.objBuffer += line;

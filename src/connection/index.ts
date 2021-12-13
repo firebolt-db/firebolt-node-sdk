@@ -1,4 +1,5 @@
 import { Response } from "node-fetch";
+import JSONbig from "json-bigint";
 import {
   ExecuteQueryOptions,
   ConnectionOptions,
@@ -13,7 +14,9 @@ const defaultQuerySettings = {
 };
 
 const defaultResponseSettings = {
-  normalizeData: false
+  normalizeData: false,
+  rowParser: (row: string) => JSONbig.parse(row),
+  responseParser: (response: string) => JSONbig.parse(response)
 };
 
 export class Connection {

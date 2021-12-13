@@ -37,6 +37,8 @@ export type QuerySettings = {
 
 export type ResponseSettings = {
   normalizeData?: boolean;
+  rowParser: (row: string) => unknown;
+  responseParser: (response: string) => unknown;
 };
 
 export type ExecuteQueryOptions = {

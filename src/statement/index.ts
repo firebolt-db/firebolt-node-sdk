@@ -85,9 +85,8 @@ export class Statement {
       rejectStatistics = reject;
     });
 
-    let symbolsTransferred = 0;
-    let str;
-    let error;
+    let str: Buffer;
+    let error: Buffer;
 
     if (response.status === 200) {
       str = Buffer.alloc(0);
@@ -103,68 +102,45 @@ export class Statement {
       resolveStatistics(statistics);
     });
 
-    for await (const chunk of response.body) {
-      try {
-        symbolsTransferred += chunk.length;
-        // content type should be application/json?
-        // maybe in the future it will change
-        const contentType = response.headers.get("content-type");
+    response.body.on("error", error => {
+      this.rowStream.emit("error", error);
+      rejectStatistics();
+      rejectMetadata();
+    });
 
-        if (chunk.lastIndexOf("\n") !== -1 && str) {
-          // store in buffer anything after
-          const newLinePos = chunk.lastIndexOf("\n");
-          const remains = (chunk as Buffer).slice(newLinePos + 1);
+    response.body.on("data", (chunk: Buffer) => {
+      // content type should be application/json?
+      // maybe in the future it will change
+      const contentType = response.headers.get("content-type");
 
-          Buffer.concat([str, (chunk as Buffer).slice(0, newLinePos)])
-            .toString("utf8")
-            .split("\n")
-            .forEach(line => jsonParser.processLine(line));
+      if (chunk.lastIndexOf("\n") !== -1 && str) {
+        // store in buffer anything after
+        const newLinePos = chunk.lastIndexOf("\n");
+        const remains = chunk.slice(newLinePos + 1);
 
-          for (const row of jsonParser.rows) {
-            this.rowStream.push(row);
-          }
+        Buffer.concat([str, chunk.slice(0, newLinePos)])
+          .toString("utf8")
+          .split("\n")
+          .forEach(line => jsonParser.processLine(line));
 
-          jsonParser.rows = [];
-          str = remains;
-        } else {
-          error = Buffer.concat([error as Buffer, chunk as Buffer]);
+        for (const row of jsonParser.rows) {
+          this.rowStream.push(row);
         }
-      } catch (err) {
-        console.log(err);
-        throw err;
+
+        jsonParser.rows = [];
+        str = remains;
+      } else {
+        error = Buffer.concat([error, chunk]);
       }
-    }
+    });
 
-    this.rowStream.push(null);
-
-    // response.body.on("error", error => {});
-
-    // response.body.on("data", chunk => {
-    //   symbolsTransferred += chunk.length;
-    //   // content type should be application/json?
-    //   // maybe in the future it will change
-    //   const contentType = response.headers.get("content-type");
-
-    //   if (chunk.lastIndexOf("\n") !== -1 && str) {
-    //     // store in buffer anything after
-    //     const newLinePos = chunk.lastIndexOf("\n");
-    //     const remains = (chunk as Buffer).slice(newLinePos + 1);
-
-    //     Buffer.concat([str, (chunk as Buffer).slice(0, newLinePos)])
-    //       .toString("utf8")
-    //       .split("\n")
-    //       .forEach(line => jsonParser.processLine(line));
-
-    //     for (const row of jsonParser.rows) {
-    //       this.rowStream.push(row);
-    //     }
-
-    //     jsonParser.rows = [];
-    //     str = remains;
-    //   } else {
-    //     error = Buffer.concat([error as Buffer, chunk as Buffer]);
-    //   }
-    // });
+    response.body.on("end", () => {
+      if (error) {
+        this.rowStream.emit("error", error);
+        return;
+      }
+      this.rowStream.push(null);
+    });
 
     return {
       data: this.rowStream,
