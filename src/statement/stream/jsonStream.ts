@@ -6,18 +6,11 @@ export class JSONStream {
   options?: StreamOptions;
   emitter: RowStream;
   rowParser: RowParser;
-  state:
-    | "meta"
-    | "meta-array"
-    | "rootKeys"
-    | "data"
-    | "data-array"
-    | "statistics"
-    | "statistics-object"
-    | null;
+  state: "meta" | "meta-array" | "rootKeys" | "data" | "data-array" | null;
 
   columns: unknown[];
   rows: unknown[];
+  rest: string;
 
   objBuffer?: string;
 
@@ -37,6 +30,12 @@ export class JSONStream {
 
     this.columns = [];
     this.rows = [];
+    this.rest = "{";
+  }
+
+  parseRest() {
+    const parsed = JSONbig.parse(this.rest);
+    return parsed;
   }
 
   handleRoot(line: string) {
@@ -54,20 +53,14 @@ export class JSONStream {
       this.state = "meta-array";
     } else if (line === '"data": [') {
       this.state = "data-array";
-    } else if (line === "statistics:") {
-      this.state = "statistics";
+    } else {
+      this.rest += line;
     }
   }
 
   handleMeta(line: string) {
     if (line === "[") {
       this.state = "meta-array";
-    }
-  }
-
-  handleStatistics(line: string) {
-    if (line === "{") {
-      this.state = "statistics-object";
     }
   }
 

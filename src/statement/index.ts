@@ -5,20 +5,23 @@ import {
   StreamOptions,
   Context,
   Meta,
-  Statistics
+  ResultRest
 } from "../types";
 import { isDataQuery } from "../common/util";
 import { RowStream } from "./stream/rowStream";
 import { JSONStream } from "./stream/jsonStream";
-import { normalizeResponse } from "./normalizeResponse";
+import {
+  normalizeResponse,
+  getNormalizedStatistics
+} from "./normalizeResponse";
 
 export class Statement {
   private context: Context;
   private query: string;
   private executeQueryOptions: ExecuteQueryOptions;
 
-  request: { ready: () => Promise<Response>; abort: () => void };
-  rowStream: RowStream;
+  private request: { ready: () => Promise<Response>; abort: () => void };
+  private rowStream: RowStream;
 
   constructor(
     context: Context,
@@ -74,7 +77,7 @@ export class Statement {
     let resolveMetadata: (metadata: Meta[]) => void;
     let rejectMetadata: (reason?: any) => void;
 
-    let resolveStatistics: (statistics: Statistics) => void;
+    let resolveStatistics: (statistics: ResultRest) => void;
     let rejectStatistics: (reason?: any) => void;
 
     const metadataPromise = new Promise<Meta[]>((resolve, reject) => {
@@ -82,7 +85,7 @@ export class Statement {
       rejectMetadata = reject;
     });
 
-    const statisticsPromise = new Promise<Statistics>((resolve, reject) => {
+    const statisticsPromise = new Promise<ResultRest>((resolve, reject) => {
       resolveStatistics = resolve;
       rejectStatistics = reject;
     });
@@ -93,7 +96,7 @@ export class Statement {
       resolveMetadata(metadata);
     });
 
-    this.rowStream.on("statistics", (statistics: Statistics) => {
+    this.rowStream.on("statistics", (statistics: ResultRest) => {
       resolveStatistics(statistics);
     });
 
@@ -135,7 +138,14 @@ export class Statement {
     });
 
     response.body.on("end", () => {
-      this.rowStream.push(null);
+      try {
+        const rest = jsonParser.parseRest();
+        const data = { ...rest, statistics: getNormalizedStatistics(rest) };
+        this.rowStream.emit("statistics", data);
+        this.rowStream.push(null);
+      } catch (error) {
+        errorHandler(error);
+      }
     });
 
     return {

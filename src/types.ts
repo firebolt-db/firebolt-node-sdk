@@ -17,6 +17,8 @@ export type Meta = {
   type: string;
 };
 
+export type ResultRest = Record<string, unknown> & { statistics: Statistics };
+
 export type Row = Record<string, unknown> | unknown[];
 
 export type QueryResponse = {

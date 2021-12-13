@@ -117,7 +117,7 @@ const getNormalizedMeta = (response: ParsedResponse): Meta[] => {
   return response.meta;
 };
 
-const getNormalizedStatistics = (response: ParsedResponse) => {
+export const getNormalizedStatistics = (response: ParsedResponse) => {
   if (response.statistics) {
     const {
       elapsed,

@@ -105,7 +105,11 @@ describe("integration test", () => {
       "SELECT * from ex_lineitem limit 100"
     );
 
-    const { data, meta: metaPromise } = await statement.streamResult();
+    const {
+      data,
+      meta: metaPromise,
+      statistics: statisticsPromise
+    } = await statement.streamResult();
 
     const rows: unknown[] = [];
 
@@ -118,6 +122,7 @@ describe("integration test", () => {
     });
 
     const meta = await metaPromise;
+    const statistics = await statisticsPromise;
 
     for await (const row of data) {
       rows.push(row);
@@ -125,6 +130,7 @@ describe("integration test", () => {
     expect(rows.length).toEqual(100);
 
     console.log(meta);
+    console.log(statistics);
   });
   it("failed test connection", async () => {
     const firebolt = Firebolt({
