@@ -1,6 +1,12 @@
 import JSONbig from "json-bigint";
 import { Response } from "node-fetch";
-import { ExecuteQueryOptions, Context, Meta, Statistics } from "../types";
+import {
+  ExecuteQueryOptions,
+  StreamOptions,
+  Context,
+  Meta,
+  Statistics
+} from "../types";
 import { isDataQuery } from "../common/util";
 import { RowStream } from "./stream/rowStream";
 import { JSONStream } from "./stream/jsonStream";
@@ -12,7 +18,6 @@ export class Statement {
   private executeQueryOptions: ExecuteQueryOptions;
 
   request: { ready: () => Promise<Response>; abort: () => void };
-  response: Response;
   rowStream: RowStream;
 
   constructor(
@@ -20,19 +25,16 @@ export class Statement {
     {
       query,
       request,
-      response,
       executeQueryOptions
     }: {
       query: string;
       request: { ready: () => Promise<Response>; abort: () => void };
-      response: Response;
       executeQueryOptions: ExecuteQueryOptions;
     }
   ) {
     this.context = context;
 
     this.request = request;
-    this.response = response;
     this.query = query;
     this.executeQueryOptions = executeQueryOptions;
 
@@ -65,9 +67,9 @@ export class Statement {
     }
   }
 
-  async streamResult() {
+  async streamResult(options?: StreamOptions) {
     const response = await this.request.ready();
-    const jsonParser = new JSONStream(this.rowStream);
+    const jsonParser = new JSONStream({ emitter: this.rowStream, options });
 
     let resolveMetadata: (metadata: Meta[]) => void;
     let rejectMetadata: (reason?: any) => void;
@@ -85,14 +87,7 @@ export class Statement {
       rejectStatistics = reject;
     });
 
-    let str: Buffer;
-    let error: Buffer;
-
-    if (response.status === 200) {
-      str = Buffer.alloc(0);
-    } else {
-      error = Buffer.alloc(0);
-    }
+    let str = Buffer.alloc(0);
 
     this.rowStream.on("metadata", (metadata: Meta[]) => {
       resolveMetadata(metadata);
@@ -102,11 +97,13 @@ export class Statement {
       resolveStatistics(statistics);
     });
 
-    response.body.on("error", error => {
+    const errorHandler = (error: any) => {
       this.rowStream.emit("error", error);
-      rejectStatistics();
-      rejectMetadata();
-    });
+      rejectStatistics(error);
+      rejectMetadata(error);
+    };
+
+    response.body.on("error", errorHandler);
 
     response.body.on("data", (chunk: Buffer) => {
       // content type should be application/json?
@@ -115,30 +112,29 @@ export class Statement {
 
       if (chunk.lastIndexOf("\n") !== -1 && str) {
         // store in buffer anything after
-        const newLinePos = chunk.lastIndexOf("\n");
-        const remains = chunk.slice(newLinePos + 1);
+        const newLinePosition = chunk.lastIndexOf("\n");
+        const rest = chunk.slice(newLinePosition + 1);
 
-        Buffer.concat([str, chunk.slice(0, newLinePos)])
-          .toString("utf8")
-          .split("\n")
-          .forEach(line => jsonParser.processLine(line));
+        try {
+          Buffer.concat([str, chunk.slice(0, newLinePosition)])
+            .toString("utf8")
+            .split("\n")
+            .forEach(line => jsonParser.processLine(line));
+        } catch (error) {
+          errorHandler(error);
+          return;
+        }
 
         for (const row of jsonParser.rows) {
           this.rowStream.push(row);
         }
 
         jsonParser.rows = [];
-        str = remains;
-      } else {
-        error = Buffer.concat([error, chunk]);
+        str = rest;
       }
     });
 
     response.body.on("end", () => {
-      if (error) {
-        this.rowStream.emit("error", error);
-        return;
-      }
       this.rowStream.push(null);
     });
 

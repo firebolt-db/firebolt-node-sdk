@@ -35,16 +35,21 @@ export type QuerySettings = {
   output_format?: OutputFormat;
 };
 
+export type RowParser = (row: string) => any;
+
 export type ResponseSettings = {
   normalizeData?: boolean;
-  rowParser: (row: string) => unknown;
-  responseParser: (response: string) => unknown;
+  responseParser?: (response: string) => unknown;
 };
 
 export type ExecuteQueryOptions = {
   settings?: QuerySettings;
   paramters?: Parameter[];
   response?: ResponseSettings;
+};
+
+export type StreamOptions = {
+  rowParser?: RowParser;
 };
 
 export type ConnectionOptions = {

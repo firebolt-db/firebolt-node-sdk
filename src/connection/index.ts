@@ -15,7 +15,6 @@ const defaultQuerySettings = {
 
 const defaultResponseSettings = {
   normalizeData: false,
-  rowParser: (row: string) => JSONbig.parse(row),
   responseParser: (response: string) => JSONbig.parse(response)
 };
 
@@ -87,11 +86,10 @@ export class Connection {
     this.activeRequests = this.activeRequests.add(request);
 
     try {
-      const response = await request.ready();
+      await request.ready();
       const statement = new Statement(this.context, {
         query,
         request,
-        response,
         executeQueryOptions
       });
       return statement;

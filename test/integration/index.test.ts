@@ -1,6 +1,5 @@
 import { Firebolt } from "../../src/index";
 import { OutputFormat } from "../../src/types";
-import * as fs from "fs";
 
 const connectionParams = {
   username: process.env.FIREBOLT_USERNAME as string,
@@ -123,9 +122,9 @@ describe("integration test", () => {
     for await (const row of data) {
       rows.push(row);
     }
+    expect(rows.length).toEqual(100);
 
     console.log(meta);
-    console.log(rows);
   });
   it("failed test connection", async () => {
     const firebolt = Firebolt({
@@ -150,16 +149,23 @@ describe("integration test", () => {
 
     expect(response.success).toBeTruthy();
   });
-  it.only("custom parser", async () => {
+  it("custom parser", async () => {
     const firebolt = Firebolt({
       apiUrl: process.env.FIREBOLT_API_URL as string
     });
 
-    const response = await firebolt.testConnection({
-      username: process.env.FIREBOLT_USERNAME as string,
-      password: process.env.FIREBOLT_PASSWORD as string,
-      database: process.env.FIREBOLT_DATABASE as string,
-      engineName: "unknown_engine"
+    const connection = await firebolt.connect(connectionParams);
+
+    const statement = await connection.execute(
+      "SELECT * from ex_lineitem limit 10"
+    );
+
+    // to achieve seamless stream pipes you can use through2
+    // or rowparser that returns strings or Buffer
+    const { data } = await statement.streamResult({
+      rowParser: (row: string) => `${row}\n`
     });
+
+    data.pipe(process.stdout);
   });
 });

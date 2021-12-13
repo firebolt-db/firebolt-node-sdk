@@ -1,8 +1,11 @@
 import JSONbig from "json-bigint";
+import { StreamOptions, RowParser } from "../../types";
 import { RowStream } from "./rowStream";
 
 export class JSONStream {
+  options?: StreamOptions;
   emitter: RowStream;
+  rowParser: RowParser;
   state:
     | "meta"
     | "meta-array"
@@ -18,9 +21,19 @@ export class JSONStream {
 
   objBuffer?: string;
 
-  constructor(emitter: RowStream) {
+  constructor({
+    emitter,
+    options
+  }: {
+    emitter: RowStream;
+    options?: StreamOptions;
+  }) {
     this.state = null;
     this.emitter = emitter;
+    this.options = options;
+
+    this.rowParser =
+      this.options?.rowParser || ((row: string) => JSONbig.parse(row));
 
     this.columns = [];
     this.rows = [];
@@ -77,7 +90,7 @@ export class JSONStream {
   handleDataArray(line: string) {
     if (line.match(/^[\]}],?$/) && this.objBuffer) {
       const rowStr = this.objBuffer + line[0];
-      const row = JSON.parse(rowStr);
+      const row = this.rowParser(rowStr);
       this.rows.push(row);
       this.objBuffer = undefined;
     } else if (line === "{" || line === "[") {
@@ -87,7 +100,7 @@ export class JSONStream {
     } else if (this.objBuffer === undefined) {
       const rowStr =
         line[line.length - 1] !== "," ? line : line.substr(0, line.length - 1);
-      const row = JSON.parse(rowStr);
+      const row = this.rowParser(rowStr);
       this.rows.push(row);
     } else {
       this.objBuffer += line;
