@@ -1,4 +1,4 @@
-import { ENGINE_ID_BY_NAME, ACCOUNTS } from "../../common/api";
+import { ENGINES, ACCOUNTS } from "../../common/api";
 import { Context } from "../../types";
 import { EngineModel } from "./model";
 import { ID, Engine } from "./types";
@@ -13,7 +13,7 @@ export class EngineService {
   private async getEngineId(engineName: string) {
     const { apiUrl, httpClient } = this.context;
     const queryParams = new URLSearchParams({ engine_name: engineName });
-    const url = `${apiUrl}/${ENGINE_ID_BY_NAME}?${queryParams}`;
+    const url = `${apiUrl}/${ENGINES}:getIdByName?${queryParams}`;
     const data = await httpClient
       .request<{ engine_id: ID }>("GET", url)
       .ready();
