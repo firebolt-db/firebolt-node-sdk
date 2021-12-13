@@ -28,7 +28,10 @@ export class NodeHttpClient {
     method: string,
     url: string,
     options?: RequestOptions
-  ): { ready: () => Promise<T>; abort: () => void } {
+  ): {
+    ready: () => Promise<T>;
+    abort: () => void;
+  } {
     const { headers = {}, body, retry = true } = options || {};
     const controller = new AbortController();
 
@@ -88,8 +91,13 @@ export class NodeHttpClient {
         }
       }
 
+      if (options?.raw) {
+        return response;
+      }
+
       if (options?.text) {
-        return response.text() as unknown as T;
+        const text = await response.text();
+        return text;
       }
 
       const parsed = await response.json();
@@ -98,7 +106,7 @@ export class NodeHttpClient {
 
     const promise = makeRequest();
 
-    const ready = () => promise;
+    const ready = () => promise as Promise<T>;
 
     return {
       abort,

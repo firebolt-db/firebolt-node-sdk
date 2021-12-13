@@ -19,7 +19,7 @@ describe("integration test", () => {
     const connection = await firebolt.connect(connectionParams);
 
     const statement = await connection.execute("SELECT 1");
-    const { data, meta } = await statement.fetchRows();
+    const { data, meta } = await statement.fetchResult();
     expect(data.length).toEqual(1);
     expect(meta.length).toEqual(1);
   });
@@ -33,7 +33,7 @@ describe("integration test", () => {
       settings: { output_format: OutputFormat.JSON },
       response: { normalizeData: false }
     });
-    const { data } = await statement.fetchRows();
+    const { data } = await statement.fetchResult();
     const row = data[0];
     expect(row).toMatchObject({ "1": 1 });
   });
@@ -44,7 +44,7 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
     const statement = await connection.execute("SELECT now()");
-    const { data } = await statement.fetchRows();
+    const { data } = await statement.fetchResult();
     const row = data[0];
     if (Array.isArray(row)) {
       const value = row[0];
@@ -79,7 +79,7 @@ describe("integration test", () => {
 
     await expect(async () => {
       const statement = await connection.execute("SELECT 1");
-      await statement.fetchRows();
+      await statement.fetchResult();
     }).rejects.toThrow();
   });
   it("destroyed unfinished statements should throw", async () => {
@@ -101,8 +101,26 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("SELECT 1");
-    const stream = await statement.streamRows();
+    const statement = await connection.execute(
+      "SELECT * from ex_lineitem limit 100"
+    );
+
+    const { data, meta: metaPromise } = await statement.streamResult();
+
+    const rows: unknown[] = [];
+
+    data.on("metadata", metadata => {
+      console.log(metadata);
+    });
+
+    const meta = await metaPromise;
+
+    for await (const row of data) {
+      rows.push(row);
+    }
+
+    console.log(meta);
+    console.log(rows);
   });
   it("failed test connection", async () => {
     const firebolt = Firebolt({

@@ -1,9 +1,11 @@
+import { Response } from "node-fetch";
 import {
   ExecuteQueryOptions,
   ConnectionOptions,
   OutputFormat,
   Context
 } from "../types";
+
 import { Statement } from "../statement";
 
 const defaultQuerySettings = {
@@ -74,18 +76,19 @@ export class Connection {
     const body = this.getRequestBody(query);
     const url = this.getRequestUrl(executeQueryOptions);
 
-    const request = httpClient.request<string>("POST", url, {
+    const request = httpClient.request<Response>("POST", url, {
       body,
-      text: true
+      raw: true
     });
 
     this.activeRequests = this.activeRequests.add(request);
 
     try {
-      await request.ready();
+      const response = await request.ready();
       const statement = new Statement(this.context, {
         query,
         request,
+        response,
         executeQueryOptions
       });
       return statement;
