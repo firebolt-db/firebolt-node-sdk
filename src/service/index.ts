@@ -10,7 +10,7 @@ export class ResourceManager {
   constructor(context: {
     httpClient: HttpClientInterface;
     logger: LoggerInterface;
-    apiUrl: string;
+    apiEndpoint: string;
   }) {
     this.context = {
       ...context,

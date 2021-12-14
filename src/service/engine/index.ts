@@ -11,9 +11,9 @@ export class EngineService {
   }
 
   private async getEngineId(engineName: string) {
-    const { apiUrl, httpClient } = this.context;
+    const { apiEndpoint, httpClient } = this.context;
     const queryParams = new URLSearchParams({ engine_name: engineName });
-    const url = `${apiUrl}/${ENGINES}:getIdByName?${queryParams}`;
+    const url = `${apiEndpoint}/${ENGINES}:getIdByName?${queryParams}`;
     const data = await httpClient
       .request<{ engine_id: ID }>("GET", url)
       .ready();
@@ -21,8 +21,8 @@ export class EngineService {
   }
 
   async getById(engineId: string, accountId: string) {
-    const { apiUrl, httpClient } = this.context;
-    const url = `${apiUrl}/${ACCOUNTS}/${accountId}/engines/${engineId}`;
+    const { apiEndpoint, httpClient } = this.context;
+    const url = `${apiEndpoint}/${ACCOUNTS}/${accountId}/engines/${engineId}`;
     const data = await httpClient
       .request<{ engine: Engine }>("GET", url)
       .ready();

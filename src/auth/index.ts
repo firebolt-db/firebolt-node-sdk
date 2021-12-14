@@ -29,9 +29,9 @@ export class Authenticator {
   }
 
   async refreshAccessToken() {
-    const { httpClient, apiUrl } = this.context;
+    const { httpClient, apiEndpoint } = this.context;
 
-    const url = `${apiUrl}/${REFRESH}`;
+    const url = `${apiEndpoint}/${REFRESH}`;
     const body = JSON.stringify({
       refresh_token: this.refreshToken
     });
@@ -49,9 +49,9 @@ export class Authenticator {
   }
 
   async authenticate() {
-    const { httpClient, apiUrl } = this.context;
+    const { httpClient, apiEndpoint } = this.context;
     const { username, password } = this.options;
-    const url = `${apiUrl}/${LOGIN}`;
+    const url = `${apiEndpoint}/${LOGIN}`;
     const body = JSON.stringify({
       username,
       password

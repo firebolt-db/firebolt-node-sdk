@@ -5,11 +5,11 @@ import { NodeHttpClient } from "../../src/http/node";
 import { Logger } from "../../src/logger/node";
 import { ResourceManager } from "../../src/service";
 
-const apiUrl = "fake.api.com";
+const apiEndpoint = "fake.api.com";
 const logger = new Logger();
 
 const authHandler = rest.post(
-  `https://${apiUrl}/auth/v1/login`,
+  `https://${apiEndpoint}/auth/v1/login`,
   (req, res, ctx) => {
     return res(
       ctx.json({
@@ -31,9 +31,13 @@ describe("http client", () => {
 
   it("stores access token", async () => {
     const httpClient = new NodeHttpClient();
-    const resourceManager = new ResourceManager({ httpClient, apiUrl, logger });
+    const resourceManager = new ResourceManager({
+      httpClient,
+      apiEndpoint,
+      logger
+    });
     const authenticator = new Authenticator(
-      { httpClient, apiUrl, logger, resourceManager },
+      { httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
         password: "fake_password",
@@ -47,9 +51,13 @@ describe("http client", () => {
   });
   it("sends access token in headers", async () => {
     const httpClient = new NodeHttpClient();
-    const resourceManager = new ResourceManager({ httpClient, apiUrl, logger });
+    const resourceManager = new ResourceManager({
+      httpClient,
+      apiEndpoint,
+      logger
+    });
     const authenticator = new Authenticator(
-      { httpClient, apiUrl, logger, resourceManager },
+      { httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
         password: "fake_password",
@@ -58,7 +66,7 @@ describe("http client", () => {
     );
     server.use(
       authHandler,
-      rest.post(`https://${apiUrl}/engines`, (req, res, ctx) => {
+      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
         expect(req.headers.get("Authorization")).toEqual(
           "Bearer fake_access_token"
         );
@@ -66,13 +74,17 @@ describe("http client", () => {
       })
     );
     await authenticator.authenticate();
-    await httpClient.request("POST", `${apiUrl}/engines`).ready();
+    await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
   });
   it("throw error if status > 300", async () => {
     const httpClient = new NodeHttpClient();
-    const resourceManager = new ResourceManager({ httpClient, apiUrl, logger });
+    const resourceManager = new ResourceManager({
+      httpClient,
+      apiEndpoint,
+      logger
+    });
     const authenticator = new Authenticator(
-      { httpClient, apiUrl, logger, resourceManager },
+      { httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
         password: "fake_password",
@@ -81,7 +93,7 @@ describe("http client", () => {
     );
     server.use(
       authHandler,
-      rest.post(`https://${apiUrl}/engines`, (req, res, ctx) => {
+      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
         return res(
           ctx.status(404),
           ctx.json({ message: "Record not found", code: 42 })
@@ -90,15 +102,19 @@ describe("http client", () => {
     );
     await authenticator.authenticate();
     expect(async () => {
-      await httpClient.request("POST", `${apiUrl}/engines`).ready();
+      await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
     }).rejects.toThrow("Record not found");
   });
   it("refresh token on 401", async () => {
     const statusMock = jest.fn().mockReturnValueOnce(401).mockReturnValue(200);
     const httpClient = new NodeHttpClient();
-    const resourceManager = new ResourceManager({ httpClient, apiUrl, logger });
+    const resourceManager = new ResourceManager({
+      httpClient,
+      apiEndpoint,
+      logger
+    });
     const authenticator = new Authenticator(
-      { httpClient, apiUrl, logger, resourceManager },
+      { httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
         password: "fake_password",
@@ -107,14 +123,14 @@ describe("http client", () => {
     );
     server.use(
       authHandler,
-      rest.post(`https://${apiUrl}/auth/v1/refresh`, (req, res, ctx) => {
+      rest.post(`https://${apiEndpoint}/auth/v1/refresh`, (req, res, ctx) => {
         return res(
           ctx.json({
             access_token: "new_access_token"
           })
         );
       }),
-      rest.post(`https://${apiUrl}/engines`, (req, res, ctx) => {
+      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
         return res(
           ctx.status(statusMock()),
           ctx.json({ message: "Unauthorized", code: 401 })
@@ -123,7 +139,7 @@ describe("http client", () => {
     );
     await authenticator.authenticate();
     const initialAccessToken = authenticator.accessToken;
-    await httpClient.request("POST", `${apiUrl}/engines`).ready();
+    await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
     expect(initialAccessToken).not.toEqual(authenticator.accessToken);
   });
 });

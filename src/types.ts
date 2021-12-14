@@ -59,12 +59,12 @@ export type ConnectionOptions = {
   password: string;
   database: string;
   engineName?: string;
-  engineUrl?: string;
+  engineEndpoint?: string;
 };
 
 export type Context = {
   logger: LoggerInterface;
   httpClient: HttpClientInterface;
   resourceManager: ResourceManager;
-  apiUrl: string;
+  apiEndpoint: string;
 };

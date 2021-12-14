@@ -4,14 +4,14 @@ import { NodeHttpClient } from "../../src/http/node";
 import { Logger } from "../../src/logger/node";
 import { ResourceManager } from "../../src/service";
 
-const apiUrl = "fake.api.com";
+const apiEndpoint = "fake.api.com";
 const logger = new Logger();
 
 describe("engine service", () => {
   const server = setupServer();
   server.use(
     rest.get(
-      `https://${apiUrl}/core/v1/account/engines:getIdByName`,
+      `https://${apiEndpoint}/core/v1/account/engines:getIdByName`,
       (req, res, ctx) => {
         const engine_id = {
           engine_id: "123",
@@ -21,7 +21,7 @@ describe("engine service", () => {
       }
     ),
     rest.get(
-      `https://${apiUrl}/core/v1/accounts/some_account/engines/123`,
+      `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123`,
       (req, res, ctx) => {
         return res(
           ctx.json({
@@ -44,14 +44,22 @@ describe("engine service", () => {
 
   it("gets engine by name", async () => {
     const httpClient = new NodeHttpClient();
-    const resourceManager = new ResourceManager({ httpClient, apiUrl, logger });
+    const resourceManager = new ResourceManager({
+      httpClient,
+      apiEndpoint,
+      logger
+    });
     const engine = await resourceManager.engine.getByName("some_engine");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
   });
   it("gets engine by id", async () => {
     const httpClient = new NodeHttpClient();
-    const resourceManager = new ResourceManager({ httpClient, apiUrl, logger });
+    const resourceManager = new ResourceManager({
+      httpClient,
+      apiEndpoint,
+      logger
+    });
     const engine = await resourceManager.engine.getById("123", "some_account");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");

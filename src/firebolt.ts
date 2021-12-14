@@ -9,14 +9,14 @@ type Dependencies = {
   httpClient: HttpClient;
 };
 
-const DEFAULT_API_URL = "api.firebolt.io";
+const DEFAULT_API_ENDPOINT = "api.firebolt.io";
 
 export const FireboltClient = (dependencies: Dependencies) => {
   return (options: Options = {}) => {
     const {
       logger: loggerOptions,
       client: clientOptions,
-      apiUrl = DEFAULT_API_URL
+      apiEndpoint = DEFAULT_API_ENDPOINT
     } = options;
 
     const { logger: DefaultLogger, httpClient: DefaultHttpClient } =
@@ -31,7 +31,7 @@ export const FireboltClient = (dependencies: Dependencies) => {
     const context = {
       logger,
       httpClient,
-      apiUrl
+      apiEndpoint
     };
 
     const instanceContext = {

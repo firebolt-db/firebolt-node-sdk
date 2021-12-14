@@ -13,7 +13,7 @@ jest.setTimeout(15000);
 describe("integration test", () => {
   it("works", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     const connection = await firebolt.connect(connectionParams);
@@ -25,7 +25,7 @@ describe("integration test", () => {
   });
   it("json output format", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     const connection = await firebolt.connect(connectionParams);
@@ -39,7 +39,7 @@ describe("integration test", () => {
   });
   it("returns Date type", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     const connection = await firebolt.connect(connectionParams);
@@ -53,7 +53,7 @@ describe("integration test", () => {
   });
   it("fails on no engine found", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     await expect(async () => {
@@ -67,14 +67,14 @@ describe("integration test", () => {
 
   it("fails on wrong engine url", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     const connection = await firebolt.connect({
       username: process.env.FIREBOLT_USERNAME as string,
       password: process.env.FIREBOLT_PASSWORD as string,
       database: process.env.FIREBOLT_DATABASE as string,
-      engineUrl: "bad engine url"
+      engineEndpoint: "bad engine url"
     });
 
     await expect(async () => {
@@ -84,7 +84,7 @@ describe("integration test", () => {
   });
   it("destroyed unfinished statements should throw", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
     const connection = await firebolt.connect(connectionParams);
     const st1 = connection.execute("SELECT 1");
@@ -96,7 +96,7 @@ describe("integration test", () => {
 
   it("stream", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     const connection = await firebolt.connect(connectionParams);
@@ -134,7 +134,7 @@ describe("integration test", () => {
   });
   it("failed test connection", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     const response = await firebolt.testConnection({
@@ -148,7 +148,7 @@ describe("integration test", () => {
   });
   it("test connection", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     const response = await firebolt.testConnection(connectionParams);
@@ -157,7 +157,7 @@ describe("integration test", () => {
   });
   it("custom parser", async () => {
     const firebolt = Firebolt({
-      apiUrl: process.env.FIREBOLT_API_URL as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     const connection = await firebolt.connect(connectionParams);

@@ -21,7 +21,7 @@ const defaultResponseSettings = {
 export class Connection {
   private context: Context;
   private options: ConnectionOptions;
-  engineDomain!: string;
+  engineEndpoint!: string;
   activeRequests = new Set<{ abort: () => void }>();
 
   constructor(context: Context, options: ConnectionOptions) {
@@ -29,17 +29,17 @@ export class Connection {
     this.options = options;
   }
 
-  async resolveEngineDomain() {
+  async resolveEngineEndpoint() {
     const { resourceManager } = this.context;
-    const { engineName, engineUrl } = this.options;
-    if (engineUrl) {
-      this.engineDomain = engineUrl;
-      return this.engineDomain;
+    const { engineName, engineEndpoint } = this.options;
+    if (engineEndpoint) {
+      this.engineEndpoint = engineEndpoint;
+      return this.engineEndpoint;
     }
     if (engineName) {
       const engine = await resourceManager.engine.getByName(engineName);
-      this.engineDomain = engine.endpoint;
-      return this.engineDomain;
+      this.engineEndpoint = engine.endpoint;
+      return this.engineEndpoint;
     }
     throw new Error("engineName or engineUrl should be provided");
   }
@@ -52,7 +52,7 @@ export class Connection {
     const { settings } = executeQueryOptions;
     const { database } = this.options;
     const queryParams = new URLSearchParams({ database, ...settings });
-    return `${this.engineDomain}?${queryParams}`;
+    return `${this.engineEndpoint}?${queryParams}`;
   }
 
   private getRequestBody(query: string) {

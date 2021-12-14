@@ -17,8 +17,8 @@ export class EngineModel {
   }
 
   async start() {
-    const { apiUrl, httpClient } = this.context;
-    const url = `${apiUrl}/${ENGINES}/${this.id}:start`;
+    const { apiEndpoint, httpClient } = this.context;
+    const url = `${apiEndpoint}/${ENGINES}/${this.id}:start`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -26,8 +26,8 @@ export class EngineModel {
   }
 
   async stop() {
-    const { apiUrl, httpClient } = this.context;
-    const url = `${apiUrl}/${ENGINES}/${this.id}:stop`;
+    const { apiEndpoint, httpClient } = this.context;
+    const url = `${apiEndpoint}/${ENGINES}/${this.id}:stop`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -35,8 +35,8 @@ export class EngineModel {
   }
 
   async restart() {
-    const { apiUrl, httpClient } = this.context;
-    const url = `${apiUrl}/${ENGINES}/${this.id}:restart`;
+    const { apiEndpoint, httpClient } = this.context;
+    const url = `${apiEndpoint}/${ENGINES}/${this.id}:restart`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();

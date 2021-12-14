@@ -16,7 +16,7 @@ export class FireboltCore {
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
-    await connection.resolveEngineDomain();
+    await connection.resolveEngineEndpoint();
     return connection;
   }
 
@@ -27,7 +27,7 @@ export class FireboltCore {
     const connection = new Connection(this.context, connectionOptions);
     try {
       await auth.authenticate();
-      await connection.resolveEngineDomain();
+      await connection.resolveEngineEndpoint();
       await connection.execute("select 1");
       return { success: true };
     } catch (error) {
