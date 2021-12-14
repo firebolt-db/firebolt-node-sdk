@@ -5,7 +5,8 @@ import {
   RowParser,
   Meta
 } from "../../types";
-import { hydrateRow, normalizeRow } from "../normalizeResponse";
+import { normalizeRow } from "../normalizeResponse";
+import { hydrateRow } from "../hydrateResponse";
 import { RowStream } from "./rowStream";
 
 export class JSONStream {
@@ -44,10 +45,17 @@ export class JSONStream {
   defaultRowParser(row: string) {
     const normalizeData = this.executeQueryOptions.response?.normalizeData;
     const parsed = JSONbig.parse(row);
-    const { settings = {} } = this.executeQueryOptions;
-    const hydratedRow = hydrateRow(parsed, this.columns);
+    const hydratedRow = hydrateRow(
+      parsed,
+      this.columns,
+      this.executeQueryOptions
+    );
     if (normalizeData) {
-      const normalizedRow = normalizeRow(hydratedRow, this.columns, settings);
+      const normalizedRow = normalizeRow(
+        hydratedRow,
+        this.columns,
+        this.executeQueryOptions
+      );
       return normalizedRow;
     }
     return hydratedRow;

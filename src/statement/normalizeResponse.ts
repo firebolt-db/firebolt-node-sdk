@@ -1,4 +1,3 @@
-import { withNullableType } from "../common/util";
 import {
   QueryResponse,
   QuerySettings,
@@ -7,51 +6,12 @@ import {
   ExecuteQueryOptions,
   Row
 } from "../types";
+import { hydrateRow } from "./hydrateResponse";
 
 type ParsedResponse = {
   data: any;
   statistics: any;
   meta: any;
-};
-
-const getHydratedValue = (value: unknown, meta: { type: string }) => {
-  const { type } = meta;
-  switch (type.toUpperCase()) {
-    case withNullableType("DATETIME"):
-    case withNullableType("DATE"):
-    case withNullableType("TIMESTAMP"):
-    case "DATETIME":
-    case "DATE":
-    case "TIMESTAMP": {
-      if (value) {
-        return new Date(value as string);
-      }
-      return value;
-    }
-    default: {
-      return value;
-    }
-  }
-};
-
-export const hydrateRow = (row: Row, meta: Meta[]) => {
-  const isArray = Array.isArray(row);
-  const hydratedRow = isArray ? [] : {};
-
-  for (const index in meta) {
-    const column = meta[index];
-    if (isArray) {
-      const key = +index;
-      (hydratedRow as unknown[])[key] = getHydratedValue(row[key], column);
-    } else {
-      const key = column.name;
-      (hydratedRow as Record<string, unknown>)[key] = getHydratedValue(
-        row[key],
-        column
-      );
-    }
-  }
-  return hydratedRow;
 };
 
 const getNormalizedValue = ({
@@ -82,8 +42,9 @@ const getNormalizedValue = ({
 export const normalizeRow = (
   row: Row,
   meta: Meta[],
-  settings: QuerySettings
+  executeQueryOptions: ExecuteQueryOptions
 ) => {
+  const { settings = {} } = executeQueryOptions;
   const normalizedRow: Row = {};
 
   for (const index in meta) {
@@ -132,8 +93,7 @@ export const normalizeResponse = (
   response: ParsedResponse,
   executeQueryOptions: ExecuteQueryOptions
 ): QueryResponse => {
-  const { settings = {}, response: { normalizeData = false } = {} } =
-    executeQueryOptions;
+  const { response: { normalizeData = false } = {} } = executeQueryOptions;
 
   const meta = getNormalizedMeta(response);
 
@@ -141,9 +101,13 @@ export const normalizeResponse = (
 
   const data = response.data
     ? response.data.map((row: Row) => {
-        const hydratedRow = hydrateRow(row, meta);
+        const hydratedRow = hydrateRow(row, meta, executeQueryOptions);
         if (normalizeData) {
-          const normalizedRow = normalizeRow(hydratedRow, meta, settings);
+          const normalizedRow = normalizeRow(
+            hydratedRow,
+            meta,
+            executeQueryOptions
+          );
           return normalizedRow;
         }
         return hydratedRow;

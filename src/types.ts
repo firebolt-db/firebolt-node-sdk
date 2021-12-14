@@ -41,6 +41,8 @@ export type RowParser = (row: string) => any;
 
 export type ResponseSettings = {
   normalizeData?: boolean;
+  bigNumberAsString?: boolean;
+  dateAsString?: boolean;
   responseParser?: (response: string) => unknown;
 };
 
