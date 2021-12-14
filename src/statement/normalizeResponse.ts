@@ -36,34 +36,22 @@ const getHydratedValue = (value: unknown, meta: { type: string }) => {
 
 export const hydrateRow = (row: Row, meta: Meta[]) => {
   const isArray = Array.isArray(row);
+  const hydratedRow = isArray ? [] : {};
 
   for (const index in meta) {
     const column = meta[index];
     if (isArray) {
       const key = +index;
-      row[key] = getHydratedValue(row[key], column);
+      (hydratedRow as unknown[])[key] = getHydratedValue(row[key], column);
     } else {
       const key = column.name;
-      row[key] = getHydratedValue(row[key], column);
+      (hydratedRow as Record<string, unknown>)[key] = getHydratedValue(
+        row[key],
+        column
+      );
     }
   }
-};
-
-const getHydratedData = (
-  response: ParsedResponse,
-  settings: QuerySettings
-): Row[] => {
-  if (!response.data) {
-    return [];
-  }
-
-  const { data, meta } = response;
-
-  for (const row of data) {
-    hydrateRow(row, meta);
-  }
-
-  return data;
+  return hydratedRow;
 };
 
 const getNormalizedValue = ({
@@ -112,21 +100,6 @@ export const normalizeRow = (
   return normalizedRow;
 };
 
-const getNormalizedData = (
-  response: ParsedResponse,
-  settings: QuerySettings
-): Row[] => {
-  const { meta } = response;
-  const typedData = getHydratedData(response, settings);
-  const rows = [];
-
-  for (const row of typedData) {
-    const normalizedRow = normalizeRow(row, meta, settings);
-    rows.push(normalizedRow);
-  }
-  return rows;
-};
-
 const getNormalizedMeta = (response: ParsedResponse): Meta[] => {
   if (!response.meta) {
     return [];
@@ -166,9 +139,16 @@ export const normalizeResponse = (
 
   const statistics = getNormalizedStatistics(response);
 
-  const data = normalizeData
-    ? getNormalizedData(response, settings)
-    : getHydratedData(response, settings);
+  const data = response.data
+    ? response.data.map((row: Row) => {
+        const hydratedRow = hydrateRow(row, meta);
+        if (normalizeData) {
+          const normalizedRow = normalizeRow(hydratedRow, meta, settings);
+          return normalizedRow;
+        }
+        return hydratedRow;
+      })
+    : [];
 
   return {
     data,
