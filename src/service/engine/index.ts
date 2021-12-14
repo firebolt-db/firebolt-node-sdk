@@ -4,7 +4,7 @@ import { EngineModel } from "./model";
 import { ID, Engine } from "./types";
 
 export class EngineService {
-  context: Context;
+  private context: Context;
 
   constructor(context: Context) {
     this.context = context;

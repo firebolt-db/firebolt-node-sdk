@@ -1,5 +1,4 @@
 import JSONbig from "json-bigint";
-import { Response } from "node-fetch";
 import {
   ExecuteQueryOptions,
   StreamOptions,
@@ -20,7 +19,7 @@ export class Statement {
   private query: string;
   private executeQueryOptions: ExecuteQueryOptions;
 
-  private request: { ready: () => Promise<Response>; abort: () => void };
+  private request: { ready: () => Promise<any>; abort: () => void };
   private rowStream: RowStream;
 
   constructor(
@@ -31,7 +30,7 @@ export class Statement {
       executeQueryOptions
     }: {
       query: string;
-      request: { ready: () => Promise<Response>; abort: () => void };
+      request: { ready: () => Promise<any>; abort: () => void };
       executeQueryOptions: ExecuteQueryOptions;
     }
   ) {

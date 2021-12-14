@@ -4,7 +4,7 @@ import { EngineService } from "./engine";
 import { Context } from "../types";
 
 export class ResourceManager {
-  context: Context;
+  private context: Context;
   engine: EngineService;
 
   constructor(context: {

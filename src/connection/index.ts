@@ -1,4 +1,3 @@
-import { Response } from "node-fetch";
 import JSONbig from "json-bigint";
 import {
   ExecuteQueryOptions,
@@ -78,7 +77,7 @@ export class Connection {
     const body = this.getRequestBody(query);
     const url = this.getRequestUrl(executeQueryOptions);
 
-    const request = httpClient.request<Response>("POST", url, {
+    const request = httpClient.request<any>("POST", url, {
       body,
       raw: true
     });

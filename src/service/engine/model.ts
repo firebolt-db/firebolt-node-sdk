@@ -3,7 +3,7 @@ import { Context } from "../../types";
 import { ID, Engine } from "./types";
 
 export class EngineModel {
-  context: Context;
+  private context: Context;
   id: ID;
   name: string;
   endpoint: string;
