@@ -1,14 +1,21 @@
 import JSONbig from "json-bigint";
-import { StreamOptions, RowParser } from "../../types";
+import {
+  StreamOptions,
+  ExecuteQueryOptions,
+  RowParser,
+  Meta
+} from "../../types";
+import { normalizeRow } from "../normalizeResponse";
 import { RowStream } from "./rowStream";
 
 export class JSONStream {
   options?: StreamOptions;
+  executeQueryOptions: ExecuteQueryOptions;
   emitter: RowStream;
   rowParser: RowParser;
   state: "meta" | "meta-array" | "rootKeys" | "data" | "data-array" | null;
 
-  columns: unknown[];
+  columns: Meta[];
   rows: unknown[];
   rest: string;
 
@@ -16,21 +23,33 @@ export class JSONStream {
 
   constructor({
     emitter,
-    options
+    options,
+    executeQueryOptions
   }: {
     emitter: RowStream;
     options?: StreamOptions;
+    executeQueryOptions: ExecuteQueryOptions;
   }) {
     this.state = null;
     this.emitter = emitter;
     this.options = options;
+    this.executeQueryOptions = executeQueryOptions;
 
-    this.rowParser =
-      this.options?.rowParser || ((row: string) => JSONbig.parse(row));
-
+    this.rowParser = this.options?.rowParser || this.defaultRowParser;
     this.columns = [];
     this.rows = [];
     this.rest = "{";
+  }
+
+  defaultRowParser(row: string) {
+    const normalizeData = this.executeQueryOptions.response?.normalizeData;
+    const parsed = JSONbig.parse(row);
+    const { settings = {} } = this.executeQueryOptions;
+    if (normalizeData) {
+      const normalizedRow = normalizeRow(parsed, this.columns, settings);
+      return normalizedRow;
+    }
+    return parsed;
   }
 
   parseRest() {

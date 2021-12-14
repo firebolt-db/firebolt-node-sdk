@@ -14,10 +14,7 @@ type ParsedResponse = {
   meta: any;
 };
 
-const getTypedValue = (
-  value: string | number | null,
-  meta: { type: string }
-) => {
+const getHydratedValue = (value: unknown, meta: { type: string }) => {
   const { type } = meta;
   switch (type.toUpperCase()) {
     case withNullableType("DATETIME"):
@@ -27,7 +24,7 @@ const getTypedValue = (
     case "DATE":
     case "TIMESTAMP": {
       if (value) {
-        return new Date(value);
+        return new Date(value as string);
       }
       return value;
     }
@@ -37,7 +34,22 @@ const getTypedValue = (
   }
 };
 
-const getTypedData = (
+export const hydrateRow = (row: Row, meta: Meta[]) => {
+  const isArray = Array.isArray(row);
+
+  for (const index in meta) {
+    const column = meta[index];
+    if (isArray) {
+      const key = +index;
+      row[key] = getHydratedValue(row[key], column);
+    } else {
+      const key = column.name;
+      row[key] = getHydratedValue(row[key], column);
+    }
+  }
+};
+
+const getHydratedData = (
   response: ParsedResponse,
   settings: QuerySettings
 ): Row[] => {
@@ -47,14 +59,10 @@ const getTypedData = (
 
   const { data, meta } = response;
 
-  const isJSON = settings.output_format === OutputFormat.JSON;
   for (const row of data) {
-    for (const index in meta) {
-      const column = meta[index];
-      const elementIndex = isJSON ? column.name : +index;
-      row[elementIndex] = getTypedValue(row[elementIndex], column);
-    }
+    hydrateRow(row, meta);
   }
+
   return data;
 };
 
@@ -83,28 +91,37 @@ const getNormalizedValue = ({
   }
 };
 
+export const normalizeRow = (
+  row: Row,
+  meta: Meta[],
+  settings: QuerySettings
+) => {
+  const normalizedRow: Row = {};
+
+  for (const index in meta) {
+    const { name } = meta[index];
+
+    const normalizedValue = getNormalizedValue({
+      index: +index,
+      row,
+      meta,
+      settings
+    });
+    normalizedRow[name] = normalizedValue;
+  }
+  return normalizedRow;
+};
+
 const getNormalizedData = (
   response: ParsedResponse,
   settings: QuerySettings
 ): Row[] => {
   const { meta } = response;
-  const typedData = getTypedData(response, settings);
+  const typedData = getHydratedData(response, settings);
   const rows = [];
 
   for (const row of typedData) {
-    const normalizedRow: Row = {};
-
-    for (const index in meta) {
-      const { name } = meta[index];
-
-      const normalizedValue = getNormalizedValue({
-        index: +index,
-        row,
-        meta,
-        settings
-      });
-      normalizedRow[name] = normalizedValue;
-    }
+    const normalizedRow = normalizeRow(row, meta, settings);
     rows.push(normalizedRow);
   }
   return rows;
@@ -151,7 +168,7 @@ export const normalizeResponse = (
 
   const data = normalizeData
     ? getNormalizedData(response, settings)
-    : getTypedData(response, settings);
+    : getHydratedData(response, settings);
 
   return {
     data,

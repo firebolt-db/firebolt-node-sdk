@@ -72,7 +72,11 @@ export class Statement {
 
   async streamResult(options?: StreamOptions) {
     const response = await this.request.ready();
-    const jsonParser = new JSONStream({ emitter: this.rowStream, options });
+    const jsonParser = new JSONStream({
+      emitter: this.rowStream,
+      options,
+      executeQueryOptions: this.executeQueryOptions
+    });
 
     let resolveMetadata: (metadata: Meta[]) => void;
     let rejectMetadata: (reason?: any) => void;
