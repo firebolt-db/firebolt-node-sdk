@@ -102,7 +102,8 @@ describe("integration test", () => {
     const connection = await firebolt.connect(connectionParams);
 
     const statement = await connection.execute(
-      "SELECT * from ex_lineitem limit 100"
+      "SELECT * from ex_lineitem limit 100",
+      { settings: { output_format: OutputFormat.JSON_COMPACT } }
     );
 
     const {
@@ -122,15 +123,16 @@ describe("integration test", () => {
     });
 
     const meta = await metaPromise;
-    const statistics = await statisticsPromise;
+    console.log(meta);
 
     for await (const row of data) {
       rows.push(row);
     }
-    expect(rows.length).toEqual(100);
 
-    console.log(meta);
+    const statistics = await statisticsPromise;
     console.log(statistics);
+
+    expect(rows.length).toEqual(100);
   });
   it("failed test connection", async () => {
     const firebolt = Firebolt({
