@@ -122,11 +122,13 @@ export class Statement {
         const newLinePosition = chunk.lastIndexOf("\n");
         const rest = chunk.slice(newLinePosition + 1);
 
+        const lines = Buffer.concat([str, chunk.slice(0, newLinePosition)])
+          .toString("utf8")
+          .split("\n");
         try {
-          Buffer.concat([str, chunk.slice(0, newLinePosition)])
-            .toString("utf8")
-            .split("\n")
-            .forEach(line => jsonParser.processLine(line));
+          for (const line of lines) {
+            jsonParser.processLine(line);
+          }
         } catch (error) {
           errorHandler(error);
           return;
