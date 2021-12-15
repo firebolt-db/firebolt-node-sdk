@@ -69,7 +69,13 @@ console.log(rows)
   * [Fetch result](#fetch-result)
   * [Stream result](#stream-result)
   * [Result hydration](#result-hydration)
-  * [Engine management](#usage-engine-management)
+  * [Engine management](#engine-management)
+    * [getById](#engine-get-by-id)
+    * [getByName](#engine-get-by-name)
+    * [Engine](#engine)
+      * [start](#engine-management-start)
+      * [stop](#engine-management-stop)
+      * [restart](#engine-management-restart)
 * [Recipes](#recipes)
   * [Streaming results](#recipes-stream)
   * [Custom stream transformers](#recipes-stream-transform)
@@ -106,8 +112,8 @@ const connection = await firebolt.connect(connectionOptions);
 ```
 
 <a name="usage-create-connection-option"></a>
-#### connectionOptions
-where connectionOptions are:
+
+#### ConnectionOptions
 ```typescript
 type ConnectionOptions = {
   username: string;
@@ -135,12 +141,6 @@ In order to execute a query run:
 const statement = await connection.execute(query, executeQueryOptions);
 ```
 
-where 
-```typescript
-query: string
-executeQueryOptions?: ExecuteQueryOptions
-```
-
 <a name="execute-query-options"></a>
 ### ExecuteQueryOptions
 
@@ -162,6 +162,47 @@ TODO table
 TODO table
 
 
+<a name="fetch-result"></a>
+### Fetch result
+```typescript
+const { data, meta, statistics } = await statement.fetchResult();
+```
+Promise api **is not recommended** for `SELECT` queries with large result set
+
+With promise api query result are parsed synchronously.
+This means that large query result:
+* Will synchronously block JS thread/event loop.
+* May lead to memory leaks in your app due peak GC loads.
+
+Use it only for queries where resulting data size is is known and small.<br/>
+The good cases to use it is `show tables` or `select 1`
+
+<a name="stream-result"></a>
+### Stream result
+Start streaming of result
+
+```typescript
+const { data } = await statement.streamResult();
+const rows: unknown[] = [];
+
+data.on("metadata", metadata => {
+  console.log(metadata);
+});
+
+data.on("error", error => {
+  console.log(error);
+});
+
+for await (const row of data) {
+  rows.push(row);
+}
+```
+
+<a name="result-hydration"></a>
+### Result hydration
+
+<a name="engine-management"></a>
+### Engine management
 
 ## Development process
 ### Actions before
