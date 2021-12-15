@@ -15,9 +15,6 @@ const getHydratedValue = (
     case "DATETIME":
     case "DATE":
     case "TIMESTAMP": {
-      if (executeQueryOptions.response?.dateAsString) {
-        return value;
-      }
       if (value) {
         return new Date(value as string);
       }

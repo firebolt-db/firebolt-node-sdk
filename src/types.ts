@@ -40,7 +40,6 @@ export type RowParser = (row: string) => any;
 export type ResponseSettings = {
   normalizeData?: boolean;
   bigNumberAsString?: boolean;
-  dateAsString?: boolean;
 };
 
 export type ExecuteQueryOptions = {
