@@ -105,6 +105,7 @@ export class Statement {
 
     const errorHandler = (error: any) => {
       this.rowStream.emit("error", error);
+      this.rowStream.push(null);
       rejectStatistics(error);
       rejectMetadata(error);
     };
