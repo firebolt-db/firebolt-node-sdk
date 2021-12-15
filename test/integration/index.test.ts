@@ -134,6 +134,21 @@ describe("integration test", () => {
 
     expect(rows.length).toEqual(100);
   });
+  it("compact format", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+
+    const statement = await connection.execute("SELECT 1", {
+      settings: { output_format: OutputFormat.JSON_COMPACT_LIMITED }
+    });
+
+    const { data } = await statement.fetchResult();
+    const row = data[0];
+    expect(row).toMatchObject({ "1": 1 });
+  });
   it("failed test connection", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string

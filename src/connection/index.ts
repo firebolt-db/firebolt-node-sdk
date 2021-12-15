@@ -9,7 +9,7 @@ import {
 import { Statement } from "../statement";
 
 const defaultQuerySettings = {
-  output_format: OutputFormat.JSON_COMPACT_LIMITED
+  output_format: OutputFormat.JSON_COMPACT
 };
 
 const defaultResponseSettings = {
