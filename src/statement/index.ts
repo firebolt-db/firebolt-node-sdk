@@ -4,7 +4,7 @@ import {
   StreamOptions,
   Context,
   Meta,
-  ResultRest
+  Statistics
 } from "../types";
 import { isDataQuery } from "../common/util";
 import { RowStream } from "./stream/rowStream";
@@ -80,7 +80,7 @@ export class Statement {
     let resolveMetadata: (metadata: Meta[]) => void;
     let rejectMetadata: (reason?: any) => void;
 
-    let resolveStatistics: (statistics: ResultRest) => void;
+    let resolveStatistics: (statistics: Statistics) => void;
     let rejectStatistics: (reason?: any) => void;
 
     const metadataPromise = new Promise<Meta[]>((resolve, reject) => {
@@ -88,7 +88,7 @@ export class Statement {
       rejectMetadata = reject;
     });
 
-    const statisticsPromise = new Promise<ResultRest>((resolve, reject) => {
+    const statisticsPromise = new Promise<Statistics>((resolve, reject) => {
       resolveStatistics = resolve;
       rejectStatistics = reject;
     });
@@ -99,7 +99,7 @@ export class Statement {
       resolveMetadata(metadata);
     });
 
-    this.rowStream.on("statistics", (statistics: ResultRest) => {
+    this.rowStream.on("statistics", (statistics: Statistics) => {
       resolveStatistics(statistics);
     });
 
@@ -146,8 +146,8 @@ export class Statement {
     response.body.on("end", () => {
       try {
         const rest = jsonParser.parseRest();
-        const data = { ...rest, statistics: getNormalizedStatistics(rest) };
-        this.rowStream.emit("statistics", data);
+        const statistics = getNormalizedStatistics(rest);
+        this.rowStream.emit("statistics", statistics);
         this.rowStream.push(null);
       } catch (error) {
         errorHandler(error);
@@ -167,11 +167,11 @@ export class Statement {
     const parsed = this.handleParseResponse(text);
     const normalized = normalizeResponse(parsed, this.executeQueryOptions);
 
-    const { data, statistics, meta } = normalized;
+    const { data, meta, statistics } = normalized;
     return {
       data,
-      statistics,
-      meta
+      meta,
+      statistics
     };
   }
 }
