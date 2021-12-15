@@ -13,8 +13,7 @@ const defaultQuerySettings = {
 };
 
 const defaultResponseSettings = {
-  normalizeData: false,
-  responseParser: (response: string) => JSONbig.parse(response)
+  normalizeData: false
 };
 
 export class Connection {

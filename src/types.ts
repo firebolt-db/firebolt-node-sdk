@@ -43,7 +43,6 @@ export type ResponseSettings = {
   normalizeData?: boolean;
   bigNumberAsString?: boolean;
   dateAsString?: boolean;
-  responseParser?: (response: string) => unknown;
 };
 
 export type ExecuteQueryOptions = {
