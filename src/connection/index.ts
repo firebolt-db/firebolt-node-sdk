@@ -1,4 +1,3 @@
-import JSONbig from "json-bigint";
 import {
   ExecuteQueryOptions,
   ConnectionOptions,
@@ -76,7 +75,7 @@ export class Connection {
     const body = this.getRequestBody(query);
     const url = this.getRequestUrl(executeQueryOptions);
 
-    const request = httpClient.request<any>("POST", url, {
+    const request = httpClient.request<unknown>("POST", url, {
       body,
       raw: true
     });
