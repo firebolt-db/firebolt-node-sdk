@@ -204,19 +204,18 @@ Firebolt SDK maps SQL data types to their corresponding JavaScript equivalents.
 Full mapping presented in the table below:
 
 Category|SQL type|JavaScript type|Notes|
-|-------------|---------|--------|---------------------------------------------------------------------------------------------|
-| Numeric     | INT     | Number | If number cannot be represented by JavaScript Number, BigNumber from "bignumber.js" is used |
-|             | INTEGER | Number |                                                                                             |
-|             | BIGINT  | Number |                                                                                             |
-|             | LONG    | Number |                                                                                             |
-|             | FLOAT   | Number |                                                                                             |
-|             | DOUBLE  | Number |                                                                                             |
-| String      | VARCHAR | String |                                                                                             |
-|             | TEXT    | String |                                                                                             |
-|             | STRING  | String |                                                                                             |
-| Date & Time | DATE    | Date   |                                                                                             |
-|             |         |        |                                                                                             |
-|-------------|---------|--------|---------------------------------------------------------------------------------------------|
+|-------------|---------|--------|-----------------------------------------------------------------------------------------------------------------------------------|
+| Numeric     | INT     | Number | If value cannot be represented by JavaScript Number (determine using Number.isSafeInteger), BigNumber from "bignumber.js" is used |
+|             | INTEGER | Number |                                                                                                                                   |
+|             | BIGINT  | Number |                                                                                                                                   |
+|             | LONG    | Number |                                                                                                                                   |
+|             | FLOAT   | Number |                                                                                                                                   |
+|             | DOUBLE  | Number |                                                                                                                                   |
+| String      | VARCHAR | String |                                                                                                                                   |
+|             | TEXT    | String |                                                                                                                                   |
+|             | STRING  | String |                                                                                                                                   |
+| Date & Time | DATE    | Date   |                                                                                                                                   |
+|             |         |        |                                                                                                                                   |
 
 
 <a name="engine-management"></a>
