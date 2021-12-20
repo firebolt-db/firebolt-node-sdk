@@ -1,4 +1,5 @@
-build/
+src/
+test/
 .env
 .DS_Store
 .vscode/

@@ -134,7 +134,7 @@ describe("integration test", () => {
 
     expect(rows.length).toEqual(100);
   });
-  it("compact format", async () => {
+  it.skip("format limited", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });

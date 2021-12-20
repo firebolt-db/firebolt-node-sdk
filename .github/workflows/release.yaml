@@ -5,11 +5,11 @@ on:
     inputs:
       majorRelease:
         required: false
-        description: 'Trigger a major release (optional). Leave empty for regular release.'
+        description: 'Release as version. Example values are: minor, major, 5.6.1, 1.0.0. Leave empty for regular release.'
 
 jobs:
   integration-tests:
-    uses: firebolt-db/firebolt-node-sdk/.github/workflows/integration-tests.yml@main
+    uses: firebolt-db/firebolt-node-sdk/.github/workflows/integration-tests.yaml@main
 
   publish:
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0 
-        token: ${{ secrets.RELEASE_PAT }}
+        # token: ${{ secrets.RELEASE_PAT }}
     
     - name: Set up node.js
       uses: actions/setup-node@v2
@@ -39,16 +39,16 @@ jobs:
       run: |
         npm run build
 
-    - name: Release (bump version, commiting changelog)
+    - name: Release
       run: |
-        npm run release 
+        ${{github.event.inputs.majorRelease != '' && format('npm run release -- --release-as {1}', github.event.inputs.majorRelease) || 'npm run release'}}
 
     - name: Publish to npm
       run: |
+        echo _auth=${{ secrets.NPM_PUBLSH_KEY }} >> .npmrc
+        echo email=${{ secrets.NPM_EMAIL }} >> .npmrc
+        echo always-auth=true >> .npmrc
         npm publish
-      env:
-        USERNAME: ${{ secrets.NPM_USERNAME }}
-        PASSWORD: ${{ secrets.NPM_PASSWORD }}
 
     - name: Push git tags
       run: |
