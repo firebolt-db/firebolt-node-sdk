@@ -154,23 +154,22 @@ describe("integration test", () => {
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
-    const response = await firebolt.testConnection({
-      username: process.env.FIREBOLT_USERNAME as string,
-      password: process.env.FIREBOLT_PASSWORD as string,
-      database: process.env.FIREBOLT_DATABASE as string,
-      engineName: "unknown_engine"
-    });
-
-    expect(response.success).toBeFalsy();
+    await expect(async () => {
+      await firebolt.testConnection({
+        username: process.env.FIREBOLT_USERNAME as string,
+        password: process.env.FIREBOLT_PASSWORD as string,
+        database: process.env.FIREBOLT_DATABASE as string,
+        engineName: "unknown_engine"
+      });
+    }).rejects.toThrow();
   });
   it("test connection", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
-    const response = await firebolt.testConnection(connectionParams);
-
-    expect(response.success).toBeTruthy();
+    await firebolt.testConnection(connectionParams);
+    expect(true).toBeTruthy();
   });
   it("custom parser", async () => {
     const firebolt = Firebolt({

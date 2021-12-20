@@ -19,18 +19,11 @@ export class FireboltCore {
     return connection;
   }
 
-  async testConnection(
-    connectionOptions: ConnectionOptions
-  ): Promise<{ success: boolean; error?: Error }> {
+  async testConnection(connectionOptions: ConnectionOptions) {
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
-    try {
-      await auth.authenticate();
-      await connection.resolveEngineEndpoint();
-      await connection.execute("select 1");
-      return { success: true };
-    } catch (error) {
-      return { success: false, error };
-    }
+    await auth.authenticate();
+    await connection.resolveEngineEndpoint();
+    await connection.execute("select 1");
   }
 }
