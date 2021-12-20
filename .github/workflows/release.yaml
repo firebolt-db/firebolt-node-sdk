@@ -48,7 +48,7 @@ jobs:
         echo _auth=${{ secrets.NPM_PUBLSH_KEY }} >> .npmrc
         echo email=${{ secrets.NPM_EMAIL }} >> .npmrc
         echo always-auth=true >> .npmrc
-        npm publish
+        npm publish --dry-run
 
     - name: Push git tags
       run: |

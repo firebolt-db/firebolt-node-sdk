@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
-import { withNullableType } from "../common/util";
 import { Meta, ExecuteQueryOptions, Row } from "../types";
+import { DATE_TYPES, NUMBER_TYPES } from "./dataTypes";
 
 const getHydratedValue = (
   value: unknown,
@@ -8,39 +8,21 @@ const getHydratedValue = (
   executeQueryOptions: ExecuteQueryOptions
 ) => {
   const { type } = meta;
-  switch (type.toUpperCase()) {
-    case withNullableType("DATETIME"):
-    case withNullableType("DATE"):
-    case withNullableType("TIMESTAMP"):
-    case "DATETIME":
-    case "DATE":
-    case "TIMESTAMP": {
-      if (value) {
-        return new Date(value as string);
-      }
-      return value;
-    }
-    case withNullableType("DOUBLE"):
-    case withNullableType("FLOAT"):
-    case withNullableType("FLOAT64"):
-    case withNullableType("DOUBLE64"):
-    case "DOUBLE":
-    case "FLOAT":
-    case "FLOAT64":
-    case "DOUBLE64": {
-      if (
-        executeQueryOptions.response?.bigNumberAsString &&
-        typeof value === "object" &&
-        BigNumber.isBigNumber(value)
-      ) {
-        return value.toString();
-      }
-      return value;
-    }
-    default: {
-      return value;
-    }
+  const normalizedType = type.toUpperCase();
+  if (DATE_TYPES.includes(normalizedType)) {
+    return value ? new Date(value as string) : value;
   }
+  if (NUMBER_TYPES.includes(normalizedType)) {
+    if (
+      executeQueryOptions.response?.bigNumberAsString &&
+      typeof value === "object" &&
+      BigNumber.isBigNumber(value)
+    ) {
+      return value.toString();
+    }
+    return value;
+  }
+  return value;
 };
 
 export const hydrateRow = (
