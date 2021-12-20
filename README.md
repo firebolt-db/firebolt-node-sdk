@@ -1,4 +1,4 @@
-# Firebolt nodejs sdk
+# Firebolt Node.JS sdk
 
 
 ## Installation
@@ -83,7 +83,12 @@ console.log(rows)
 
 <a name="About"></a>
 ## About
-A small text about the project
+Firebolt client for Node.JS.
+Provides common methods for quering firebolt databases, fetching and streaming results, engine management
+
+Supported Node.JS version are: 
+
+`> v14`
 
 <a name="documentation"></a>
 ## Documentation
@@ -152,14 +157,20 @@ export type ExecuteQueryOptions = {
 ```
 
 <a name="execute-query-settings"></a>
-### ExecuteQuerySettings
+### QuerySettings
 
-TODO table
+| Parameter     | Required | Default      | Description                       |
+|---------------|----------|--------------|-----------------------------------|
+| output_format |          | JSON_COMPACT | Specifies format of selected data |
+
 
 <a name="execute-query-response"></a>
 ### ResponseSettings
 
-TODO table
+| Parameter         | Required | Default | Description                 |
+|-------------------|----------|---------|-----------------------------|
+| normalizeData     |          | false   |                             |
+| bigNumberAsString |          | false   | hydrate BigNumber as String |
 
 
 <a name="fetch-result"></a>
@@ -203,23 +214,48 @@ for await (const row of data) {
 Firebolt SDK maps SQL data types to their corresponding JavaScript equivalents.
 Full mapping presented in the table below:
 
-Category|SQL type|JavaScript type|Notes|
-|-------------|---------|--------|-----------------------------------------------------------------------------------------------------------------------------------|
-| Numeric     | INT     | Number | If value cannot be represented by JavaScript Number (determine using Number.isSafeInteger), BigNumber from "bignumber.js" is used |
-|             | INTEGER | Number |                                                                                                                                   |
-|             | BIGINT  | Number |                                                                                                                                   |
-|             | LONG    | Number |                                                                                                                                   |
-|             | FLOAT   | Number |                                                                                                                                   |
-|             | DOUBLE  | Number |                                                                                                                                   |
-| String      | VARCHAR | String |                                                                                                                                   |
-|             | TEXT    | String |                                                                                                                                   |
-|             | STRING  | String |                                                                                                                                   |
-| Date & Time | DATE    | Date   |                                                                                                                                   |
-|             |         |        |                                                                                                                                   |
+| Category    | SQL type | JavaScript type | Notes                                                                                                                             |
+|-------------|----------|-----------------|-----------------------------------------------------------------------------------------------------------------------------------|
+| Numeric     | INT      | Number          | If value cannot be represented by JavaScript Number (determine using Number.isSafeInteger), BigNumber from "bignumber.js" is used |
+|             | INTEGER  | Number          |                                                                                                                                   |
+|             | BIGINT   | Number          |                                                                                                                                   |
+|             | LONG     | Number          |                                                                                                                                   |
+|             | FLOAT    | Number          |                                                                                                                                   |
+|             | DOUBLE   | Number          |                                                                                                                                   |
+| String      | VARCHAR  | String          |                                                                                                                                   |
+|             | TEXT     | String          |                                                                                                                                   |
+|             | STRING   | String          |                                                                                                                                   |
+| Date & Time | DATE     | Date            |                                                                                                                                   |
 
 
 <a name="engine-management"></a>
 ### Engine management
+
+
+<a name="engine-get-by-id"></a>
+#### getById
+
+<a name="engine-get-by-name"></a>
+#### getByName
+
+<a name="engine"></a>
+#### Engine
+
+<a name="engine-management-start"></a>
+##### Start
+<a name="engine-management-stop"></a>
+##### Start
+<a name="engine-management-restart"></a>
+##### Restart
+
+<a name="recipes"></a>
+## Recipes
+
+<a name="recipes-stream"></a>
+### Streaming results
+
+<a name="recipes-stream-transformers"></a>
+### Custom stream transformers
 
 ## Development process
 ### Actions before
