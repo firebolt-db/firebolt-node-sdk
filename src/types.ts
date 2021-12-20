@@ -1,7 +1,8 @@
 import BigNumber from "bignumber.js";
 // import { Parameter } from "./paramter";
-import { HttpClientInterface } from "./http";
-import { LoggerInterface } from "./logger";
+import { HttpClientInterface, HttpClientOptions } from "./http";
+
+import { LoggerInterface, LoggerOptions } from "./logger";
 import { ResourceManager } from "./service";
 
 export type Statistics = {
@@ -26,7 +27,7 @@ export type QueryResponse = {
 };
 
 export enum OutputFormat {
-  JSON_COMPACT_LIMITED = "FB_JSONCompactLimited",
+  // JSON_COMPACT_LIMITED = "FB_JSONCompactLimited",
   JSON_COMPACT = "JSONCompact",
   JSON = "JSON"
 }
@@ -58,6 +59,16 @@ export type ConnectionOptions = {
   database: string;
   engineName?: string;
   engineEndpoint?: string;
+};
+
+export type FireboltClientOptions = {
+  logger?: LoggerOptions;
+  client?: HttpClientOptions;
+  apiEndpoint?: string;
+  dependencies?: {
+    logger: LoggerInterface;
+    httpClient: HttpClientInterface;
+  };
 };
 
 export type Context = {

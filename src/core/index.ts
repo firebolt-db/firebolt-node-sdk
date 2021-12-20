@@ -1,13 +1,12 @@
 import { Connection } from "../connection";
 import { Authenticator } from "../auth";
-import { Options } from "../options";
-import { Context, ConnectionOptions } from "../types";
+import { Context, ConnectionOptions, FireboltClientOptions } from "../types";
 
 export class FireboltCore {
-  private options: Options;
+  private options: FireboltClientOptions;
   private context: Context;
 
-  constructor(context: Context, options: Options) {
+  constructor(context: Context, options: FireboltClientOptions) {
     this.context = context;
     this.options = options;
   }

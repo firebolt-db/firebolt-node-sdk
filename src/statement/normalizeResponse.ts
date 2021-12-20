@@ -32,7 +32,7 @@ const getNormalizedValue = ({
 
   if (
     settings.output_format === OutputFormat.JSON_COMPACT ||
-    settings.output_format === OutputFormat.JSON_COMPACT_LIMITED ||
+    // settings.output_format === OutputFormat.JSON_COMPACT_LIMITED ||
     !settings.output_format
   ) {
     return (row as unknown[])[index];

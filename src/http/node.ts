@@ -10,7 +10,6 @@ type RequestOptions = {
   headers: Record<string, string>;
   body?: string;
   raw?: boolean;
-  text?: boolean;
   retry?: boolean;
 };
 
@@ -93,11 +92,6 @@ export class NodeHttpClient {
 
       if (options?.raw) {
         return response;
-      }
-
-      if (options?.text) {
-        const text = await response.text();
-        return text;
       }
 
       const parsed = await response.json();

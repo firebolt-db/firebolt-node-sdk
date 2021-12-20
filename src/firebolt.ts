@@ -1,8 +1,8 @@
 import { Logger } from "./logger";
 import { HttpClient } from "./http";
-import { Options } from "./options";
 import { ResourceManager } from "./service";
 import { FireboltCore } from "./core";
+import { FireboltClientOptions } from "./types";
 
 type Dependencies = {
   logger: Logger;
@@ -12,7 +12,7 @@ type Dependencies = {
 const DEFAULT_API_ENDPOINT = "api.firebolt.io";
 
 export const FireboltClient = (dependencies: Dependencies) => {
-  return (options: Options = {}) => {
+  return (options: FireboltClientOptions = {}) => {
     const {
       logger: loggerOptions,
       client: clientOptions,
