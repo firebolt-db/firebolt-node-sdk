@@ -42,7 +42,7 @@ export class Connection {
   }
 
   async ensureEngineRunning() {
-    return true;
+    //TODO implement
   }
 
   private getRequestUrl(executeQueryOptions: ExecuteQueryOptions) {
