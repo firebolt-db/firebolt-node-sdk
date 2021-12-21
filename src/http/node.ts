@@ -61,7 +61,9 @@ export class NodeHttpClient {
         try {
           await this.authenticator.refreshAccessToken();
         } catch (error) {
-          throw new AuthenticationError({ message: "AuthenticationError" });
+          throw new AuthenticationError({
+            message: "Failed to refresh access token"
+          });
         }
 
         const request = this.request<T>(method, url, options);
