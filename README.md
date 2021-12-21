@@ -255,8 +255,87 @@ Full mapping presented in the table below:
 <a name="recipes-stream"></a>
 ### Streaming results
 
+The recommended way to consume query result is by using streams.
+
+For convenience `statement.streamResult` also return `meta: Promise<Meta[]>` and `statistics: Promise<Statistics>`,
+wrappers over `data.on('metadata')` and `data.on('statistics')`
+
+```typescript
+const firebolt = Firebolt();
+
+const connection = await firebolt.connect(connectionParams);
+
+const statement = await connection.execute("SELECT 1");
+
+const {
+  data,
+  meta: metaPromise,
+  statistics: statisticsPromise
+} = await statement.streamResult();
+
+const rows: unknown[] = [];
+
+const meta = await metaPromise;
+
+for await (const row of data) {
+  rows.push(row);
+}
+
+const statistics = await statisticsPromise
+
+console.log(meta);
+console.log(statistics);
+console.log(rows)
+
+```
+
 <a name="recipes-stream-transformers"></a>
 ### Custom stream transformers
+
+To achieve seamless stream pipes to `fs` or `stdout` you can use `Transform` stream 
+
+```typescript
+import stream,  { TransformCallback } from 'stream';
+
+class SerializeRowStream extends stream.Transform {
+  public constructor() {
+    super({
+      objectMode: true,
+      transform(
+        row: any,
+        encoding: BufferEncoding,
+        callback: TransformCallback
+      ) {
+        const transformed = JSON.stringify(row);
+        this.push(transformed);
+        this.push('\n')
+        callback();
+      }
+    });
+  }
+}
+
+const serializedStream = new SerializeRowStream()
+
+const firebolt = Firebolt();
+const connection = await firebolt.connect(connectionParams);
+const statement = await connection.execute("select 1 union all select 2");
+
+const { data } = await statement.streamResult();
+
+serializedStream.pipe(serializedStream).pipe(process.stdout);
+
+```
+
+Or use `rowParser` that returns strings or Buffer
+
+```typescript
+const { data } = await statement.streamResult({
+  rowParser: (row: string) => `${row}\n`
+});
+
+data.pipe(process.stdout);
+```
 
 ## Development process
 ### Actions before
