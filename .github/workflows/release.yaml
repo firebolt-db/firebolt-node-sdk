@@ -45,7 +45,7 @@ jobs:
 
     - name: Publish to npm
       run: |
-        echo _auth=${{ secrets.NPM_PUBLSH_KEY }} >> .npmrc
+        echo //registry.npmjs.org/:_authToken=${{secrets.NPM_PUBLISH_KEY}} >> .npmrc
         echo email=${{ secrets.NPM_EMAIL }} >> .npmrc
         echo always-auth=true >> .npmrc
         npm publish
