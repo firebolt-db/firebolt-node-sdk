@@ -4,7 +4,6 @@ import {
   OutputFormat,
   Context
 } from "../types";
-
 import { Statement } from "../statement";
 
 const defaultQuerySettings = {
@@ -38,7 +37,6 @@ export class Connection {
       this.engineEndpoint = engine.endpoint;
       return this.engineEndpoint;
     }
-    throw new Error("engineName or engineUrl should be provided");
   }
 
   async ensureEngineRunning() {

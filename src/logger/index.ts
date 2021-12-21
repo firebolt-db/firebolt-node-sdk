@@ -1,7 +1,7 @@
 export type LoggerOptions = Record<string, unknown>;
 
 export interface LoggerInterface {
-  log(message: string): void;
+  info(message: string): void;
 }
 
 export type Logger = {

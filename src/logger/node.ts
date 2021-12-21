@@ -1,7 +1,7 @@
 import { LoggerInterface } from ".";
 
 export class Logger implements LoggerInterface {
-  log(message: string) {
-    console.error({ message });
+  info(message: string) {
+    console.log(message);
   }
 }

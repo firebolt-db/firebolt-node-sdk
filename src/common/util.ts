@@ -1,3 +1,5 @@
+import { ArgumentError } from "./errors";
+
 export const assignProtocol = (url: string) => {
   return url.startsWith("http") ? url : `https://${url}`;
 };
@@ -24,4 +26,10 @@ export const withNullableTypes = (types: string[]) => {
     acc.push(`NULLABLE(${type})`);
     return acc;
   }, []);
+};
+
+export const checkArgumentExists = (expression: any, code: number) => {
+  if (!expression) {
+    throw new ArgumentError({ code });
+  }
 };
