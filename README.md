@@ -134,10 +134,18 @@ type ConnectionOptions = {
 <a name="usage-create-connection"></a>
 ### Test connection
 TODO: write motivation
+connection can be tested using:
+```typescript
+const firebolt = Firebolt();
+await firebolt.testConnection(connectionOptions)
+```
+which will perform authentication and simple `select 1` query
 
 <a name="usage-engine-endpoint"></a>
 ### Engine endpoint
-Where to get engine endpoint in the ui?
+Engine endpoint have format simillar to:
+`example-engine.firebolt.us-east-1.app.firebolt.io`
+and can be found in web ui
 
 <a name="execute-query"></a>
 ### Execute Query
