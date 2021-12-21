@@ -1,6 +1,6 @@
 {
   "name": "firebolt-sdk",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Official firebolt Node.JS sdk",
   "main": "./build/src/index.js",
   "types": "./build/src/types.d.ts",
