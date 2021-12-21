@@ -7,13 +7,15 @@ export class EngineModel {
   id: ID;
   name: string;
   endpoint: string;
+  current_status_summary: string;
 
   constructor(context: Context, engine: Engine) {
-    const { id, name, endpoint } = engine;
+    const { id, name, endpoint, current_status_summary } = engine;
     this.id = id;
     this.name = name;
     this.endpoint = endpoint;
     this.context = context;
+    this.current_status_summary = current_status_summary;
   }
 
   async start() {

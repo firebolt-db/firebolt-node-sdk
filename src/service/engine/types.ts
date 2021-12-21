@@ -4,4 +4,5 @@ export type Engine = {
   id: ID;
   name: string;
   endpoint: string;
+  current_status_summary: string;
 };

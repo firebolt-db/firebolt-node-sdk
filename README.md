@@ -16,6 +16,7 @@ yarn add firebolt-sdk
 ## Using the library
 
 ```typescript
+import Firebolt from 'firebolt-sdk'
 
 const firebolt = Firebolt();
 
