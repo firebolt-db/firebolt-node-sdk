@@ -231,23 +231,75 @@ Full mapping presented in the table below:
 
 <a name="engine-management"></a>
 ### Engine management
+Engines can be managed by using `resourceManager` object
 
+```typescript
+const firebolt = Firebolt();
+const enginesService = firebolt.resourceManager.engines
+```
 
 <a name="engine-get-by-id"></a>
+
 #### getById
+Returns Engine using engine id and account id
+
+```typescript
+const firebolt = Firebolt();
+const engine = await firebolt.resourceManager.engines.getById(
+  "c8a228ea-93df-4784-99f9-a99368518782",
+  "a32b073b-e093-4880-8fd4-3b302b4cf221"
+);
+```
 
 <a name="engine-get-by-name"></a>
 #### getByName
+Returns Engine using engine name
+
+```typescript
+const firebolt = Firebolt();
+const engine = await firebolt.resourceManager.engines.getByName("engine_name")
+```
 
 <a name="engine"></a>
 #### Engine
 
+| Property                 | Type                                      | Notes |
+|--------------------------|-------------------------------------------|-------|
+| `id`                     | `{engine_id: string; account_id: string}` |       |
+| `name`                   | `string`                                  |       |
+| `endpoint`               | `string`                                  |       |
+| `current_status_summary` | `string`                                  |       |
+|                          |                                           |       |
+
 <a name="engine-management-start"></a>
 ##### Start
+Starts an engine
+
+```typescript
+const firebolt = Firebolt();
+const engine = await firebolt.resourceManager.engines.getByName("engine_name")
+await engine.start()
+```
+
 <a name="engine-management-stop"></a>
-##### Start
+##### Stop
+Stops an engine
+
+```typescript
+const firebolt = Firebolt();
+const engine = await firebolt.resourceManager.engines.getByName("engine_name")
+await engine.stop()
+```
+
 <a name="engine-management-restart"></a>
 ##### Restart
+Restart an engine
+
+```typescript
+const firebolt = Firebolt();
+const engine = await firebolt.resourceManager.engines.getByName("engine_name")
+await engine.restart()
+```
 
 <a name="recipes"></a>
 ## Recipes
