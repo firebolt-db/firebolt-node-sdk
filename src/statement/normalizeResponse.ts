@@ -1,6 +1,5 @@
 import {
   QueryResponse,
-  QuerySettings,
   Meta,
   OutputFormat,
   ExecuteQueryOptions,
@@ -14,49 +13,20 @@ type ParsedResponse = {
   meta: any;
 };
 
-const getNormalizedValue = ({
-  index,
-  row,
-  meta,
-  settings
-}: {
-  index: number;
-  row: Row;
-  meta: Meta[];
-  settings: QuerySettings;
-}) => {
-  const { name } = meta[index];
-  if (settings.output_format === OutputFormat.JSON) {
-    return (row as Record<string, unknown>)[name];
-  }
-
-  if (
-    settings.output_format === OutputFormat.JSON_COMPACT ||
-    // settings.output_format === OutputFormat.JSON_COMPACT_LIMITED ||
-    !settings.output_format
-  ) {
-    return (row as unknown[])[index];
-  }
-};
-
 export const normalizeRow = (
   row: Row,
   meta: Meta[],
   executeQueryOptions: ExecuteQueryOptions
 ) => {
   const { settings = {} } = executeQueryOptions;
+  if (settings.output_format === OutputFormat.JSON) {
+    return row;
+  }
   const normalizedRow: Row = {};
 
   for (const index in meta) {
     const { name } = meta[index];
-
-    const normalizedValue = getNormalizedValue({
-      index: +index,
-      row,
-      meta,
-      settings
-    });
-    normalizedRow[name] = normalizedValue;
+    normalizedRow[name] = (row as unknown[])[+index];
   }
   return normalizedRow;
 };

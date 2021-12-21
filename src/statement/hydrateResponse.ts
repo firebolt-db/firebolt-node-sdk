@@ -9,10 +9,10 @@ const getHydratedValue = (
 ) => {
   const { type } = meta;
   const normalizedType = type.toUpperCase();
-  if (DATE_TYPES.includes(normalizedType)) {
+  if (DATE_TYPES.indexOf(normalizedType) !== -1) {
     return value ? new Date(value as string) : value;
   }
-  if (NUMBER_TYPES.includes(normalizedType)) {
+  if (NUMBER_TYPES.indexOf(normalizedType) !== -1) {
     if (
       executeQueryOptions.response?.bigNumberAsString &&
       typeof value === "object" &&
