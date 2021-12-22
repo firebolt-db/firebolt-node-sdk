@@ -36,7 +36,7 @@ export type QuerySettings = {
   output_format?: OutputFormat;
 };
 
-export type RowParser = (row: string) => any;
+export type RowParser = (row: string, isLastRow: boolean) => any;
 
 export type ResponseSettings = {
   normalizeData?: boolean;

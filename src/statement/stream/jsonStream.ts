@@ -42,7 +42,7 @@ export class JSONStream {
     this.rest = "{";
   }
 
-  defaultRowParser(row: string) {
+  defaultRowParser(row: string, isLastRow: boolean) {
     const normalizeData = this.executeQueryOptions.response?.normalizeData;
     const parsed = JSONbig.parse(row);
     const hydratedRow = hydrateRow(
@@ -111,7 +111,7 @@ export class JSONStream {
   handleDataArray(line: string) {
     if (line.match(/^[\]}],?$/) && this.objBuffer) {
       const rowStr = this.objBuffer + line[0];
-      const row = this.rowParser(rowStr);
+      const row = this.rowParser(rowStr, false);
       this.rows.push(row);
       this.objBuffer = undefined;
     } else if (line === "{" || line === "[") {
@@ -119,9 +119,9 @@ export class JSONStream {
     } else if (line.match(/^],?$/)) {
       this.state = "rootKeys";
     } else if (this.objBuffer === undefined) {
-      const rowStr =
-        line[line.length - 1] !== "," ? line : line.substr(0, line.length - 1);
-      const row = this.rowParser(rowStr);
+      const isLastRow = line[line.length - 1] !== ",";
+      const rowStr = isLastRow ? line : line.substr(0, line.length - 1);
+      const row = this.rowParser(rowStr, isLastRow);
       this.rows.push(row);
     } else {
       this.objBuffer += line;
