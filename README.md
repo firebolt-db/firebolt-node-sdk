@@ -285,6 +285,7 @@ Starts an engine
 
 ```typescript
 const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
 const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 await engine.start()
 ```
@@ -295,6 +296,7 @@ Stops an engine
 
 ```typescript
 const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
 const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 await engine.stop()
 ```
@@ -305,6 +307,7 @@ Restart an engine
 
 ```typescript
 const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
 const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 await engine.restart()
 ```

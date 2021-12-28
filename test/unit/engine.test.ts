@@ -23,10 +23,14 @@ describe("engine service", () => {
     rest.get(
       `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123`,
       (req, res, ctx) => {
+        const engine_id = {
+          engine_id: "123",
+          account_id: "some_account"
+        };
         return res(
           ctx.json({
             engine: {
-              id: "123",
+              id: engine_id,
               name: "some_engine",
               endpoint: "https://some_engine.com"
             }
@@ -63,5 +67,60 @@ describe("engine service", () => {
     const engine = await resourceManager.engine.getById("123", "some_account");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
+  });
+  it("starts engine", async () => {
+    server.use(
+      rest.post(
+        `https://${apiEndpoint}/core/v1/account/engines/123:start`,
+        (req, res, ctx) => {
+          return res(
+            ctx.status(200),
+            ctx.json({ engine: { id: { engine_id: 123 } } })
+          );
+        }
+      )
+    );
+
+    const httpClient = new NodeHttpClient();
+    const resourceManager = new ResourceManager({
+      httpClient,
+      apiEndpoint,
+      logger
+    });
+    const engine = await resourceManager.engine.getById("123", "some_account");
+    const {
+      engine: {
+        id: { engine_id }
+      }
+    } = await engine.start();
+    expect(engine_id).toEqual(123);
+  });
+
+  it("stops engine", async () => {
+    server.use(
+      rest.post(
+        `https://${apiEndpoint}/core/v1/account/engines/123:stop`,
+        (req, res, ctx) => {
+          return res(
+            ctx.status(200),
+            ctx.json({ engine: { id: { engine_id: 123 } } })
+          );
+        }
+      )
+    );
+
+    const httpClient = new NodeHttpClient();
+    const resourceManager = new ResourceManager({
+      httpClient,
+      apiEndpoint,
+      logger
+    });
+    const engine = await resourceManager.engine.getById("123", "some_account");
+    const {
+      engine: {
+        id: { engine_id }
+      }
+    } = await engine.stop();
+    expect(engine_id).toEqual(123);
   });
 });

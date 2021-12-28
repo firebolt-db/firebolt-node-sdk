@@ -7,14 +7,17 @@ import {
   MISSING_PASSWORD,
   MISSING_USERNAME
 } from "../common/errors";
+import { ResourceManager } from "../service";
 
 export class FireboltCore {
   private options: FireboltClientOptions;
   private context: Context;
+  resourceManager: ResourceManager;
 
   constructor(context: Context, options: FireboltClientOptions) {
     this.context = context;
     this.options = options;
+    this.resourceManager = context.resourceManager;
   }
 
   checkConnectionOptions(connectionOptions: ConnectionOptions) {
