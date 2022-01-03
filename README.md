@@ -174,7 +174,7 @@ export type ExecuteQueryOptions = {
 const { data, meta, statistics } = await statement.fetchResult();
 ```
 
-The Promise API **is not recommended** for `SELECT` queries with large result sets. This is because it parses results synchronously, so will block the JS thread/event loop and may lead to memory leaks due to peak GC loads.
+The Promise API **is not recommended** for `SELECT` queries with large result sets (greater than 10,000 rows). This is because it parses results synchronously, so will block the JS thread/event loop and may lead to memory leaks due to peak GC loads.
 
 It is recommended to use `LIMIT` in your queries when using the Promise API.
 
