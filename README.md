@@ -1,4 +1,4 @@
-# Firebolt Node.JS sdk
+# Firebolt Node.js SDK
 
 
 ## Installation
@@ -62,7 +62,7 @@ console.log(rows)
   * [Create connection](#usage-create-connection)
     * [ConnectionOptions](#usage-create-connection-options)
   * [Test connection](#usage-test-connection)
-  * [Engine endpoint](#usage-engine-endpoint)
+  * [Engine URL](#usage-engine-url)
   * [Execute query](#execute-query)
     * [ExecuteQueryOptions](#execute-query-options)
     * [QuerySettings](#execute-query-settings)
@@ -84,12 +84,9 @@ console.log(rows)
 
 <a name="About"></a>
 ## About
-Firebolt client for Node.JS.
-Provides common methods for quering firebolt databases, fetching and streaming results, engine management
+The Firebolt client for Node.js. firebolt-sdk provides common methods for quering Firebolt databases, fetching and streaming results, and engine management.
 
-Supported Node.JS version are: 
-
-`> v14`
+firebolt-sdk supports  Node.js `> v14`.
 
 <a name="documentation"></a>
 ## Documentation
@@ -97,28 +94,14 @@ Supported Node.JS version are:
 <a name="usage"></a>
 ## Usage
 
-<a name="usage-firebolt-client"></a>
-### Firebolt client
-
-Firebolt client can be confirugred using custom apiEndpoint
-
-```typescript
-const firebolt = Firebolt({
-  apiEndpoint: "api.dev.firebolt.io"
-});
-```
-
 <a name="usage-create-connection"></a>
 ### Create connection
-
-Instance of firebolt client can be used to create a connection
 
 ```typescript
 const connection = await firebolt.connect(connectionOptions);
 ```
 
 <a name="usage-create-connection-option"></a>
-
 #### ConnectionOptions
 ```typescript
 type ConnectionOptions = {
@@ -130,7 +113,6 @@ type ConnectionOptions = {
 };
 ```
 
-
 <a name="usage-create-connection"></a>
 ### Test connection
 TODO: write motivation
@@ -141,15 +123,18 @@ await firebolt.testConnection(connectionOptions)
 ```
 which will perform authentication and simple `select 1` query
 
-<a name="usage-engine-endpoint"></a>
-### Engine endpoint
-Engine endpoint have format simillar to:
-`example-engine.firebolt.us-east-1.app.firebolt.io`
-and can be found in web ui
+<a name="usage-engine-url"></a>
+### Engine URL
+Firebolt engine URLs use the following format:
+
+```
+<engine-name>.<account-name>.<region>.app.firebolt.io
+```
+
+For example: `your-engine.your-account.us-east-1.app.firebolt.io`. You can find and copy your engine endpoint name in the Firebolt web UI.
 
 <a name="execute-query"></a>
 ### Execute Query
-In order to execute a query run:
 
 ```typescript
 const statement = await connection.execute(query, executeQueryOptions);
@@ -184,22 +169,17 @@ export type ExecuteQueryOptions = {
 
 <a name="fetch-result"></a>
 ### Fetch result
+
 ```typescript
 const { data, meta, statistics } = await statement.fetchResult();
 ```
-Promise api **is not recommended** for `SELECT` queries with large result set
 
-With promise api query result are parsed synchronously.
-This means that large query result:
-* Will synchronously block JS thread/event loop.
-* May lead to memory leaks in your app due peak GC loads.
+The Promise API **is not recommended** for `SELECT` queries with large result sets (greater than 10,000 rows). This is because it parses results synchronously, so will block the JS thread/event loop and may lead to memory leaks due to peak GC loads.
 
-Use it only for queries where resulting data size is is known and small.<br/>
-The good cases to use it is `show tables` or `select 1`
+It is recommended to use `LIMIT` in your queries when using the Promise API.
 
 <a name="stream-result"></a>
 ### Stream result
-Start streaming of result
 
 ```typescript
 const { data } = await statement.streamResult();
@@ -220,8 +200,8 @@ for await (const row of data) {
 
 <a name="result-hydration"></a>
 ### Result hydration
-Firebolt SDK maps SQL data types to their corresponding JavaScript equivalents.
-Full mapping presented in the table below:
+
+firebolt-sdk maps SQL data types to their corresponding JavaScript equivalents. The mapping is described in the table below:
 
 | Category    | SQL type | JavaScript type | Notes                                                                                                                             |
 |-------------|----------|-----------------|-----------------------------------------------------------------------------------------------------------------------------------|
@@ -239,7 +219,8 @@ Full mapping presented in the table below:
 
 <a name="engine-management"></a>
 ### Engine management
-Engines can be managed by using `resourceManager` object
+
+Engines can be managed by using the `resourceManager` object.
 
 ```typescript
 const firebolt = Firebolt();
@@ -247,9 +228,9 @@ const enginesService = firebolt.resourceManager.engines
 ```
 
 <a name="engine-get-by-id"></a>
-
 #### getById
-Returns Engine using engine id and account id
+
+Returns engine using engine ID and account ID.
 
 ```typescript
 const firebolt = Firebolt();
@@ -261,7 +242,8 @@ const engine = await firebolt.resourceManager.engines.getById(
 
 <a name="engine-get-by-name"></a>
 #### getByName
-Returns Engine using engine name
+
+Returns engine using engine name.
 
 ```typescript
 const firebolt = Firebolt();
@@ -281,7 +263,8 @@ const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 
 <a name="engine-management-start"></a>
 ##### Start
-Starts an engine
+
+Starts an engine.
 
 ```typescript
 const firebolt = Firebolt();
@@ -292,7 +275,8 @@ await engine.start()
 
 <a name="engine-management-stop"></a>
 ##### Stop
-Stops an engine
+
+Stops an engine.
 
 ```typescript
 const firebolt = Firebolt();
@@ -303,7 +287,8 @@ await engine.stop()
 
 <a name="engine-management-restart"></a>
 ##### Restart
-Restart an engine
+
+Restarts an engine.
 
 ```typescript
 const firebolt = Firebolt();
@@ -318,10 +303,9 @@ await engine.restart()
 <a name="recipes-stream"></a>
 ### Streaming results
 
-The recommended way to consume query result is by using streams.
+The recommended way to consume query results is by using streams.
 
-For convenience `statement.streamResult` also return `meta: Promise<Meta[]>` and `statistics: Promise<Statistics>`,
-wrappers over `data.on('metadata')` and `data.on('statistics')`
+For convenience, `statement.streamResult` also returns `meta: Promise<Meta[]>` and `statistics: Promise<Statistics>`, which are wrappers over `data.on('metadata')` and `data.on('statistics')`.
 
 ```typescript
 const firebolt = Firebolt();
@@ -349,13 +333,12 @@ const statistics = await statisticsPromise
 console.log(meta);
 console.log(statistics);
 console.log(rows)
-
 ```
 
 <a name="recipes-stream-transformers"></a>
 ### Custom stream transformers
 
-To achieve seamless stream pipes to `fs` or `stdout` you can use `Transform` stream 
+To achieve seamless stream pipes to `fs` or `stdout`, you can use the `Transform` stream.
 
 ```typescript
 import stream,  { TransformCallback } from 'stream';
@@ -387,10 +370,9 @@ const statement = await connection.execute("select 1 union all select 2");
 const { data } = await statement.streamResult();
 
 serializedStream.pipe(serializedStream).pipe(process.stdout);
-
 ```
 
-Or use `rowParser` that returns strings or Buffer
+Or use `rowParser` that returns strings or Buffer:
 
 ```typescript
 const { data } = await statement.streamResult({
@@ -403,10 +385,13 @@ data.pipe(process.stdout);
 ## Development process
 ### Actions before
 ### Setup env variables
+
   ```sh
   cp .env.example .env
   ```
+  
 ## Execute tests
+
   ```sh
     npm test
   ```
