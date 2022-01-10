@@ -1,5 +1,6 @@
 # Firebolt Node.js SDK
 
+<img width="1114" alt="Screen Shot 2022-01-10 at 10 56 30 AM" src="https://user-images.githubusercontent.com/7674553/148823093-5ff07a44-9954-4640-b322-a7e029e47450.png">
 
 ## Installation
 
