@@ -3,7 +3,7 @@
   "version": "0.0.5",
   "description": "Official firebolt Node.JS sdk",
   "main": "./build/src/index.js",
-  "types": "./build/src/types.d.ts",
+  "types": "./build/src/index.d.ts",
   "engines": {
     "node": ">=14.0"
   },
