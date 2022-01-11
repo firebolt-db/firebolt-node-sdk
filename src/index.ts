@@ -7,3 +7,19 @@ export const Firebolt = FireboltClient({
   logger: Logger,
   httpClient: NodeHttpClient
 });
+
+export type {
+  FireboltClientOptions,
+  ConnectionOptions,
+  StreamOptions,
+  ExecuteQueryOptions,
+  ResponseSettings,
+  RowParser,
+  Statistics,
+  Meta,
+  OutputFormat,
+  QueryResponse,
+  QuerySettings,
+  Context,
+  Row
+} from "./types";
