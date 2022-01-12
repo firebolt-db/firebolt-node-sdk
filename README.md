@@ -78,7 +78,7 @@ console.log(rows)
       * <a href="#engine-management-stop">stop</a>
       * <a href="#engine-management-restart">restart</a>
 * <a href="#recipes">Recipes</a>
-  * <a href="#recipes-stream">Streaming result</a>
+  * <a href="#recipes-stream">Streaming results</a>
   * <a href="#recipes-stream-transformers">Custom stream transformers</a>
 
 
