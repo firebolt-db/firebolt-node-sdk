@@ -61,6 +61,7 @@ console.log(rows)
 * <a href="#usage">Usage</a>
   * <a href="#usage-create-connection">Create connection</a>
     * <a href="#usage-create-connection-options">ConnectionOptions</a>
+  * <a href="usage-test-connection">Test connection</a>
   * <a href="#usage-engine-url">Engine URL</a>
   * <a href="#execute-query">Execute query</a>
     * <a href="#execute-query-options">ExecuteQueryOptions</a>
@@ -112,7 +113,7 @@ type ConnectionOptions = {
 };
 ```
 
-<a name="usage-create-connection"></a>
+<a name="usage-test-connection"></a>
 ### Test connection
 TODO: write motivation
 connection can be tested using:
