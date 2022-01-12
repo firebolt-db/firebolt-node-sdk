@@ -10,7 +10,7 @@ export class EngineService {
     this.context = context;
   }
 
-  private async getEngineId(engineName: string) {
+  private async getEngineId(engineName: string): Promise<ID> {
     const { apiEndpoint, httpClient } = this.context;
     const queryParams = new URLSearchParams({ engine_name: engineName });
     const url = `${apiEndpoint}/${ENGINES}:getIdByName?${queryParams}`;
@@ -20,7 +20,7 @@ export class EngineService {
     return data.engine_id;
   }
 
-  async getById(engineId: string, accountId: string) {
+  async getById(engineId: string, accountId: string): Promise<EngineModel> {
     const { apiEndpoint, httpClient } = this.context;
     const url = `${apiEndpoint}/${ACCOUNTS}/${accountId}/engines/${engineId}`;
     const data = await httpClient
@@ -29,14 +29,14 @@ export class EngineService {
     return new EngineModel(this.context, data.engine);
   }
 
-  async getByName(engineName: string) {
+  async getByName(engineName: string): Promise<EngineModel> {
     const { engine_id, account_id } = await this.getEngineId(engineName);
     const engine = await this.getById(engine_id, account_id);
     return new EngineModel(this.context, engine);
   }
 
-  async getAll(): Promise<Engine[]> {
-    const engines: Engine[] = [];
+  async getAll(): Promise<EngineModel[]> {
+    const engines: EngineModel[] = [];
     const { apiEndpoint, httpClient } = this.context;
     
     let hasNextPage = false;
