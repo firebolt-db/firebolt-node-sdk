@@ -26,6 +26,18 @@ describe("database integration", () => {
 });
 
 describe("engine resource manager", () => {
+  it("retrieves all databases", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    await firebolt.connect(connectionOptions);
+
+    const databases = await firebolt.resourceManager.database.getAll();
+
+    expect(databases.find((database) => process.env.FIREBOLT_DATABASE === database.name)).toBeTruthy();
+  });
+
   it("retrieves a database by its name", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string

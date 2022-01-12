@@ -1,4 +1,4 @@
-import { DATABASES, ACCOUNTS } from "../../common/api";
+import { DATABASES, ACCOUNTS, ResultsPage } from "../../common/api";
 import { Context } from "../../types";
 import { DatabaseModel } from "./model";
 import { ID, Database } from "./types";
@@ -33,6 +33,31 @@ export class DatabaseService {
     const { database_id, account_id } = await this.getDatabaseId(databaseName);
     const database = await this.getById(database_id, account_id);
     return new DatabaseModel(this.context, database);
+  }
+
+  async getAll(): Promise<DatabaseModel[]> {
+    const databases: DatabaseModel[] = [];
+    const { apiEndpoint, httpClient } = this.context;
+    
+    let hasNextPage = false;
+    let cursor: string;
+    do {
+      // I don't know where to add the cursor to request the next page.
+      const url = `${apiEndpoint}/${DATABASES}`;
+      const data = await httpClient
+        .request<ResultsPage<Database>>("GET", url)
+        .ready();
+
+      hasNextPage = data.page.has_next_page;
+
+      for (const edge of data.edges) {
+        cursor = edge.cursor;
+        databases.push(new DatabaseModel(this.context, edge.node));
+      }
+
+    } while (hasNextPage);
+
+    return databases;
   }
 
 }
