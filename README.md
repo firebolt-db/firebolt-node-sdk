@@ -56,31 +56,31 @@ console.log(rows)
 ```
 
 ## Contents
-* [About](#about)
-* [Documentation](#documentation)
-* [Usage](#usage)
-  * [Firebolt client](#usage-firebolt-client)
-  * [Create connection](#usage-create-connection)
-    * [ConnectionOptions](#usage-create-connection-options)
-  * [Test connection](#usage-test-connection)
-  * [Engine URL](#usage-engine-url)
-  * [Execute query](#execute-query)
-    * [ExecuteQueryOptions](#execute-query-options)
-    * [QuerySettings](#execute-query-settings)
-    * [ResponseSettings](#execute-query-response)
-  * [Fetch result](#fetch-result)
-  * [Stream result](#stream-result)
-  * [Result hydration](#result-hydration)
-  * [Engine management](#engine-management)
-    * [getById](#engine-get-by-id)
-    * [getByName](#engine-get-by-name)
-    * [Engine](#engine)
-      * [start](#engine-management-start)
-      * [stop](#engine-management-stop)
-      * [restart](#engine-management-restart)
-* [Recipes](#recipes)
-  * [Streaming results](#recipes-stream)
-  * [Custom stream transformers](#recipes-stream-transform)
+* <a href="#about">About</a>
+* <a href="#documentation">Documentation</a>
+* <a href="#usage">Usage</a>
+  * <a href="#usage-firebolt-client">Firebolt client</a>
+  * <a href="#usage-create-connection">Create connection</a>
+    * <a href="#usage-create-connection-options">ConnectionOptions</a>
+  * <a href="#usage-test-connection">Test connection</a>
+  * <a href="#usage-engine-url">Engine URL</a>
+  * <a href="#execute-query">Execute query</a>
+    * <a href="#execute-query-options">ExecuteQueryOptions</a>
+    * <a href="#execute-query-settings">QuerySettings</a>
+    * <a href="#execute-query-response">ResponseSettings</a>
+  * <a href="#fetch-result">Fetch result</a>
+  * <a href="#stream-result">Stream result</a>
+  * <a href="#result-hydration">Result hydration</a>
+  * <a href="#engine-management">Engine management</a>
+    * <a href="#engine-get-by-id">getById</a>
+    * <a href="#engine">getByName</a>
+    * <a href="#engine">Engine</a>
+      * <a href="#engine-management-start">start</a>
+      * <a href="#engine-management-stop">stop</a>
+      * <a href="#engine-management-restart">restart</a>
+* <a href="#recipes">Recipes</a>
+  * <a href="#recipes-stream">Streaming result</a>
+  * <a href="#recipes-stream-transformers">Custom stream transformers</a>
 
 
 <a name="About"></a>
@@ -102,7 +102,7 @@ firebolt-sdk supports  Node.js `> v14`.
 const connection = await firebolt.connect(connectionOptions);
 ```
 
-<a name="usage-create-connection-option"></a>
+<a name="usage-create-connection-options"></a>
 #### ConnectionOptions
 ```typescript
 type ConnectionOptions = {
