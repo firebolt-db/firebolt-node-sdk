@@ -56,53 +56,52 @@ console.log(rows)
 ```
 
 ## Contents
-* [About](#about)
-* [Documentation](#documentation)
-* [Usage](#usage)
-  * [Firebolt client](#usage-firebolt-client)
-  * [Create connection](#usage-create-connection)
-    * [ConnectionOptions](#usage-create-connection-options)
-  * [Test connection](#usage-test-connection)
-  * [Engine URL](#usage-engine-url)
-  * [Execute query](#execute-query)
-    * [ExecuteQueryOptions](#execute-query-options)
-    * [QuerySettings](#execute-query-settings)
-    * [ResponseSettings](#execute-query-response)
-  * [Fetch result](#fetch-result)
-  * [Stream result](#stream-result)
-  * [Result hydration](#result-hydration)
-  * [Engine management](#engine-management)
-    * [getById](#engine-get-by-id)
-    * [getByName](#engine-get-by-name)
-    * [Engine](#engine)
-      * [start](#engine-management-start)
-      * [stop](#engine-management-stop)
-      * [restart](#engine-management-restart)
-* [Recipes](#recipes)
-  * [Streaming results](#recipes-stream)
-  * [Custom stream transformers](#recipes-stream-transform)
+* <a href="#about">About</a>
+* <a href="#documentation">Documentation</a>
+* <a href="#usage">Usage</a>
+  * <a href="#usage-create-connection">Create connection</a>
+    * <a href="#usage-create-connection-options">ConnectionOptions</a>
+  * <a href="#usage-test-connection">Test connection</a>
+  * <a href="#usage-engine-url">Engine URL</a>
+  * <a href="#execute-query">Execute query</a>
+    * <a href="#execute-query-options">ExecuteQueryOptions</a>
+    * <a href="#execute-query-settings">QuerySettings</a>
+    * <a href="#execute-query-response">ResponseSettings</a>
+  * <a href="#fetch-result">Fetch result</a>
+  * <a href="#stream-result">Stream result</a>
+  * <a href="#result-hydration">Result hydration</a>
+  * <a href="#engine-management">Engine management</a>
+    * <a href="#engine-get-by-id">getById</a>
+    * <a href="#engine-get-by-name">getByName</a>
+    * <a href="#engine">Engine</a>
+      * <a href="#engine-management-start">start</a>
+      * <a href="#engine-management-stop">stop</a>
+      * <a href="#engine-management-restart">restart</a>
+* <a href="#recipes">Recipes</a>
+  * <a href="#recipes-stream">Streaming results</a>
+  * <a href="#recipes-stream-transformers">Custom stream transformers</a>
 
 
-<a name="About"></a>
+<a id="About"></a>
 ## About
 The Firebolt client for Node.js. firebolt-sdk provides common methods for quering Firebolt databases, fetching and streaming results, and engine management.
 
 firebolt-sdk supports  Node.js `> v14`.
 
-<a name="documentation"></a>
+<a id="documentation"></a>
 ## Documentation
 
-<a name="usage"></a>
+<a id="usage"></a>
 ## Usage
 
-<a name="usage-create-connection"></a>
+<a id="usage-create-connection"></a>
 ### Create connection
 
 ```typescript
 const connection = await firebolt.connect(connectionOptions);
 ```
 
-<a name="usage-create-connection-option"></a>
+<a id="usage-create-connection-options"></a>
 #### ConnectionOptions
 ```typescript
 type ConnectionOptions = {
@@ -114,7 +113,7 @@ type ConnectionOptions = {
 };
 ```
 
-<a name="usage-create-connection"></a>
+<a id="usage-test-connection"></a>
 ### Test connection
 TODO: write motivation
 connection can be tested using:
@@ -124,7 +123,7 @@ await firebolt.testConnection(connectionOptions)
 ```
 which will perform authentication and simple `select 1` query
 
-<a name="usage-engine-url"></a>
+<a id="usage-engine-url"></a>
 ### Engine URL
 Firebolt engine URLs use the following format:
 
@@ -134,14 +133,14 @@ Firebolt engine URLs use the following format:
 
 For example: `your-engine.your-account.us-east-1.app.firebolt.io`. You can find and copy your engine endpoint name in the Firebolt web UI.
 
-<a name="execute-query"></a>
+<a id="execute-query"></a>
 ### Execute Query
 
 ```typescript
 const statement = await connection.execute(query, executeQueryOptions);
 ```
 
-<a name="execute-query-options"></a>
+<a id="execute-query-options"></a>
 ### ExecuteQueryOptions
 
 ```typescript
@@ -151,7 +150,7 @@ export type ExecuteQueryOptions = {
 };
 ```
 
-<a name="execute-query-settings"></a>
+<a id="execute-query-settings"></a>
 ### QuerySettings
 
 | Parameter     | Required | Default      | Description                       |
@@ -159,7 +158,7 @@ export type ExecuteQueryOptions = {
 | output_format |          | JSON_COMPACT | Specifies format of selected data |
 
 
-<a name="execute-query-response"></a>
+<a id="execute-query-response"></a>
 ### ResponseSettings
 
 | Parameter         | Required | Default | Description                 |
@@ -168,7 +167,7 @@ export type ExecuteQueryOptions = {
 | bigNumberAsString |          | false   | hydrate BigNumber as String |
 
 
-<a name="fetch-result"></a>
+<a id="fetch-result"></a>
 ### Fetch result
 
 ```typescript
@@ -179,7 +178,7 @@ The Promise API **is not recommended** for `SELECT` queries with large result se
 
 It is recommended to use `LIMIT` in your queries when using the Promise API.
 
-<a name="stream-result"></a>
+<a id="stream-result"></a>
 ### Stream result
 
 ```typescript
@@ -199,7 +198,7 @@ for await (const row of data) {
 }
 ```
 
-<a name="result-hydration"></a>
+<a id="result-hydration"></a>
 ### Result hydration
 
 firebolt-sdk maps SQL data types to their corresponding JavaScript equivalents. The mapping is described in the table below:
@@ -218,7 +217,7 @@ firebolt-sdk maps SQL data types to their corresponding JavaScript equivalents. 
 | Date & Time | DATE     | Date            |                                                                                                                                   |
 
 
-<a name="engine-management"></a>
+<a id="engine-management"></a>
 ### Engine management
 
 Engines can be managed by using the `resourceManager` object.
@@ -228,7 +227,7 @@ const firebolt = Firebolt();
 const enginesService = firebolt.resourceManager.engines
 ```
 
-<a name="engine-get-by-id"></a>
+<a id="engine-get-by-id"></a>
 #### getById
 
 Returns engine using engine ID and account ID.
@@ -241,7 +240,7 @@ const engine = await firebolt.resourceManager.engines.getById(
 );
 ```
 
-<a name="engine-get-by-name"></a>
+<a id="engine-get-by-name"></a>
 #### getByName
 
 Returns engine using engine name.
@@ -251,7 +250,7 @@ const firebolt = Firebolt();
 const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 ```
 
-<a name="engine"></a>
+<a id="engine"></a>
 #### Engine
 
 | Property                 | Type                                      | Notes |
@@ -262,7 +261,7 @@ const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 | `current_status_summary` | `string`                                  |       |
 |                          |                                           |       |
 
-<a name="engine-management-start"></a>
+<a id="engine-management-start"></a>
 ##### Start
 
 Starts an engine.
@@ -274,7 +273,7 @@ const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 await engine.start()
 ```
 
-<a name="engine-management-stop"></a>
+<a id="engine-management-stop"></a>
 ##### Stop
 
 Stops an engine.
@@ -286,7 +285,7 @@ const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 await engine.stop()
 ```
 
-<a name="engine-management-restart"></a>
+<a id="engine-management-restart"></a>
 ##### Restart
 
 Restarts an engine.
@@ -298,10 +297,10 @@ const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 await engine.restart()
 ```
 
-<a name="recipes"></a>
+<a id="recipes"></a>
 ## Recipes
 
-<a name="recipes-stream"></a>
+<a id="recipes-stream"></a>
 ### Streaming results
 
 The recommended way to consume query results is by using streams.
@@ -336,7 +335,7 @@ console.log(statistics);
 console.log(rows)
 ```
 
-<a name="recipes-stream-transformers"></a>
+<a id="recipes-stream-transformers"></a>
 ### Custom stream transformers
 
 To achieve seamless stream pipes to `fs` or `stdout`, you can use the `Transform` stream.

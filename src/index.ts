@@ -23,3 +23,5 @@ export type {
   Context,
   Row
 } from "./types";
+
+export type { Connection } from "./connection";
