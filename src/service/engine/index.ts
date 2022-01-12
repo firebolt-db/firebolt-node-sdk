@@ -1,4 +1,4 @@
-import { ENGINES, ACCOUNTS } from "../../common/api";
+import { ENGINES, ACCOUNTS, ResultsPage } from "../../common/api";
 import { Context } from "../../types";
 import { EngineModel } from "./model";
 import { ID, Engine } from "./types";
@@ -33,5 +33,30 @@ export class EngineService {
     const { engine_id, account_id } = await this.getEngineId(engineName);
     const engine = await this.getById(engine_id, account_id);
     return new EngineModel(this.context, engine);
+  }
+
+  async getAll(): Promise<Engine[]> {
+    const engines: Engine[] = [];
+    const { apiEndpoint, httpClient } = this.context;
+    
+    let hasNextPage = false;
+    let cursor: string;
+    do {
+      // I don't know where to add the cursor to request the next page.
+      const url = `${apiEndpoint}/${ENGINES}`;
+      const data = await httpClient
+        .request<ResultsPage<Engine>>("GET", url)
+        .ready();
+
+      hasNextPage = data.page.has_next_page;
+
+      for (const edge of data.edges) {
+        cursor = edge.cursor;
+        engines.push(new EngineModel(this.context, edge.node));
+      }
+
+    } while (hasNextPage);
+
+    return engines;
   }
 }

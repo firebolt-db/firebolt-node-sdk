@@ -42,3 +42,17 @@ describe("engine integration", () => {
     expect(engine.current_status_summary.includes("RUNNING")).toBe(true);
   });
 });
+
+describe("engine resource manager", () => {
+  it("retrieves all engines", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    await firebolt.connect(connectionOptions);
+
+    const engines = await firebolt.resourceManager.engine.getAll();
+
+    expect(engines.find((engine) => process.env.FIREBOLT_ENGINE_NAME === engine.name)).toBeTruthy();
+  });
+});
