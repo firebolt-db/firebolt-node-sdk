@@ -59,10 +59,8 @@ console.log(rows)
 * <a href="#about">About</a>
 * <a href="#documentation">Documentation</a>
 * <a href="#usage">Usage</a>
-  * <a href="#usage-firebolt-client">Firebolt client</a>
   * <a href="#usage-create-connection">Create connection</a>
     * <a href="#usage-create-connection-options">ConnectionOptions</a>
-  * <a href="#usage-test-connection">Test connection</a>
   * <a href="#usage-engine-url">Engine URL</a>
   * <a href="#execute-query">Execute query</a>
     * <a href="#execute-query-options">ExecuteQueryOptions</a>
