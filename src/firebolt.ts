@@ -9,7 +9,7 @@ type Dependencies = {
   httpClient: HttpClient;
 };
 
-const DEFAULT_API_ENDPOINT = "api.firebolt.io";
+const DEFAULT_API_ENDPOINT = "api.app.firebolt.io";
 
 export const FireboltClient = (dependencies: Dependencies) => {
   return (options: FireboltClientOptions = {}) => {
