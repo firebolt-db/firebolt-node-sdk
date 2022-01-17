@@ -7,6 +7,8 @@ const connectionOptions = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
+jest.setTimeout(20000);
+
 describe("engine integration", () => {
   it("starts engine", async () => {
     const firebolt = Firebolt({
@@ -26,21 +28,25 @@ describe("engine integration", () => {
     expect(name).toEqual(process.env.FIREBOLT_ENGINE_NAME);
   });
 
-  it("starts engine and waits for it to be ready", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
+  it(
+    "starts engine and waits for it to be ready",
+    async () => {
+      const firebolt = Firebolt({
+        apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+      });
 
-    await firebolt.connect(connectionOptions);
+      await firebolt.connect(connectionOptions);
 
-    const engine = await firebolt.resourceManager.engine.getByName(
-      process.env.FIREBOLT_ENGINE_NAME as string
-    );
+      const engine = await firebolt.resourceManager.engine.getByName(
+        process.env.FIREBOLT_ENGINE_NAME as string
+      );
 
-    await engine.startAndWait();
+      await engine.startAndWait();
 
-    expect(engine.current_status_summary.includes("RUNNING")).toBe(true);
-  }, 10 * 60 * 1000);
+      expect(engine.current_status_summary.includes("RUNNING")).toBe(true);
+    },
+    10 * 60 * 1000
+  );
 });
 
 describe("engine resource manager", () => {
@@ -53,7 +59,9 @@ describe("engine resource manager", () => {
 
     const engines = await firebolt.resourceManager.engine.getAll();
 
-    expect(engines.find((engine) => process.env.FIREBOLT_ENGINE_NAME === engine.name)).toBeTruthy();
+    expect(
+      engines.find(engine => process.env.FIREBOLT_ENGINE_NAME === engine.name)
+    ).toBeTruthy();
   });
 
   it("retrieves the engine description", async () => {

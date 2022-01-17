@@ -7,6 +7,8 @@ const connectionOptions = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
+jest.setTimeout(20000);
+
 describe("database integration", () => {
   it("retrieves default url", async () => {
     const firebolt = Firebolt({
@@ -35,7 +37,11 @@ describe("engine resource manager", () => {
 
     const databases = await firebolt.resourceManager.database.getAll();
 
-    expect(databases.find((database) => process.env.FIREBOLT_DATABASE === database.name)).toBeTruthy();
+    expect(
+      databases.find(
+        database => process.env.FIREBOLT_DATABASE === database.name
+      )
+    ).toBeTruthy();
   });
 
   it("retrieves a database by its name", async () => {
@@ -51,5 +57,4 @@ describe("engine resource manager", () => {
 
     expect(name).toEqual(process.env.FIREBOLT_DATABASE);
   });
-
 });

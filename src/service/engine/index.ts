@@ -38,12 +38,14 @@ export class EngineService {
   async getAll(): Promise<EngineModel[]> {
     const engines: EngineModel[] = [];
     const { apiEndpoint, httpClient } = this.context;
-    
+
     let hasNextPage = false;
-    let cursor: string;
+    let cursor = "";
     do {
-      // I don't know where to add the cursor to request the next page.
-      const url = `${apiEndpoint}/${ENGINES}`;
+      const query = cursor
+        ? `?${new URLSearchParams({ "page.after": cursor })}`
+        : "";
+      const url = `${apiEndpoint}/${ENGINES}${query}`;
       const data = await httpClient
         .request<ResultsPage<Engine>>("GET", url)
         .ready();
@@ -54,7 +56,6 @@ export class EngineService {
         cursor = edge.cursor;
         engines.push(new EngineModel(this.context, edge.node));
       }
-
     } while (hasNextPage);
 
     return engines;

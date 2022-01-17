@@ -38,12 +38,14 @@ export class DatabaseService {
   async getAll(): Promise<DatabaseModel[]> {
     const databases: DatabaseModel[] = [];
     const { apiEndpoint, httpClient } = this.context;
-    
+
     let hasNextPage = false;
-    let cursor: string;
+    let cursor = "";
     do {
-      // I don't know where to add the cursor to request the next page.
-      const url = `${apiEndpoint}/${DATABASES}`;
+      const query = cursor
+        ? `?${new URLSearchParams({ "page.after": cursor })}`
+        : "";
+      const url = `${apiEndpoint}/${DATABASES}${query}`;
       const data = await httpClient
         .request<ResultsPage<Database>>("GET", url)
         .ready();
@@ -54,10 +56,8 @@ export class DatabaseService {
         cursor = edge.cursor;
         databases.push(new DatabaseModel(this.context, edge.node));
       }
-
     } while (hasNextPage);
 
     return databases;
   }
-
 }

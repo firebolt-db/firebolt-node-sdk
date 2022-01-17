@@ -22,7 +22,7 @@ export class EngineModel {
 
   async start() {
     const { apiEndpoint, httpClient } = this.context;
-    const id = this.id.engine_id
+    const id = this.id.engine_id;
     const url = `${apiEndpoint}/${ENGINES}/${id}:start`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
@@ -31,30 +31,32 @@ export class EngineModel {
   }
 
   async startAndWait() {
-    const { engine: { current_status_summary  } } = await this.start();
+    const {
+      engine: { current_status_summary }
+    } = await this.start();
     this.current_status_summary = current_status_summary;
     if (this.current_status_summary.includes("RUNNING")) {
       return;
     }
 
     let interval: NodeJS.Timer;
-    await new Promise<void>((resolve) => {
+    await new Promise<void>(resolve => {
       interval = setInterval(async () => {
         await this.refreshStatus();
         if (this.current_status_summary.includes("RUNNING")) {
           return resolve();
-        }   
+        }
       }, 10 * 1000); // Check every 10 seconds.
     }).finally(() => {
       if (interval) {
         clearInterval(interval);
       }
-    })
+    });
   }
 
   async stop() {
     const { apiEndpoint, httpClient } = this.context;
-    const id = this.id.engine_id
+    const id = this.id.engine_id;
     const url = `${apiEndpoint}/${ENGINES}/${id}:stop`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
@@ -64,7 +66,7 @@ export class EngineModel {
 
   async restart() {
     const { apiEndpoint, httpClient } = this.context;
-    const id = this.id.engine_id
+    const id = this.id.engine_id;
     const url = `${apiEndpoint}/${ENGINES}/${id}:restart`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
@@ -76,9 +78,9 @@ export class EngineModel {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
     const url = `${apiEndpoint}/${ENGINES}/${id}`;
-    const { engine: { current_status_summary  } } = await httpClient
-      .request<{ engine: Engine }>("GET", url)
-      .ready();
+    const {
+      engine: { current_status_summary }
+    } = await httpClient.request<{ engine: Engine }>("GET", url).ready();
     this.current_status_summary = current_status_summary;
   }
 }
