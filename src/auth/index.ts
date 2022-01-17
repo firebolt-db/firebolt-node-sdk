@@ -1,5 +1,5 @@
 import { LOGIN, REFRESH } from "../common/api";
-import { Context, ConnectionOptions } from "../types";
+import { Context, AuthOptions } from "../types";
 
 type Login = {
   access_token: string;
@@ -8,12 +8,12 @@ type Login = {
 
 export class Authenticator {
   context: Context;
-  options: ConnectionOptions;
+  options: AuthOptions;
 
   accessToken?: string;
   refreshToken?: string;
 
-  constructor(context: Context, options: ConnectionOptions) {
+  constructor(context: Context, options: AuthOptions) {
     context.httpClient.authenticator = this;
     this.context = context;
     this.options = options;
