@@ -1,18 +1,18 @@
 import BigNumber from "bignumber.js";
-import { Meta, ExecuteQueryOptions, Row } from "../types";
+import { ExecuteQueryOptions, Row } from "../types";
+import { Meta } from "../meta";
 import { DATE_TYPES, NUMBER_TYPES } from "./dataTypes";
 
 const getHydratedValue = (
   value: unknown,
-  meta: { type: string },
+  meta: Meta,
   executeQueryOptions: ExecuteQueryOptions
 ) => {
   const { type } = meta;
-  const normalizedType = type.toUpperCase();
-  if (DATE_TYPES.indexOf(normalizedType) !== -1) {
+  if (DATE_TYPES.indexOf(type) !== -1) {
     return value ? new Date(value as string) : value;
   }
-  if (NUMBER_TYPES.indexOf(normalizedType) !== -1) {
+  if (NUMBER_TYPES.indexOf(type) !== -1) {
     if (
       executeQueryOptions.response?.bigNumberAsString &&
       typeof value === "object" &&

@@ -3,9 +3,9 @@ import {
   ExecuteQueryOptions,
   StreamOptions,
   Context,
-  Meta,
   Statistics
 } from "../types";
+import { Meta } from "../meta";
 import { isDataQuery } from "../common/util";
 import { RowStream } from "./stream/rowStream";
 import { JSONStream } from "./stream/jsonStream";

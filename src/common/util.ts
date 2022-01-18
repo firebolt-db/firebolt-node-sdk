@@ -23,7 +23,7 @@ export const isDataQuery = (query: string): boolean => {
 export const withNullableTypes = (types: string[]) => {
   return types.reduce((acc: string[], type) => {
     acc.push(type);
-    acc.push(`NULLABLE(${type})`);
+    acc.push(`nullable(${type})`);
     return acc;
   }, []);
 };

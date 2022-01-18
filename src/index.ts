@@ -21,7 +21,6 @@ export type {
   ResponseSettings,
   RowParser,
   Statistics,
-  Meta,
   OutputFormat,
   QueryResponse,
   QuerySettings,
@@ -30,3 +29,4 @@ export type {
 } from "./types";
 
 export type { Connection } from "./connection";
+export type { Meta } from "./meta";
