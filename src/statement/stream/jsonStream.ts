@@ -1,11 +1,7 @@
 import JSONbig from "json-bigint";
-import {
-  StreamOptions,
-  ExecuteQueryOptions,
-  RowParser,
-  Meta
-} from "../../types";
-import { normalizeRow } from "../normalizeResponse";
+import { StreamOptions, ExecuteQueryOptions, RowParser } from "../../types";
+import { Meta } from "../../meta";
+import { normalizeColumn, normalizeRow } from "../normalizeResponse";
 import { hydrateRow } from "../hydrateResponse";
 import { RowStream } from "./rowStream";
 
@@ -96,7 +92,8 @@ export class JSONStream {
     if (line.match(/^},?$/)) {
       const columnStr = this.objBuffer + "}";
       const column = JSONbig.parse(columnStr);
-      this.columns.push(column);
+      const normalizedColumn = normalizeColumn(column);
+      this.columns.push(normalizedColumn);
       this.objBuffer = undefined;
     } else if (line === "{") {
       this.objBuffer = line;

@@ -4,6 +4,7 @@ import { HttpClientInterface, HttpClientOptions } from "./http";
 
 import { LoggerInterface, LoggerOptions } from "./logger";
 import { ResourceManager } from "./service";
+import { Meta } from "./meta";
 
 export type Statistics = {
   duration: number | BigNumber;
@@ -11,11 +12,6 @@ export type Statistics = {
   scannedBytes: number;
   scannedBytesCache?: number;
   scannedBytesStorage?: number;
-};
-
-export type Meta = {
-  name: string;
-  type: string;
 };
 
 export type Row = Record<string, unknown> | unknown[];

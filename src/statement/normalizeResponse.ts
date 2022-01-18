@@ -1,10 +1,10 @@
 import {
   QueryResponse,
-  Meta,
   OutputFormat,
   ExecuteQueryOptions,
   Row
 } from "../types";
+import { Meta } from "../meta";
 import { hydrateRow } from "./hydrateResponse";
 
 type ParsedResponse = {
@@ -31,11 +31,15 @@ export const normalizeRow = (
   return normalizedRow;
 };
 
+export const normalizeColumn = (column: { name: string; type: string }) => {
+  return new Meta(column);
+};
+
 const getNormalizedMeta = (response: ParsedResponse): Meta[] => {
   if (!response.meta) {
     return [];
   }
-  return response.meta;
+  return response.meta.map(normalizeColumn);
 };
 
 export const getNormalizedStatistics = (response: ParsedResponse) => {
