@@ -1,7 +1,8 @@
 import { HttpClientInterface } from "../http";
 import { LoggerInterface } from "../logger";
 import { EngineService } from "./engine";
-import { Context } from "../types";
+import { Authenticator } from "../auth";
+import { AuthOptions, Context } from "../types";
 
 export class ResourceManager {
   private context: Context;
@@ -17,5 +18,10 @@ export class ResourceManager {
       resourceManager: this
     };
     this.engine = new EngineService(this.context);
+  }
+
+  async authenticate(options: AuthOptions) {
+    const auth = new Authenticator(this.context, options);
+    await auth.authenticate();
   }
 }

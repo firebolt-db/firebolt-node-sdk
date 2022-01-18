@@ -61,6 +61,11 @@ export type ConnectionOptions = {
   engineEndpoint?: string;
 };
 
+export type AuthOptions = {
+  username: string;
+  password: string;
+};
+
 export type FireboltClientOptions = {
   logger?: LoggerOptions;
   client?: HttpClientOptions;

@@ -1,9 +1,14 @@
 // node entry point
-import { FireboltClient } from "./firebolt";
+import { FireboltClient, ResourceClient } from "./firebolt";
 import { NodeHttpClient } from "./http/node";
 import { Logger } from "./logger/node";
 
 export const Firebolt = FireboltClient({
+  logger: Logger,
+  httpClient: NodeHttpClient
+});
+
+export const FireboltResourceManager = ResourceClient({
   logger: Logger,
   httpClient: NodeHttpClient
 });
