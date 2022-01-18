@@ -33,7 +33,6 @@ describe("engine integration", () => {
     expect(name).toEqual(process.env.FIREBOLT_ENGINE_NAME);
   });
 
-
   it(
     "starts engine and waits for it to be ready",
     async () => {
@@ -61,7 +60,7 @@ describe("engine resource manager", () => {
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
-    await firebolt.connect(authOptions);
+    await firebolt.connect(connectionOptions);
 
     const engines = await firebolt.resourceManager.engine.getAll();
 
@@ -75,13 +74,14 @@ describe("engine resource manager", () => {
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
-    await firebolt.connect(authOptions);
+    await firebolt.connect(connectionOptions);
 
     const engine = await firebolt.resourceManager.engine.getByName(
       process.env.FIREBOLT_ENGINE_NAME as string
     );
 
     expect(typeof engine.description).toEqual("string");
+  });
 
   it("use separate firebolt resource client", async () => {
     const resourceManager = FireboltResourceManager({
@@ -92,6 +92,5 @@ describe("engine resource manager", () => {
       process.env.FIREBOLT_ENGINE_NAME as string
     );
     expect(engine.name).toEqual(process.env.FIREBOLT_ENGINE_NAME);
-
   });
 });
