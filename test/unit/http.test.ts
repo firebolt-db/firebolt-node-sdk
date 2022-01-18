@@ -40,8 +40,7 @@ describe("http client", () => {
       { httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
-        password: "fake_password",
-        database: "fake_database"
+        password: "fake_password"
       }
     );
     server.use(authHandler);
@@ -60,8 +59,7 @@ describe("http client", () => {
       { httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
-        password: "fake_password",
-        database: "fake_database"
+        password: "fake_password"
       }
     );
     server.use(
@@ -87,8 +85,7 @@ describe("http client", () => {
       { httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
-        password: "fake_password",
-        database: "fake_database"
+        password: "fake_password"
       }
     );
     server.use(
@@ -117,8 +114,7 @@ describe("http client", () => {
       { httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
-        password: "fake_password",
-        database: "fake_database"
+        password: "fake_password"
       }
     );
     server.use(
