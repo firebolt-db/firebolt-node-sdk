@@ -77,6 +77,11 @@ console.log(rows)
       * <a href="#start">start</a>
       * <a href="#stop">stop</a>
       * <a href="#restart">restart</a>
+  * <a href="#database-management">Database management</a>
+    * <a href="#database-getbyid">getById</a>
+    * <a href="#database-getbyname">getByName</a>
+    * <a href="#database">Database</a>
+* <a href="#resource-manager">Resource Manager</a>
 * <a href="#recipes">Recipes</a>
   * <a href="#streaming-results">Streaming results</a>
   * <a href="#custom-stream-transformers">Custom stream transformers</a>
@@ -161,10 +166,10 @@ export type ExecuteQueryOptions = {
 <a id="executequeryresponse"></a>
 ### ResponseSettings
 
-| Parameter         | Required | Default | Description                 |
-|-------------------|----------|---------|-----------------------------|
-| normalizeData     |          | false   |                             |
-| bigNumberAsString |          | false   | hydrate BigNumber as String |
+| Parameter         | Required | Default | Description                                           |
+|-------------------|----------|---------|-------------------------------------------------------|
+| normalizeData     |          | false   | Maps each row in response from array format to object |
+| bigNumberAsString |          | false   | Hydrate BigNumber as String                           |
 
 
 <a id="fetch-result"></a>
@@ -223,8 +228,10 @@ firebolt-sdk maps SQL data types to their corresponding JavaScript equivalents. 
 Engines can be managed by using the `resourceManager` object.
 
 ```typescript
+import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
-const enginesService = firebolt.resourceManager.engines
+await firebolt.connect(connectionOptions);
+const enginesService = firebolt.resourceManager.engine
 ```
 
 <a id="getbyid"></a>
@@ -233,8 +240,10 @@ const enginesService = firebolt.resourceManager.engines
 Returns engine using engine ID and account ID.
 
 ```typescript
+import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
-const engine = await firebolt.resourceManager.engines.getById(
+await firebolt.connect(connectionOptions);
+const engine = await firebolt.resourceManager.engine.getById(
   "c8a228ea-93df-4784-99f9-a99368518782",
   "a32b073b-e093-4880-8fd4-3b302b4cf221"
 );
@@ -246,8 +255,10 @@ const engine = await firebolt.resourceManager.engines.getById(
 Returns engine using engine name.
 
 ```typescript
+import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
-const engine = await firebolt.resourceManager.engines.getByName("engine_name")
+await firebolt.connect(connectionOptions);
+const engine = await firebolt.resourceManager.engine.getByName("engine_name")
 ```
 
 <a id="engine"></a>
@@ -258,8 +269,8 @@ const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 | `id`                     | `{engine_id: string; account_id: string}` |       |
 | `name`                   | `string`                                  |       |
 | `endpoint`               | `string`                                  |       |
+| `description`            | `string`                                  |       |
 | `current_status_summary` | `string`                                  |       |
-|                          |                                           |       |
 
 <a id="start"></a>
 ##### Start
@@ -267,9 +278,10 @@ const engine = await firebolt.resourceManager.engines.getByName("engine_name")
 Starts an engine.
 
 ```typescript
+import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
 await firebolt.connect(connectionOptions);
-const engine = await firebolt.resourceManager.engines.getByName("engine_name")
+const engine = await firebolt.resourceManager.engine.getByName("engine_name")
 await engine.start()
 ```
 
@@ -279,9 +291,10 @@ await engine.start()
 Stops an engine.
 
 ```typescript
+import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
 await firebolt.connect(connectionOptions);
-const engine = await firebolt.resourceManager.engines.getByName("engine_name")
+const engine = await firebolt.resourceManager.engine.getByName("engine_name")
 await engine.stop()
 ```
 
@@ -291,10 +304,79 @@ await engine.stop()
 Restarts an engine.
 
 ```typescript
+import { Firebolt } from 'firebolt-sdk'
+
 const firebolt = Firebolt();
 await firebolt.connect(connectionOptions);
-const engine = await firebolt.resourceManager.engines.getByName("engine_name")
+const engine = await firebolt.resourceManager.engine.getByName("engine_name")
 await engine.restart()
+```
+
+<a id="database-management"></a>
+### Database management
+
+Databases can be managed by using the `resourceManager` object.
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
+const databaseService = firebolt.resourceManager.database
+```
+
+<a id="database-getbyid"></a>
+#### Database getById
+
+Returns database using engine ID and account ID.
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
+const engine = await firebolt.resourceManager.database.getById(
+  "c8a228ea-93df-4784-99f9-a99368518782",
+  "a32b073b-e093-4880-8fd4-3b302b4cf221"
+);
+```
+
+<a id="getbyname"></a>
+#### Database getByName
+
+Returns database using database name.
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+const firebolt = Firebolt();
+const database = await firebolt.resourceManager.database.getByName("database_name")
+```
+
+<a id="database"></a>
+#### Database
+
+| Property      | Type                                      | Notes |
+|---------------|-------------------------------------------|-------|
+| `id`          | `{engine_id: string; account_id: string}` |       |
+| `name`        | `string`                                  |       |
+| `description` | `string`                                  |       |
+
+<a id="resource-manager"></a>
+## Resource Manager
+It is possible to create `resourceManager` separately from firebolt client,
+providing only auth credentials
+
+```typescript
+import { FireboltResourceManager } from 'firebolt-sdk'
+
+const authOptions = {
+  username: process.env.FIREBOLT_USERNAME as string,
+  password: process.env.FIREBOLT_PASSWORD as string
+};
+
+const resourceManager = FireboltResourceManager();
+await resourceManager.authenticate(authOptions);
+const engine = await resourceManager.engine.getByName(
+  process.env.FIREBOLT_ENGINE_NAME as string
+);
 ```
 
 <a id="recipes"></a>
