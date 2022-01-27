@@ -33,7 +33,7 @@ describe("engine integration", () => {
     expect(name).toEqual(process.env.FIREBOLT_ENGINE_NAME);
   });
 
-  it(
+  it.skip(
     "starts engine and waits for it to be ready",
     async () => {
       const firebolt = Firebolt({

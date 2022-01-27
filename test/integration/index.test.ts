@@ -102,7 +102,7 @@ describe("integration test", () => {
     const connection = await firebolt.connect(connectionParams);
 
     const statement = await connection.execute(
-      "SELECT * from ex_lineitem limit 100",
+      "SELECT * from lineitem limit 100",
       { settings: { output_format: OutputFormat.JSON_COMPACT } }
     );
 
@@ -179,7 +179,7 @@ describe("integration test", () => {
     const connection = await firebolt.connect(connectionParams);
 
     const statement = await connection.execute(
-      "SELECT * from ex_lineitem limit 10"
+      "SELECT * from lineitem limit 10"
     );
 
     // to achieve seamless stream pipes you can use through2
