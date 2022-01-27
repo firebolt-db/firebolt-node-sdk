@@ -22,7 +22,7 @@ jobs:
         with:
           firebolt-username: ${{ secrets.FIREBOLT_USERNAME }}
           firebolt-password: ${{ secrets.FIREBOLT_PASSWORD }}
-          api-endpoint: ${{ secrets.FIREBOLT_API_ENDPOINT }}
+          api-endpoint: "api.dev.firebolt.io"
           region: "us-east-1"
 
       - name: Run integration tests
