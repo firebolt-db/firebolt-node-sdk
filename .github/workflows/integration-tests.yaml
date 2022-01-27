@@ -34,4 +34,4 @@ jobs:
           FIREBOLT_ENGINE_ENDPOINT: ${{ steps.setup.outputs.engine_url }}
           FIREBOLT_API_ENDPOINT: ${{ secrets.FIREBOLT_API_ENDPOINT }}
         run: |
-          npm test integration
+          npm run test:ci integration
