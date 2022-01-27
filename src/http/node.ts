@@ -1,3 +1,4 @@
+import { Agent } from "https";
 import Abort from "abort-controller";
 import fetch from "node-fetch";
 import { assignProtocol } from "../common/util";
@@ -47,6 +48,7 @@ export class NodeHttpClient {
       const withProtocol = assignProtocol(url);
 
       const response = await fetch(withProtocol, {
+        agent: new Agent({ keepAlive: true }),
         signal: controller.signal,
         method,
         headers: {
