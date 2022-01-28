@@ -34,9 +34,11 @@ export class NodeHttpClient {
   } {
     const { headers = {}, body, retry = true } = options || {};
     const controller = new AbortController();
+    const agent = new Agent({ keepAlive: true, keepAliveMsecs: 1000 });
 
     const abort = () => {
       controller.abort();
+      agent.destroy();
     };
 
     const makeRequest = async () => {
@@ -48,7 +50,7 @@ export class NodeHttpClient {
       const withProtocol = assignProtocol(url);
 
       const response = await fetch(withProtocol, {
-        agent: new Agent({ keepAlive: true }),
+        agent,
         signal: controller.signal,
         method,
         headers: {
