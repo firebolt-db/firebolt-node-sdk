@@ -2,9 +2,13 @@ import { withNullableTypes } from "../common/util";
 
 const typeMapping = {
   date: "date",
+  date_ext: "date",
   timestamp: "timestamp",
+  timestamp_ext: "timestamp",
   datetime: "timestamp",
   "datetime('etc/utc')": "timestamp",
+  decimal: "decimal",
+  decimal_ext: "decimal",
   long: "long",
   float: "float",
   float32: "float",
