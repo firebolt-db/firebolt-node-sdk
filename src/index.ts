@@ -21,12 +21,13 @@ export type {
   ResponseSettings,
   RowParser,
   Statistics,
-  OutputFormat,
   QueryResponse,
   QuerySettings,
   Context,
   Row
 } from "./types";
+
+export { OutputFormat } from "./types";
 
 export type { Connection } from "./connection";
 export type { Meta } from "./meta";
