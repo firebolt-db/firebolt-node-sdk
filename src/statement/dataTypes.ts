@@ -45,9 +45,21 @@ const getMappedType = (innerType: string) => {
 
 const COMPLEX_TYPE = /(nullable|array)\((.+)\)/;
 
-export const DATE_TYPES = withNullableTypes(["date", "timestamp", "datetime"]);
+export const DATE_TYPES = withNullableTypes([
+  "date",
+  "timestamp",
+  "datetime",
+  "date32",
+  "date_ext",
+  "timestamp_ext"
+]);
 
-export const FLOAT_TYPES = withNullableTypes(["float", "double"]);
+export const FLOAT_TYPES = withNullableTypes([
+  "float",
+  "double",
+  "decimal",
+  "decimal_ext"
+]);
 
 export const BOOLEAN_TYPES = withNullableTypes([
   "boolean"
