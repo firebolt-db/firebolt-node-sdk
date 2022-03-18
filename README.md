@@ -171,7 +171,7 @@ export type ExecuteQueryOptions = {
 | output_format |          | JSON_COMPACT | Specifies format of selected data |
 
 You can also use QuerySettings to specify set parameters.
-For example: `{ advanced_mode: true }` or `{ query_id: 'hello' }`
+For example: `{ query_id: 'hello' }`
 
 
 <a id="executequeryresponse"></a>
