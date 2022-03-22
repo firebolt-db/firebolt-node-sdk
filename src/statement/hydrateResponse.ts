@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import { ExecuteQueryOptions, Row } from "../types";
 import { Meta } from "../meta";
-import { DATE_TYPES, NUMBER_TYPES } from "./dataTypes";
+import { isDateType, isNumberType } from "./dataTypes";
 
 const getHydratedValue = (
   value: unknown,
@@ -9,10 +9,10 @@ const getHydratedValue = (
   executeQueryOptions: ExecuteQueryOptions
 ) => {
   const { type } = meta;
-  if (DATE_TYPES.indexOf(type) !== -1) {
+  if (isDateType(type)) {
     return value ? new Date(value as string) : value;
   }
-  if (NUMBER_TYPES.indexOf(type) !== -1) {
+  if (isNumberType(type)) {
     if (
       executeQueryOptions.response?.bigNumberAsString &&
       typeof value === "object" &&

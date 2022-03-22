@@ -10,7 +10,7 @@ const connectionOptions = {
 jest.setTimeout(20000);
 
 describe("database integration", () => {
-  it.skip("retrieves default url", async () => {
+  it("retrieves default url", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });

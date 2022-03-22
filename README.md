@@ -145,6 +145,14 @@ For example: `your-engine.your-account.us-east-1.app.firebolt.io`. You can find 
 const statement = await connection.execute(query, executeQueryOptions);
 ```
 
+### Execute Query with parameters
+
+```typescript
+const statement = await connection.execute(query, {
+  settings: { query_id: 'hello' }
+});
+```
+
 <a id="executequeryoptions"></a>
 ### ExecuteQueryOptions
 
@@ -161,6 +169,9 @@ export type ExecuteQueryOptions = {
 | Parameter     | Required | Default      | Description                       |
 |---------------|----------|--------------|-----------------------------------|
 | output_format |          | JSON_COMPACT | Specifies format of selected data |
+
+You can also use QuerySettings to specify set parameters.
+For example: `{ query_id: 'hello' }`
 
 
 <a id="executequeryresponse"></a>

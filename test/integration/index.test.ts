@@ -8,7 +8,7 @@ const connectionParams = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
-jest.setTimeout(15000);
+jest.setTimeout(50000);
 
 describe("integration test", () => {
   it("works", async () => {
