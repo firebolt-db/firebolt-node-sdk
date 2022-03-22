@@ -11,6 +11,7 @@
     "build": "rm -fr ./build && tsc -p tsconfig.lib.json",
     "release": "standard-version",
     "test": "jest",
+    "test:ci": "jest --ci --bail",
     "type-check": "tsc -p ."
   },
   "prettier": {
