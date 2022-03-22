@@ -28,6 +28,7 @@ export type {
 } from "./types";
 
 export { OutputFormat } from "./types";
+export { EngineStatusSummrary } from "./service/engine/types";
 
 export type { Connection } from "./connection";
 export type { Meta } from "./meta";
