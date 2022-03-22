@@ -5,5 +5,21 @@ export type Engine = {
   name: string;
   description: string;
   endpoint: string;
-  current_status_summary: string;
+  current_status_summary: EngineStatusSummrary;
 };
+
+export enum EngineStatusSummrary {
+  DELETED = "DELETED",
+  DELETING = "DELETING",
+  FAILED = "FAILED",
+  REPAIRING = "REPAIRING",
+  RESTARTING = "RESTARTING",
+  RESTARTING_INITIALIZING = "RESTARTING_INITIALIZING",
+  RUNNING = "RUNNING",
+  STARTING = "STARTING",
+  STARTING_INITIALIZING = "STARTING_INITIALIZING",
+  STOPPED = "STOPPED",
+  STOPPING = "STOPPING",
+  UNSPECIFIED = "UNSPECIFIED",
+  UPGRADING = "UPGRADING"
+}

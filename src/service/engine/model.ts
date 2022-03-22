@@ -1,6 +1,6 @@
 import { ENGINES } from "../../common/api";
 import { Context } from "../../types";
-import { ID, Engine } from "./types";
+import { ID, Engine, EngineStatusSummrary } from "./types";
 
 export class EngineModel {
   private context: Context;
@@ -8,7 +8,7 @@ export class EngineModel {
   name: string;
   description: string;
   endpoint: string;
-  current_status_summary: string;
+  current_status_summary: EngineStatusSummrary;
 
   constructor(context: Context, engine: Engine) {
     const { id, name, description, endpoint, current_status_summary } = engine;
