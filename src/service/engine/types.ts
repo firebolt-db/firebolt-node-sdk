@@ -5,10 +5,10 @@ export type Engine = {
   name: string;
   description: string;
   endpoint: string;
-  current_status_summary: EngineStatusSummrary;
+  current_status_summary: EngineStatusSummary;
 };
 
-export enum EngineStatusSummrary {
+export enum EngineStatusSummary {
   DELETED = "DELETED",
   DELETING = "DELETING",
   FAILED = "FAILED",
