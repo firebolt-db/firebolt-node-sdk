@@ -2,6 +2,7 @@ import { Logger } from "./logger";
 import { HttpClient } from "./http";
 import { ResourceManager } from "./service";
 import { FireboltCore } from "./core";
+import { QueryFormatter } from "./formatter";
 import { FireboltClientOptions } from "./types";
 
 type Dependencies = {
@@ -29,10 +30,13 @@ const getContext = (
   const httpClient =
     options.dependencies?.httpClient || new DefaultHttpClient(clientOptions);
 
+  const queryFormatter = new QueryFormatter();
+
   const context = {
     logger,
     httpClient,
-    apiEndpoint
+    apiEndpoint,
+    queryFormatter
   };
   return context;
 };

@@ -3,6 +3,9 @@ export const MISSING_PASSWORD = 404002;
 export const MISSING_DATABASE = 404003;
 export const MISSING_ENGINE_ENDPOINT = 404004;
 
+export const INVALID_REPLACEMENTS = 400001;
+export const INVALID_REPLACEMENT = 400002;
+
 const errorMessages: Record<number, string> = {
   [MISSING_PASSWORD]: "Password is missing",
   [MISSING_USERNAME]: "Username is missing",

@@ -27,19 +27,24 @@ export class Statement {
     {
       query,
       request,
+      replacements,
       executeQueryOptions
     }: {
       query: string;
       request: { ready: () => Promise<any>; abort: () => void };
+      replacements: unknown[];
       executeQueryOptions: ExecuteQueryOptions;
     }
   ) {
     this.context = context;
 
     this.request = request;
-    this.query = query;
+    const formattedQuery = this.context.queryFormatter.formatQuery(
+      query,
+      replacements
+    );
+    this.query = formattedQuery;
     this.executeQueryOptions = executeQueryOptions;
-
     this.rowStream = new RowStream();
   }
 

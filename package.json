@@ -40,8 +40,10 @@
   },
   "dependencies": {
     "@types/json-bigint": "^1.0.1",
+    "@types/sqlstring": "^2.3.0",
     "abort-controller": "^3.0.0",
     "json-bigint": "^1.0.0",
-    "node-fetch": "^2.6.6"
+    "node-fetch": "^2.6.6",
+    "sqlstring": "^2.3.3"
   }
 }

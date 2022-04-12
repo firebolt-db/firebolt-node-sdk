@@ -5,6 +5,7 @@ import { HttpClientInterface, HttpClientOptions } from "./http";
 import { LoggerInterface, LoggerOptions } from "./logger";
 import { ResourceManager } from "./service";
 import { Meta } from "./meta";
+import { QueryFormatter } from "./formatter";
 
 export type Statistics = {
   duration: number | BigNumber;
@@ -76,5 +77,6 @@ export type Context = {
   logger: LoggerInterface;
   httpClient: HttpClientInterface;
   resourceManager: ResourceManager;
+  queryFormatter: QueryFormatter;
   apiEndpoint: string;
 };

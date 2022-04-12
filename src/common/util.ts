@@ -33,3 +33,9 @@ export const checkArgumentExists = (expression: any, code: number) => {
     throw new ArgumentError({ code });
   }
 };
+
+export const checkArgumentValid = (expression: any, code: number) => {
+  if (!expression) {
+    throw new ArgumentError({ code });
+  }
+};
