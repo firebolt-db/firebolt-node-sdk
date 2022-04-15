@@ -31,4 +31,11 @@ describe("format query", () => {
       `"select * from table where bar = true;"`
     );
   });
+
+  it("format ?", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "select ? from table";
+    const formattedQuery = queryFormatter.formatQuery(query, ["foo?"]);
+    expect(formattedQuery).toMatchInlineSnapshot(`"select 'foo?' from table"`);
+  });
 });

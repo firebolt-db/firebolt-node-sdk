@@ -1,4 +1,3 @@
-import * as sqlString from "sqlstring";
 import { checkArgumentValid } from "../common/util";
 import { INVALID_REPLACEMENT, INVALID_REPLACEMENTS } from "../common/errors";
 
