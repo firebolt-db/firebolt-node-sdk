@@ -10,7 +10,7 @@ const connectionParams = {
 jest.setTimeout(500000);
 
 describe("long running request", () => {
-  it("handles long request", async () => {
+  it.skip("handles long request", async () => {
     const query = `SELECT sleepEachRow(1) from numbers(360)`;
 
     const firebolt = Firebolt({
