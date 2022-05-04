@@ -1,5 +1,4 @@
 import BigNumber from "bignumber.js";
-// import { Parameter } from "./paramter";
 import { HttpClientInterface, HttpClientOptions } from "./http";
 
 import { LoggerInterface, LoggerOptions } from "./logger";
@@ -42,7 +41,7 @@ export type ResponseSettings = {
 
 export type ExecuteQueryOptions = {
   settings?: QuerySettings;
-  // paramters?: Parameter[];
+  parameters?: unknown[];
   response?: ResponseSettings;
 };
 

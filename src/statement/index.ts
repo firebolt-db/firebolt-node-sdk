@@ -27,21 +27,19 @@ export class Statement {
     {
       query,
       request,
-      replacements,
       executeQueryOptions
     }: {
       query: string;
       request: { ready: () => Promise<any>; abort: () => void };
-      replacements: unknown[];
       executeQueryOptions: ExecuteQueryOptions;
     }
   ) {
     this.context = context;
-
     this.request = request;
+    const { parameters } = executeQueryOptions;
     const formattedQuery = this.context.queryFormatter.formatQuery(
       query,
-      replacements
+      parameters
     );
     this.query = formattedQuery;
     this.executeQueryOptions = executeQueryOptions;

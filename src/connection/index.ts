@@ -56,8 +56,7 @@ export class Connection {
 
   async execute(
     query: string,
-    executeQueryOptions: ExecuteQueryOptions = {},
-    replacements: unknown[]
+    executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<Statement> {
     const { httpClient } = this.context;
 
@@ -86,8 +85,7 @@ export class Connection {
       const statement = new Statement(this.context, {
         query,
         request,
-        executeQueryOptions,
-        replacements
+        executeQueryOptions
       });
       return statement;
     } finally {

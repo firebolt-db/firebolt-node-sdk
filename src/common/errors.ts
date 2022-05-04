@@ -3,15 +3,15 @@ export const MISSING_PASSWORD = 404002;
 export const MISSING_DATABASE = 404003;
 export const MISSING_ENGINE_ENDPOINT = 404004;
 
-export const INVALID_REPLACEMENTS = 400001;
-export const INVALID_REPLACEMENT = 400002;
+export const INVALID_PARAMETERS = 400001;
 
 const errorMessages: Record<number, string> = {
   [MISSING_PASSWORD]: "Password is missing",
   [MISSING_USERNAME]: "Username is missing",
   [MISSING_DATABASE]: "Database is missing",
   [MISSING_ENGINE_ENDPOINT]:
-    "At least one should be provided: engineName or engineEndpoint"
+    "At least one should be provided: engineName or engineEndpoint",
+  [INVALID_PARAMETERS]: "Parameters should be array"
 };
 
 export class ApiError extends Error {

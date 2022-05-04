@@ -1,6 +1,6 @@
 import BigNumber from "bignumber.js";
 import { checkArgumentValid } from "../common/util";
-import { INVALID_REPLACEMENT, INVALID_REPLACEMENTS } from "../common/errors";
+import { INVALID_PARAMETERS } from "../common/errors";
 
 const CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a"'\\]/g; // eslint-disable-line no-control-regex
 
@@ -42,17 +42,6 @@ const zeroPad = (param: number, length: number) => {
 };
 
 export class QueryFormatter {
-  private checkReplacements(replacements: unknown[]) {
-    checkArgumentValid(Array.isArray(replacements), INVALID_REPLACEMENTS);
-
-    for (let index = 0, length = replacements.length; index < length; index++) {
-      checkArgumentValid(
-        JSON.stringify(replacements[index]) !== undefined,
-        INVALID_REPLACEMENT
-      );
-    }
-  }
-
   private format(query: string, params: unknown[]) {
     const regex = /(''|""|``|\\\\|\\'|\\"|'|"|`|\?)/g;
 
@@ -87,14 +76,14 @@ export class QueryFormatter {
       if (state !== STATE.WHITESPACE) return str;
 
       if (params.length == 0) {
-        throw new Error("Too few replacements given");
+        throw new Error("Too few parameters given");
       }
 
       return this.escape(params.shift());
     });
 
     if (params.length) {
-      throw new Error("Too many replacements given");
+      throw new Error("Too many parameters given");
     }
 
     return query;
@@ -218,12 +207,11 @@ export class QueryFormatter {
     }
   }
 
-  formatQuery(query: string, replacements: unknown[]): string {
+  formatQuery(query: string, parameters?: unknown[]): string {
     query = removeComments(query);
-    console.log(query);
-    if (replacements) {
-      this.checkReplacements(replacements);
-      query = this.format(query, replacements);
+    if (parameters) {
+      checkArgumentValid(Array.isArray(parameters), INVALID_PARAMETERS);
+      query = this.format(query, parameters);
     }
     return query;
   }
