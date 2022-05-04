@@ -4,6 +4,9 @@ import { INVALID_PARAMETERS } from "../common/errors";
 
 const CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a"'\\]/g; // eslint-disable-line no-control-regex
 
+const COMMENTS_REGEXP =
+  /("(""|[^"])*")|('(''|[^'])*')|(--[^\n\r]*)|(\/\*[\w\W]*?(?=\*\/)\*\/)/gm;
+
 const CHARS_ESCAPE_MAP: Record<string, string> = {
   "\0": "\\0",
   "\b": "\\b",
@@ -17,18 +20,15 @@ const CHARS_ESCAPE_MAP: Record<string, string> = {
 };
 
 const removeComments = (query: string) => {
-  query = query.replace(
-    /("(""|[^"])*")|('(''|[^'])*')|(--[^\n\r]*)|(\/\*[\w\W]*?(?=\*\/)\*\/)/gm,
-    match => {
-      if (
-        (match[0] === '"' && match[match.length - 1] === '"') ||
-        (match[0] === "'" && match[match.length - 1] === "'")
-      )
-        return match;
+  query = query.replace(COMMENTS_REGEXP, match => {
+    if (
+      (match[0] === '"' && match[match.length - 1] === '"') ||
+      (match[0] === "'" && match[match.length - 1] === "'")
+    )
+      return match;
 
-      return "";
-    }
-  );
+    return "";
+  });
   return query;
 };
 

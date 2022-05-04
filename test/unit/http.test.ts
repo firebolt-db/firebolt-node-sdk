@@ -4,6 +4,7 @@ import { Authenticator } from "../../src/auth";
 import { NodeHttpClient } from "../../src/http/node";
 import { Logger } from "../../src/logger/node";
 import { ResourceManager } from "../../src/service";
+import { QueryFormatter } from "../../src/formatter";
 
 const apiEndpoint = "fake.api.com";
 const logger = new Logger();
@@ -31,13 +32,16 @@ describe("http client", () => {
 
   it("stores access token", async () => {
     const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
+
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
-      logger
+      logger,
+      queryFormatter
     });
     const authenticator = new Authenticator(
-      { httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
         password: "fake_password"
@@ -50,13 +54,15 @@ describe("http client", () => {
   });
   it("sends access token in headers", async () => {
     const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
-      logger
+      logger,
+      queryFormatter
     });
     const authenticator = new Authenticator(
-      { httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
         password: "fake_password"
@@ -76,13 +82,15 @@ describe("http client", () => {
   });
   it("throw error if status > 300", async () => {
     const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
-      logger
+      logger,
+      queryFormatter
     });
     const authenticator = new Authenticator(
-      { httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
         password: "fake_password"
@@ -105,13 +113,15 @@ describe("http client", () => {
   it("refresh token on 401", async () => {
     const statusMock = jest.fn().mockReturnValueOnce(401).mockReturnValue(200);
     const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
-      logger
+      logger,
+      queryFormatter
     });
     const authenticator = new Authenticator(
-      { httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
       {
         username: "user",
         password: "fake_password"

@@ -3,6 +3,7 @@ import { rest } from "msw";
 import { NodeHttpClient } from "../../src/http/node";
 import { Logger } from "../../src/logger/node";
 import { ResourceManager } from "../../src/service";
+import { QueryFormatter } from "../../src/formatter";
 
 const apiEndpoint = "fake.api.com";
 const logger = new Logger();
@@ -48,10 +49,12 @@ describe("engine service", () => {
 
   it("gets engine by name", async () => {
     const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
-      logger
+      logger,
+      queryFormatter
     });
     const engine = await resourceManager.engine.getByName("some_engine");
     expect(engine).toBeTruthy();
@@ -59,10 +62,12 @@ describe("engine service", () => {
   });
   it("gets engine by id", async () => {
     const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
-      logger
+      logger,
+      queryFormatter
     });
     const engine = await resourceManager.engine.getById("123", "some_account");
     expect(engine).toBeTruthy();
@@ -82,10 +87,12 @@ describe("engine service", () => {
     );
 
     const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
-      logger
+      logger,
+      queryFormatter
     });
     const engine = await resourceManager.engine.getById("123", "some_account");
     const {
@@ -110,10 +117,12 @@ describe("engine service", () => {
     );
 
     const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
-      logger
+      logger,
+      queryFormatter
     });
     const engine = await resourceManager.engine.getById("123", "some_account");
     const {

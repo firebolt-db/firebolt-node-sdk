@@ -3,6 +3,7 @@ import { LoggerInterface } from "../logger";
 import { DatabaseService } from "./database";
 import { EngineService } from "./engine";
 import { Authenticator } from "../auth";
+import { QueryFormatter } from "../formatter";
 import { AuthOptions, Context } from "../types";
 
 export class ResourceManager {
@@ -13,6 +14,7 @@ export class ResourceManager {
   constructor(context: {
     httpClient: HttpClientInterface;
     logger: LoggerInterface;
+    queryFormatter: QueryFormatter;
     apiEndpoint: string;
   }) {
     this.context = {
