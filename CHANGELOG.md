@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.24](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.0.23...v0.0.24) (2022-05-04)
+
+
+### Features
+
+* Merge pull request [#16](https://github.com/firebolt-db/firebolt-node-sdk/issues/16) from firebolt-db/query-bindings ([76d27cb](https://github.com/firebolt-db/firebolt-node-sdk/commit/76d27cb42fff155f4f4ac41772da5fbb7c623993))
+
 ### [0.0.23](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.0.22...v0.0.23) (2022-03-23)
 
 ### [0.0.22](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.0.21...v0.0.22) (2022-03-23)
