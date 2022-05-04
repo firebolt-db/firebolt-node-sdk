@@ -112,4 +112,14 @@ describe("format query", () => {
       `"select '1000-01-01 12:21:21' from table"`
     );
   });
+  it("format with comments", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "SELECT * FROM table WHERE /* a comment line? */ table.a = 4";
+    try {
+      queryFormatter.formatQuery(query, ["foo"]);
+      expect(false).toEqual(true);
+    } catch (error) {
+      expect(true).toEqual(true);
+    }
+  });
 });

@@ -220,6 +220,7 @@ export class QueryFormatter {
 
   formatQuery(query: string, replacements: unknown[]): string {
     query = removeComments(query);
+    console.log(query);
     if (replacements) {
       this.checkReplacements(replacements);
       query = this.format(query, replacements);
