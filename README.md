@@ -65,6 +65,7 @@ console.log(rows)
   * <a href="#engine-url">Engine URL</a>
   * <a href="#execute-query">Execute query</a>
     * <a href="#executequeryoptions">ExecuteQueryOptions</a>
+    * <a href="#parameters">parameters</a>
     * <a href="#querysettings">QuerySettings</a>
     * <a href="#responsesettings">ResponseSettings</a>
   * <a href="#fetch-result">Fetch result</a>
@@ -145,7 +146,7 @@ For example: `your-engine.your-account.us-east-1.app.firebolt.io`. You can find 
 const statement = await connection.execute(query, executeQueryOptions);
 ```
 
-### Execute Query with parameters
+### Execute Query with set flags
 
 ```typescript
 const statement = await connection.execute(query, {
@@ -158,10 +159,24 @@ const statement = await connection.execute(query, {
 
 ```typescript
 export type ExecuteQueryOptions = {
+  parameters:? unknown[];
   settings?: QuerySettings;
   response?: ResponseSettings;
 };
 ```
+
+<a id="parameters"></a>
+### parameters
+`parameters` field is used to specify replacements for `?` symbol in the query.
+
+For example: 
+```typescript
+const statement = await connection.execute("select ?, ?", {
+  parameters: ["foo", 1]
+});
+```
+
+will produce `select 'foo', 1` query
 
 <a id="querysettings"></a>
 ### QuerySettings
@@ -170,7 +185,7 @@ export type ExecuteQueryOptions = {
 |---------------|----------|--------------|-----------------------------------|
 | output_format |          | JSON_COMPACT | Specifies format of selected data |
 
-You can also use QuerySettings to specify set parameters.
+You can also use QuerySettings to specify set flags.
 For example: `{ query_id: 'hello' }`
 
 

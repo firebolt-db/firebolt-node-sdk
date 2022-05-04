@@ -35,11 +35,14 @@ export class Statement {
     }
   ) {
     this.context = context;
-
     this.request = request;
-    this.query = query;
+    const { parameters } = executeQueryOptions;
+    const formattedQuery = this.context.queryFormatter.formatQuery(
+      query,
+      parameters
+    );
+    this.query = formattedQuery;
     this.executeQueryOptions = executeQueryOptions;
-
     this.rowStream = new RowStream();
   }
 

@@ -71,7 +71,7 @@ export class NodeHttpClient {
         }
 
         const request = this.request<T>(method, url, options);
-        return request;
+        return request.ready();
       }
 
       if (response.status > 300) {

@@ -1,10 +1,10 @@
 import BigNumber from "bignumber.js";
-// import { Parameter } from "./paramter";
 import { HttpClientInterface, HttpClientOptions } from "./http";
 
 import { LoggerInterface, LoggerOptions } from "./logger";
 import { ResourceManager } from "./service";
 import { Meta } from "./meta";
+import { QueryFormatter } from "./formatter";
 
 export type Statistics = {
   duration: number | BigNumber;
@@ -41,7 +41,7 @@ export type ResponseSettings = {
 
 export type ExecuteQueryOptions = {
   settings?: QuerySettings;
-  // paramters?: Parameter[];
+  parameters?: unknown[];
   response?: ResponseSettings;
 };
 
@@ -76,5 +76,6 @@ export type Context = {
   logger: LoggerInterface;
   httpClient: HttpClientInterface;
   resourceManager: ResourceManager;
+  queryFormatter: QueryFormatter;
   apiEndpoint: string;
 };
