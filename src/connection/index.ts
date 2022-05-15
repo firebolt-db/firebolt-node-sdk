@@ -58,7 +58,7 @@ export class Connection {
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<Statement> {
-    const { httpClient } = this.context;
+    const { httpClient, queryFormatter } = this.context;
 
     executeQueryOptions.settings = {
       ...defaultQuerySettings,
@@ -70,7 +70,10 @@ export class Connection {
       ...(executeQueryOptions.response || {})
     };
 
-    const body = this.getRequestBody(query);
+    const { parameters } = executeQueryOptions;
+    const formattedQuery = queryFormatter.formatQuery(query, parameters);
+
+    const body = formattedQuery;
     const url = this.getRequestUrl(executeQueryOptions);
 
     const request = httpClient.request<unknown>("POST", url, {
@@ -83,7 +86,7 @@ export class Connection {
     try {
       await request.ready();
       const statement = new Statement(this.context, {
-        query,
+        query: formattedQuery,
         request,
         executeQueryOptions
       });

@@ -2,14 +2,14 @@ import { withNullableTypes } from "../common/util";
 
 const typeMapping = {
   date: "date",
-  date_ext: "date_ext",
-  date32: "date_ext",
+  date_ext: "date",
+  date32: "date",
   timestamp: "timestamp",
-  timestamp_ext: "timestamp_ext",
+  timestamp_ext: "timestamp",
   datetime: "timestamp",
   "datetime('etc/utc')": "timestamp",
   decimal: "decimal",
-  decimal_ext: "decimal_ext",
+  decimal_ext: "decimal",
   long: "long",
   float: "float",
   float32: "float",
@@ -36,10 +36,10 @@ const getMappedType = (innerType: string) => {
     return type;
   }
   if (innerType.match(/datetime64(.+)/i)) {
-    return typeMapping.timestamp_ext;
+    return typeMapping.timestamp;
   }
   if (innerType.match(/decimal(.+)/i)) {
-    return typeMapping.decimal_ext;
+    return typeMapping.decimal;
   }
 };
 
