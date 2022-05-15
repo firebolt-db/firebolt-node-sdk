@@ -43,6 +43,7 @@ const zeroPad = (param: number, length: number) => {
 
 export class QueryFormatter {
   private format(query: string, params: unknown[]) {
+    params = [...params];
     const regex = /(''|""|``|\\\\|\\'|\\"|'|"|`|\?)/g;
 
     const STATE = {
