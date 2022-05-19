@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.0.26...v0.1.1) (2022-05-19)
+
 ### [0.0.26](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.0.25...v0.0.26) (2022-05-15)
 
 ### [0.0.25](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.0.24...v0.0.25) (2022-05-15)
