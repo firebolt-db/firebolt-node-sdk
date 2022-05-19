@@ -69,13 +69,15 @@ export const normalizeResponse = (
 ): QueryResponse => {
   const { response: { normalizeData = false } = {} } = executeQueryOptions;
 
+  const hydrate = executeQueryOptions?.response?.hydrateRow || hydrateRow;
+
   const meta = getNormalizedMeta(response);
 
   const statistics = getNormalizedStatistics(response);
 
   const data = response.data
     ? response.data.map((row: Row) => {
-        const hydratedRow = hydrateRow(row, meta, executeQueryOptions);
+        const hydratedRow = hydrate(row, meta, executeQueryOptions);
         if (normalizeData) {
           const normalizedRow = normalizeRow(
             hydratedRow,

@@ -35,7 +35,10 @@ const getMappedType = (innerType: string) => {
   if (type) {
     return type;
   }
-  if (innerType.match(/datetime64(.+)/i)) {
+  if (
+    innerType.match(/datetime64(.+)/i) ||
+    innerType.match(/timestamp_ext(.+)/i)
+  ) {
     return typeMapping.timestamp;
   }
   if (innerType.match(/decimal(.+)/i)) {
@@ -45,7 +48,7 @@ const getMappedType = (innerType: string) => {
 
 const COMPLEX_TYPE = /(nullable|array)\((.+)\)/;
 
-export const DATE_TYPES = withNullableTypes([
+const DATE_TYPES = withNullableTypes([
   "date",
   "timestamp",
   "datetime",
@@ -78,7 +81,7 @@ export const getFireboltType = (type: string): string => {
     const mappedType = getMappedType(innerType);
     return mappedType ? `${outerType}(${mappedType})` : key;
   }
-  const mappedType = typeMapping[key as keyof typeof typeMapping];
+  const mappedType = getMappedType(key);
   return mappedType || key;
 };
 

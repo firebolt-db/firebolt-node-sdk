@@ -41,11 +41,8 @@ export class JSONStream {
   defaultRowParser(row: string, isLastRow: boolean) {
     const normalizeData = this.executeQueryOptions.response?.normalizeData;
     const parsed = JSONbig.parse(row);
-    const hydratedRow = hydrateRow(
-      parsed,
-      this.columns,
-      this.executeQueryOptions
-    );
+    const hydrate = this.executeQueryOptions.response?.hydrateRow || hydrateRow;
+    const hydratedRow = hydrate(parsed, this.columns, this.executeQueryOptions);
     if (normalizeData) {
       const normalizedRow = normalizeRow(
         hydratedRow,

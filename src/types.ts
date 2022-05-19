@@ -37,6 +37,11 @@ export type RowParser = (row: string, isLastRow: boolean) => any;
 export type ResponseSettings = {
   normalizeData?: boolean;
   bigNumberAsString?: boolean;
+  hydrateRow?: (
+    row: Row,
+    meta: Meta[],
+    executeQueryOptions: ExecuteQueryOptions
+  ) => Row;
 };
 
 export type ExecuteQueryOptions = {
