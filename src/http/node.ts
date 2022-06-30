@@ -78,12 +78,13 @@ export class NodeHttpClient {
         const contentType = response.headers.get("content-type");
 
         if (contentType && contentType.includes("application/json")) {
-          const json = (await response.json()) as ErrorResponse;
-          const { message = DEFAULT_ERROR, code } = json;
+          const json = await response.json();
+          const { message = DEFAULT_ERROR, code } = json as ErrorResponse;
           throw new ApiError({
             message,
             code,
-            status: response.status
+            status: response.status,
+            raw: json
           });
         } else {
           const text = await response.text();

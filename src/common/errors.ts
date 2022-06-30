@@ -18,20 +18,31 @@ export class ApiError extends Error {
   message: string;
   status: number;
   code: string;
+  raw?: any;
 
   constructor({
     message,
     status,
-    code
+    code,
+    raw
   }: {
     message: string;
     status: number;
     code: string;
+    raw?: any;
   }) {
-    super(message);
-    this.message = message;
+    const formattedMessage = `
+Request failed
+Reason: ${message}
+Response status: ${status}
+${code ? `Code: ${code}` : ""}
+${raw ? `Response: ${JSON.stringify(raw, null, 2)}` : ""}
+`;
+    super(formattedMessage);
+    this.message = formattedMessage;
     this.status = status;
     this.code = code;
+    this.raw = raw;
   }
 }
 
