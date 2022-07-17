@@ -1,4 +1,8 @@
 import { ArgumentError } from "./errors";
+import { version } from "../../package.json";
+import os from 'os';
+import fs from 'fs';
+import { ConnectorVersion } from "../types";
 
 export const assignProtocol = (url: string) => {
   return url.startsWith("http") ? url : `https://${url}`;
@@ -38,4 +42,24 @@ export const checkArgumentValid = (expression: any, code: number) => {
   if (!expression) {
     throw new ArgumentError({ code });
   }
+};
+
+export const systemInfoString = () => {
+  const plist = require('plist');
+  var os_version =  os.release();
+  // TODO: other platforms?
+  if (os.platform() == "darwin") {
+    os_version = plist.parse(fs.readFileSync('/System/Library/CoreServices/SystemVersion.plist', 'utf8')).ProductVersion;
+  }
+  return "NodeSDK " + version  + " (Node " + process.version + "; " + os.platform() + " " + os_version + " )";
+};
+
+export const generateUserAgent = (clients: ConnectorVersion[] | undefined, drivers: ConnectorVersion[] | undefined) => {
+  let toConnectorString = function(connector: ConnectorVersion) {
+    return connector.name + "/" + connector.version;
+  };
+
+  var clientString = clients? clients.map(toConnectorString).join(" ") + " " : "";
+  var driverString = drivers? " " + drivers.map(toConnectorString).join(" "): "";
+  return clientString + systemInfoString() + driverString;
 };

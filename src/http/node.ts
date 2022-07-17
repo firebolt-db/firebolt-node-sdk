@@ -54,7 +54,6 @@ export class NodeHttpClient {
         signal: controller.signal,
         method,
         headers: {
-          "user-agent": "javascript-sdk",
           "Content-Type": "application/json",
           ...headers
         },

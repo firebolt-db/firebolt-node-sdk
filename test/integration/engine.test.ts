@@ -4,7 +4,11 @@ const connectionOptions = {
   username: process.env.FIREBOLT_USERNAME as string,
   password: process.env.FIREBOLT_PASSWORD as string,
   database: process.env.FIREBOLT_DATABASE as string,
-  engineName: process.env.FIREBOLT_ENGINE_NAME as string
+  engineName: process.env.FIREBOLT_ENGINE_NAME as string,
+  additional_parameters: {
+    userDrivers: [],
+    userClients: [],
+  }
 };
 
 jest.setTimeout(20000);

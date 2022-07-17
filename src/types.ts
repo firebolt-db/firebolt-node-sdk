@@ -54,12 +54,23 @@ export type StreamOptions = {
   rowParser?: RowParser;
 };
 
+export type ConnectorVersion = {
+  name: string;
+  version: string;
+};
+
+export type AdditionalConnectionParameters = {
+  userDrivers?: ConnectorVersion[];
+  userClients?: ConnectorVersion[];
+};
+
 export type ConnectionOptions = {
   username: string;
   password: string;
   database: string;
   engineName?: string;
   engineEndpoint?: string;
+  additional_parameters? : AdditionalConnectionParameters;
 };
 
 export type AuthOptions = {
