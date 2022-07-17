@@ -51,7 +51,7 @@ export const systemInfoString = () => {
   if (os.platform() == "darwin") {
     os_version = plist.parse(fs.readFileSync('/System/Library/CoreServices/SystemVersion.plist', 'utf8')).ProductVersion;
   }
-  return "NodeSDK " + version  + " (Node " + process.version + "; " + os.platform() + " " + os_version + " )";
+  return "NodeSDK/" + version  + " (Node " + process.version + "; " + os.platform() + " " + os_version + " )";
 };
 
 export const generateUserAgent = (clients: ConnectorVersion[] | undefined, drivers: ConnectorVersion[] | undefined) => {
