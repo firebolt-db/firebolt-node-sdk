@@ -5,7 +5,7 @@ import {
   Context
 } from "../types";
 import { Statement } from "../statement";
-import { generateUserAgent } from "../common/util"
+import { generateUserAgent } from "../common/util";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.JSON_COMPACT
@@ -25,7 +25,10 @@ export class Connection {
   constructor(context: Context, options: ConnectionOptions) {
     this.context = context;
     this.options = options;
-    this.userAgent = generateUserAgent(options.additional_parameters?.userClients, options.additional_parameters?.userDrivers);
+    this.userAgent = generateUserAgent(
+      options.additional_parameters?.userClients,
+      options.additional_parameters?.userDrivers
+    );
   }
 
   async resolveEngineEndpoint() {

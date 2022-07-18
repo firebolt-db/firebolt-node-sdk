@@ -70,7 +70,7 @@ export type ConnectionOptions = {
   database: string;
   engineName?: string;
   engineEndpoint?: string;
-  additional_parameters? : AdditionalConnectionParameters;
+  additional_parameters?: AdditionalConnectionParameters;
 };
 
 export type AuthOptions = {
