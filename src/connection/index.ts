@@ -80,7 +80,7 @@ export class Connection {
     const url = this.getRequestUrl(executeQueryOptions);
 
     const request = httpClient.request<unknown>("POST", url, {
-      headers: {"user-agent": this.userAgent},
+      headers: { "user-agent": this.userAgent },
       body,
       raw: true
     });
