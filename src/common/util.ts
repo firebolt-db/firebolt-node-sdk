@@ -1,7 +1,6 @@
 import { ArgumentError } from "./errors";
 import { version } from "../../package.json";
 import os from "os";
-import fs from "fs";
 import { ConnectorVersion } from "../types";
 
 export const assignProtocol = (url: string) => {
@@ -45,29 +44,9 @@ export const checkArgumentValid = (expression: any, code: number) => {
 };
 
 export const systemInfoString = () => {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const plist = require("plist");
-  let os_version = os.release();
-  // TODO: other platforms?
-  if (os.platform() == "darwin") {
-    os_version = plist.parse(
-      fs.readFileSync(
-        "/System/Library/CoreServices/SystemVersion.plist",
-        "utf8"
-      )
-    ).ProductVersion;
-  }
-  return (
-    "NodeSDK/" +
-    version +
-    " (Node " +
-    process.version +
-    "; " +
-    os.platform() +
-    " " +
-    os_version +
-    " )"
-  );
+  return `NodeSDK/${version} (Node ${
+    process.version
+  }; ${os.platform()} ${os.release()} )`;
 };
 
 export const generateUserAgent = (
