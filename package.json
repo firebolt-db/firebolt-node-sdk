@@ -40,10 +40,8 @@
   },
   "dependencies": {
     "@types/json-bigint": "^1.0.1",
-    "@types/plist": "^3.0.2",
     "abort-controller": "^3.0.0",
     "json-bigint": "^1.0.0",
-    "node-fetch": "^2.6.6",
-    "plist": "^3.0.5"
+    "node-fetch": "^2.6.6"
   }
 }
