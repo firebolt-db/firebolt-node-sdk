@@ -1,6 +1,7 @@
 import { Agent } from "https";
 import Abort from "abort-controller";
 import fetch from "node-fetch";
+import { AbortSignal } from "node-fetch/externals";
 import { assignProtocol } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
 import { Authenticator } from "../auth";
