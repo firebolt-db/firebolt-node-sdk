@@ -51,7 +51,7 @@ export class NodeHttpClient {
 
       const response = await fetch(withProtocol, {
         agent,
-        signal: controller.signal,
+        signal: controller.signal as AbortSignal,
         method,
         headers: {
           "user-agent": "javascript-sdk",
