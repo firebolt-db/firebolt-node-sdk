@@ -50,8 +50,8 @@ export const systemInfoString = () => {
 };
 
 export const generateUserAgent = (
-  clients: ConnectorVersion[] | undefined,
-  drivers: ConnectorVersion[] | undefined
+  clients?: ConnectorVersion[],
+  drivers?: ConnectorVersion[]
 ) => {
   const toConnectorString = function (connector: ConnectorVersion) {
     return connector.name + "/" + connector.version;

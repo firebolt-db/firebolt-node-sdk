@@ -26,8 +26,8 @@ export class Connection {
     this.context = context;
     this.options = options;
     this.userAgent = generateUserAgent(
-      options.additional_parameters?.userClients,
-      options.additional_parameters?.userDrivers
+      options.additionalParameters?.userClients,
+      options.additionalParameters?.userDrivers
     );
   }
 

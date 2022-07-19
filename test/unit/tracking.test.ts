@@ -59,7 +59,7 @@ describe("connection user agent", () => {
       password: "dummy",
       database: "dummy",
       engineName: "dummy",
-      additional_parameters: {
+      additionalParameters: {
         userClients: [{ name: "ClientA", version: "1.1.1" }],
         userDrivers: [{ name: "DriverA", version: "2.2.2" }]
       }
