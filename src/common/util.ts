@@ -45,7 +45,7 @@ export const checkArgumentValid = (expression: any, code: number) => {
 
 export const systemInfoString = () => {
   return `NodeSDK/${version} (Node ${
-    process.version
+    process.versions.node
   }; ${os.platform()} ${os.release()} )`;
 };
 
