@@ -5,7 +5,7 @@ describe("generating user agent", () => {
   it("no overrides", () => {
     const userAgent = generateUserAgent(undefined, undefined);
     expect(userAgent).toMatch(
-      /NodeSDK\/(\d+\.)?(\d+\.)?(\d+) \(Node (\d+\.)?(\d+\.)?(\d+); \w+ (\d+\.)?(\d+\.)?(\d+) \)/
+      /NodeSDK\/(\d+\.)?(\d+\.)?(\d+) \(Node (\d+\.)?(\d+\.)?(\d+); \w+ \S+ \)/
     );
   });
   it("with clients", () => {
@@ -15,7 +15,7 @@ describe("generating user agent", () => {
     ];
     const userAgent = generateUserAgent(clients, undefined);
     expect(userAgent).toMatch(
-      /ConnA\/1.0.1 ConnB\/2.19.0 NodeSDK\/(\d+\.)?(\d+\.)?(\d+) \(Node (\d+\.)?(\d+\.)?(\d+); \w+ (\d+\.)?(\d+\.)?(\d+) \)/
+      /ConnA\/1.0.1 ConnB\/2.19.0 NodeSDK\/(\d+\.)?(\d+\.)?(\d+) \(Node (\d+\.)?(\d+\.)?(\d+); \w+ \S+ \)/
     );
   });
   it("with drivers", () => {
@@ -25,7 +25,7 @@ describe("generating user agent", () => {
     ];
     const userAgent = generateUserAgent(undefined, drivers);
     expect(userAgent).toMatch(
-      /NodeSDK\/(\d+\.)?(\d+\.)?(\d+) \(Node (\d+\.)?(\d+\.)?(\d+); \w+ (\d+\.)?(\d+\.)?(\d+) \) DriverA\/1.0.1 DriverB\/2.19.0/
+      /NodeSDK\/(\d+\.)?(\d+\.)?(\d+) \(Node (\d+\.)?(\d+\.)?(\d+); \w+ \S+ \) DriverA\/1.0.1 DriverB\/2.19.0/
     );
   });
   it("with clients and drivers", () => {
@@ -39,7 +39,7 @@ describe("generating user agent", () => {
     ];
     const userAgent = generateUserAgent(clients, drivers);
     expect(userAgent).toMatch(
-      /ConnA\/1.0.1 ConnB\/2.19.0 NodeSDK\/(\d+\.)?(\d+\.)?(\d+) \(Node (\d+\.)?(\d+\.)?(\d+); \w+ (\d+\.)?(\d+\.)?(\d+) \) DriverA\/1.0.1 DriverB\/2.19.0/
+      /ConnA\/1.0.1 ConnB\/2.19.0 NodeSDK\/(\d+\.)?(\d+\.)?(\d+) \(Node (\d+\.)?(\d+\.)?(\d+); \w+ \S+ \) DriverA\/1.0.1 DriverB\/2.19.0/
     );
   });
 });
