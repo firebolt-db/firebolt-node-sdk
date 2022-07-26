@@ -5,6 +5,7 @@ import {
   Context
 } from "../types";
 import { Statement } from "../statement";
+import { generateUserAgent } from "../common/util";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.JSON_COMPACT
@@ -17,12 +18,17 @@ const defaultResponseSettings = {
 export class Connection {
   private context: Context;
   private options: ConnectionOptions;
+  private userAgent: string;
   engineEndpoint!: string;
   activeRequests = new Set<{ abort: () => void }>();
 
   constructor(context: Context, options: ConnectionOptions) {
     this.context = context;
     this.options = options;
+    this.userAgent = generateUserAgent(
+      options.additionalParameters?.userClients,
+      options.additionalParameters?.userDrivers
+    );
   }
 
   async resolveEngineEndpoint() {
@@ -77,6 +83,7 @@ export class Connection {
     const url = this.getRequestUrl(executeQueryOptions);
 
     const request = httpClient.request<unknown>("POST", url, {
+      headers: { "user-agent": this.userAgent },
       body,
       raw: true
     });

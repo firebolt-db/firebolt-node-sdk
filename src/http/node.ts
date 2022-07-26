@@ -1,7 +1,8 @@
 import { Agent } from "https";
 import Abort from "abort-controller";
 import fetch from "node-fetch";
-import { assignProtocol } from "../common/util";
+import { AbortSignal } from "node-fetch/externals";
+import { assignProtocol, systemInfoString } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
 import { Authenticator } from "../auth";
 
@@ -20,6 +21,8 @@ type ErrorResponse = {
 };
 
 const DEFAULT_ERROR = "Server error";
+
+const DEFAULT_USER_AGENT = systemInfoString();
 
 export class NodeHttpClient {
   authenticator!: Authenticator;
@@ -51,10 +54,12 @@ export class NodeHttpClient {
 
       const response = await fetch(withProtocol, {
         agent,
-        signal: controller.signal,
+        signal: controller.signal as AbortSignal,
         method,
         headers: {
-          "user-agent": "javascript-sdk",
+          "user-agent": headers["user-agent"]
+            ? headers["user-agent"]
+            : DEFAULT_USER_AGENT,
           "Content-Type": "application/json",
           ...headers
         },
