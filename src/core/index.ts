@@ -30,21 +30,23 @@ export class FireboltCore {
   }
 
   async connect(connectionOptions: ConnectionOptions) {
+    const { account } = connectionOptions;
     this.checkConnectionOptions(connectionOptions);
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
-    await this.resourceManager.account.resolveAccountId();
+    await this.resourceManager.account.resolveAccountId(account);
     await connection.resolveEngineEndpoint();
     return connection;
   }
 
   async testConnection(connectionOptions: ConnectionOptions) {
+    const { account } = connectionOptions;
     this.checkConnectionOptions(connectionOptions);
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
-    await this.resourceManager.account.resolveAccountId();
+    await this.resourceManager.account.resolveAccountId(account);
     await connection.resolveEngineEndpoint();
     await connection.execute("select 1");
   }
