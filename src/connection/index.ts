@@ -45,10 +45,6 @@ export class Connection {
     }
   }
 
-  async ensureEngineRunning() {
-    //TODO implement
-  }
-
   private getRequestUrl(executeQueryOptions: ExecuteQueryOptions) {
     const { settings } = executeQueryOptions;
     const { database } = this.options;

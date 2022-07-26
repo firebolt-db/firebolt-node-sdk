@@ -34,6 +34,7 @@ export class FireboltCore {
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
+    await this.resourceManager.account.resolveAccountId();
     await connection.resolveEngineEndpoint();
     return connection;
   }
@@ -43,6 +44,7 @@ export class FireboltCore {
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
+    await this.resourceManager.account.resolveAccountId();
     await connection.resolveEngineEndpoint();
     await connection.execute("select 1");
   }

@@ -12,7 +12,7 @@ describe("engine service", () => {
   const server = setupServer();
   server.use(
     rest.get(
-      `https://${apiEndpoint}/core/v1/account/engines:getIdByName`,
+      `https://${apiEndpoint}/core/v1/accounts/some_account/engines:getIdByName`,
       (req, res, ctx) => {
         const engine_id = {
           engine_id: "123",
@@ -56,6 +56,7 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
+    resourceManager.account.id = "some_account";
     const engine = await resourceManager.engine.getByName("some_engine");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
@@ -69,14 +70,15 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    const engine = await resourceManager.engine.getById("123", "some_account");
+    resourceManager.account.id = "some_account";
+    const engine = await resourceManager.engine.getById("123");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
   });
   it("starts engine", async () => {
     server.use(
       rest.post(
-        `https://${apiEndpoint}/core/v1/account/engines/123:start`,
+        `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123:start`,
         (req, res, ctx) => {
           return res(
             ctx.status(200),
@@ -94,7 +96,8 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    const engine = await resourceManager.engine.getById("123", "some_account");
+    resourceManager.account.id = "some_account";
+    const engine = await resourceManager.engine.getById("123");
     const {
       engine: {
         id: { engine_id }
@@ -106,7 +109,7 @@ describe("engine service", () => {
   it("stops engine", async () => {
     server.use(
       rest.post(
-        `https://${apiEndpoint}/core/v1/account/engines/123:stop`,
+        `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123:stop`,
         (req, res, ctx) => {
           return res(
             ctx.status(200),
@@ -124,7 +127,8 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    const engine = await resourceManager.engine.getById("123", "some_account");
+    resourceManager.account.id = "some_account";
+    const engine = await resourceManager.engine.getById("123");
     const {
       engine: {
         id: { engine_id }
