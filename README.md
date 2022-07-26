@@ -116,6 +116,7 @@ type ConnectionOptions = {
   database: string;
   engineName?: string;
   engineEndpoint?: string;
+  account?: string;
 };
 ```
 
@@ -263,7 +264,7 @@ const enginesService = firebolt.resourceManager.engine
 <a id="getbyid"></a>
 #### getById
 
-Returns engine using engine ID and account ID.
+Returns engine using engine ID
 
 ```typescript
 import { Firebolt } from 'firebolt-sdk'
@@ -271,7 +272,6 @@ const firebolt = Firebolt();
 await firebolt.connect(connectionOptions);
 const engine = await firebolt.resourceManager.engine.getById(
   "c8a228ea-93df-4784-99f9-a99368518782",
-  "a32b073b-e093-4880-8fd4-3b302b4cf221"
 );
 ```
 
@@ -353,15 +353,14 @@ const databaseService = firebolt.resourceManager.database
 <a id="database-getbyid"></a>
 #### Database getById
 
-Returns database using engine ID and account ID.
+Returns database using database ID
 
 ```typescript
 import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
 await firebolt.connect(connectionOptions);
-const engine = await firebolt.resourceManager.database.getById(
+const database = await firebolt.resourceManager.database.getById(
   "c8a228ea-93df-4784-99f9-a99368518782",
-  "a32b073b-e093-4880-8fd4-3b302b4cf221"
 );
 ```
 
@@ -373,6 +372,7 @@ Returns database using database name.
 ```typescript
 import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
 const database = await firebolt.resourceManager.database.getByName("database_name")
 ```
 
@@ -395,7 +395,8 @@ import { FireboltResourceManager } from 'firebolt-sdk'
 
 const authOptions = {
   username: process.env.FIREBOLT_USERNAME as string,
-  password: process.env.FIREBOLT_PASSWORD as string
+  password: process.env.FIREBOLT_PASSWORD as string,
+  account: process.env.ACCOUNT_NAME as string
 };
 
 const resourceManager = FireboltResourceManager();
@@ -477,7 +478,7 @@ const statement = await connection.execute("select 1 union all select 2");
 
 const { data } = await statement.streamResult();
 
-serializedStream.pipe(serializedStream).pipe(process.stdout);
+data.pipe(serializedStream).pipe(process.stdout);
 ```
 
 Or use `rowParser` that returns strings or Buffer:
