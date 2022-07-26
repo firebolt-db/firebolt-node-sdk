@@ -13,6 +13,12 @@ export const ACCOUNT_ENGINE = (accountId: string, engineId: string) =>
 export const ACCOUNT_ENGINES = (accountId: string) =>
   `core/v1/accounts/${accountId}/engines`;
 
+export const ACCOUNT_DATABASE = (accountId: string, databaseId: string) =>
+  `core/v1/accounts/${accountId}/databases/${databaseId}`;
+
+export const ACCOUNT_DATABASES = (accountId: string) =>
+  `core/v1/accounts/${accountId}/databases`;
+
 export const ACCOUNT_ENGINE_START = (accountId: string, engineId: string) =>
   ACCOUNT_ENGINE(accountId, engineId) + ":start";
 export const ACCOUNT_ENGINE_RESTART = (accountId: string, engineId: string) =>
