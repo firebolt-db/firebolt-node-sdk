@@ -1,4 +1,4 @@
-import { ENGINES, ACCOUNTS, ResultsPage } from "../../common/api";
+import { ACCOUNT_ENGINE, ACCOUNT_ENGINES, ResultsPage } from "../../common/api";
 import { Context } from "../../types";
 import { EngineModel } from "./model";
 import { ID, Engine } from "./types";
@@ -12,17 +12,21 @@ export class EngineService {
 
   private async getEngineId(engineName: string): Promise<ID> {
     const { apiEndpoint, httpClient } = this.context;
+    const accountId = this.context.resourceManager.account.id;
     const queryParams = new URLSearchParams({ engine_name: engineName });
-    const url = `${apiEndpoint}/${ENGINES}:getIdByName?${queryParams}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINES(
+      accountId
+    )}:getIdByName?${queryParams}`;
     const data = await httpClient
       .request<{ engine_id: ID }>("GET", url)
       .ready();
     return data.engine_id;
   }
 
-  async getById(engineId: string, accountId: string): Promise<EngineModel> {
+  async getById(engineId: string): Promise<EngineModel> {
     const { apiEndpoint, httpClient } = this.context;
-    const url = `${apiEndpoint}/${ACCOUNTS}/${accountId}/engines/${engineId}`;
+    const accountId = this.context.resourceManager.account.id;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(accountId, engineId)}`;
     const data = await httpClient
       .request<{ engine: Engine }>("GET", url)
       .ready();
@@ -30,14 +34,15 @@ export class EngineService {
   }
 
   async getByName(engineName: string): Promise<EngineModel> {
-    const { engine_id, account_id } = await this.getEngineId(engineName);
-    const engine = await this.getById(engine_id, account_id);
+    const { engine_id } = await this.getEngineId(engineName);
+    const engine = await this.getById(engine_id);
     return new EngineModel(this.context, engine);
   }
 
   async getAll(): Promise<EngineModel[]> {
     const engines: EngineModel[] = [];
     const { apiEndpoint, httpClient } = this.context;
+    const accountId = this.context.resourceManager.account.id;
 
     let hasNextPage = false;
     let cursor = "";
@@ -45,7 +50,7 @@ export class EngineService {
       const query = cursor
         ? `?${new URLSearchParams({ "page.after": cursor })}`
         : "";
-      const url = `${apiEndpoint}/${ENGINES}${query}`;
+      const url = `${apiEndpoint}/${ACCOUNT_ENGINES(accountId)}${query}`;
       const data = await httpClient
         .request<ResultsPage<Engine>>("GET", url)
         .ready();

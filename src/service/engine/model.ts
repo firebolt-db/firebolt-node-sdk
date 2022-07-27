@@ -1,4 +1,9 @@
-import { ENGINES } from "../../common/api";
+import {
+  ACCOUNT_ENGINE,
+  ACCOUNT_ENGINE_START,
+  ACCOUNT_ENGINE_STOP,
+  ACCOUNT_ENGINE_RESTART
+} from "../../common/api";
 import { Context } from "../../types";
 import { ID, Engine, EngineStatusSummary } from "./types";
 
@@ -23,7 +28,8 @@ export class EngineModel {
   async start() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const url = `${apiEndpoint}/${ENGINES}/${id}:start`;
+    const accountId = this.context.resourceManager.account.id;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_START(accountId, id)}`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -57,7 +63,8 @@ export class EngineModel {
   async stop() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const url = `${apiEndpoint}/${ENGINES}/${id}:stop`;
+    const accountId = this.context.resourceManager.account.id;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_STOP(accountId, id)}`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -67,7 +74,8 @@ export class EngineModel {
   async restart() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const url = `${apiEndpoint}/${ENGINES}/${id}:restart`;
+    const accountId = this.context.resourceManager.account.id;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_RESTART(accountId, id)}`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -77,7 +85,8 @@ export class EngineModel {
   private async refreshStatus() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const url = `${apiEndpoint}/${ENGINES}/${id}`;
+    const accountId = this.context.resourceManager.account.id;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(accountId, id)}`;
     const {
       engine: { current_status_summary }
     } = await httpClient.request<{ engine: Engine }>("GET", url).ready();

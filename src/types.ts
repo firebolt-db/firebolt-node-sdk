@@ -71,6 +71,7 @@ export type ConnectionOptions = {
   engineName?: string;
   engineEndpoint?: string;
   additionalParameters?: AdditionalConnectionParameters;
+  account?: string;
 };
 
 export type AuthOptions = {
