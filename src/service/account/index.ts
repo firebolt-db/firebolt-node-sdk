@@ -18,6 +18,7 @@ export class AccountService {
         .request<{ account_id: string }>("GET", url)
         .ready();
       this.id = account_id;
+      return account_id;
     } else {
       const url = `${apiEndpoint}/${ACCOUNT}`;
       const {
@@ -26,6 +27,7 @@ export class AccountService {
         .request<{ account: { id: string } }>("GET", url)
         .ready();
       this.id = id;
+      return id;
     }
   }
 }
