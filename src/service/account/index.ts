@@ -13,7 +13,8 @@ export class AccountService {
   async resolveAccountId(account?: string) {
     const { httpClient, apiEndpoint } = this.context;
     if (account) {
-      const url = `${apiEndpoint}/${ACCOUNT_BY_NAME}`;
+      const queryParams = new URLSearchParams({ account_name: account });
+      const url = `${apiEndpoint}/${ACCOUNT_BY_NAME}?${queryParams}`;
       const { account_id } = await httpClient
         .request<{ account_id: string }>("GET", url)
         .ready();
