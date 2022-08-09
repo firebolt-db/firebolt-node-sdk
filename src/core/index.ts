@@ -21,8 +21,10 @@ export class FireboltCore {
   }
 
   checkConnectionOptions(connectionOptions: ConnectionOptions) {
-    checkArgumentExists(connectionOptions.username, MISSING_USERNAME);
-    checkArgumentExists(connectionOptions.password, MISSING_PASSWORD);
+    if (!connectionOptions.accessToken) {
+      checkArgumentExists(connectionOptions.username, MISSING_USERNAME);
+      checkArgumentExists(connectionOptions.password, MISSING_PASSWORD);
+    }
     checkArgumentExists(
       connectionOptions.engineEndpoint || connectionOptions.engineName,
       MISSING_ENGINE_ENDPOINT

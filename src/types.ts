@@ -65,8 +65,9 @@ export type AdditionalConnectionParameters = {
 };
 
 export type ConnectionOptions = {
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
+  accessToken?: string;
   database: string;
   engineName?: string;
   engineEndpoint?: string;
@@ -75,8 +76,9 @@ export type ConnectionOptions = {
 };
 
 export type AuthOptions = {
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
+  accessToken?: string;
 };
 
 export type FireboltClientOptions = {

@@ -50,7 +50,11 @@ export class Authenticator {
 
   async authenticate() {
     const { httpClient, apiEndpoint } = this.context;
-    const { username, password } = this.options;
+    const { username, password, accessToken } = this.options;
+    if (accessToken) {
+      this.accessToken = accessToken;
+      return;
+    }
     const url = `${apiEndpoint}/${LOGIN}`;
     const body = JSON.stringify({
       username,
