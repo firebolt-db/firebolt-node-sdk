@@ -66,7 +66,7 @@ export class NodeHttpClient {
         body
       });
 
-      if (response.status === 401 && retry) {
+      if (response.status === 401 && retry && this.authenticator.refreshToken) {
         try {
           await this.authenticator.refreshAccessToken();
         } catch (error) {

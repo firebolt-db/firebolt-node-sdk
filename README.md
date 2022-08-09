@@ -61,6 +61,7 @@ console.log(rows)
 * <a href="#usage">Usage</a>
   * <a href="#create-connection">Create connection</a>
     * <a href="#connectionoptions">ConnectionOptions</a>
+    * <a href="#accesstoken">AccessToken</a>
   * <a href="#test-connection">Test connection</a>
   * <a href="#engine-url">Engine URL</a>
   * <a href="#execute-query">Execute query</a>
@@ -111,13 +112,30 @@ const connection = await firebolt.connect(connectionOptions);
 #### ConnectionOptions
 ```typescript
 type ConnectionOptions = {
-  username: string;
-  password: string;
+  username?: string;
+  password?: string;
+  accessToken?: string;
   database: string;
   engineName?: string;
   engineEndpoint?: string;
   account?: string;
 };
+```
+
+
+<a id="accesstoken"></a>
+#### AccessToken
+Instead of passing username/password  directly,
+you can also manage authentication outside of node sdk
+and pass accessToken when creating the connection
+
+```typescript
+const connection = await firebolt.connect({
+  accessToken: "access_token",
+  engineName: 'engine_name',
+  account: 'account_name',
+  database: 'database',
+});
 ```
 
 <a id="test-connection"></a>

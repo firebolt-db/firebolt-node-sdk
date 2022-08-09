@@ -52,6 +52,33 @@ describe("http client", () => {
     await authenticator.authenticate();
     expect(authenticator.accessToken).toEqual("fake_access_token");
   });
+  it("supports custom accessToken", async () => {
+    const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
+    const resourceManager = new ResourceManager({
+      httpClient,
+      apiEndpoint,
+      logger,
+      queryFormatter
+    });
+    const authenticator = new Authenticator(
+      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      {
+        accessToken: "custom_access_token"
+      }
+    );
+    server.use(
+      authHandler,
+      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
+        expect(req.headers.get("Authorization")).toEqual(
+          "Bearer custom_access_token"
+        );
+        return res(ctx.json({ ok: true }));
+      })
+    );
+    await authenticator.authenticate();
+    await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
+  });
   it("sends access token in headers", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
