@@ -10,8 +10,12 @@ export const ACCOUNT_BY_NAME = "iam/v2/accounts:getIdByName";
 
 export const ACCOUNT_ENGINE = (accountId: string, engineId: string) =>
   `core/v1/accounts/${accountId}/engines/${engineId}`;
+
 export const ACCOUNT_ENGINES = (accountId: string) =>
   `core/v1/accounts/${accountId}/engines`;
+
+export const ACCOUNT_ENGINE_URL_BY_DATABASE_NAME = (accountId: string) =>
+  ACCOUNT_ENGINES(accountId) + ":getURLByDatabaseName";
 
 export const ACCOUNT_DATABASE = (accountId: string, databaseId: string) =>
   `core/v1/accounts/${accountId}/databases/${databaseId}`;
