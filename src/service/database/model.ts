@@ -1,4 +1,4 @@
-import { ENGINES } from "../../common/api";
+import { ACCOUNT_ENGINE_URL_BY_DATABASE_NAME } from "../../common/api";
 import { Context } from "../../types";
 import { ID, Database } from "./types";
 
@@ -18,8 +18,11 @@ export class DatabaseModel {
 
   async getDefaultEndpoint(): Promise<string> {
     const { apiEndpoint, httpClient } = this.context;
+    const accountId = this.context.resourceManager.account.id;
     const queryParams = new URLSearchParams({ database_name: this.name });
-    const url = `${apiEndpoint}/${ENGINES}:getURLByDatabaseName?${queryParams}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_URL_BY_DATABASE_NAME(
+      accountId
+    )}?${queryParams}`;
     const data = await httpClient
       .request<{ engine_url: string }>("GET", url)
       .ready();
