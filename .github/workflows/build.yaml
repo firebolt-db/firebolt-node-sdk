@@ -25,7 +25,7 @@ jobs:
 
     - name: Type check with typescript
       run: |
-        tsc -p .
+        npm run type-check
     - name: Test with jest
       run: |
         npm test test/unit
