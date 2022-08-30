@@ -53,8 +53,3 @@ jobs:
     - name: Push git tags
       run: |
         git push --follow-tags origin main
-
-    - name: Release on github
-      uses: softprops/action-gh-release@v1
-      with:
-        generate_release_notes: true
