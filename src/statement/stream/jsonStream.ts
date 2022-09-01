@@ -150,7 +150,6 @@ export class JSONStream {
     if (line.match(/^},?$/)) {
       const queryStr = this.objBuffer + "}";
       const query = JSONbig.parse(queryStr);
-      console.log(query);
       this.objBuffer = undefined;
       this.state = "rootKeys";
     } else {

@@ -18,12 +18,20 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("select 1, 'a', 123.4", {
-      settings: { output_format: OutputFormat.JSON_COMPACT_V3 }
-    });
+    const statement = await connection.execute(
+      "select 1, 'a', 123.4, 9223372036854775806, [1, 2, 4]",
+      {
+        settings: { output_format: OutputFormat.COMPACT }
+      }
+    );
     const { data, meta } = await statement.fetchResult();
-    console.log(data, meta);
     expect(data.length).toEqual(1);
-    expect(meta.length).toEqual(1);
+    expect(meta.length).toEqual(5);
+    const [int_type, text_type, double_type, long_type, array_type] = meta;
+    expect(int_type.type).toEqual("int");
+    expect(text_type.type).toEqual("text");
+    expect(double_type.type).toEqual("double");
+    expect(long_type.type).toEqual("long");
+    expect(array_type.type).toEqual("array(int)");
   });
 });
