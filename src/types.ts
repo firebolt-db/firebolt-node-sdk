@@ -24,6 +24,7 @@ export type QueryResponse = {
 
 export enum OutputFormat {
   // JSON_COMPACT_LIMITED = "FB_JSONCompactLimited",
+  JSON_COMPACT_V3 = "JSON_Compact",
   JSON_COMPACT = "JSONCompact",
   JSON = "JSON"
 }
