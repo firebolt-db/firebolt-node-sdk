@@ -10,7 +10,15 @@ export class JSONStream {
   executeQueryOptions: ExecuteQueryOptions;
   emitter: RowStream;
   rowParser: RowParser;
-  state: "meta" | "meta-array" | "rootKeys" | "data" | "data-array" | null;
+  state:
+    | "meta"
+    | "meta-array"
+    | "rootKeys"
+    | "data"
+    | "data-array"
+    | "query"
+    | "query-object"
+    | null;
 
   columns: Meta[];
   rows: unknown[];
@@ -66,7 +74,11 @@ export class JSONStream {
   }
 
   handleRootKeys(line: string) {
-    if (line === '"meta":') {
+    if (line === "query") {
+      this.state = "query";
+    } else if (line === '"query": {') {
+      this.state = "query-object";
+    } else if (line === '"meta":') {
       this.state = "meta";
     } else if (line === '"data":') {
       this.state = "data";
@@ -128,6 +140,23 @@ export class JSONStream {
     }
   }
 
+  handleQuery(line: string) {
+    if (line === "{") {
+      this.state = "query-object";
+    }
+  }
+
+  handleQueryObject(line: string) {
+    if (line.match(/^},?$/)) {
+      const queryStr = this.objBuffer + "}";
+      const query = JSONbig.parse(queryStr);
+      this.objBuffer = undefined;
+      this.state = "rootKeys";
+    } else {
+      this.objBuffer += line;
+    }
+  }
+
   processLine(line: string) {
     line = line.trim();
 
@@ -147,6 +176,10 @@ export class JSONStream {
       this.handleMetaArray(line);
     } else if (this.state === "data-array") {
       this.handleDataArray(line);
+    } else if (this.state === "query") {
+      this.handleQuery(line);
+    } else if (this.state === "query-object") {
+      this.handleQueryObject(line);
     }
   }
 }

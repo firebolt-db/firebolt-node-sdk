@@ -24,7 +24,8 @@ export type QueryResponse = {
 
 export enum OutputFormat {
   // JSON_COMPACT_LIMITED = "FB_JSONCompactLimited",
-  JSON_COMPACT = "JSONCompact",
+  COMPACT = "JSON_Compact", // supported in v3 of packdb
+  JSON_COMPACT = "JSONCompact", // to be as above, after ensure all clients has v3
   JSON = "JSON"
 }
 
