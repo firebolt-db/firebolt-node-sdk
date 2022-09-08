@@ -197,6 +197,19 @@ const statement = await connection.execute("select ?, ?", {
 
 will produce `select 'foo', 1` query
 
+Format `Tuple`:
+
+```typescript
+import { Tuple } from 'firebolt-sdk'
+
+const statement = await connection.execute("select ? where bar in ?", {
+  parameters: [
+    1,
+    new Tuple(['foo'])
+  ]
+});
+```
+
 <a id="querysettings"></a>
 ### QuerySettings
 

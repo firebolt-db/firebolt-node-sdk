@@ -41,6 +41,14 @@ const zeroPad = (param: number, length: number) => {
   return paded;
 };
 
+export class Tuple {
+  value: unknown[];
+
+  constructor(value: unknown[]) {
+    this.value = value;
+  }
+}
+
 export class QueryFormatter {
   private format(query: string, params: unknown[]) {
     params = [...params];
@@ -143,8 +151,8 @@ export class QueryFormatter {
     return "X" + this.escapeString(param.toString("hex"));
   }
 
-  private escapeArray(param: unknown[]) {
-    let sql = "[";
+  private escapeArray(param: unknown[], prefix = "[", suffix = "]") {
+    let sql = prefix;
 
     for (let i = 0; i < param.length; i++) {
       const value = param[i];
@@ -157,7 +165,7 @@ export class QueryFormatter {
       }
     }
 
-    sql += "]";
+    sql += suffix;
 
     return sql;
   }
@@ -195,7 +203,9 @@ export class QueryFormatter {
   }
 
   private escapeObject(param: unknown) {
-    if (BigNumber.isBigNumber(param)) {
+    if (param instanceof Tuple) {
+      return this.escapeArray(param.value, "(", ")");
+    } else if (BigNumber.isBigNumber(param)) {
       return param.toString();
     } else if (Object.prototype.toString.call(param) === "[object Date]") {
       return this.escapeDate(param as Date);

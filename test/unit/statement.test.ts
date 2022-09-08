@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { QueryFormatter } from "../../src/formatter";
+import { QueryFormatter, Tuple } from "../../src/formatter";
 
 describe("format query", () => {
   it("format", () => {
@@ -121,5 +121,26 @@ describe("format query", () => {
     } catch (error) {
       expect(true).toEqual(true);
     }
+  });
+  it("format tuple", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "select foo from bar where foo in ?";
+    const formattedQuery = queryFormatter.formatQuery(query, [
+      new Tuple(["some", "other"])
+    ]);
+    expect(formattedQuery).toMatchInlineSnapshot(
+      `"select foo from bar where foo in ('some', 'other')"`
+    );
+  });
+  it("format tuple 2", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "select foo, bar from baz where foo in ? and bar = ?";
+    const formattedQuery = queryFormatter.formatQuery(query, [
+      new Tuple(["some", "other"]),
+      "str"
+    ]);
+    expect(formattedQuery).toMatchInlineSnapshot(
+      `"select foo, bar from baz where foo in ('some', 'other') and bar = 'str'"`
+    );
   });
 });
