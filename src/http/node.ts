@@ -52,14 +52,13 @@ export class NodeHttpClient {
 
       const withProtocol = assignProtocol(url);
 
+      const userAgent = headers["user-agent"] || DEFAULT_USER_AGENT;
       const response = await fetch(withProtocol, {
         agent,
         signal: controller.signal as AbortSignal,
         method,
         headers: {
-          "user-agent": headers["user-agent"]
-            ? headers["user-agent"]
-            : DEFAULT_USER_AGENT,
+          "user-agent": userAgent,
           "Content-Type": "application/json",
           ...headers
         },
@@ -70,6 +69,7 @@ export class NodeHttpClient {
         try {
           await this.authenticator.refreshAccessToken();
         } catch (error) {
+          console.error(error);
           throw new AuthenticationError({
             message: "Failed to refresh access token"
           });

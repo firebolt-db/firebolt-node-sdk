@@ -37,6 +37,8 @@ export class Authenticator {
     });
 
     try {
+      this.accessToken = undefined;
+
       const { access_token } = await httpClient
         .request<{
           access_token: string;
@@ -44,6 +46,9 @@ export class Authenticator {
         .ready();
       this.accessToken = access_token;
     } catch (error) {
+      console.log("Failed to refresh access token");
+      console.error(error);
+      console.log("Performing login...");
       await this.authenticate();
     }
   }
@@ -60,6 +65,8 @@ export class Authenticator {
       username,
       password
     });
+
+    this.accessToken = undefined;
 
     const { access_token, refresh_token } = await httpClient
       .request<Login>("POST", url, {
