@@ -13,13 +13,8 @@ jobs:
       - name: "Checkout Code"
         uses: actions/checkout@v2
 
-      - name: "Fossa branch fix"
-        if: ${{ github.event_name == 'pull_request' }}
-        run: |
-          git fetch
-          git branch --track ${GITHUB_HEAD_REF##*/} origin/${GITHUB_HEAD_REF##*/}
-          git checkout ${GITHUB_HEAD_REF##*/}
-      - name: "Run FOSSA Scan"
-        uses: fossas/fossa-action@v1.1.0
+      - name: "Security Scan"
+        uses: firebolt-db/action-security-scan@main
         with:
-          api-key: ${{secrets.FOSSA_API_KEY}}
+          github-key: ${{ secrets.GITHUB_TOKEN }}
+          sonar-key: ${{ secrets.SONARCLOUD_TOKEN }}
