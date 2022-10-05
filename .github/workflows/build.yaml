@@ -26,6 +26,7 @@ jobs:
     - name: Type check with typescript
       run: |
         npm run type-check
+
     - name: Test with jest
       run: |
-        npm test test/unit
+        npm test -- --collectCoverage test/unit
