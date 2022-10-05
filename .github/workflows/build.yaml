@@ -30,3 +30,9 @@ jobs:
     - name: Test with jest
       run: |
         npm test -- --collectCoverage test/unit
+        
+    - name: "Security Scan"
+      uses: SonarSource/sonarcloud-github-action@master
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
