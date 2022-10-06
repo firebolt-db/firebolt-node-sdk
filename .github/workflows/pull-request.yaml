@@ -1,4 +1,4 @@
-name: SDK workflow
+name: PR checks
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  code-checks:
 
     runs-on: ubuntu-latest
 
