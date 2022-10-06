@@ -1,4 +1,4 @@
-name: SDK workflow
+name: PR checks
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  code-checks:
 
     runs-on: ubuntu-latest
 
@@ -26,6 +26,13 @@ jobs:
     - name: Type check with typescript
       run: |
         npm run type-check
+
     - name: Test with jest
       run: |
-        npm test test/unit
+        npm test -- --coverage test/unit
+        
+    - name: "Security Scan"
+      uses: SonarSource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
