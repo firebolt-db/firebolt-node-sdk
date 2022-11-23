@@ -48,7 +48,20 @@ export class Connection {
   private getRequestUrl(executeQueryOptions: ExecuteQueryOptions) {
     const { settings } = executeQueryOptions;
     const { database } = this.options;
-    const queryParams = new URLSearchParams({ database, ...settings });
+    const params = { database, ...settings };
+
+    const paramsWithValue = Object.keys(params).reduce<Record<string, string>>(
+      (acc, key) => {
+        const param = params[key as keyof typeof params];
+        if (param !== undefined) {
+          acc[key] = param;
+        }
+        return acc;
+      },
+      {}
+    );
+
+    const queryParams = new URLSearchParams(paramsWithValue);
     return `${this.engineEndpoint}?${queryParams}`;
   }
 

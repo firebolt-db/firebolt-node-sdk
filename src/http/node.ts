@@ -83,13 +83,24 @@ export class NodeHttpClient {
         const contentType = response.headers.get("content-type");
 
         if (contentType && contentType.includes("application/json")) {
-          const json = await response.json();
+          const text = await response.text();
+          let json = {};
+          try {
+            const parsed = JSON.parse(text);
+            json = parsed;
+          } catch (e) {
+            json = {
+              code: response.status,
+              message: text
+            };
+          }
           const { message = DEFAULT_ERROR, code } = json as ErrorResponse;
           throw new ApiError({
             message,
             code,
             status: response.status,
-            raw: json
+            raw: json,
+            url
           });
         } else {
           const text = await response.text();
@@ -97,7 +108,8 @@ export class NodeHttpClient {
           throw new ApiError({
             message,
             code: "",
-            status: response.status
+            status: response.status,
+            url
           });
         }
       }

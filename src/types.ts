@@ -69,7 +69,7 @@ export type ConnectionOptions = {
   username?: string;
   password?: string;
   accessToken?: string;
-  database: string;
+  database?: string;
   engineName?: string;
   engineEndpoint?: string;
   additionalParameters?: AdditionalConnectionParameters;
