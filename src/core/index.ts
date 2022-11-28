@@ -2,11 +2,7 @@ import { Connection } from "../connection";
 import { Authenticator } from "../auth";
 import { Context, ConnectionOptions, FireboltClientOptions } from "../types";
 import { checkArgumentExists } from "../common/util";
-import {
-  MISSING_ENGINE_ENDPOINT,
-  MISSING_PASSWORD,
-  MISSING_USERNAME
-} from "../common/errors";
+import { MISSING_PASSWORD, MISSING_USERNAME } from "../common/errors";
 import { ResourceManager } from "../service";
 
 export class FireboltCore {
@@ -25,10 +21,6 @@ export class FireboltCore {
       checkArgumentExists(connectionOptions.username, MISSING_USERNAME);
       checkArgumentExists(connectionOptions.password, MISSING_PASSWORD);
     }
-    checkArgumentExists(
-      connectionOptions.engineEndpoint || connectionOptions.engineName,
-      MISSING_ENGINE_ENDPOINT
-    );
   }
 
   async connect(connectionOptions: ConnectionOptions) {

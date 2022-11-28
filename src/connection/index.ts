@@ -33,7 +33,7 @@ export class Connection {
 
   async resolveEngineEndpoint() {
     const { resourceManager } = this.context;
-    const { engineName, engineEndpoint } = this.options;
+    const { engineName, engineEndpoint, database } = this.options;
     if (engineEndpoint) {
       this.engineEndpoint = engineEndpoint;
       return this.engineEndpoint;
@@ -43,6 +43,11 @@ export class Connection {
       this.engineEndpoint = engine.endpoint;
       return this.engineEndpoint;
     }
+    const defaultUrl = await resourceManager.database.getDefaultEndpointByName(
+      database as string
+    );
+    this.engineEndpoint = defaultUrl;
+    return this.engineEndpoint;
   }
 
   private getRequestUrl(executeQueryOptions: ExecuteQueryOptions) {
