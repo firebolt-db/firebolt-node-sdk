@@ -126,8 +126,8 @@ type ConnectionOptions = {
 
 <a id="enginename"></a>
 #### engineName
-You can pass engineName: "system" to use system engine, which is always on and execute AQL queries on it.
-If engineName or engineEndpoint was not passed sdk fallback to default engine endpoint for database.
+You can pass `engineName: "system"` to use system engine, which is always on and execute AQL queries on it.
+If `engineName` or `engineEndpoint` was not passed sdk will fallback to default engine endpoint for database.
 
 <a id="accesstoken"></a>
 #### AccessToken
