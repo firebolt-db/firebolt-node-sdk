@@ -20,7 +20,7 @@ describe("system engine", () => {
     });
     expect(connection.engineEndpoint).toMatch(/api/);
   });
-  it.only("able to list engines", async () => {
+  it("able to list engines", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
@@ -33,7 +33,6 @@ describe("system engine", () => {
     try {
       const statement = await connection.execute("show engines");
       const { data } = await statement.fetchResult();
-      console.log(data);
     } catch (error) {
       console.log(error);
       expect(true).toEqual(false);

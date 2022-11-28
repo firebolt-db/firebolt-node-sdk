@@ -1,6 +1,7 @@
 import {
   ACCOUNT_DATABASES,
   ACCOUNT_DATABASE,
+  ACCOUNT_ENGINE_URL_BY_DATABASE_NAME,
   ResultsPage
 } from "../../common/api";
 import { Context } from "../../types";
@@ -25,6 +26,19 @@ export class DatabaseService {
       .request<{ database_id: ID }>("GET", url)
       .ready();
     return data.database_id;
+  }
+
+  async getDefaultEndpointByName(name: string) {
+    const { apiEndpoint, httpClient } = this.context;
+    const accountId = this.context.resourceManager.account.id;
+    const queryParams = new URLSearchParams({ database_name: name });
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_URL_BY_DATABASE_NAME(
+      accountId
+    )}?${queryParams}`;
+    const data = await httpClient
+      .request<{ engine_url: string }>("GET", url)
+      .ready();
+    return data.engine_url;
   }
 
   async getById(databaseId: string): Promise<DatabaseModel> {

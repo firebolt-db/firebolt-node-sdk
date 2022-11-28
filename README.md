@@ -62,6 +62,7 @@ console.log(rows)
   * <a href="#create-connection">Create connection</a>
     * <a href="#connectionoptions">ConnectionOptions</a>
     * <a href="#accesstoken">AccessToken</a>
+    * <a href="#enginename">engineName</a>
   * <a href="#test-connection">Test connection</a>
   * <a href="#engine-url">Engine URL</a>
   * <a href="#execute-query">Execute query</a>
@@ -122,6 +123,11 @@ type ConnectionOptions = {
 };
 ```
 
+
+<a id="enginename"></a>
+#### engineName
+You can pass `engineName: "system"` to use system engine, which is always on and execute AQL queries on it.
+If `engineName` or `engineEndpoint` was not passed sdk will fallback to default engine endpoint for database.
 
 <a id="accesstoken"></a>
 #### AccessToken

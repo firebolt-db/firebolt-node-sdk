@@ -52,6 +52,21 @@ describe("engine integration", () => {
     },
     10 * 60 * 1000
   );
+  it("resolve default engine endpoint if not provided", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      username: process.env.FIREBOLT_USERNAME as string,
+      password: process.env.FIREBOLT_PASSWORD as string,
+      database: process.env.FIREBOLT_DATABASE as string
+    });
+
+    expect(connection.engineEndpoint).toEqual(
+      process.env.FIREBOLT_ENGINE_ENDPOINT
+    );
+  });
 });
 
 describe("engine resource manager", () => {
