@@ -22,12 +22,17 @@ describe("system engine", () => {
       engineName: "system"
     });
 
-    try {
-      await connection.execute(`drop engine if exists ${engineName}`);
-      await connection.execute(`drop database if exists ${databaseName}`);
-    } catch (error) {
-      console.log(error);
-    }
+    await connection
+      .execute(`drop engine if exists ${engineName}`)
+      .catch(error => {
+        console.log(error);
+      });
+
+    await connection
+      .execute(`drop database if exists ${databaseName}`)
+      .catch(error => {
+        console.log(error);
+      });
     try {
       await connection.execute(`create database if not exists ${databaseName}`);
 
@@ -127,8 +132,8 @@ describe("system engine", () => {
     });
 
     try {
-      const statement = await connection.execute("show engines");
-      const { data } = await statement.fetchResult();
+      await connection.execute(`start engine ${engineName}`);
+      await connection.execute(`stop engine ${engineName}`);
     } catch (error) {
       console.log(error);
       expect(true).toEqual(false);
