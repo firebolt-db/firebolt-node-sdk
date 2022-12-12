@@ -121,7 +121,7 @@ describe("system engine", () => {
       expect(true).toEqual(false);
     }
   });
-  it("start/stop engine", async () => {
+  it.skip("start/stop engine", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
