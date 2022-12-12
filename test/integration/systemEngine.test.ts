@@ -23,6 +23,12 @@ describe("system engine", () => {
     });
 
     try {
+      await connection.execute(`drop engine if exists ${engineName}`);
+      await connection.execute(`drop database if exists ${databaseName}`);
+    } catch (error) {
+      console.log(error);
+    }
+    try {
       await connection.execute(`create database if not exists ${databaseName}`);
 
       await connection.execute(
@@ -49,8 +55,8 @@ describe("system engine", () => {
     });
 
     try {
-      // await connection.execute(`drop engine if exists ${engineName}`);
-      // await connection.execute(`drop database if exists ${databaseName}`);
+      await connection.execute(`drop engine if exists ${engineName}`);
+      await connection.execute(`drop database if exists ${databaseName}`);
     } catch (error) {
       console.log(error);
       expect(true).toEqual(false);
