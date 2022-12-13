@@ -65,6 +65,25 @@ export type AdditionalConnectionParameters = {
   userClients?: ConnectorVersion[];
 };
 
+export type UsernamePasswordAuth = {
+  username: string;
+  password: string;
+};
+
+export type AccessTokenAuth = {
+  accessToken: string;
+};
+
+export type ServiceAccountAuth = {
+  client_id: string;
+  client_secret: string;
+};
+
+export type AuthOptions =
+  | UsernamePasswordAuth
+  | AccessTokenAuth
+  | ServiceAccountAuth;
+
 export type ConnectionOptions = {
   username?: string;
   password?: string;
@@ -74,12 +93,7 @@ export type ConnectionOptions = {
   engineEndpoint?: string;
   additionalParameters?: AdditionalConnectionParameters;
   account?: string;
-};
-
-export type AuthOptions = {
-  username?: string;
-  password?: string;
-  accessToken?: string;
+  auth?: AuthOptions;
 };
 
 export type FireboltClientOptions = {

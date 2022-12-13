@@ -1,4 +1,5 @@
 export const LOGIN = "auth/v1/login";
+export const SERVICE_ACCOUNT_LOGIN = "auth/v1/token";
 export const REFRESH = "auth/v1/refresh";
 
 export const DATABASES = "core/v1/account/databases";

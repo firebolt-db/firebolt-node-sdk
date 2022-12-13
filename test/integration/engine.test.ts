@@ -102,7 +102,7 @@ describe("engine resource manager", () => {
     const resourceManager = FireboltResourceManager({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
-    await resourceManager.authenticate(authOptions);
+    await resourceManager.authenticate({ auth: authOptions });
     const engine = await resourceManager.engine.getByName(
       process.env.FIREBOLT_ENGINE_NAME as string
     );
