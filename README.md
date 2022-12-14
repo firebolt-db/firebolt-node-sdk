@@ -22,8 +22,10 @@ import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
 
 const connection = await firebolt.connect({
-  username: process.env.FIREBOLT_USERNAME,
-  password: process.env.FIREBOLT_PASSWORD,
+  auth: {
+    username: process.env.FIREBOLT_USERNAME,
+    password: process.env.FIREBOLT_PASSWORD,
+  },
   database: process.env.FIREBOLT_DATABASE,
   engineName: process.env.FIREBOLT_ENGINE_NAME
 });
@@ -62,6 +64,7 @@ console.log(rows)
   * <a href="#create-connection">Create connection</a>
     * <a href="#connectionoptions">ConnectionOptions</a>
     * <a href="#accesstoken">AccessToken</a>
+    * <a href="#serviceaccount">Service account</a>
     * <a href="#enginename">engineName</a>
   * <a href="#test-connection">Test connection</a>
   * <a href="#engine-url">Engine URL</a>
@@ -112,10 +115,22 @@ const connection = await firebolt.connect(connectionOptions);
 <a id="connectionoptions"></a>
 #### ConnectionOptions
 ```typescript
+type UsernamePasswordAuth = {
+  username: string;
+  password: string;
+};
+
+type AccessTokenAuth = {
+  accessToken: string;
+};
+
+type ServiceAccountAuth = {
+  client_id: string;
+  client_secret: string;
+};
+
 type ConnectionOptions = {
-  username?: string;
-  password?: string;
-  accessToken?: string;
+  auth: UsernamePasswordAuth | AccessTokenAuth | ServiceAccountAuth;
   database: string;
   engineName?: string;
   engineEndpoint?: string;
@@ -137,13 +152,30 @@ and pass accessToken when creating the connection
 
 ```typescript
 const connection = await firebolt.connect({
-  accessToken: "access_token",
+  auth: {
+    accessToken: "access_token",
+  },
   engineName: 'engine_name',
   account: 'account_name',
   database: 'database',
 });
 ```
 
+<a id="serviceaccount"></a>
+#### Service account
+Instead of passing username/password, you can also use service account
+
+```typescript
+const connection = await firebolt.connect({
+  auth: {
+    client_id: 'b1c4918c-e07e-4ab2-868b-9ae84f208d26';
+    client_secret: 'secret';
+  },
+  engineName: 'engine_name',
+  account: 'account_name',
+  database: 'database',
+});
+```
 <a id="test-connection"></a>
 ### Test connection
 TODO: write motivation
@@ -430,14 +462,15 @@ providing only auth credentials
 ```typescript
 import { FireboltResourceManager } from 'firebolt-sdk'
 
-const authOptions = {
-  username: process.env.FIREBOLT_USERNAME as string,
-  password: process.env.FIREBOLT_PASSWORD as string,
-  account: process.env.ACCOUNT_NAME as string
-};
-
 const resourceManager = FireboltResourceManager();
-await resourceManager.authenticate(authOptions);
+await resourceManager.authenticate({
+  auth: {
+    username: process.env.FIREBOLT_USERNAME as string,
+    password: process.env.FIREBOLT_PASSWORD as string,
+  },
+  account: process.env.ACCOUNT_NAME as string
+});
+
 const engine = await resourceManager.engine.getByName(
   process.env.FIREBOLT_ENGINE_NAME as string
 );

@@ -6,6 +6,7 @@ import { AccountService } from "./account";
 import { Authenticator } from "../auth";
 import { QueryFormatter } from "../formatter";
 import { AuthOptions, Context } from "../types";
+import { authDeprecationWarning } from "../common/errors";
 
 export class ResourceManager {
   private context: Context;
@@ -28,8 +29,9 @@ export class ResourceManager {
     this.account = new AccountService(this.context);
   }
 
-  async authenticate(options: AuthOptions & { account?: string }) {
+  async authenticate(options: { auth: AuthOptions; account?: string }) {
     const { account } = options;
+    authDeprecationWarning(options);
     const auth = new Authenticator(this.context, options);
     await auth.authenticate();
     await this.account.resolveAccountId(account);

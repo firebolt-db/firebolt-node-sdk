@@ -60,8 +60,10 @@ describe("connection user agent", () => {
 
   it("propagation", async () => {
     const connectionParams: ConnectionOptions = {
-      username: "dummy",
-      password: "dummy",
+      auth: {
+        username: "dummy",
+        password: "dummy"
+      },
       database: "dummy",
       engineName: "dummy",
       account: "account"
@@ -83,8 +85,10 @@ describe("connection user agent", () => {
   });
   it("customisation", async () => {
     const connectionParams: ConnectionOptions = {
-      username: "dummy",
-      password: "dummy",
+      auth: {
+        username: "dummy",
+        password: "dummy"
+      },
       database: "dummy",
       engineName: "dummy",
       additionalParameters: {
