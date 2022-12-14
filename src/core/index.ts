@@ -1,12 +1,7 @@
 import { Connection } from "../connection";
 import { Authenticator } from "../auth";
 import { Context, ConnectionOptions, FireboltClientOptions } from "../types";
-import { checkArgumentExists } from "../common/util";
-import {
-  authDeprecationWarning,
-  MISSING_PASSWORD,
-  MISSING_USERNAME
-} from "../common/errors";
+import { authDeprecationWarning } from "../common/errors";
 import { ResourceManager } from "../service";
 
 export class FireboltCore {
