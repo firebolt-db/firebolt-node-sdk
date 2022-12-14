@@ -1,18 +1,17 @@
 import { Firebolt, FireboltResourceManager } from "../../src/index";
 
-const connectionOptions = {
+const authOptions = {
   username: process.env.FIREBOLT_USERNAME as string,
-  password: process.env.FIREBOLT_PASSWORD as string,
+  password: process.env.FIREBOLT_PASSWORD as string
+};
+
+const connectionOptions = {
+  auth: authOptions,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
 jest.setTimeout(20000);
-
-const authOptions = {
-  username: process.env.FIREBOLT_USERNAME as string,
-  password: process.env.FIREBOLT_PASSWORD as string
-};
 
 describe("engine integration", () => {
   it("starts engine", async () => {
@@ -58,8 +57,10 @@ describe("engine integration", () => {
     });
 
     const connection = await firebolt.connect({
-      username: process.env.FIREBOLT_USERNAME as string,
-      password: process.env.FIREBOLT_PASSWORD as string,
+      auth: {
+        username: process.env.FIREBOLT_USERNAME as string,
+        password: process.env.FIREBOLT_PASSWORD as string
+      },
       database: process.env.FIREBOLT_DATABASE as string
     });
 

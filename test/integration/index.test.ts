@@ -2,8 +2,10 @@ import { Firebolt } from "../../src/index";
 import { OutputFormat } from "../../src/types";
 
 const connectionParams = {
-  username: process.env.FIREBOLT_USERNAME as string,
-  password: process.env.FIREBOLT_PASSWORD as string,
+  auth: {
+    username: process.env.FIREBOLT_USERNAME as string,
+    password: process.env.FIREBOLT_PASSWORD as string
+  },
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
@@ -33,8 +35,10 @@ describe("integration test", () => {
     const connection2 = await firebolt.connect({
       database: process.env.FIREBOLT_DATABASE as string,
       engineName: process.env.FIREBOLT_ENGINE_NAME as string,
-      // @ts-ignore
-      accessToken: connection.context.httpClient.authenticator.accessToken
+      auth: {
+        // @ts-ignore
+        accessToken: connection.context.httpClient.authenticator.accessToken
+      }
     });
 
     const statement2 = await connection2.execute("SELECT 1");
@@ -90,8 +94,10 @@ describe("integration test", () => {
     });
 
     const connection = await firebolt.connect({
-      username: process.env.FIREBOLT_USERNAME as string,
-      password: process.env.FIREBOLT_PASSWORD as string,
+      auth: {
+        username: process.env.FIREBOLT_USERNAME as string,
+        password: process.env.FIREBOLT_PASSWORD as string
+      },
       database: process.env.FIREBOLT_DATABASE as string,
       engineEndpoint: "bad engine url"
     });
@@ -177,8 +183,10 @@ describe("integration test", () => {
 
     await expect(async () => {
       await firebolt.testConnection({
-        username: process.env.FIREBOLT_USERNAME as string,
-        password: process.env.FIREBOLT_PASSWORD as string,
+        auth: {
+          username: process.env.FIREBOLT_USERNAME as string,
+          password: process.env.FIREBOLT_PASSWORD as string
+        },
         database: process.env.FIREBOLT_DATABASE as string,
         engineName: "unknown_engine"
       });

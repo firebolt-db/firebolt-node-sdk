@@ -23,7 +23,7 @@ describe("service accounts auth", () => {
 
     expect(name).toEqual(process.env.FIREBOLT_DATABASE);
   });
-  it("queries engine", async () => {
+  it.skip("queries engine", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
