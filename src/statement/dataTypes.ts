@@ -49,8 +49,11 @@ const getMappedType = (innerType: string) => {
 const COMPLEX_TYPE = /(nullable|array)\((.+)\)/;
 
 const DATE_TYPES = withNullableTypes([
+  "pg_date",
   "date",
   "timestamp",
+  "timestamp_tz",
+  "timestamp_ntz",
   "datetime",
   "date32",
   "date_ext",
