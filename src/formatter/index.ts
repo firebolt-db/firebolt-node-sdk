@@ -32,10 +32,14 @@ const removeComments = (query: string) => {
   return query;
 };
 
-const zeroPad = (param: number, length: number) => {
+const zeroPad = (param: number, length: number, direction = "left") => {
   let paded = param.toString();
   while (paded.length < length) {
-    paded = "0" + paded;
+    if (direction === "left") {
+      paded = "0" + paded;
+    } else {
+      paded = paded + "0";
+    }
   }
 
   return paded;
@@ -48,6 +52,19 @@ export class Tuple {
     this.value = value;
   }
 }
+
+export class PGDate extends Date {}
+
+export class TimestampTZ extends Date {
+  timeZone: string;
+
+  constructor(value: number | string, { timeZone }: { timeZone: string }) {
+    super(value);
+    this.timeZone = timeZone;
+  }
+}
+
+export class TimestampNTZ extends Date {}
 
 export class QueryFormatter {
   private format(query: string, params: unknown[]) {
@@ -170,8 +187,8 @@ export class QueryFormatter {
     return sql;
   }
 
-  private escapeDate(param: Date) {
-    const dt = new Date(param);
+  private escapeDate(param: unknown) {
+    const dt = new Date(param as Date);
 
     if (isNaN(dt.getTime())) {
       return "NULL";
@@ -183,22 +200,40 @@ export class QueryFormatter {
     const hour = dt.getHours();
     const minute = dt.getMinutes();
     const second = dt.getSeconds();
+    const millisecond = dt.getMilliseconds();
 
     // YYYY-MM-DD HH:mm:ss.mmm
-    const str =
-      zeroPad(year, 4) +
-      "-" +
-      zeroPad(month, 2) +
-      "-" +
-      zeroPad(day, 2) +
-      " " +
-      zeroPad(hour, 2) +
-      ":" +
-      zeroPad(minute, 2) +
-      ":" +
-      zeroPad(second, 2);
-    //+ "." + zeroPad(millisecond, 3);
+    const yearMonthDay =
+      zeroPad(year, 4) + "-" + zeroPad(month, 2) + "-" + zeroPad(day, 2);
+    const hourMinuteSecond =
+      zeroPad(hour, 2) + ":" + zeroPad(minute, 2) + ":" + zeroPad(second, 2);
 
+    if (param instanceof PGDate) {
+      return this.escapeString(yearMonthDay);
+    }
+
+    if (param instanceof TimestampTZ) {
+      const str =
+        yearMonthDay +
+        " " +
+        hourMinuteSecond +
+        "." +
+        zeroPad(millisecond, 6, "right") +
+        " " +
+        param.timeZone;
+      return this.escapeString(str);
+    }
+
+    if (param instanceof TimestampNTZ) {
+      const str =
+        yearMonthDay +
+        " " +
+        hourMinuteSecond +
+        "." +
+        zeroPad(millisecond, 6, "right");
+      return this.escapeString(str);
+    }
+    const str = yearMonthDay + " " + hourMinuteSecond;
     return this.escapeString(str);
   }
 
@@ -208,7 +243,7 @@ export class QueryFormatter {
     } else if (BigNumber.isBigNumber(param)) {
       return param.toString();
     } else if (Object.prototype.toString.call(param) === "[object Date]") {
-      return this.escapeDate(param as Date);
+      return this.escapeDate(param);
     } else if (Array.isArray(param)) {
       return this.escapeArray(param);
     } else if (Buffer.isBuffer(param)) {
