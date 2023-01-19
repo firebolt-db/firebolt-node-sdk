@@ -30,7 +30,13 @@ export type {
 export { OutputFormat } from "./types";
 export { EngineStatusSummary } from "./service/engine/types";
 export { isDateType, isNumberType } from "./statement/dataTypes";
-export { Tuple } from "./formatter";
+export {
+  Tuple,
+  PGDate,
+  TimestampTZ,
+  TimestampNTZ,
+  QueryFormatter
+} from "./formatter";
 
 export type { Connection } from "./connection";
 export type { Meta } from "./meta";
