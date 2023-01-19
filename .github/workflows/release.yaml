@@ -58,7 +58,7 @@ jobs:
       id: tag_generation
       run: |
         NEW_TAG=$(git describe --tags --abbrev=0)
-        echo "::set-output name=new_tag::$NEW_TAG"
+        echo "new_tag=$NEW_TAG" >>  $GITHUB_OUTPUT
       shell: bash
 
     - name: GitHub release
