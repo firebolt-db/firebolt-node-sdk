@@ -92,7 +92,7 @@ export class JSONParser {
     } else if (line === '"statistics":') {
       this.objBuffer = "";
       this.state = "statistics-object";
-    } else if (line === "}") {
+    } else if (line === "}" || line === "},") {
       this.state = null;
     }
   }
