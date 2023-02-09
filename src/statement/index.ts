@@ -143,8 +143,8 @@ export class Statement {
 
     response.body.on("end", () => {
       try {
-        const rest = jsonParser.parseRest();
-        const statistics = getNormalizedStatistics(rest);
+        // const rest = jsonParser.parseRest();
+        const statistics = getNormalizedStatistics(jsonParser.statistics);
         this.rowStream.emit("statistics", statistics);
         this.rowStream.push(null);
       } catch (error) {
