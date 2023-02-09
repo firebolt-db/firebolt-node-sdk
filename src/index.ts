@@ -38,5 +38,7 @@ export {
   QueryFormatter
 } from "./formatter";
 
+export { JSONParser } from "./statement/stream/parser";
+
 export type { Connection } from "./connection";
 export type { Meta } from "./meta";

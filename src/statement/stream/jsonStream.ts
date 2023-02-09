@@ -43,7 +43,8 @@ export class JSONStream {
     const normalizeData = this.executeQueryOptions.response?.normalizeData;
     const parsed = JSONbig.parse(row);
     const hydrate = this.executeQueryOptions.response?.hydrateRow || hydrateRow;
-    const columns = this.jsonParser.columns;
+    const result = this.getResult(0);
+    const columns = result.columns;
     const hydratedRow = hydrate(
       parsed,
       columns as Meta[],
@@ -62,5 +63,9 @@ export class JSONStream {
 
   processLine(line: string) {
     this.jsonParser.processLine(line);
+  }
+
+  getResult(index: number) {
+    return this.jsonParser.results[index];
   }
 }

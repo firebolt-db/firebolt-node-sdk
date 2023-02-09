@@ -17,10 +17,14 @@ export class JSONParser {
   hydrateRow;
 
   objBuffer?: string;
-  rows: unknown[];
-  columns: unknown[];
-  statistics: any;
-  query: any;
+  currentIndex: number;
+
+  results: {
+    rows: unknown[];
+    columns: unknown[];
+    statistics: any;
+    query?: any;
+  }[];
 
   constructor({
     onMetadataParsed = (columns: any) => {},
@@ -31,21 +35,51 @@ export class JSONParser {
     this.hydrateColumn = hydrateColumn;
     this.hydrateRow = hydrateRow;
 
+    this.results = [];
+
     this.state = null;
-    this.columns = [];
-    this.rows = [];
+    this.currentIndex = 0;
+  }
+
+  fillEmptyResult() {
+    this.results[this.currentIndex] = {
+      columns: [],
+      rows: [],
+      statistics: {}
+    };
+  }
+
+  pushColumn(column: unknown) {
+    this.results[this.currentIndex].columns.push(column);
+  }
+
+  pushRow(row: unknown) {
+    this.results[this.currentIndex].rows.push(row);
+  }
+
+  pushQuery(query: any) {
+    this.results[this.currentIndex].query = query;
+  }
+
+  pushStatistics(statistics: any) {
+    this.results[this.currentIndex].statistics = statistics;
   }
 
   handleRoot(line: string) {
     if (line === "{") {
       this.state = "rootKeys";
+      if (this.results.length > 0) {
+        this.currentIndex += 1;
+      }
+      this.fillEmptyResult();
     }
   }
 
   handleRootKeys(line: string) {
-    if (line === "query") {
+    if (line === '"query":') {
       this.state = "query";
     } else if (line === '"query": {') {
+      this.objBuffer = "{";
       this.state = "query-object";
     } else if (line === '"meta":') {
       this.state = "meta";
@@ -55,14 +89,11 @@ export class JSONParser {
       this.state = "meta-array";
     } else if (line === '"data": [') {
       this.state = "data-array";
-    } else if (line === "statistics") {
-      this.objBuffer = "{";
-      this.state === "statistics-object";
+    } else if (line === '"statistics":') {
+      this.objBuffer = "";
+      this.state = "statistics-object";
     } else if (line === "}") {
-      //this.rest += line;
-      this.state === null;
-    } else {
-      // this.rest += line;
+      this.state = null;
     }
   }
 
@@ -76,14 +107,12 @@ export class JSONParser {
     if (line.match(/^},?$/)) {
       const columnStr = this.objBuffer + "}";
       const column = this.hydrateColumn(columnStr);
-      // const normalizedColumn = normalizeColumn(column);
-      this.columns.push(column);
+      this.pushColumn(column);
       this.objBuffer = undefined;
     } else if (line === "{") {
       this.objBuffer = line;
     } else if (line.match(/^],?$/)) {
-      this.onMetadataParsed(this.columns);
-      // this.emitter.emit("metadata", this.columns);
+      this.onMetadataParsed(this.results[this.currentIndex].columns);
       this.state = "rootKeys";
     } else {
       this.objBuffer += line;
@@ -94,7 +123,7 @@ export class JSONParser {
     if (line.match(/^[\]}],?$/) && this.objBuffer) {
       const rowStr = this.objBuffer + line[0];
       const row = this.hydrateRow(rowStr, false);
-      this.rows.push(row);
+      this.pushRow(row);
       this.objBuffer = undefined;
     } else if (line === "{" || line === "[") {
       this.objBuffer = line;
@@ -104,7 +133,7 @@ export class JSONParser {
       const isLastRow = line[line.length - 1] !== ",";
       const rowStr = isLastRow ? line : line.substr(0, line.length - 1);
       const row = this.hydrateRow(rowStr, isLastRow);
-      this.rows.push(row);
+      this.pushRow(row);
     } else {
       this.objBuffer += line;
     }
@@ -118,6 +147,7 @@ export class JSONParser {
 
   handleQuery(line: string) {
     if (line === "{") {
+      this.objBuffer = "{";
       this.state = "query-object";
     }
   }
@@ -128,7 +158,7 @@ export class JSONParser {
       const query = JSONbig.parse(queryStr);
       this.objBuffer = undefined;
       this.state = "rootKeys";
-      this.query = query;
+      this.pushQuery(query);
     } else {
       this.objBuffer += line;
     }
@@ -140,7 +170,7 @@ export class JSONParser {
       const statistics = JSONbig.parse(queryStr);
       this.objBuffer = undefined;
       this.state = "rootKeys";
-      this.statistics = statistics;
+      this.pushStatistics(statistics);
     } else {
       this.objBuffer += line;
     }
