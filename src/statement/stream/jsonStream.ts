@@ -4,27 +4,14 @@ import { Meta } from "../../meta";
 import { normalizeColumn, normalizeRow } from "../normalizeResponse";
 import { hydrateRow } from "../hydrateResponse";
 import { RowStream } from "./rowStream";
+import { JSONParser } from "./parser";
 
 export class JSONStream {
+  jsonParser: JSONParser;
   options?: StreamOptions;
   executeQueryOptions: ExecuteQueryOptions;
   emitter: RowStream;
   rowParser: RowParser;
-  state:
-    | "meta"
-    | "meta-array"
-    | "rootKeys"
-    | "data"
-    | "data-array"
-    | "query"
-    | "query-object"
-    | null;
-
-  columns: Meta[];
-  rows: unknown[];
-  rest: string;
-
-  objBuffer?: string;
 
   constructor({
     emitter,
@@ -35,151 +22,50 @@ export class JSONStream {
     options?: StreamOptions;
     executeQueryOptions: ExecuteQueryOptions;
   }) {
-    this.state = null;
     this.emitter = emitter;
     this.options = options;
     this.executeQueryOptions = executeQueryOptions;
-
     this.rowParser = this.options?.rowParser || this.defaultRowParser;
-    this.columns = [];
-    this.rows = [];
-    this.rest = "{";
+
+    this.jsonParser = new JSONParser({
+      onMetadataParsed: columns => {
+        this.emitter.emit("metadata", columns);
+      },
+      hydrateRow: this.rowParser,
+      hydrateColumn: (columnStr: string) => {
+        const column = JSONbig.parse(columnStr);
+        return normalizeColumn(column);
+      }
+    });
   }
 
-  defaultRowParser(row: string, isLastRow: boolean) {
+  defaultRowParser = (row: string, isLastRow: boolean) => {
     const normalizeData = this.executeQueryOptions.response?.normalizeData;
     const parsed = JSONbig.parse(row);
     const hydrate = this.executeQueryOptions.response?.hydrateRow || hydrateRow;
-    const hydratedRow = hydrate(parsed, this.columns, this.executeQueryOptions);
+    const result = this.getResult(0);
+    const columns = result.columns;
+    const hydratedRow = hydrate(
+      parsed,
+      columns as Meta[],
+      this.executeQueryOptions
+    );
     if (normalizeData) {
       const normalizedRow = normalizeRow(
         hydratedRow,
-        this.columns,
+        columns as Meta[],
         this.executeQueryOptions
       );
       return normalizedRow;
     }
     return hydratedRow;
-  }
-
-  parseRest() {
-    const parsed = JSONbig.parse(this.rest);
-    return parsed;
-  }
-
-  handleRoot(line: string) {
-    if (line === "{") {
-      this.state = "rootKeys";
-    }
-  }
-
-  handleRootKeys(line: string) {
-    if (line === "query") {
-      this.state = "query";
-    } else if (line === '"query": {') {
-      this.state = "query-object";
-    } else if (line === '"meta":') {
-      this.state = "meta";
-    } else if (line === '"data":') {
-      this.state = "data";
-    } else if (line === '"meta": [') {
-      this.state = "meta-array";
-    } else if (line === '"data": [') {
-      this.state = "data-array";
-    } else {
-      this.rest += line;
-    }
-  }
-
-  handleMeta(line: string) {
-    if (line === "[") {
-      this.state = "meta-array";
-    }
-  }
-
-  handleMetaArray(line: string) {
-    if (line.match(/^},?$/)) {
-      const columnStr = this.objBuffer + "}";
-      const column = JSONbig.parse(columnStr);
-      const normalizedColumn = normalizeColumn(column);
-      this.columns.push(normalizedColumn);
-      this.objBuffer = undefined;
-    } else if (line === "{") {
-      this.objBuffer = line;
-    } else if (line.match(/^],?$/)) {
-      this.emitter.emit("metadata", this.columns);
-      this.state = "rootKeys";
-    } else {
-      this.objBuffer += line;
-    }
-  }
-
-  handleDataArray(line: string) {
-    if (line.match(/^[\]}],?$/) && this.objBuffer) {
-      const rowStr = this.objBuffer + line[0];
-      const row = this.rowParser(rowStr, false);
-      this.rows.push(row);
-      this.objBuffer = undefined;
-    } else if (line === "{" || line === "[") {
-      this.objBuffer = line;
-    } else if (line.match(/^],?$/)) {
-      this.state = "rootKeys";
-    } else if (this.objBuffer === undefined) {
-      const isLastRow = line[line.length - 1] !== ",";
-      const rowStr = isLastRow ? line : line.substr(0, line.length - 1);
-      const row = this.rowParser(rowStr, isLastRow);
-      this.rows.push(row);
-    } else {
-      this.objBuffer += line;
-    }
-  }
-
-  handleData(line: string) {
-    if (line === "[") {
-      this.state = "data-array";
-    }
-  }
-
-  handleQuery(line: string) {
-    if (line === "{") {
-      this.state = "query-object";
-    }
-  }
-
-  handleQueryObject(line: string) {
-    if (line.match(/^},?$/)) {
-      const queryStr = this.objBuffer + "}";
-      const query = JSONbig.parse(queryStr);
-      this.objBuffer = undefined;
-      this.state = "rootKeys";
-    } else {
-      this.objBuffer += line;
-    }
-  }
+  };
 
   processLine(line: string) {
-    line = line.trim();
+    this.jsonParser.processLine(line);
+  }
 
-    if (!line.length) {
-      return;
-    }
-
-    if (this.state === null) {
-      this.handleRoot(line);
-    } else if (this.state === "rootKeys") {
-      this.handleRootKeys(line);
-    } else if (this.state === "meta") {
-      this.handleMeta(line);
-    } else if (this.state === "data") {
-      this.handleData(line);
-    } else if (this.state === "meta-array") {
-      this.handleMetaArray(line);
-    } else if (this.state === "data-array") {
-      this.handleDataArray(line);
-    } else if (this.state === "query") {
-      this.handleQuery(line);
-    } else if (this.state === "query-object") {
-      this.handleQueryObject(line);
-    }
+  getResult(index: number) {
+    return this.jsonParser.results[index];
   }
 }

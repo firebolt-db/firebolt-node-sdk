@@ -69,7 +69,7 @@ export class Statement {
 
   async streamResult(options?: StreamOptions) {
     const response = await this.request.ready();
-    const jsonParser = new JSONStream({
+    const jsonStream = new JSONStream({
       emitter: this.rowStream,
       options,
       executeQueryOptions: this.executeQueryOptions
@@ -125,26 +125,28 @@ export class Statement {
           .split("\n");
         try {
           for (const line of lines) {
-            jsonParser.processLine(line);
+            jsonStream.processLine(line);
           }
         } catch (error) {
           errorHandler(error);
           return;
         }
 
-        for (const row of jsonParser.rows) {
+        const result = jsonStream.getResult(0);
+        // for now only supports single statement sql
+        for (const row of result.rows) {
           this.rowStream.push(row);
         }
 
-        jsonParser.rows = [];
+        result.rows = [];
         str = rest;
       }
     });
 
     response.body.on("end", () => {
       try {
-        const rest = jsonParser.parseRest();
-        const statistics = getNormalizedStatistics(rest);
+        const result = jsonStream.getResult(0);
+        const statistics = getNormalizedStatistics(result.statistics);
         this.rowStream.emit("statistics", statistics);
         this.rowStream.push(null);
       } catch (error) {
