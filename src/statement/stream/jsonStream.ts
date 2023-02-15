@@ -31,7 +31,7 @@ export class JSONStream {
       onMetadataParsed: columns => {
         this.emitter.emit("metadata", columns);
       },
-      hydrateRow: this.defaultRowParser,
+      hydrateRow: this.rowParser,
       hydrateColumn: (columnStr: string) => {
         const column = JSONbig.parse(columnStr);
         return normalizeColumn(column);
@@ -39,7 +39,7 @@ export class JSONStream {
     });
   }
 
-  defaultRowParser(row: string, isLastRow: boolean) {
+  defaultRowParser = (row: string, isLastRow: boolean) => {
     const normalizeData = this.executeQueryOptions.response?.normalizeData;
     const parsed = JSONbig.parse(row);
     const hydrate = this.executeQueryOptions.response?.hydrateRow || hydrateRow;
@@ -59,7 +59,7 @@ export class JSONStream {
       return normalizedRow;
     }
     return hydratedRow;
-  }
+  };
 
   processLine(line: string) {
     this.jsonParser.processLine(line);

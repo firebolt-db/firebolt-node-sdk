@@ -131,7 +131,7 @@ export class JSONParser {
       this.state = "rootKeys";
     } else if (this.objBuffer === undefined) {
       const isLastRow = line[line.length - 1] !== ",";
-      const rowStr = isLastRow ? line : line.substr(0, line.length - 1);
+      const rowStr = isLastRow ? line : line.substring(0, line.length - 1);
       const row = this.hydrateRow(rowStr, isLastRow);
       this.pushRow(row);
     } else {
