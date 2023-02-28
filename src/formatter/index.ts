@@ -67,9 +67,13 @@ export class TimestampTZ extends Date {
 export class TimestampNTZ extends Date {}
 
 export class QueryFormatter {
-  private format(query: string, params: unknown[]) {
+  private format(
+    query: string,
+    params: unknown[],
+    namedParams: Record<string, unknown>
+  ) {
     params = [...params];
-    const regex = /(''|""|``|\\\\|\\'|\\"|'|"|`|\?)/g;
+    const regex = /''|""|``|\\\\|\\'|\\"|'|"|`|\?|::|:(\w+)/g;
 
     const STATE = {
       WHITESPACE: 0,
@@ -86,7 +90,7 @@ export class QueryFormatter {
 
     let state = STATE.WHITESPACE;
 
-    query = query.replace(regex, str => {
+    query = query.replace(regex, (str, paramName: string | undefined) => {
       if (str in stateSwitches) {
         if (state === STATE.WHITESPACE) {
           state = stateSwitches[str];
@@ -95,17 +99,25 @@ export class QueryFormatter {
         }
       }
 
-      if (str !== "?") {
+      if (str === "?") {
+        if (state !== STATE.WHITESPACE) return str;
+
+        if (params.length == 0) {
+          throw new Error("Too few parameters given");
+        }
+
+        return this.escape(params.shift());
+      } else if (paramName) {
+        if (state !== STATE.WHITESPACE) return str;
+
+        if (!Object.prototype.hasOwnProperty.call(namedParams, paramName)) {
+          throw new Error(`Parameter named "${paramName}" not given`);
+        }
+
+        return this.escape(namedParams[paramName]);
+      } else {
         return str;
       }
-
-      if (state !== STATE.WHITESPACE) return str;
-
-      if (params.length == 0) {
-        throw new Error("Too few parameters given");
-      }
-
-      return this.escape(params.shift());
     });
 
     if (params.length) {
@@ -253,11 +265,25 @@ export class QueryFormatter {
     }
   }
 
-  formatQuery(query: string, parameters?: unknown[]): string {
+  formatQuery(
+    query: string,
+    parameters?: unknown[],
+    namedParameters?: Record<string, unknown>
+  ): string {
     query = removeComments(query);
-    if (parameters) {
-      checkArgumentValid(Array.isArray(parameters), INVALID_PARAMETERS);
-      query = this.format(query, parameters);
+    if (parameters || namedParameters) {
+      if (parameters) {
+        checkArgumentValid(Array.isArray(parameters), INVALID_PARAMETERS);
+      }
+
+      if (namedParameters) {
+        checkArgumentValid(
+          typeof namedParameters === "object",
+          INVALID_PARAMETERS
+        );
+      }
+
+      query = this.format(query, parameters ?? [], namedParameters ?? {});
     }
     return query;
   }

@@ -48,6 +48,7 @@ export type ResponseSettings = {
 export type ExecuteQueryOptions = {
   settings?: QuerySettings;
   parameters?: unknown[];
+  namedParameters?: Record<string, unknown>;
   response?: ResponseSettings;
 };
 
