@@ -71,6 +71,7 @@ console.log(rows)
   * <a href="#execute-query">Execute query</a>
     * <a href="#executequeryoptions">ExecuteQueryOptions</a>
     * <a href="#parameters">parameters</a>
+    * <a href="#named-parameters">Named parameters</a>
     * <a href="#querysettings">QuerySettings</a>
     * <a href="#responsesettings">ResponseSettings</a>
   * <a href="#fetch-result">Fetch result</a>
@@ -247,6 +248,19 @@ const statement = await connection.execute("select ? where bar in ?", {
   ]
 });
 ```
+
+<a id="named-parameters"></a>
+### Named parameters
+`namedParameters` field is used to specify replacements for `:name` tokens in the query.
+
+For example: 
+```typescript
+const statement = await connection.execute("select :foo, :bar", {
+  namedParameters: { foo: "foo", bar: 123 }
+});
+```
+
+will produce `select 'foo', 123` query
 
 <a id="querysettings"></a>
 ### QuerySettings

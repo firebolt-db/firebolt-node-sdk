@@ -90,8 +90,12 @@ export class Connection {
       ...(executeQueryOptions.response || {})
     };
 
-    const { parameters } = executeQueryOptions;
-    const formattedQuery = queryFormatter.formatQuery(query, parameters);
+    const { parameters, namedParameters } = executeQueryOptions;
+    const formattedQuery = queryFormatter.formatQuery(
+      query,
+      parameters,
+      namedParameters
+    );
 
     const body = formattedQuery;
     const url = this.getRequestUrl(executeQueryOptions);
