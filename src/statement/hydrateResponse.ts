@@ -1,7 +1,12 @@
 import BigNumber from "bignumber.js";
 import { ExecuteQueryOptions, Row } from "../types";
 import { Meta } from "../meta";
-import { isDateType, isNumberType } from "./dataTypes";
+import {
+  isByteAType,
+  isDateType,
+  isNumberType,
+  BYTE_A_PREFIX
+} from "./dataTypes";
 import { hydrateDate } from "./hydrateDate";
 
 const getHydratedValue = (
@@ -22,6 +27,13 @@ const getHydratedValue = (
       return value.toString();
     }
     return value;
+  }
+  if (isByteAType(type)) {
+    if (!(value as string).startsWith(BYTE_A_PREFIX)) {
+      throw new Error("The hexadecimal string must start with \\x: " + value);
+    }
+    const valueWithoutPrefix = (value as string).substring(2);
+    return Array.from(Buffer.from(valueWithoutPrefix.toString(), "hex"));
   }
   return value;
 };
