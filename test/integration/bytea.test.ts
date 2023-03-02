@@ -27,7 +27,7 @@ describe("bytea", () => {
     expect(meta[0].type).toEqual("bytea");
     const row = data[0];
     expect((row as unknown[])[0]).toEqual(
-      Array.from(Buffer.from("hello_world_123ツ\n\u0048"))
+      Buffer.from("hello_world_123ツ\n\u0048")
     );
   });
 

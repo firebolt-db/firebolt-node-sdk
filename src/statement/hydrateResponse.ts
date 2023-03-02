@@ -29,11 +29,8 @@ const getHydratedValue = (
     return value;
   }
   if (isByteAType(type)) {
-    if (!(value as string).startsWith(BYTE_A_PREFIX)) {
-      throw new Error("The hexadecimal string must start with \\x: " + value);
-    }
     const valueWithoutPrefix = (value as string).substring(2);
-    return Array.from(Buffer.from(valueWithoutPrefix.toString(), "hex"));
+    return Buffer.from(valueWithoutPrefix.toString(), "hex");
   }
   return value;
 };
