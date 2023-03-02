@@ -33,7 +33,7 @@ jobs:
     - name: Setup git config
       run: |
         git config user.name "GitHub Actions Bot"
-        git config user.email "<vitalii@firebolt.io>"
+        git config user.email "<>"
         
     - name: Build
       run: |
