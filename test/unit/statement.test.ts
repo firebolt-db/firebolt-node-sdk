@@ -205,6 +205,35 @@ describe("format query", () => {
       `"insert into foo values('2023-12-12 00:00:00.123000', 'str')"`
     );
   });
+  it("format named parameter", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "select :foo, :bar from table";
+    const formattedQuery = queryFormatter.formatQuery(query, undefined, {
+      foo: "my named param",
+      bar: 123
+    });
+    expect(formattedQuery).toMatchInlineSnapshot(
+      `"select 'my named param', 123 from table"`
+    );
+  });
+  it("format parameter name doesn't include minus", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "select :named_param1-10 from table";
+    const formattedQuery = queryFormatter.formatQuery(query, undefined, {
+      named_param1: 100
+    });
+    expect(formattedQuery).toMatchInlineSnapshot(`"select 100-10 from table"`);
+  });
+  it("format parameter name is not cast operator", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "select '123'::INT, :INT, '2023-03-01'::DATE from table";
+    const formattedQuery = queryFormatter.formatQuery(query, undefined, {
+      INT: 100
+    });
+    expect(formattedQuery).toMatchInlineSnapshot(
+      `"select '123'::INT, 100, '2023-03-01'::DATE from table"`
+    );
+  });
   it("format bytea", () => {
     const queryFormatter = new QueryFormatter();
     const query = "SELECT 'hello_world'::bytea == ?";

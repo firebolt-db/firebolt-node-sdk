@@ -1,12 +1,7 @@
 import BigNumber from "bignumber.js";
 import { ExecuteQueryOptions, Row } from "../types";
 import { Meta } from "../meta";
-import {
-  isByteAType,
-  isDateType,
-  isNumberType,
-  BYTE_A_PREFIX
-} from "./dataTypes";
+import { isByteAType, isDateType, isNumberType } from "./dataTypes";
 import { hydrateDate } from "./hydrateDate";
 
 const getHydratedValue = (
