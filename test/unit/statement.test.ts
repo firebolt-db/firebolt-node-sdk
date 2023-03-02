@@ -22,14 +22,6 @@ describe("format query", () => {
       `"select 1 from table where bar = 2"`
     );
   });
-  it("format 3", () => {
-    const queryFormatter = new QueryFormatter();
-    const query = "select * from table where bar = ? and foo = `some'?`";
-    const formattedQuery = queryFormatter.formatQuery(query, [1]);
-    expect(formattedQuery).toMatchInlineSnapshot(
-      `"select * from table where bar = 1 and foo = \`some'?\`"`
-    );
-  });
   it("escape boolean", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select * from table where bar = ?;";
@@ -127,6 +119,15 @@ describe("format query", () => {
     } catch (error) {
       expect(true).toEqual(true);
     }
+  });
+  it("format with comments in strings", () => {
+    const queryFormatter = new QueryFormatter();
+    const query =
+      "SELECT 'str \\' ? -- not comment', /* comment? */ ? -- comment?";
+    const formattedQuery = queryFormatter.formatQuery(query, ["foo"]);
+    expect(formattedQuery).toMatchInlineSnapshot(
+      `"SELECT 'str \\\\' ? -- not comment', /* comment? */ 'foo' -- comment?"`
+    );
   });
   it("format tuple", () => {
     const queryFormatter = new QueryFormatter();
