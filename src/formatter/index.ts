@@ -4,9 +4,6 @@ import { INVALID_PARAMETERS } from "../common/errors";
 
 const CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a"'\\]/g; // eslint-disable-line no-control-regex
 
-const COMMENTS_REGEXP =
-  /("(""|[^"])*")|('(''|[^'])*')|(--[^\n\r]*)|(\/\*[\w\W]*?(?=\*\/)\*\/)/gm;
-
 const CHARS_ESCAPE_MAP: Record<string, string> = {
   "\0": "\\0",
   "\b": "\\b",
@@ -17,19 +14,6 @@ const CHARS_ESCAPE_MAP: Record<string, string> = {
   '"': '\\"',
   "'": "\\'",
   "\\": "\\\\"
-};
-
-const removeComments = (query: string) => {
-  query = query.replace(COMMENTS_REGEXP, match => {
-    if (
-      (match[0] === '"' && match[match.length - 1] === '"') ||
-      (match[0] === "'" && match[match.length - 1] === "'")
-    )
-      return match;
-
-    return "";
-  });
-  return query;
 };
 
 const zeroPad = (param: number, length: number, direction = "left") => {
@@ -73,52 +57,40 @@ export class QueryFormatter {
     namedParams: Record<string, unknown>
   ) {
     params = [...params];
-    const regex = /''|""|``|\\\\|\\'|\\"|'|"|`|\?|::|:(\w+)/g;
 
-    const STATE = {
-      WHITESPACE: 0,
-      SINGLE_QUOTE: 1,
-      DOUBLE_QUOTE: 2,
-      BACKTICK: 3
-    };
+    // Matches:
+    // - ' strings with \ escapes
+    // - " strings with \ escapes
+    // - /* */ comments
+    // - -- comments
+    // - ? parameters
+    // - :: operator
+    // - :named parameters
+    const tokenizer =
+      /'(?:[^'\\]+|\\.)*'|"(?:[^"\\]+|\\.)*"|\/\*[\s\S]*\*\/|--.*|(\?)|::|:(\w+)/g;
 
-    const stateSwitches: Record<string, number> = {
-      "'": STATE.SINGLE_QUOTE,
-      '"': STATE.DOUBLE_QUOTE,
-      "`": STATE.BACKTICK
-    };
+    query = query.replace(
+      tokenizer,
+      (str, param: string | undefined, paramName: string | undefined) => {
+        if (param) {
+          if (params.length == 0) {
+            throw new Error("Too few parameters given");
+          }
 
-    let state = STATE.WHITESPACE;
-
-    query = query.replace(regex, (str, paramName: string | undefined) => {
-      if (str in stateSwitches) {
-        if (state === STATE.WHITESPACE) {
-          state = stateSwitches[str];
-        } else if (state === stateSwitches[str]) {
-          state = STATE.WHITESPACE;
-        }
-      }
-
-      if (str === "?") {
-        if (state !== STATE.WHITESPACE) return str;
-
-        if (params.length == 0) {
-          throw new Error("Too few parameters given");
+          return this.escape(params.shift());
         }
 
-        return this.escape(params.shift());
-      } else if (paramName) {
-        if (state !== STATE.WHITESPACE) return str;
+        if (paramName) {
+          if (!Object.prototype.hasOwnProperty.call(namedParams, paramName)) {
+            throw new Error(`Parameter named "${paramName}" not given`);
+          }
 
-        if (!Object.prototype.hasOwnProperty.call(namedParams, paramName)) {
-          throw new Error(`Parameter named "${paramName}" not given`);
+          return this.escape(namedParams[paramName]);
         }
 
-        return this.escape(namedParams[paramName]);
-      } else {
         return str;
       }
-    });
+    );
 
     if (params.length) {
       throw new Error("Too many parameters given");
@@ -270,7 +242,6 @@ export class QueryFormatter {
     parameters?: unknown[],
     namedParameters?: Record<string, unknown>
   ): string {
-    query = removeComments(query);
     if (parameters || namedParameters) {
       if (parameters) {
         checkArgumentValid(Array.isArray(parameters), INVALID_PARAMETERS);
