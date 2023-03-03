@@ -191,7 +191,7 @@ export class QueryFormatter {
         "." +
         zeroPad(millisecond, 6, "right") +
         " " +
-        "UTC";
+        param.timeZone;
       return this.escapeString(str);
     }
 
