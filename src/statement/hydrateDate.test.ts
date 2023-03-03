@@ -155,4 +155,22 @@ describe("hydrate Date", () => {
     expect(minute).toEqual(0);
     expect(second).toEqual(10);
   });
+  it("handle old dates", () => {
+    const input = "0033-01-01 12:00:00";
+    const date = hydrateDate(input);
+
+    const year = date?.getUTCFullYear();
+    const month = date?.getUTCMonth();
+    const day = date?.getUTCDate();
+    const hour = date?.getUTCHours();
+    const minute = date?.getUTCMinutes();
+    const second = date?.getUTCSeconds();
+
+    expect(year).toEqual(33);
+    expect(month).toEqual(0);
+    expect(day).toEqual(1);
+    expect(hour).toEqual(12);
+    expect(minute).toEqual(0);
+    expect(second).toEqual(0);
+  });
 });
