@@ -2,6 +2,7 @@ import BigNumber from "bignumber.js";
 import { ExecuteQueryOptions, Row } from "../types";
 import { Meta } from "../meta";
 import { isDateType, isNumberType } from "./dataTypes";
+import { hydrateDate } from "./hydrateDate";
 
 const getHydratedValue = (
   value: unknown,
@@ -10,7 +11,7 @@ const getHydratedValue = (
 ) => {
   const { type } = meta;
   if (isDateType(type)) {
-    return value ? new Date(value as string) : value;
+    return value ? hydrateDate(value as string) : value;
   }
   if (isNumberType(type)) {
     if (

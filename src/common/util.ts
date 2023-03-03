@@ -25,9 +25,13 @@ export const isDataQuery = (query: string): boolean => {
 
 export const withNullableTypes = (types: string[]) => {
   return types.reduce((acc: string[], type) => {
-    acc.push(type);
-    acc.push(`nullable(${type})`);
-    return acc;
+    return [
+      ...acc,
+      type,
+      `nullable(${type})`,
+      `${type} not null`,
+      `${type} null`
+    ];
   }, []);
 };
 
@@ -64,4 +68,21 @@ export const generateUserAgent = (
     ? " " + drivers.map(toConnectorString).join(" ")
     : "";
   return clientString + systemInfoString() + driverString;
+};
+
+export const zeroPad = (
+  param: number | string,
+  length: number,
+  direction = "left"
+) => {
+  let paded = param.toString();
+  while (paded.length < length) {
+    if (direction === "left") {
+      paded = "0" + paded;
+    } else {
+      paded = paded + "0";
+    }
+  }
+
+  return paded;
 };

@@ -1,5 +1,5 @@
 import BigNumber from "bignumber.js";
-import { checkArgumentValid } from "../common/util";
+import { checkArgumentValid, zeroPad } from "../common/util";
 import { INVALID_PARAMETERS } from "../common/errors";
 
 const CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a"'\\]/g; // eslint-disable-line no-control-regex
@@ -16,19 +16,6 @@ const CHARS_ESCAPE_MAP: Record<string, string> = {
   "\\": "\\\\"
 };
 
-const zeroPad = (param: number, length: number, direction = "left") => {
-  let paded = param.toString();
-  while (paded.length < length) {
-    if (direction === "left") {
-      paded = "0" + paded;
-    } else {
-      paded = paded + "0";
-    }
-  }
-
-  return paded;
-};
-
 export class Tuple {
   value: unknown[];
 
@@ -42,9 +29,9 @@ export class PGDate extends Date {}
 export class TimestampTZ extends Date {
   timeZone: string;
 
-  constructor(value: number | string, { timeZone }: { timeZone: string }) {
+  constructor(value: number | string, { timeZone }: { timeZone?: string }) {
     super(value);
-    this.timeZone = timeZone;
+    this.timeZone = timeZone || "UTC";
   }
 }
 
@@ -178,13 +165,13 @@ export class QueryFormatter {
       return "NULL";
     }
 
-    const year = dt.getFullYear();
-    const month = dt.getMonth() + 1;
-    const day = dt.getDate();
-    const hour = dt.getHours();
-    const minute = dt.getMinutes();
-    const second = dt.getSeconds();
-    const millisecond = dt.getMilliseconds();
+    const year = dt.getUTCFullYear();
+    const month = dt.getUTCMonth() + 1;
+    const day = dt.getUTCDate();
+    const hour = dt.getUTCHours();
+    const minute = dt.getUTCMinutes();
+    const second = dt.getUTCSeconds();
+    const millisecond = dt.getUTCMilliseconds();
 
     // YYYY-MM-DD HH:mm:ss.mmm
     const yearMonthDay =
