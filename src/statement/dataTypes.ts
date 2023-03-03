@@ -77,7 +77,7 @@ export const INTEGER_TYPES = withNullableTypes(["int", "integer", "long"]);
 
 export const STRING_TYPES = withNullableTypes(["string", "text"]);
 
-export const BYTE_A_PREFIX = "\\x";
+export const BYTEA_TYPES = withNullableTypes(["bytea"]);
 
 export const getFireboltType = (type: string): string => {
   const key = type.toLowerCase();
@@ -92,7 +92,7 @@ export const getFireboltType = (type: string): string => {
 };
 
 export const isByteAType = (type: string) => {
-  return "bytea" === type;
+  return BYTEA_TYPES.indexOf(type) !== -1;
 };
 
 export const isDateType = (type: string) => {

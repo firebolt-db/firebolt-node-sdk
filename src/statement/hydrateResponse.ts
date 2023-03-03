@@ -23,7 +23,7 @@ const getHydratedValue = (
     }
     return value;
   }
-  if (isByteAType(type)) {
+  if (isByteAType(type) && value != null) {
     const valueWithoutPrefix = (value as string).substring(2);
     return Buffer.from(valueWithoutPrefix.toString(), "hex");
   }
