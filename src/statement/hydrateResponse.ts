@@ -1,7 +1,7 @@
 import BigNumber from "bignumber.js";
 import { ExecuteQueryOptions, Row } from "../types";
 import { Meta } from "../meta";
-import { isDateType, isNumberType } from "./dataTypes";
+import { isByteAType, isDateType, isNumberType } from "./dataTypes";
 import { hydrateDate } from "./hydrateDate";
 
 const getHydratedValue = (
@@ -22,6 +22,10 @@ const getHydratedValue = (
       return value.toString();
     }
     return value;
+  }
+  if (isByteAType(type) && value != null) {
+    const valueWithoutPrefix = (value as string).substring(2);
+    return Buffer.from(valueWithoutPrefix.toString(), "hex");
   }
   return value;
 };

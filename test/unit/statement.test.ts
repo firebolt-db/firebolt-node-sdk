@@ -234,4 +234,14 @@ describe("format query", () => {
       `"select '123'::INT, 100, '2023-03-01'::DATE from table"`
     );
   });
+  it("format bytea", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "SELECT 'hello_world'::bytea == ?";
+    const buffer = Buffer.from("68656c6c6f5f776f726c64", "hex");
+    const formattedQuery = queryFormatter.formatQuery(query, [buffer]);
+    // Jest escaping rules are different, so we need to double the amount of quotes compared to .toEqual()
+    expect(formattedQuery).toMatchInlineSnapshot(
+      `"SELECT 'hello_world'::bytea == '\\\\\\\\x68656c6c6f5f776f726c64'"`
+    );
+  });
 });

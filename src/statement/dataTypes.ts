@@ -27,7 +27,8 @@ const typeMapping = {
   uint8: "int",
   uint16: "int",
   uint32: "int",
-  uint64: "long"
+  uint64: "long",
+  bytea: "bytea"
 };
 
 const getMappedType = (innerType: string) => {
@@ -76,6 +77,8 @@ export const INTEGER_TYPES = withNullableTypes(["int", "integer", "long"]);
 
 export const STRING_TYPES = withNullableTypes(["string", "text"]);
 
+export const BYTEA_TYPES = withNullableTypes(["bytea"]);
+
 export const getFireboltType = (type: string): string => {
   const key = type.toLowerCase();
   const match = key.match(COMPLEX_TYPE);
@@ -86,6 +89,10 @@ export const getFireboltType = (type: string): string => {
   }
   const mappedType = getMappedType(key);
   return mappedType || key;
+};
+
+export const isByteAType = (type: string) => {
+  return BYTEA_TYPES.indexOf(type) !== -1;
 };
 
 export const isDateType = (type: string) => {
