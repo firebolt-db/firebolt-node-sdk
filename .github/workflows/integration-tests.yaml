@@ -2,12 +2,19 @@ name: Run integration tests
 on:
   workflow_dispatch:
   workflow_call:
+    inputs:
+      branch:
+        required: false
+        type: string
+        description: 'Branch to run on'
 jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+        with:
+          ref: ${{ inputs.branch }}
     
       - name: Set up node.js
         uses: actions/setup-node@v2
