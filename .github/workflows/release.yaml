@@ -13,3 +13,4 @@ jobs:
     with:
       branch: main
       majorRelease: ${{ inputs.majorRelease }}
+    secrets: inherit
