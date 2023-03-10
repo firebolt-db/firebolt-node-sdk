@@ -51,10 +51,13 @@ const COMPLEX_TYPE = /(nullable|array)\((.+)\)/;
 
 const DATE_TYPES = withNullableTypes([
   "pg_date",
+  "pgdate",
   "date",
   "timestamp",
   "timestamp_tz",
+  "timestamptz",
   "timestamp_ntz",
+  "timestampntz",
   "datetime",
   "date32",
   "date_ext",
