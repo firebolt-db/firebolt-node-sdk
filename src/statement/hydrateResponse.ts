@@ -38,7 +38,7 @@ export const hydrateRow = (
   const isArray = Array.isArray(row);
   const hydratedRow = isArray ? [] : {};
 
-  for (const index in meta) {
+  for (let index = 0; index < meta.length; index++) {
     const column = meta[index];
     if (isArray) {
       const key = +index;

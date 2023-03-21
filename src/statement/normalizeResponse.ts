@@ -24,7 +24,7 @@ export const normalizeRow = (
   }
   const normalizedRow: Row = {};
 
-  for (const index in meta) {
+  for (let index = 0; index < meta.length; index++) {
     const { name } = meta[index];
     normalizedRow[name] = (row as unknown[])[+index];
   }
