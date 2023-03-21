@@ -66,41 +66,30 @@ export type AdditionalConnectionParameters = {
   userClients?: ConnectorVersion[];
 };
 
-export type UsernamePasswordAuth = {
-  username: string;
-  password: string;
-};
-
 export type AccessTokenAuth = {
   accessToken: string;
 };
 
-export type ServiceAccountAuth = {
+export type ClientCredentialsAuth = {
   client_id: string;
   client_secret: string;
 };
 
-export type AuthOptions =
-  | UsernamePasswordAuth
-  | AccessTokenAuth
-  | ServiceAccountAuth;
+export type AuthOptions = AccessTokenAuth | ClientCredentialsAuth;
 
 export type ConnectionOptions = {
-  username?: string;
-  password?: string;
-  accessToken?: string;
   database?: string;
   engineName?: string;
-  engineEndpoint?: string;
   additionalParameters?: AdditionalConnectionParameters;
-  account?: string;
-  auth?: AuthOptions;
+  account: string;
+  auth: AuthOptions;
 };
 
 export type FireboltClientOptions = {
   logger?: LoggerOptions;
   client?: HttpClientOptions;
   apiEndpoint?: string;
+  env?: string;
   dependencies?: {
     logger: LoggerInterface;
     httpClient: HttpClientInterface;
@@ -112,5 +101,6 @@ export type Context = {
   httpClient: HttpClientInterface;
   resourceManager: ResourceManager;
   queryFormatter: QueryFormatter;
+  env: string;
   apiEndpoint: string;
 };

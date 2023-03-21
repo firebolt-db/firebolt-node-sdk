@@ -2,7 +2,8 @@ import {
   ACCOUNT_DATABASES,
   ACCOUNT_DATABASE,
   ACCOUNT_ENGINE_URL_BY_DATABASE_NAME,
-  ResultsPage
+  ResultsPage,
+  ACCOUNT_SYSTEM_ENGINE
 } from "../../common/api";
 import { Context } from "../../types";
 import { DatabaseModel } from "./model";
@@ -26,6 +27,16 @@ export class DatabaseService {
       .request<{ database_id: ID }>("GET", url)
       .ready();
     return data.database_id;
+  }
+
+  async getSytemEngineEndpoint(): Promise<string> {
+    const { apiEndpoint, httpClient } = this.context;
+    const accountName = this.context.resourceManager.account.name; // TODO: make sure this exists
+    const url = `${apiEndpoint}/${ACCOUNT_SYSTEM_ENGINE(accountName)}`;
+    const data = await httpClient
+      .request<{ gatewayHost: string }>("GET", url)
+      .ready();
+    return data.gatewayHost;
   }
 
   async getDefaultEndpointByName(name: string) {

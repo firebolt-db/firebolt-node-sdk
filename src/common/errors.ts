@@ -1,5 +1,3 @@
-import { ConnectionOptions } from "../types";
-
 export const MISSING_USERNAME = 404001;
 export const MISSING_PASSWORD = 404002;
 export const MISSING_DATABASE = 404003;
@@ -73,17 +71,10 @@ export class AuthenticationError extends Error {
   }
 }
 
-export const authDeprecationWarning = (options: ConnectionOptions) => {
-  if (!options.auth) {
-    console.error(`
-username, password, accessToken fields are deprecated.
-Please use auth object instead:
-connectionOptions = {
-auth: {
-username: 'username',
-password: 'password'
-}
-}
-`);
+export class AccessError extends Error {
+  message: string;
+  constructor({ message }: { message: string }) {
+    super(message);
+    this.message = message;
   }
-};
+}

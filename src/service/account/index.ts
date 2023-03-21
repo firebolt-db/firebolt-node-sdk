@@ -5,9 +5,14 @@ export class AccountService {
   private context: Context;
 
   id!: string;
+  name!: string;
 
   constructor(context: Context) {
     this.context = context;
+  }
+
+  async setAccountName(account: string) {
+    this.name = account;
   }
 
   async resolveAccountId(account?: string) {

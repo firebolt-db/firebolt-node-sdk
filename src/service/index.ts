@@ -6,10 +6,10 @@ import { AccountService } from "./account";
 import { Authenticator } from "../auth";
 import { QueryFormatter } from "../formatter";
 import { AuthOptions, Context } from "../types";
-import { authDeprecationWarning } from "../common/errors";
 
 export class ResourceManager {
   private context: Context;
+  accountName!: string;
   engine: EngineService;
   database: DatabaseService;
   account: AccountService;
@@ -18,6 +18,7 @@ export class ResourceManager {
     httpClient: HttpClientInterface;
     logger: LoggerInterface;
     queryFormatter: QueryFormatter;
+    env: string;
     apiEndpoint: string;
   }) {
     this.context = {
@@ -29,11 +30,10 @@ export class ResourceManager {
     this.account = new AccountService(this.context);
   }
 
-  async authenticate(options: { auth: AuthOptions; account?: string }) {
+  async authenticate(options: { auth: AuthOptions; account: string }) {
     const { account } = options;
-    authDeprecationWarning(options);
+    this.accountName = account;
     const auth = new Authenticator(this.context, options);
     await auth.authenticate();
-    await this.account.resolveAccountId(account);
   }
 }

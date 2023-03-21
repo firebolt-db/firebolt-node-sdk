@@ -1,7 +1,6 @@
 import { Connection } from "../connection";
 import { Authenticator } from "../auth";
 import { Context, ConnectionOptions, FireboltClientOptions } from "../types";
-import { authDeprecationWarning } from "../common/errors";
 import { ResourceManager } from "../service";
 
 export class FireboltCore {
@@ -15,28 +14,22 @@ export class FireboltCore {
     this.resourceManager = context.resourceManager;
   }
 
-  checkConnectionOptions(connectionOptions: ConnectionOptions) {
-    authDeprecationWarning(connectionOptions);
-  }
-
   async connect(connectionOptions: ConnectionOptions) {
     const { account } = connectionOptions;
-    this.checkConnectionOptions(connectionOptions);
+    this.resourceManager.account.name = account;
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
-    await this.resourceManager.account.resolveAccountId(account);
     await connection.resolveEngineEndpoint();
     return connection;
   }
 
   async testConnection(connectionOptions: ConnectionOptions) {
     const { account } = connectionOptions;
-    this.checkConnectionOptions(connectionOptions);
+    this.resourceManager.account.name = account;
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
-    await this.resourceManager.account.resolveAccountId(account);
     await connection.resolveEngineEndpoint();
     await connection.execute("select 1");
   }

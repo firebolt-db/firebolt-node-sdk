@@ -7,6 +7,7 @@ import { QueryFormatter } from "../../src/formatter";
 
 const apiEndpoint = "fake.api.com";
 const logger = new Logger();
+const env = "app";
 
 describe("engine service", () => {
   const server = setupServer();
@@ -54,7 +55,8 @@ describe("engine service", () => {
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter
+      queryFormatter,
+      env
     });
     resourceManager.account.id = "some_account";
     const engine = await resourceManager.engine.getByName("some_engine");
@@ -68,7 +70,8 @@ describe("engine service", () => {
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter
+      queryFormatter,
+      env
     });
     resourceManager.account.id = "some_account";
     const engine = await resourceManager.engine.getById("123");
@@ -94,7 +97,8 @@ describe("engine service", () => {
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter
+      queryFormatter,
+      env
     });
     resourceManager.account.id = "some_account";
     const engine = await resourceManager.engine.getById("123");
@@ -125,7 +129,8 @@ describe("engine service", () => {
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter
+      queryFormatter,
+      env
     });
     resourceManager.account.id = "some_account";
     const engine = await resourceManager.engine.getById("123");

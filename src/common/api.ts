@@ -1,5 +1,5 @@
 export const LOGIN = "auth/v1/login";
-export const SERVICE_ACCOUNT_LOGIN = "auth/v1/token";
+export const SERVICE_ACCOUNT_LOGIN = "oauth/token";
 export const REFRESH = "auth/v1/refresh";
 
 export const DATABASES = "core/v1/account/databases";
@@ -8,6 +8,9 @@ export const ACCOUNTS = "core/v1/accounts";
 
 export const ACCOUNT = "iam/v2/account";
 export const ACCOUNT_BY_NAME = "iam/v2/accounts:getIdByName";
+
+export const ACCOUNT_SYSTEM_ENGINE = (account_name: string) =>
+  `v3/getGatewayHostByAccountName/${account_name}`;
 
 export const ACCOUNT_ENGINE = (accountId: string, engineId: string) =>
   `core/v1/accounts/${accountId}/engines/${engineId}`;

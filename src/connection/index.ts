@@ -6,6 +6,8 @@ import {
 } from "../types";
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
+import { data } from "msw/lib/types/context";
+import { AccessError } from "../common/errors";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.JSON_COMPACT
@@ -33,20 +35,40 @@ export class Connection {
 
   async resolveEngineEndpoint() {
     const { resourceManager } = this.context;
-    const { engineName, engineEndpoint, database } = this.options;
-    if (engineEndpoint) {
+    const { engineName, database } = this.options;
+    if (engineName && database) {
+      const engineEndpoint = await resourceManager.engine.getByNameAndDb(
+        engineName,
+        database
+      );
       this.engineEndpoint = engineEndpoint;
       return this.engineEndpoint;
     }
-    if (engineName) {
-      const engine = await resourceManager.engine.getByName(engineName);
-      this.engineEndpoint = engine.endpoint;
+    if (database) {
+      const systemUrl = await resourceManager.database.getSytemEngineEndpoint();
+      this.engineEndpoint = systemUrl;
       return this.engineEndpoint;
     }
-    const defaultUrl = await resourceManager.database.getDefaultEndpointByName(
-      database as string
-    );
-    this.engineEndpoint = defaultUrl;
+    if (engineName) {
+      const database = await resourceManager.engine.getEngineDatabase(
+        engineName
+      );
+      if (!database) {
+        throw new AccessError({
+          message: `Engine ${engineName} is attached to a database that current user can not access.`
+        });
+      }
+      const engineEndpoint = await resourceManager.engine.getByNameAndDb(
+        engineName,
+        database
+      );
+      this.options.database = database;
+      this.engineEndpoint = engineEndpoint;
+      return this.engineEndpoint;
+    }
+    // If nothing specified connect to generic system engine
+    const systemUrl = await resourceManager.database.getSytemEngineEndpoint();
+    this.engineEndpoint = systemUrl;
     return this.engineEndpoint;
   }
 

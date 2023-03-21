@@ -10,8 +10,6 @@ type Dependencies = {
   httpClient: HttpClient;
 };
 
-const DEFAULT_API_ENDPOINT = "api.app.firebolt.io";
-
 const getContext = (
   options: FireboltClientOptions,
   dependencies: Dependencies
@@ -19,7 +17,8 @@ const getContext = (
   const {
     logger: loggerOptions,
     client: clientOptions,
-    apiEndpoint = DEFAULT_API_ENDPOINT
+    env = "app",
+    apiEndpoint = `api.${env}.firebolt.io`
   } = options;
 
   const { logger: DefaultLogger, httpClient: DefaultHttpClient } = dependencies;
@@ -36,6 +35,7 @@ const getContext = (
     logger,
     httpClient,
     apiEndpoint,
+    env,
     queryFormatter
   };
   return context;
