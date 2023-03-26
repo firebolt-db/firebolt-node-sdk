@@ -1,12 +1,13 @@
 import { Firebolt, FireboltResourceManager } from "../../src/index";
 
 const authOptions = {
-  username: process.env.FIREBOLT_USERNAME as string,
-  password: process.env.FIREBOLT_PASSWORD as string
+  client_id: process.env.FIREBOLT_CLIENT_ID as string,
+  client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
 };
 
 const connectionOptions = {
   auth: authOptions,
+  account: process.env.FIREBOLT_ACCOUNT as string,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
@@ -58,9 +59,10 @@ describe("engine integration", () => {
 
     const connection = await firebolt.connect({
       auth: {
-        username: process.env.FIREBOLT_USERNAME as string,
-        password: process.env.FIREBOLT_PASSWORD as string
+        client_id: process.env.FIREBOLT_CLIENT_ID as string,
+        client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
       },
+      account: process.env.FIREBOLT_ACCOUNT as string,
       database: process.env.FIREBOLT_DATABASE as string
     });
 
@@ -103,7 +105,10 @@ describe("engine resource manager", () => {
     const resourceManager = FireboltResourceManager({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
-    await resourceManager.authenticate({ auth: authOptions });
+    await resourceManager.authenticate({
+      auth: authOptions,
+      account: process.env.FIREBOLT_ACCOUNT as string
+    });
     const engine = await resourceManager.engine.getByName(
       process.env.FIREBOLT_ENGINE_NAME as string
     );
