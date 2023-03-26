@@ -13,6 +13,55 @@ const connectionParams = {
 
 jest.setTimeout(50000);
 
+describe("new identity integration test", () => {
+  it("works on system engine", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...connectionParams,
+      engineName: undefined,
+      database: undefined
+    });
+
+    const statement = await connection.execute("SELECT 1");
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(1);
+    expect(meta.length).toEqual(1);
+  });
+  it("works on system engine with DB", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...connectionParams,
+      engineName: undefined
+    });
+
+    const statement = await connection.execute("SELECT 1");
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(1);
+    expect(meta.length).toEqual(1);
+  });
+  it("works on user engine with no DB specified", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...connectionParams,
+      database: undefined
+    });
+
+    const statement = await connection.execute("SELECT 1");
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(1);
+    expect(meta.length).toEqual(1);
+  });
+});
+
 describe("integration test", () => {
   it("works", async () => {
     const firebolt = Firebolt({
@@ -89,27 +138,6 @@ describe("integration test", () => {
       await connection.execute("SELECT 1");
     }).rejects.toThrow();
   });
-
-  // it("fails on wrong engine url", async () => {
-  //   const firebolt = Firebolt({
-  //     apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-  //   });
-
-  //   const connection = await firebolt.connect({
-  //     auth: {
-  //       client_id: process.env.FIREBOLT_CLIENT_ID as string,
-  //       client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
-  //     },
-  //     account: process.env.FIREBOLT_ACCOUNT as string,
-  //     database: process.env.FIREBOLT_DATABASE as string,
-  //     engineEndpoint: "bad engine url"
-  //   });
-
-  //   await expect(async () => {
-  //     const statement = await connection.execute("SELECT 1");
-  //     await statement.fetchResult();
-  //   }).rejects.toThrow();
-  // });
   it("destroyed unfinished statements should throw", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
