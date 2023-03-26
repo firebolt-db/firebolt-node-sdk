@@ -6,8 +6,8 @@ import {
 } from "../types";
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
-import { data } from "msw/lib/types/context";
 import { AccessError } from "../common/errors";
+import { ACCOUNT_SYSTEM_ENGINE } from "../common/api";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.JSON_COMPACT
@@ -33,11 +33,126 @@ export class Connection {
     );
   }
 
+  private async getSytemEngineEndpoint(): Promise<string> {
+    const { apiEndpoint, httpClient } = this.context;
+    const accountName = this.context.resourceManager.account.name; // TODO: make sure this exists
+    const url = `${apiEndpoint}/${ACCOUNT_SYSTEM_ENGINE(accountName)}`;
+    const data = await httpClient
+      .request<{ gatewayHost: string }>("GET", url)
+      .ready();
+    return data.gatewayHost;
+  }
+
+  private async isDatabaseAccessible(databaseName: string): Promise<boolean> {
+    const { httpClient } = this.context;
+    const systemUrl = await this.getSytemEngineEndpoint();
+    const body =
+      "SELECT database_name FROM information_schema.databases " +
+      `WHERE database_name='${databaseName}'`;
+    const request = httpClient.request<unknown>("POST", systemUrl, {
+      body,
+      raw: true
+    });
+    await request.ready();
+    const statement = new Statement(this.context, {
+      query: body,
+      request,
+      executeQueryOptions: {}
+    });
+    const { data } = await statement.fetchResult();
+    return data.length == 1;
+  }
+
+  private async getEngineUrl(
+    engineName: string,
+    databaseName: string
+  ): Promise<string> {
+    const { httpClient } = this.context;
+    const systemUrl = await this.getSytemEngineEndpoint();
+    const body =
+      "SELECT engs.engine_url, engs.attached_to, dbs.database_name, status " +
+      "FROM information_schema.engines as engs " +
+      "LEFT JOIN information_schema.databases as dbs " +
+      "ON engs.attached_to = dbs.database_name " +
+      `WHERE engs.engine_name = '${engineName}'`;
+    const request = httpClient.request<unknown>("POST", systemUrl, {
+      body,
+      raw: true
+    });
+    await request.ready();
+    const statement = new Statement(this.context, {
+      query: body,
+      request,
+      executeQueryOptions: {}
+    });
+    const { data } = await statement.fetchResult();
+    if (data.length == 0) {
+      throw new Error(`Engine ${engineName} not found.`);
+    }
+    const filteredRows = [];
+    for (const row of data) {
+      if ((row as Record<string, string>).database_name == databaseName) {
+        filteredRows.push(row);
+      }
+    }
+    if (filteredRows.length == 0) {
+      throw new Error(
+        `Engine ${engineName} is not attached to ${databaseName}.`
+      );
+    }
+    if (filteredRows.length > 1) {
+      throw new Error(
+        `Unexpected duplicate entries found for ${engineName} and database ${databaseName}`
+      );
+    }
+    if ((filteredRows[0] as Record<string, string>).status != "RUNNING") {
+      throw new Error(`Engine ${engineName} is not running`);
+    }
+    return (filteredRows[0] as Record<string, string>).engine_url;
+  }
+
+  private async getEngineByNameAndDb(
+    engineName: string,
+    database: string
+  ): Promise<string> {
+    // Verify user has access to the db
+    // Probably migrate it to database module
+    const haveAccess = await this.isDatabaseAccessible(database);
+    if (!haveAccess) {
+      throw new AccessError({
+        message: `Database ${database} does not exist or current user has no access to it.`
+      });
+    }
+    // Fetch engine url
+    const engineUrl = await this.getEngineUrl(engineName, database);
+    return engineUrl;
+  }
+
+  private async getEngineDatabase(engineName: string): Promise<string> {
+    const { httpClient } = this.context;
+    const systemUrl = await this.getSytemEngineEndpoint();
+    const body =
+      "SELECT attached_to FROM information_schema.engines " +
+      `WHERE engine_name='${engineName}'`;
+    const request = httpClient.request<unknown>("POST", systemUrl, {
+      body,
+      raw: true
+    });
+    await request.ready();
+    const statement = new Statement(this.context, {
+      query: body,
+      request,
+      executeQueryOptions: {}
+    });
+    const { data } = await statement.fetchResult();
+    const res = data[0] as Record<string, string>;
+    return res.attached_to;
+  }
+
   async resolveEngineEndpoint() {
-    const { resourceManager } = this.context;
     const { engineName, database } = this.options;
     if (engineName && database) {
-      const engineEndpoint = await resourceManager.engine.getByNameAndDb(
+      const engineEndpoint = await this.getEngineByNameAndDb(
         engineName,
         database
       );
@@ -45,20 +160,18 @@ export class Connection {
       return this.engineEndpoint;
     }
     if (database) {
-      const systemUrl = await resourceManager.database.getSytemEngineEndpoint();
+      const systemUrl = await this.getSytemEngineEndpoint();
       this.engineEndpoint = systemUrl;
       return this.engineEndpoint;
     }
     if (engineName) {
-      const database = await resourceManager.engine.getEngineDatabase(
-        engineName
-      );
+      const database = await this.getEngineDatabase(engineName);
       if (!database) {
         throw new AccessError({
           message: `Engine ${engineName} is attached to a database that current user can not access.`
         });
       }
-      const engineEndpoint = await resourceManager.engine.getByNameAndDb(
+      const engineEndpoint = await this.getEngineByNameAndDb(
         engineName,
         database
       );
@@ -67,7 +180,7 @@ export class Connection {
       return this.engineEndpoint;
     }
     // If nothing specified connect to generic system engine
-    const systemUrl = await resourceManager.database.getSytemEngineEndpoint();
+    const systemUrl = await this.getSytemEngineEndpoint();
     this.engineEndpoint = systemUrl;
     return this.engineEndpoint;
   }
