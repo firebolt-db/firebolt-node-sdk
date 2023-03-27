@@ -7,7 +7,7 @@ import {
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
 import { AccessError } from "../common/errors";
-import { ACCOUNT_SYSTEM_ENGINE } from "../common/api";
+import { ACCOUNT_SYSTEM_ENGINE, QUERY } from "../common/api";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.JSON_COMPACT
@@ -38,9 +38,9 @@ export class Connection {
     const accountName = this.context.resourceManager.account.name; // TODO: make sure this exists
     const url = `${apiEndpoint}/${ACCOUNT_SYSTEM_ENGINE(accountName)}`;
     const data = await httpClient
-      .request<{ gatewayHost: string }>("GET", url)
+      .request<{ engineUrl: string }>("GET", url)
       .ready();
-    return data.gatewayHost;
+    return data.engineUrl;
   }
 
   private async isDatabaseAccessible(databaseName: string): Promise<boolean> {
@@ -202,7 +202,7 @@ export class Connection {
     );
 
     const queryParams = new URLSearchParams(paramsWithValue);
-    return `${this.engineEndpoint}?${queryParams}`;
+    return `${this.engineEndpoint}/${QUERY}?${queryParams}`;
   }
 
   private getRequestBody(query: string) {

@@ -16,7 +16,8 @@ jest.setTimeout(50000);
 describe("new identity integration test", () => {
   it("works on system engine", async () => {
     const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string,
+      env: "dev"
     });
 
     const connection = await firebolt.connect({
@@ -32,7 +33,8 @@ describe("new identity integration test", () => {
   });
   it("works on system engine with DB", async () => {
     const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string,
+      env: "dev"
     });
 
     const connection = await firebolt.connect({
@@ -47,7 +49,8 @@ describe("new identity integration test", () => {
   });
   it("works on user engine with no DB specified", async () => {
     const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string,
+      env: "dev"
     });
 
     const connection = await firebolt.connect({

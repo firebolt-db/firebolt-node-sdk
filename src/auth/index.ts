@@ -47,7 +47,7 @@ export class Authenticator {
       client_id,
       client_secret,
       grant_type: "client_credentials",
-      audience: apiEndpoint
+      audience: "https://dev-firebolt-v2.us.auth0.com/api/v2/" //apiEndpoint
     });
     const url = `id.${env}.firebolt.io/${SERVICE_ACCOUNT_LOGIN}`;
 
