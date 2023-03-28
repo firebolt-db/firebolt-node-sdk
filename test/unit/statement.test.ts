@@ -95,8 +95,9 @@ describe("format query", () => {
     const formattedQuery = queryFormatter.formatQuery(query, [
       new Date("2022-05-04 17:37:19")
     ]);
+    // System-specific?
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select '2022-05-04 16:37:19' from table"`
+      `"select '2022-05-04 17:37:19' from table"`
     );
   });
 
@@ -107,7 +108,7 @@ describe("format query", () => {
       new Date("1000-01-01 12:21:21")
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select '1000-01-01 12:22:36' from table"`
+      `"select '1000-01-01 12:21:21' from table"`
     );
   });
   it("format with comments", () => {

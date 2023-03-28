@@ -153,46 +153,4 @@ describe("http client", () => {
       await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
     }).rejects.toThrow("Record not found");
   });
-  // it("refresh token on 401", async () => {
-  //   const statusMock = jest.fn().mockReturnValueOnce(401).mockReturnValue(200);
-  //   const httpClient = new NodeHttpClient();
-  //   const queryFormatter = new QueryFormatter();
-  //   const resourceManager = new ResourceManager({
-  //     httpClient,
-  //     apiEndpoint,
-  //     logger,
-  //     queryFormatter,
-  //     env
-  //   });
-  //   const authenticator = new Authenticator(
-  //     { queryFormatter, httpClient, apiEndpoint, logger, resourceManager, env },
-  //     {
-  //       auth: {
-  //         client_id: "user",
-  //         client_secret: "fake_password"
-  //       },
-  //       account: "my_account"
-  //     }
-  //   );
-  //   server.use(
-  //     authHandler,
-  //     rest.post(`https://${apiEndpoint}/auth/v1/refresh`, (req, res, ctx) => {
-  //       return res(
-  //         ctx.json({
-  //           access_token: "new_access_token"
-  //         })
-  //       );
-  //     }),
-  //     rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
-  //       return res(
-  //         ctx.status(statusMock()),
-  //         ctx.json({ message: "Unauthorized", code: 401 })
-  //       );
-  //     })
-  //   );
-  //   await authenticator.authenticate();
-  //   const initialAccessToken = authenticator.accessToken;
-  //   await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
-  //   expect(initialAccessToken).not.toEqual(authenticator.accessToken);
-  // });
 });
