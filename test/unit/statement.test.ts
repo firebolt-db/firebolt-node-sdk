@@ -93,7 +93,7 @@ describe("format query", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, [
-      new Date("2022-05-04 17:37:19")
+      new Date("2022-05-04 17:37:19 UTC")
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
       `"select '2022-05-04 17:37:19' from table"`
@@ -104,7 +104,7 @@ describe("format query", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, [
-      new Date("1000-01-01 12:21:21")
+      new Date("1000-01-01 12:21:21 UTC")
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
       `"select '1000-01-01 12:21:21' from table"`
@@ -165,7 +165,7 @@ describe("format query", () => {
     const queryFormatter = new QueryFormatter();
     const query = "insert into foo values(?, ?)";
     const formattedQuery = queryFormatter.formatQuery(query, [
-      new TimestampTZ("2023-12-12 00:00:00", { timeZone: "UTC" }),
+      new TimestampTZ("2023-12-12 00:00:00 UTC", { timeZone: "UTC" }),
       "str"
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
@@ -176,7 +176,7 @@ describe("format query", () => {
     const queryFormatter = new QueryFormatter();
     const query = "insert into foo values(?, ?)";
     const formattedQuery = queryFormatter.formatQuery(query, [
-      new TimestampTZ("2023-12-12 00:00:00.123", { timeZone: "UTC" }),
+      new TimestampTZ("2023-12-12 00:00:00.123 UTC", { timeZone: "UTC" }),
       "str"
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
@@ -187,7 +187,7 @@ describe("format query", () => {
     const queryFormatter = new QueryFormatter();
     const query = "insert into foo values(?, ?)";
     const formattedQuery = queryFormatter.formatQuery(query, [
-      new TimestampNTZ("2023-12-12 00:00:00"),
+      new TimestampNTZ("2023-12-12 00:00:00 UTC"),
       "str"
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
@@ -198,7 +198,7 @@ describe("format query", () => {
     const queryFormatter = new QueryFormatter();
     const query = "insert into foo values(?, ?)";
     const formattedQuery = queryFormatter.formatQuery(query, [
-      new TimestampNTZ("2023-12-12 00:00:00.123"),
+      new TimestampNTZ("2023-12-12 00:00:00.123 UTC"),
       "str"
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(

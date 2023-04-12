@@ -40,7 +40,7 @@ export const hydrateDate = (value: string) => {
   const hour = zeroPad(match[4] || "00", 2);
   const minute = zeroPad(match[5] || "00", 2);
   const second = zeroPad(match[6] || "00", 2);
-  const msec = zeroPad(match[7] || "000", 6);
+  const msec = zeroPad(match[7] || "000", 6, "right");
 
   // tz
   const sign = match[8] || "-";
