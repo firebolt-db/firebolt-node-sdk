@@ -110,6 +110,26 @@ describe("format query", () => {
       `"select '1000-01-01 12:21:21' from table"`
     );
   });
+  it("format date with milliseconds", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "select ?";
+    const formattedQuery = queryFormatter.formatQuery(query, [
+      new TimestampNTZ("2023-12-12 00:00:00.123 UTC")
+    ]);
+    expect(formattedQuery).toMatchInlineSnapshot(
+      `"select '2023-12-12 00:00:00.123'"`
+    );
+  });
+  it("format date with few milliseconds", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "select ?";
+    const formattedQuery = queryFormatter.formatQuery(query, [
+      new TimestampNTZ("2023-12-12 00:00:00.01 UTC")
+    ]);
+    expect(formattedQuery).toMatchInlineSnapshot(
+      `"select '2023-12-12 00:00:00.010'"`
+    );
+  });
   it("format with comments", () => {
     const queryFormatter = new QueryFormatter();
     const query = "SELECT * FROM table WHERE /* a comment line? */ table.a = 4";
@@ -169,10 +189,10 @@ describe("format query", () => {
       "str"
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"insert into foo values('2023-12-12 00:00:00.000000 UTC', 'str')"`
+      `"insert into foo values('2023-12-12 00:00:00 UTC', 'str')"`
     );
   });
-  it("format timestampTZ with microseconds padding", () => {
+  it("format timestampTZ with milliseconds", () => {
     const queryFormatter = new QueryFormatter();
     const query = "insert into foo values(?, ?)";
     const formattedQuery = queryFormatter.formatQuery(query, [
@@ -180,7 +200,7 @@ describe("format query", () => {
       "str"
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"insert into foo values('2023-12-12 00:00:00.123000 UTC', 'str')"`
+      `"insert into foo values('2023-12-12 00:00:00.123 UTC', 'str')"`
     );
   });
   it("format timestampNTZ", () => {
@@ -191,10 +211,10 @@ describe("format query", () => {
       "str"
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"insert into foo values('2023-12-12 00:00:00.000000', 'str')"`
+      `"insert into foo values('2023-12-12 00:00:00', 'str')"`
     );
   });
-  it("format timestampNTZ with microseconds padding", () => {
+  it("format timestampNTZ with milliseconds", () => {
     const queryFormatter = new QueryFormatter();
     const query = "insert into foo values(?, ?)";
     const formattedQuery = queryFormatter.formatQuery(query, [
@@ -202,7 +222,18 @@ describe("format query", () => {
       "str"
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"insert into foo values('2023-12-12 00:00:00.123000', 'str')"`
+      `"insert into foo values('2023-12-12 00:00:00.123', 'str')"`
+    );
+  });
+  it("format timestampNTZ with few milliseconds", () => {
+    const queryFormatter = new QueryFormatter();
+    const query = "insert into foo values(?, ?)";
+    const formattedQuery = queryFormatter.formatQuery(query, [
+      new TimestampNTZ("2023-12-12 00:00:00.01 UTC"),
+      "str"
+    ]);
+    expect(formattedQuery).toMatchInlineSnapshot(
+      `"insert into foo values('2023-12-12 00:00:00.010', 'str')"`
     );
   });
   it("format named parameter", () => {
