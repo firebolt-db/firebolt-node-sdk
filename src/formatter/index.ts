@@ -176,35 +176,24 @@ export class QueryFormatter {
     // YYYY-MM-DD HH:mm:ss.mmm
     const yearMonthDay =
       zeroPad(year, 4) + "-" + zeroPad(month, 2) + "-" + zeroPad(day, 2);
-    const hourMinuteSecond =
-      zeroPad(hour, 2) + ":" + zeroPad(minute, 2) + ":" + zeroPad(second, 2);
+    const time =
+      zeroPad(hour, 2) +
+      ":" +
+      zeroPad(minute, 2) +
+      ":" +
+      zeroPad(second, 2) +
+      (millisecond > 0 ? "." + zeroPad(millisecond, 3) : "");
 
     if (param instanceof PGDate) {
       return this.escapeString(yearMonthDay);
     }
 
     if (param instanceof TimestampTZ) {
-      const str =
-        yearMonthDay +
-        " " +
-        hourMinuteSecond +
-        "." +
-        zeroPad(millisecond, 6, "right") +
-        " " +
-        param.timeZone;
+      const str = yearMonthDay + " " + time + " " + param.timeZone;
       return this.escapeString(str);
     }
 
-    if (param instanceof TimestampNTZ) {
-      const str =
-        yearMonthDay +
-        " " +
-        hourMinuteSecond +
-        "." +
-        zeroPad(millisecond, 6, "right");
-      return this.escapeString(str);
-    }
-    const str = yearMonthDay + " " + hourMinuteSecond;
+    const str = yearMonthDay + " " + time;
     return this.escapeString(str);
   }
 
@@ -213,7 +202,7 @@ export class QueryFormatter {
       return this.escapeArray(param.value, "(", ")");
     } else if (BigNumber.isBigNumber(param)) {
       return param.toString();
-    } else if (Object.prototype.toString.call(param) === "[object Date]") {
+    } else if (param instanceof Date) {
       return this.escapeDate(param);
     } else if (Array.isArray(param)) {
       return this.escapeArray(param);
