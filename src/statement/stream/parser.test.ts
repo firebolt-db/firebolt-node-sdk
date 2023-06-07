@@ -104,4 +104,14 @@ ${body2}`);
     expect(parser.results[0].rows).toHaveLength(0);
     expect(parser.results[0].columns).toHaveLength(0);
   });
+  it("fails on empty body", () => {
+    try {
+      const parser = new JSONParser({});
+      parser.processBody(`{}`);
+      expect(parser.results[0].rows).toHaveLength(0);
+      expect(true).toEqual(false);
+    } catch (error) {
+      expect(true).toEqual(true);
+    }
+  });
 });
