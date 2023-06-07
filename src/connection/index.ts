@@ -49,21 +49,11 @@ export class Connection {
   }
 
   private async isDatabaseAccessible(databaseName: string): Promise<boolean> {
-    const { httpClient } = this.context;
-    const systemUrl = await this.getSytemEngineEndpoint();
-    const body =
+    const query =
       "SELECT database_name FROM information_schema.databases " +
       `WHERE database_name='${databaseName}'`;
-    const request = httpClient.request<unknown>("POST", systemUrl, {
-      body,
-      raw: true
-    });
-    await request.ready();
-    const statement = new Statement(this.context, {
-      query: body,
-      request,
-      executeQueryOptions: {}
-    });
+
+    const statement = await this.execute(query);
     const { data } = await statement.fetchResult();
     return data.length == 1;
   }
@@ -72,31 +62,20 @@ export class Connection {
     engineName: string,
     databaseName: string
   ): Promise<string> {
-    const { httpClient } = this.context;
-    const systemUrl = await this.getSytemEngineEndpoint();
-    const body =
-      "SELECT engs.engine_url, engs.attached_to, dbs.database_name, status " +
+    const query =
+      "SELECT engs.url, engs.attached_to, dbs.database_name, engs.status " +
       "FROM information_schema.engines as engs " +
       "LEFT JOIN information_schema.databases as dbs " +
       "ON engs.attached_to = dbs.database_name " +
       `WHERE engs.engine_name = '${engineName}'`;
-    const request = httpClient.request<unknown>("POST", systemUrl, {
-      body,
-      raw: true
-    });
-    await request.ready();
-    const statement = new Statement(this.context, {
-      query: body,
-      request,
-      executeQueryOptions: {}
-    });
+    const statement = await this.execute(query);
     const { data } = await statement.fetchResult();
     if (data.length == 0) {
       throw new Error(`Engine ${engineName} not found.`);
     }
     const filteredRows = [];
     for (const row of data) {
-      if ((row as Record<string, string>).database_name == databaseName) {
+      if ((row as string[])[2] == databaseName) {
         filteredRows.push(row);
       }
     }
@@ -110,10 +89,10 @@ export class Connection {
         `Unexpected duplicate entries found for ${engineName} and database ${databaseName}`
       );
     }
-    if ((filteredRows[0] as Record<string, string>).status != "RUNNING") {
+    if ((filteredRows[0] as string[])[3] != "Running") {
       throw new Error(`Engine ${engineName} is not running`);
     }
-    return (filteredRows[0] as Record<string, string>).engine_url;
+    return (filteredRows[0] as string[])[0];
   }
 
   private async getEngineByNameAndDb(
@@ -165,12 +144,18 @@ export class Connection {
 
   async resolveEngineEndpoint() {
     const { engineName, database } = this.options;
+    // Connect to system engine first
+    const systemUrl = await this.getSytemEngineEndpoint();
+    this.engineEndpoint = `${systemUrl}/${QUERY_URL}`;
+    this.accountId = await this.getAccountId(this.options.account);
     if (engineName && database) {
       const engineEndpoint = await this.getEngineByNameAndDb(
         engineName,
         database
       );
       this.engineEndpoint = engineEndpoint;
+      // Account id is no longer needed
+      this.accountId = undefined;
       return this.engineEndpoint;
     }
     if (engineName) {
@@ -189,9 +174,6 @@ export class Connection {
       return this.engineEndpoint;
     }
     // If nothing specified connect to generic system engine
-    const systemUrl = await this.getSytemEngineEndpoint();
-    this.engineEndpoint = `${systemUrl}/${QUERY_URL}`;
-    this.accountId = await this.getAccountId(this.options.account);
     return this.engineEndpoint;
   }
 

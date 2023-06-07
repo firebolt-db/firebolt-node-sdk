@@ -78,9 +78,35 @@ describe("new identity integration test", () => {
       database: process.env.FIREBOLT_DATABASE as string
     });
 
-    const statement = await connection.execute("SELECT 1");
+    await connection.execute(
+      "CREATE TABLE IF NOT EXISTS dummy_connectivity_test (id INT)"
+    );
+    const statement = await connection.execute(
+      "SELECT * FROM dummy_connectivity_test"
+    );
     const { data, meta } = await statement.fetchResult();
-    expect(data.length).toEqual(1);
+    expect(data.length).toEqual(0);
+    expect(meta.length).toEqual(1);
+  });
+  it("works on user engine with no DB", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...bareConnectionParams,
+      engineName: process.env.FIREBOLT_ENGINE_NAME as string,
+      database: process.env.FIREBOLT_DATABASE as string
+    });
+
+    await connection.execute(
+      "CREATE TABLE IF NOT EXISTS dummy_connectivity_test (id INT)"
+    );
+    const statement = await connection.execute(
+      "SELECT * FROM dummy_connectivity_test"
+    );
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(0);
     expect(meta.length).toEqual(1);
   });
 });
