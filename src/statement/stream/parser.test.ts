@@ -92,4 +92,16 @@ ${body2}`);
     expect(parser.results[1].rows).toHaveLength(3);
     expect(parser.results[1].columns).toHaveLength(1);
   });
+  it("handles empty meta and data", () => {
+    const parser = new JSONParser({});
+    parser.processBody(`
+{
+  "statistics":
+{
+    "elapsed": 0.0, "rows_read": 0, "bytes_read": 0
+}
+}`);
+    expect(parser.results[0].rows).toHaveLength(0);
+    expect(parser.results[0].columns).toHaveLength(0);
+  });
 });

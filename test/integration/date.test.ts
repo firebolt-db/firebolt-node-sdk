@@ -16,9 +16,9 @@ CREATE FACT TABLE IF NOT EXISTS t1
 (
 id INT  NOT NULL UNIQUE,
 description TEXT NULL,
-pg_date pgdate NOT NULL ,
+pg_date date NOT NULL ,
 time_wtz timestamptz NOT NULL ,
-time_ntz timestampntz NOT NULL ,
+time_ntz timestamp NOT NULL ,
 done boolean NOT NULL default 1
 )
 PRIMARY INDEX id;
@@ -62,8 +62,8 @@ describe("new date data format", () => {
     await connection.execute(insertValues);
     const statement = await connection.execute(`select * from t1 limit 10`);
     const { data, meta } = await statement.fetchResult();
-    expect(meta[2].type).toEqual("pgdate");
+    expect(meta[2].type).toEqual("date");
     expect(meta[3].type).toEqual("timestamptz");
-    expect(meta[4].type).toEqual("timestampntz");
+    expect(meta[4].type).toEqual("timestamp");
   });
 });
