@@ -45,9 +45,11 @@ describe("new identity integration test", () => {
       database: process.env.FIREBOLT_DATABASE as string
     });
 
-    const statement = await connection.execute("SELECT 1");
+    const statement = await connection.execute(
+      "SELECT table_name FROM information_schema.tables"
+    );
     const { data, meta } = await statement.fetchResult();
-    expect(data.length).toEqual(1);
+    expect(data.length).toBeGreaterThan(0);
     expect(meta.length).toEqual(1);
   });
   it("works on user engine with no DB specified", async () => {

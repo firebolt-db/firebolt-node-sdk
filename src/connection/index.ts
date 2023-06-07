@@ -173,11 +173,6 @@ export class Connection {
       this.engineEndpoint = engineEndpoint;
       return this.engineEndpoint;
     }
-    if (database) {
-      const systemUrl = await this.getSytemEngineEndpoint();
-      this.engineEndpoint = systemUrl;
-      return this.engineEndpoint;
-    }
     if (engineName) {
       const database = await this.getEngineDatabase(engineName);
       if (!database) {
@@ -203,7 +198,7 @@ export class Connection {
   private getRequestUrl(executeQueryOptions: ExecuteQueryOptions) {
     const { settings } = executeQueryOptions;
     const { database } = this.options;
-    const params = { database, ...settings };
+    const params = { database, account_id: this.accountId, ...settings };
 
     const paramsWithValue = Object.keys(params).reduce<Record<string, string>>(
       (acc, key) => {
@@ -248,12 +243,6 @@ export class Connection {
     );
 
     const body = formattedQuery;
-    if (this.accountId) {
-      executeQueryOptions.namedParameters = {
-        ...executeQueryOptions.namedParameters,
-        accountId: this.accountId
-      };
-    }
     const url = this.getRequestUrl(executeQueryOptions);
 
     const request = httpClient.request<unknown>("POST", url, {
