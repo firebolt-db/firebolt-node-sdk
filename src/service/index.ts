@@ -18,7 +18,6 @@ export class ResourceManager {
     httpClient: HttpClientInterface;
     logger: LoggerInterface;
     queryFormatter: QueryFormatter;
-    env: string;
     apiEndpoint: string;
   }) {
     this.context = {

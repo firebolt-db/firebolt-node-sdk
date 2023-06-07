@@ -89,7 +89,6 @@ export type FireboltClientOptions = {
   logger?: LoggerOptions;
   client?: HttpClientOptions;
   apiEndpoint?: string;
-  env?: string;
   dependencies?: {
     logger: LoggerInterface;
     httpClient: HttpClientInterface;
@@ -101,6 +100,5 @@ export type Context = {
   httpClient: HttpClientInterface;
   resourceManager: ResourceManager;
   queryFormatter: QueryFormatter;
-  env: string;
   apiEndpoint: string;
 };

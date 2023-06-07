@@ -1,4 +1,5 @@
 import { SERVICE_ACCOUNT_LOGIN } from "../common/api";
+import { assignProtocol } from "../common/util";
 import {
   Context,
   ConnectionOptions,
@@ -39,17 +40,31 @@ export class Authenticator {
     this.accessToken = accessToken;
   }
 
+  getAuthEndpoint(apiEndpoint: string) {
+    const myURL = new URL(assignProtocol(apiEndpoint)); // TODO: don't rely hardcoded str
+    const hostStrings = myURL.hostname.split(".");
+    // We expect an apiEndpoint to be of format api.<env>.firebolt.io
+    // Since we got something else, assume it's a test
+    if (hostStrings[0] != "api") {
+      return new URL(assignProtocol(apiEndpoint)).toString();
+    }
+    hostStrings[0] = "id";
+    myURL.hostname = hostStrings.join(".");
+    return myURL.toString();
+  }
+
   async authenticateServiceAccount(auth: ClientCredentialsAuth) {
-    const { httpClient, apiEndpoint, env } = this.context;
+    const { httpClient, apiEndpoint } = this.context;
     const { client_id, client_secret } = auth;
 
+    const authEndpoint = this.getAuthEndpoint(apiEndpoint);
     const params = new URLSearchParams({
       client_id,
       client_secret,
       grant_type: "client_credentials",
       audience: apiEndpoint
     });
-    const url = `id.${env}.firebolt.io/${SERVICE_ACCOUNT_LOGIN}`;
+    const url = `${authEndpoint}${SERVICE_ACCOUNT_LOGIN}`;
 
     this.accessToken = undefined;
 

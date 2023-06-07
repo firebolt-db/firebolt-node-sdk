@@ -6,12 +6,11 @@ import { Logger } from "../../src/logger/node";
 import { ResourceManager } from "../../src/service";
 import { QueryFormatter } from "../../src/formatter";
 
-const apiEndpoint = "fake.api.com";
+const apiEndpoint = "api.fake.firebolt.io";
 const logger = new Logger();
-const env = "app";
 
 const authHandler = rest.post(
-  `https://id.${env}.firebolt.io/oauth/token`,
+  `https://id.fake.firebolt.io/oauth/token`,
   (req, res, ctx) => {
     return res(
       ctx.json({
@@ -38,11 +37,10 @@ describe("http client", () => {
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter,
-      env
+      queryFormatter
     });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager, env },
+      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
       {
         auth: {
           client_id: "user",
@@ -63,11 +61,10 @@ describe("http client", () => {
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter,
-      env
+      queryFormatter
     });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager, env },
+      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
       {
         auth: {
           accessToken: "custom_access_token"
@@ -94,11 +91,10 @@ describe("http client", () => {
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter,
-      env
+      queryFormatter
     });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager, env },
+      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
       {
         auth: {
           client_id: "user",
@@ -126,11 +122,10 @@ describe("http client", () => {
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter,
-      env
+      queryFormatter
     });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager, env },
+      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
       {
         auth: {
           client_id: "user",

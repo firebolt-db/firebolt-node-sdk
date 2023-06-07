@@ -9,7 +9,7 @@ describe("connection user agent", () => {
   const server = setupServer();
 
   server.use(
-    rest.post(`https://id.app.firebolt.io/oauth/token`, (req, res, ctx) => {
+    rest.post(`https://fake.api.com/oauth/token`, (req, res, ctx) => {
       return res(
         ctx.json({
           access_token: "fake_access_token"

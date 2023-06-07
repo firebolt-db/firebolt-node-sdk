@@ -17,8 +17,7 @@ const getContext = (
   const {
     logger: loggerOptions,
     client: clientOptions,
-    env = "app",
-    apiEndpoint = `api.${env}.firebolt.io`
+    apiEndpoint = `api.app.firebolt.io`
   } = options;
 
   const { logger: DefaultLogger, httpClient: DefaultHttpClient } = dependencies;
@@ -35,7 +34,6 @@ const getContext = (
     logger,
     httpClient,
     apiEndpoint,
-    env,
     queryFormatter
   };
   return context;

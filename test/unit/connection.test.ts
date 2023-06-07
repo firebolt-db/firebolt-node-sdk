@@ -3,7 +3,7 @@ import { rest } from "msw";
 import { Firebolt } from "../../src/index";
 import { ConnectionOptions } from "../../src/types";
 
-const apiEndpoint = "fake.api.com";
+const apiEndpoint = "api.fake.firebolt.io";
 
 const engineUrlResponse = {
   meta: [
@@ -69,7 +69,7 @@ describe("Connection", () => {
   const server = setupServer();
 
   server.use(
-    rest.post(`https://id.app.firebolt.io/oauth/token`, (req, res, ctx) => {
+    rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
       return res(
         ctx.json({
           access_token: "fake_access_token"
