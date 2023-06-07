@@ -9,8 +9,11 @@ export const ACCOUNTS = "core/v1/accounts";
 export const ACCOUNT = "iam/v2/account";
 export const ACCOUNT_BY_NAME = "iam/v2/accounts:getIdByName";
 
-export const ACCOUNT_SYSTEM_ENGINE = (account_name: string) =>
-  `v3/getGatewayHostByAccountName/${account_name}`;
+export const QUERY_URL = "dynamic/query";
+export const ACCOUNT_SYSTEM_ENGINE = (accountName: string) =>
+  `web/v3/account/${accountName}/engineUrl`;
+export const ACCOUNT_ID_BY_NAME = (accountName: string) =>
+  `web/v3/account/${accountName}/resolve`;
 
 export const ACCOUNT_ENGINE = (accountId: string, engineId: string) =>
   `core/v1/accounts/${accountId}/engines/${engineId}`;

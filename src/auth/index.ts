@@ -13,6 +13,9 @@ type Login = {
   expires_in: number;
 };
 
+const authAudience = "https://api.firebolt.io";
+const authGrantType = "client_credentials";
+
 export class Authenticator {
   context: Context;
   options: ConnectionOptions;
@@ -61,8 +64,8 @@ export class Authenticator {
     const params = new URLSearchParams({
       client_id,
       client_secret,
-      grant_type: "client_credentials",
-      audience: apiEndpoint
+      grant_type: authGrantType,
+      audience: authAudience
     });
     const url = `${authEndpoint}${SERVICE_ACCOUNT_LOGIN}`;
 

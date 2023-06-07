@@ -14,15 +14,20 @@ const connectionParams = {
 jest.setTimeout(50000);
 
 describe("new identity integration test", () => {
+  const bareConnectionParams = {
+    auth: {
+      client_id: process.env.FIREBOLT_CLIENT_ID as string,
+      client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
+    },
+    account: process.env.FIREBOLT_ACCOUNT as string
+  };
   it("works on system engine", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     const connection = await firebolt.connect({
-      ...connectionParams,
-      engineName: undefined,
-      database: undefined
+      ...bareConnectionParams
     });
 
     const statement = await connection.execute("SELECT 1");
@@ -36,8 +41,8 @@ describe("new identity integration test", () => {
     });
 
     const connection = await firebolt.connect({
-      ...connectionParams,
-      engineName: undefined
+      ...bareConnectionParams,
+      database: process.env.FIREBOLT_DATABASE as string
     });
 
     const statement = await connection.execute("SELECT 1");
@@ -51,8 +56,24 @@ describe("new identity integration test", () => {
     });
 
     const connection = await firebolt.connect({
-      ...connectionParams,
-      database: undefined
+      ...bareConnectionParams,
+      engineName: process.env.FIREBOLT_ENGINE_NAME as string
+    });
+
+    const statement = await connection.execute("SELECT 1");
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(1);
+    expect(meta.length).toEqual(1);
+  });
+  it("works on user engine with DB", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...bareConnectionParams,
+      engineName: process.env.FIREBOLT_ENGINE_NAME as string,
+      database: process.env.FIREBOLT_DATABASE as string
     });
 
     const statement = await connection.execute("SELECT 1");

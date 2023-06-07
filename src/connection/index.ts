@@ -7,7 +7,11 @@ import {
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
 import { AccessError } from "../common/errors";
-import { ACCOUNT_SYSTEM_ENGINE } from "../common/api";
+import {
+  ACCOUNT_ID_BY_NAME,
+  ACCOUNT_SYSTEM_ENGINE,
+  QUERY_URL
+} from "../common/api";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.JSON_COMPACT
@@ -21,6 +25,7 @@ export class Connection {
   private context: Context;
   private options: ConnectionOptions;
   private userAgent: string;
+  private accountId: string | undefined;
   engineEndpoint!: string;
   activeRequests = new Set<{ abort: () => void }>();
 
@@ -37,10 +42,10 @@ export class Connection {
     const { apiEndpoint, httpClient } = this.context;
     const accountName = this.context.resourceManager.account.name; // TODO: make sure this exists
     const url = `${apiEndpoint}/${ACCOUNT_SYSTEM_ENGINE(accountName)}`;
-    const data = await httpClient
-      .request<{ gatewayHost: string }>("GET", url)
+    const { engineUrl } = await httpClient
+      .request<{ engineUrl: string }>("GET", url)
       .ready();
-    return data.gatewayHost;
+    return engineUrl;
   }
 
   private async isDatabaseAccessible(databaseName: string): Promise<boolean> {
@@ -149,6 +154,15 @@ export class Connection {
     return res.attached_to;
   }
 
+  private async getAccountId(accountName: string): Promise<string> {
+    const { apiEndpoint, httpClient } = this.context;
+    const url = `${apiEndpoint}/${ACCOUNT_ID_BY_NAME(accountName)}`;
+    const { id } = await httpClient
+      .request<{ id: string; region: string }>("GET", url)
+      .ready();
+    return id;
+  }
+
   async resolveEngineEndpoint() {
     const { engineName, database } = this.options;
     if (engineName && database) {
@@ -181,7 +195,8 @@ export class Connection {
     }
     // If nothing specified connect to generic system engine
     const systemUrl = await this.getSytemEngineEndpoint();
-    this.engineEndpoint = systemUrl;
+    this.engineEndpoint = `${systemUrl}/${QUERY_URL}`;
+    this.accountId = await this.getAccountId(this.options.account);
     return this.engineEndpoint;
   }
 
@@ -233,6 +248,12 @@ export class Connection {
     );
 
     const body = formattedQuery;
+    if (this.accountId) {
+      executeQueryOptions.namedParameters = {
+        ...executeQueryOptions.namedParameters,
+        accountId: this.accountId
+      };
+    }
     const url = this.getRequestUrl(executeQueryOptions);
 
     const request = httpClient.request<unknown>("POST", url, {
