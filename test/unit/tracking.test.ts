@@ -17,11 +17,22 @@ describe("connection user agent", () => {
       );
     }),
     rest.get(
-      `https://${apiEndpoint}/v3/getGatewayHostByAccountName/my_account`,
+      `https://fake.api.com/web/v3/account/my_account/resolve`,
       (req, res, ctx) => {
         return res(
           ctx.json({
-            gatewayHost: "https://some_system_engine.com"
+            id: "1111",
+            region: "us-east-1"
+          })
+        );
+      }
+    ),
+    rest.get(
+      `https://fake.api.com/web/v3/account/my_account/engineUrl`,
+      (req, res, ctx) => {
+        return res(
+          ctx.json({
+            engineUrl: "https://some_system_engine.com"
           })
         );
       }
@@ -48,10 +59,13 @@ describe("connection user agent", () => {
     });
 
     server.use(
-      rest.post("https://some_system_engine.com", (req, res, ctx) => {
-        expect(req.headers.get("user-agent")).toContain("NodeSDK");
-        return res(ctx.status(200), ctx.json({ data: [] }));
-      })
+      rest.post(
+        "https://some_system_engine.com/dynamic/query",
+        (req, res, ctx) => {
+          expect(req.headers.get("user-agent")).toContain("NodeSDK");
+          return res(ctx.status(200), ctx.json({ data: [] }));
+        }
+      )
     );
 
     const connection = await firebolt.connect(connectionParams);
@@ -75,12 +89,15 @@ describe("connection user agent", () => {
     });
 
     server.use(
-      rest.post("https://some_system_engine.com", (req, res, ctx) => {
-        expect(req.headers.get("user-agent")).toContain("NodeSDK");
-        expect(req.headers.get("user-agent")).toContain("ClientA/1.1.1");
-        expect(req.headers.get("user-agent")).toContain("DriverA/2.2.2");
-        return res(ctx.status(200), ctx.json({ data: [] }));
-      })
+      rest.post(
+        "https://some_system_engine.com/dynamic/query",
+        (req, res, ctx) => {
+          expect(req.headers.get("user-agent")).toContain("NodeSDK");
+          expect(req.headers.get("user-agent")).toContain("ClientA/1.1.1");
+          expect(req.headers.get("user-agent")).toContain("DriverA/2.2.2");
+          return res(ctx.status(200), ctx.json({ data: [] }));
+        }
+      )
     );
     const connection = await firebolt.connect(connectionParams);
     const statement = await connection.execute("SELECT 1");

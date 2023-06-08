@@ -14,7 +14,7 @@ import {
 } from "../common/api";
 
 const defaultQuerySettings = {
-  output_format: OutputFormat.JSON_COMPACT
+  output_format: OutputFormat.COMPACT
 };
 
 const defaultResponseSettings = {
@@ -40,7 +40,7 @@ export class Connection {
 
   private async getSytemEngineEndpoint(): Promise<string> {
     const { apiEndpoint, httpClient } = this.context;
-    const accountName = this.context.resourceManager.account.name; // TODO: make sure this exists
+    const accountName = this.options.account; // TODO: make sure this exists
     const url = `${apiEndpoint}/${ACCOUNT_SYSTEM_ENGINE(accountName)}`;
     const { engineUrl } = await httpClient
       .request<{ engineUrl: string }>("GET", url)
@@ -113,24 +113,20 @@ export class Connection {
   }
 
   private async getEngineDatabase(engineName: string): Promise<string> {
-    const { httpClient } = this.context;
-    const systemUrl = await this.getSytemEngineEndpoint();
-    const body =
+    const query =
       "SELECT attached_to FROM information_schema.engines " +
       `WHERE engine_name='${engineName}'`;
-    const request = httpClient.request<unknown>("POST", systemUrl, {
-      body,
-      raw: true
-    });
-    await request.ready();
-    const statement = new Statement(this.context, {
-      query: body,
-      request,
-      executeQueryOptions: {}
-    });
+
+    const statement = await this.execute(query);
     const { data } = await statement.fetchResult();
-    const res = data[0] as Record<string, string>;
-    return res.attached_to;
+    if (data.length == 0) {
+      return "";
+    }
+    const res = data[0] as string[];
+    if (res.length == 0) {
+      return "";
+    }
+    return res[0];
   }
 
   private async getAccountId(accountName: string): Promise<string> {
@@ -171,6 +167,8 @@ export class Connection {
       );
       this.options.database = database;
       this.engineEndpoint = engineEndpoint;
+      // Account id is no longer needed
+      this.accountId = undefined;
       return this.engineEndpoint;
     }
     // If nothing specified connect to generic system engine

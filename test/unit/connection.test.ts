@@ -8,7 +8,7 @@ const apiEndpoint = "api.fake.firebolt.io";
 const engineUrlResponse = {
   meta: [
     {
-      name: "engine_url",
+      name: "url",
       type: "Text"
     },
     {
@@ -24,14 +24,7 @@ const engineUrlResponse = {
       type: "Text"
     }
   ],
-  data: [
-    {
-      engine_url: "https://some_engine.com",
-      attached_to: "dummy",
-      database_name: "dummy",
-      status: "RUNNING"
-    }
-  ],
+  data: [["https://some_engine.com", "dummy", "dummy", "Running"]],
   rows: 1
 };
 
@@ -57,11 +50,7 @@ const selectAttachedToResponse = {
       type: "Text"
     }
   ],
-  data: [
-    {
-      attached_to: "dummy2"
-    }
-  ],
+  data: [["dummy2"]],
   rows: 1
 };
 
@@ -76,17 +65,31 @@ describe("Connection", () => {
         })
       );
     }),
-    rest.post(`https://some_system_engine.com`, (req, res, ctx) => {
-      return res(ctx.json(engineUrlResponse));
-    }),
     rest.get(
-      `https://${apiEndpoint}/v3/getGatewayHostByAccountName/my_account`,
+      `https://api.fake.firebolt.io/web/v3/account/my_account/resolve`,
       (req, res, ctx) => {
         return res(
           ctx.json({
-            gatewayHost: "https://some_system_engine.com"
+            id: "1111",
+            region: "us-east-1"
           })
         );
+      }
+    ),
+    rest.get(
+      `https://api.fake.firebolt.io/web/v3/account/my_account/engineUrl`,
+      (req, res, ctx) => {
+        return res(
+          ctx.json({
+            engineUrl: "https://some_system_engine.com"
+          })
+        );
+      }
+    ),
+    rest.post(
+      `https://some_system_engine.com/dynamic/query`,
+      (req, res, ctx) => {
+        return res(ctx.json(engineUrlResponse));
       }
     ),
     rest.post("https://some_engine.com", (req, res, ctx) => {
@@ -153,8 +156,8 @@ describe("Connection", () => {
     const engineUrlResponseOverride = JSON.parse(
       JSON.stringify(engineUrlResponse)
     );
-    engineUrlResponseOverride.data[0].attached_to = "dummy2";
-    engineUrlResponseOverride.data[0].database_name = "dummy2";
+    engineUrlResponseOverride.data[0][1] = "dummy2";
+    engineUrlResponseOverride.data[0][2] = "dummy2";
 
     server.use(
       rest.post("https://some_engine.com", (req, res, ctx) => {
@@ -162,13 +165,16 @@ describe("Connection", () => {
         expect(req.url.toString()).toContain("database=dummy2");
         return res(ctx.status(200), ctx.json(selectOneResponse));
       }),
-      rest.post(`https://some_system_engine.com`, (req, res, ctx) => {
-        if (req.body?.startsWith("SELECT engs.engine_url, engs.attached_to")) {
-          return res(ctx.json(engineUrlResponseOverride));
-        } else {
-          return res(ctx.json(selectAttachedToResponse));
+      rest.post(
+        `https://some_system_engine.com/dynamic/query`,
+        (req, res, ctx) => {
+          if (req.body?.startsWith("SELECT engs.url, engs.attached_to")) {
+            return res(ctx.json(engineUrlResponseOverride));
+          } else {
+            return res(ctx.json(selectAttachedToResponse));
+          }
         }
-      })
+      )
     );
 
     const connection = await firebolt.connect(connectionParams);
@@ -194,14 +200,17 @@ describe("Connection", () => {
 
     // Returning query result from sys engine
     server.use(
-      rest.post(`https://some_system_engine.com`, (req, res, ctx) => {
-        if (req.body) {
-          expect(req.url.toString()).not.toContain("database=");
-          return res(ctx.json(selectOneResponse));
-        } else {
-          return res(ctx.json(engineUrlResponse));
+      rest.post(
+        `https://some_system_engine.com/dynamic/query`,
+        (req, res, ctx) => {
+          if (req.body) {
+            expect(req.url.toString()).not.toContain("database=");
+            return res(ctx.json(selectOneResponse));
+          } else {
+            return res(ctx.json(engineUrlResponse));
+          }
         }
-      })
+      )
     );
 
     const connection = await firebolt.connect(connectionParams);
@@ -227,14 +236,17 @@ describe("Connection", () => {
 
     // Returning query result from sys engine
     server.use(
-      rest.post(`https://some_system_engine.com`, (req, res, ctx) => {
-        if (req.body) {
-          expect(req.url.toString()).toContain("database=my_db");
-          return res(ctx.json(selectOneResponse));
-        } else {
-          return res(ctx.json(engineUrlResponse));
+      rest.post(
+        `https://some_system_engine.com/dynamic/query`,
+        (req, res, ctx) => {
+          if (req.body) {
+            expect(req.url.toString()).toContain("database=my_db");
+            return res(ctx.json(selectOneResponse));
+          } else {
+            return res(ctx.json(engineUrlResponse));
+          }
         }
-      })
+      )
     );
 
     const connection = await firebolt.connect(connectionParams);
@@ -261,9 +273,12 @@ describe("Connection", () => {
 
     // Revert to standard response
     server.use(
-      rest.post(`https://some_system_engine.com`, (req, res, ctx) => {
-        return res(ctx.json(engineUrlResponse));
-      })
+      rest.post(
+        `https://some_system_engine.com/dynamic/query`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
+        }
+      )
     );
 
     await expect(firebolt.connect(connectionParams)).rejects.toThrow(
@@ -287,12 +302,15 @@ describe("Connection", () => {
     });
 
     const stoppedEngineResponse = JSON.parse(JSON.stringify(engineUrlResponse));
-    stoppedEngineResponse.data[0].status = "STOPPED";
+    stoppedEngineResponse.data[0][3] = "Stopped";
 
     server.use(
-      rest.post("https://some_system_engine.com", (req, res, ctx) => {
-        return res(ctx.json(stoppedEngineResponse));
-      })
+      rest.post(
+        "https://some_system_engine.com/dynamic/query",
+        (req, res, ctx) => {
+          return res(ctx.json(stoppedEngineResponse));
+        }
+      )
     );
 
     await expect(firebolt.connect(connectionParams)).rejects.toThrow(

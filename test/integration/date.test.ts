@@ -63,8 +63,8 @@ describe("new date data format", () => {
     await connection.execute(insertValues);
     const statement = await connection.execute(`select * from t1 limit 10`);
     const { data, meta } = await statement.fetchResult();
-    expect(meta[2].type).toEqual("pgdate");
+    expect(meta[2].type).toEqual("date"); // PGDate is aliased as date
     expect(meta[3].type).toEqual("timestamptz");
-    expect(meta[4].type).toEqual("timestampntz");
+    expect(meta[4].type).toEqual("timestamp"); // TimestampNtz is aliased as timestamp
   });
 });

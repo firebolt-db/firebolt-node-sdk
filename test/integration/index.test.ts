@@ -134,6 +134,7 @@ describe("integration test", () => {
     const connection2 = await firebolt.connect({
       database: process.env.FIREBOLT_DATABASE as string,
       engineName: process.env.FIREBOLT_ENGINE_NAME as string,
+      account: process.env.FIREBOLT_ACCOUNT as string,
       auth: {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -152,7 +153,7 @@ describe("integration test", () => {
     });
 
     const connection = await firebolt.connect(connectionParams);
-    const statement = await connection.execute("SELECT 1", {
+    const statement = await connection.execute('SELECT 1 as "1"', {
       settings: { output_format: OutputFormat.JSON },
       response: { normalizeData: false }
     });

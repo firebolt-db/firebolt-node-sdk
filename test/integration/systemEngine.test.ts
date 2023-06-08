@@ -21,8 +21,7 @@ describe("system engine", () => {
     });
 
     const connection = await firebolt.connect({
-      ...connectionOptions,
-      engineName: "system"
+      ...connectionOptions
     });
 
     await connection
@@ -58,8 +57,7 @@ describe("system engine", () => {
     });
 
     const connection = await firebolt.connect({
-      ...connectionOptions,
-      engineName: "system"
+      ...connectionOptions
     });
 
     try {
@@ -77,10 +75,11 @@ describe("system engine", () => {
     });
 
     const connection = await firebolt.connect({
-      ...connectionOptions,
-      engineName: "system"
+      ...connectionOptions
     });
-    expect(connection.engineEndpoint).toMatch(/api/);
+    expect(connection.engineEndpoint).toEqual(
+      process.env.FIREBOLT_ENGINE_ENDPOINT
+    );
   });
   it("able to list engines", async () => {
     const firebolt = Firebolt({
@@ -88,12 +87,13 @@ describe("system engine", () => {
     });
 
     const connection = await firebolt.connect({
-      ...connectionOptions,
-      engineName: "system"
+      ...connectionOptions
     });
 
     try {
-      const statement = await connection.execute("show engines");
+      const statement = await connection.execute(
+        "SELECT * FROM information_schema.engines"
+      );
       const { data } = await statement.fetchResult();
       const engine = (data as unknown[][]).find(row => row[0] === engineName);
       expect(engine).toBeTruthy();
@@ -108,12 +108,13 @@ describe("system engine", () => {
     });
 
     const connection = await firebolt.connect({
-      ...connectionOptions,
-      engineName: "system"
+      ...connectionOptions
     });
 
     try {
-      const statement = await connection.execute("show engines");
+      const statement = await connection.execute(
+        "SELECT * FROM information_schema.databases"
+      );
       const { data } = await statement.fetchResult();
       const database = (data as unknown[][]).find(
         row => row[0] === databaseName
@@ -130,8 +131,7 @@ describe("system engine", () => {
     });
 
     const connection = await firebolt.connect({
-      ...connectionOptions,
-      engineName: "system"
+      ...connectionOptions
     });
 
     try {

@@ -66,8 +66,8 @@ describe("engine integration", () => {
       database: process.env.FIREBOLT_DATABASE as string
     });
 
-    expect(connection.engineEndpoint).toEqual(
-      process.env.FIREBOLT_ENGINE_ENDPOINT
+    expect(connection.engineEndpoint).not.toEqual(
+      process.env.FIREBOLT_ENGINE_ENDPOINT // Should be system engine, not user
     );
   });
 });
