@@ -52,4 +52,36 @@ describe("streams", () => {
       });
     });
   });
+
+  it("parses body without meta and data", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+
+    const statement = await connection.execute(`
+DROP TABLE IF EXISTS ex_stream;
+
+CREATE DIMENSION TABLE IF NOT EXISTS ex_stream (
+  json_data TEXT NOT NULL,
+  partition_timestamp TIMESTAMP NOT NULL,
+  source_file_name TEXT NOT NULL,
+  source_file_timestamp TIMESTAMP NOT NULL
+) PRIMARY INDEX partition_timestamp, source_file_name;
+`);
+
+    const {
+      data,
+      meta: metaPromise,
+      statistics: statisticsPromise
+    } = await statement.streamResult();
+
+    data.pipe(process.stdout);
+
+    const metadata = await metaPromise;
+    const statistics = await statisticsPromise;
+    expect(metadata).toEqual([]);
+    expect(statistics).toEqual(null);
+  });
 });
