@@ -138,12 +138,21 @@ export class Connection {
     return id;
   }
 
+  async resolveAccountId(accountName: string) {
+    const { httpClient, apiEndpoint } = this.context;
+    const url = `${apiEndpoint}/${ACCOUNT_ID_BY_NAME(accountName)}`;
+    const { id } = await httpClient
+      .request<{ id: string; region: string }>("GET", url)
+      .ready();
+    return id;
+  }
+
   async resolveEngineEndpoint() {
     const { engineName, database } = this.options;
     // Connect to system engine first
     const systemUrl = await this.getSytemEngineEndpoint();
     this.engineEndpoint = `${systemUrl}/${QUERY_URL}`;
-    this.accountId = await this.getAccountId(this.options.account);
+    this.accountId = await this.resolveAccountId(this.options.account);
     if (engineName && database) {
       const engineEndpoint = await this.getEngineByNameAndDb(
         engineName,

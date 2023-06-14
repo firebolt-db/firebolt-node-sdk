@@ -1,95 +1,70 @@
-import {
-  ACCOUNT_ENGINE,
-  ACCOUNT_ENGINE_START,
-  ACCOUNT_ENGINE_STOP,
-  ACCOUNT_ENGINE_RESTART
-} from "../../common/api";
-import { Context } from "../../types";
-import { ID, Engine, EngineStatusSummary } from "./types";
+import { RMContext } from "../../types";
+import { Engine, EngineStatusSummary, processEngineStatus } from "./types";
 
 export class EngineModel {
-  private context: Context;
-  id: ID;
+  private context: RMContext;
   name: string;
-  description: string;
   endpoint: string;
   current_status_summary: EngineStatusSummary;
 
-  constructor(context: Context, engine: Engine) {
-    const { id, name, description, endpoint, current_status_summary } = engine;
-    this.id = id;
+  constructor(context: RMContext, engine: Engine) {
+    const { name, endpoint, current_status_summary } = engine;
     this.name = name;
-    this.description = description;
     this.endpoint = endpoint;
     this.context = context;
     this.current_status_summary = current_status_summary;
   }
 
   async start() {
-    const { apiEndpoint, httpClient } = this.context;
-    const id = this.id.engine_id;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_START(accountId, id)}`;
-    const data = await httpClient
-      .request<{ engine: Engine }>("POST", url)
-      .ready();
-    return data;
+    const query = `START ENGINE ${this.name}`;
+    await this.context.connection!.execute(query);
+    await this.refreshStatus();
+    const res: Engine = {
+      name: this.name,
+      endpoint: this.endpoint,
+      current_status_summary: this.current_status_summary
+    };
+    return { engine: res };
   }
 
   async startAndWait() {
-    const {
-      engine: { current_status_summary }
-    } = await this.start();
-    this.current_status_summary = current_status_summary;
-    if (this.current_status_summary.includes("RUNNING")) {
-      return;
-    }
-
-    let interval: NodeJS.Timer;
-    await new Promise<void>(resolve => {
-      interval = setInterval(async () => {
-        await this.refreshStatus();
-        if (this.current_status_summary.includes("RUNNING")) {
-          return resolve();
-        }
-      }, 10 * 1000); // Check every 10 seconds.
-    }).finally(() => {
-      if (interval) {
-        clearInterval(interval);
-      }
-    });
+    // START ENGINE is now blocking
+    return this.start();
   }
 
   async stop() {
-    const { apiEndpoint, httpClient } = this.context;
-    const id = this.id.engine_id;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_STOP(accountId, id)}`;
-    const data = await httpClient
-      .request<{ engine: Engine }>("POST", url)
-      .ready();
-    return data;
+    const query = `STOP ENGINE ${this.name}`;
+    await this.context.connection!.execute(query);
+    await this.refreshStatus();
+    const res: Engine = {
+      name: this.name,
+      endpoint: this.endpoint,
+      current_status_summary: this.current_status_summary
+    };
+    return { engine: res };
   }
 
   async restart() {
-    const { apiEndpoint, httpClient } = this.context;
-    const id = this.id.engine_id;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_RESTART(accountId, id)}`;
-    const data = await httpClient
-      .request<{ engine: Engine }>("POST", url)
-      .ready();
-    return data;
+    // TODO: is this right?
+    throw new Error("Restart engine is no longer programmatically supported");
   }
 
   private async refreshStatus() {
-    const { apiEndpoint, httpClient } = this.context;
-    const id = this.id.engine_id;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(accountId, id)}`;
-    const {
-      engine: { current_status_summary }
-    } = await httpClient.request<{ engine: Engine }>("GET", url).ready();
-    this.current_status_summary = current_status_summary;
+    const query =
+      "SELECT status FROM information_schema.engines " +
+      `WHERE engine_name='${this.name}'`;
+    const statement = await this.context.connection!.execute(query);
+    const { data } = await statement.fetchResult();
+    if (data.length == 0) {
+      throw new Error(`Engine ${this.name} not found or is not accessbile`);
+    }
+    const firstRow = data[0] as unknown[];
+    const status = processEngineStatus(firstRow[0] as string);
+    if (!status) {
+      throw new Error(
+        `Engine ${this.name} has an unexpected status ${firstRow[0]}`
+      );
+    }
+    this.current_status_summary = status;
   }
 }

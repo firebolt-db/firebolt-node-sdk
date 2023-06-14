@@ -5,38 +5,68 @@ import { Logger } from "../../src/logger/node";
 import { ResourceManager } from "../../src/service";
 import { QueryFormatter } from "../../src/formatter";
 
-const apiEndpoint = "fake.api.com";
+const apiEndpoint = "api.fake.firebolt.io";
 const logger = new Logger();
+
+const selectEngineResponse = {
+  meta: [
+    {
+      name: "engine_name",
+      type: "text"
+    },
+    {
+      name: "url",
+      type: "text"
+    },
+    {
+      name: "status",
+      type: "text"
+    }
+  ],
+  data: [["some_engine", "https://some_engine.com", "Running"]],
+  rows: 1
+};
 
 describe("engine service", () => {
   const server = setupServer();
+
   server.use(
+    // Auth
+    rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
+      return res(
+        ctx.json({
+          access_token: "fake_access_token"
+        })
+      );
+    }),
+    // Resolve account name
     rest.get(
-      `https://${apiEndpoint}/core/v1/accounts/some_account/engines:getIdByName`,
+      `https://api.fake.firebolt.io/web/v3/account/my_account/resolve`,
       (req, res, ctx) => {
-        const engine_id = {
-          engine_id: "123",
-          account_id: "some_account"
-        };
-        return res(ctx.json({ engine_id }));
-      }
-    ),
-    rest.get(
-      `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123`,
-      (req, res, ctx) => {
-        const engine_id = {
-          engine_id: "123",
-          account_id: "some_account"
-        };
         return res(
           ctx.json({
-            engine: {
-              id: engine_id,
-              name: "some_engine",
-              endpoint: "https://some_engine.com"
-            }
+            id: "1111",
+            region: "us-east-1"
           })
         );
+      }
+    ),
+    // Resolve system engine URL
+    rest.get(
+      `https://api.fake.firebolt.io/web/v3/account/my_account/engineUrl`,
+      (req, res, ctx) => {
+        return res(
+          ctx.json({
+            engineUrl: "https://some_system_engine.com"
+          })
+        );
+      }
+    ),
+    // Query against system engine
+    rest.post(
+      `https://some_system_engine.com/dynamic/query`,
+      (req, res, ctx) => {
+        return res(ctx.json(selectEngineResponse));
       }
     )
   );
@@ -56,34 +86,43 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    resourceManager.account.id = "some_account";
+    await resourceManager.authenticate({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
     const engine = await resourceManager.engine.getByName("some_engine");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
   });
-  it("gets engine by id", async () => {
-    const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
-    resourceManager.account.id = "some_account";
-    const engine = await resourceManager.engine.getById("123");
-    expect(engine).toBeTruthy();
-    expect(engine.endpoint).toEqual("https://some_engine.com");
-  });
   it("starts engine", async () => {
+    let startEngineCalled = false;
+    const expectedEngine = "some_engine";
+    const refreshEngineResponse = {
+      meta: [
+        {
+          name: "status",
+          type: "text"
+        }
+      ],
+      data: [["Running"]],
+      rows: 1
+    };
     server.use(
+      // Query against system engine
       rest.post(
-        `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123:start`,
+        `https://some_system_engine.com/dynamic/query`,
         (req, res, ctx) => {
-          return res(
-            ctx.status(200),
-            ctx.json({ engine: { id: { engine_id: 123 } } })
-          );
+          if (req.body?.startsWith("START ENGINE " + expectedEngine)) {
+            startEngineCalled = true;
+          }
+          if (req.body?.startsWith("SELECT status")) {
+            return res(ctx.json(refreshEngineResponse));
+          } else {
+            return res(ctx.json(selectEngineResponse));
+          }
         }
       )
     );
@@ -96,25 +135,48 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    resourceManager.account.id = "some_account";
-    const engine = await resourceManager.engine.getById("123");
-    const {
-      engine: {
-        id: { engine_id }
+
+    await resourceManager.authenticate({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
       }
+    });
+    const engine = await resourceManager.engine.getByName(expectedEngine);
+    const {
+      engine: { name: engineName }
     } = await engine.start();
-    expect(engine_id).toEqual(123);
+    expect(engineName).toEqual(expectedEngine);
+    expect(startEngineCalled).toEqual(true);
   });
 
   it("stops engine", async () => {
+    let stopEngineCalled = false;
+    const expectedEngine = "some_engine";
+    const refreshEngineResponse = {
+      meta: [
+        {
+          name: "status",
+          type: "text"
+        }
+      ],
+      data: [["Stopped"]],
+      rows: 1
+    };
     server.use(
+      // Query against system engine
       rest.post(
-        `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123:stop`,
+        `https://some_system_engine.com/dynamic/query`,
         (req, res, ctx) => {
-          return res(
-            ctx.status(200),
-            ctx.json({ engine: { id: { engine_id: 123 } } })
-          );
+          if (req.body?.startsWith("STOP ENGINE " + expectedEngine)) {
+            stopEngineCalled = true;
+          }
+          if (req.body?.startsWith("SELECT status")) {
+            return res(ctx.json(refreshEngineResponse));
+          } else {
+            return res(ctx.json(selectEngineResponse));
+          }
         }
       )
     );
@@ -127,13 +189,19 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    resourceManager.account.id = "some_account";
-    const engine = await resourceManager.engine.getById("123");
-    const {
-      engine: {
-        id: { engine_id }
+
+    await resourceManager.authenticate({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
       }
+    });
+    const engine = await resourceManager.engine.getByName(expectedEngine);
+    const {
+      engine: { name: engineName }
     } = await engine.stop();
-    expect(engine_id).toEqual(123);
+    expect(engineName).toEqual(expectedEngine);
+    expect(stopEngineCalled).toEqual(true);
   });
 });

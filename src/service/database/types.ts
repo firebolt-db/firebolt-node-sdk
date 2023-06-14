@@ -1,7 +1,4 @@
-export type ID = { database_id: string; account_id: string };
-
+// TODO: readd description
 export type Database = {
-  id: ID;
   name: string;
-  description: string;
 };

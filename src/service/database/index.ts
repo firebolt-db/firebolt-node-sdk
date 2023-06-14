@@ -1,85 +1,72 @@
-import {
-  ACCOUNT_DATABASES,
-  ACCOUNT_DATABASE,
-  ACCOUNT_ENGINE_URL_BY_DATABASE_NAME,
-  ResultsPage
-} from "../../common/api";
-import { Context } from "../../types";
+import { RMContext } from "../../types";
 import { DatabaseModel } from "./model";
-import { ID, Database } from "./types";
 
 export class DatabaseService {
-  private context: Context;
+  private context: RMContext;
 
-  constructor(context: Context) {
+  constructor(context: RMContext) {
     this.context = context;
   }
 
-  private async getDatabaseId(databaseName: string): Promise<ID> {
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
-    const queryParams = new URLSearchParams({ database_name: databaseName });
-    const url = `${apiEndpoint}/${ACCOUNT_DATABASES(
-      accountId
-    )}:getIdByName?${queryParams}`;
-    const data = await httpClient
-      .request<{ database_id: ID }>("GET", url)
-      .ready();
-    return data.database_id;
+  private throwErrorIfNoConnection() {
+    if (typeof this.context.connection == "undefined") {
+      throw new Error(
+        "Can't execute a resource manager operation. Did you run authenticate()?"
+      );
+    }
+  }
+
+  private async getDatabaseId(databaseName: string) {
+    throw new Error("Can't call getDatabaseId as database IDs are deprecated");
   }
 
   async getDefaultEndpointByName(name: string) {
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
-    const queryParams = new URLSearchParams({ database_name: name });
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_URL_BY_DATABASE_NAME(
-      accountId
-    )}?${queryParams}`;
-    const data = await httpClient
-      .request<{ engine_url: string }>("GET", url)
-      .ready();
-    return data.engine_url;
+    throw new Error("Default engines are no longer supported");
   }
 
   async getById(databaseId: string): Promise<DatabaseModel> {
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_DATABASE(accountId, databaseId)}`;
-    const data = await httpClient
-      .request<{ database: Database }>("GET", url)
-      .ready();
-    return new DatabaseModel(this.context, data.database);
+    throw new Error("Can't call getById as database IDs are deprecated");
   }
 
   async getByName(databaseName: string): Promise<DatabaseModel> {
-    const { database_id } = await this.getDatabaseId(databaseName);
-    const database = await this.getById(database_id);
+    this.throwErrorIfNoConnection();
+    // TODO: not sure how useful this is currently?
+    const query =
+      "SELECT database_name FROM information_schema.databases " +
+      `WHERE database_name='${databaseName}'`;
+
+    const statement = await this.context.connection!.execute(query);
+    const { data } = await statement.fetchResult();
+    if (data.length == 0) {
+      throw new Error(
+        `Database ${databaseName} not found or is not accessbile`
+      );
+    }
+    const firstRow = data[0] as unknown[];
+    const database = {
+      name: firstRow[0] as string
+    };
     return new DatabaseModel(this.context, database);
   }
 
   async getAll(): Promise<DatabaseModel[]> {
+    this.throwErrorIfNoConnection();
     const databases: DatabaseModel[] = [];
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
+    const query = "SELECT database_name FROM information_schema.databases";
+    const statement = await this.context.connection!.execute(query);
+    const { data } = await statement.streamResult();
 
-    let hasNextPage = false;
-    let cursor = "";
-    do {
-      const query = cursor
-        ? `?${new URLSearchParams({ "page.after": cursor })}`
-        : "";
-      const url = `${apiEndpoint}/${ACCOUNT_DATABASES(accountId)}${query}`;
-      const data = await httpClient
-        .request<ResultsPage<Database>>("GET", url)
-        .ready();
+    // TODO: getting ABORT_ERR here?
+    data.on("error", error => {
+      console.log(error);
+    });
 
-      hasNextPage = data.page.has_next_page;
-
-      for (const edge of data.edges) {
-        cursor = edge.cursor;
-        databases.push(new DatabaseModel(this.context, edge.node));
-      }
-    } while (hasNextPage);
+    for await (const row of data) {
+      const database = {
+        name: row[0] as string
+      };
+      databases.push(new DatabaseModel(this.context, database));
+    }
 
     return databases;
   }

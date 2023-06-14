@@ -1,39 +1,31 @@
-import { Context } from "../../types";
-import { ACCOUNT, ACCOUNT_BY_NAME } from "../../common/api";
+import { RMContext } from "../../types";
 
 export class AccountService {
-  private context: Context;
+  private context: RMContext;
 
   id!: string;
   name!: string;
 
-  constructor(context: Context) {
+  constructor(context: RMContext) {
     this.context = context;
+  }
+
+  // TODO: find a unified place for this
+  private throwErrorIfNoConnection() {
+    if (typeof this.context.connection == "undefined") {
+      throw new Error(
+        "Can't execute a resource manager operation. Did you run authenticate()?"
+      );
+    }
   }
 
   async setAccountName(account: string) {
     this.name = account;
   }
 
-  async resolveAccountId(account?: string) {
-    const { httpClient, apiEndpoint } = this.context;
-    if (account) {
-      const queryParams = new URLSearchParams({ account_name: account });
-      const url = `${apiEndpoint}/${ACCOUNT_BY_NAME}?${queryParams}`;
-      const { account_id } = await httpClient
-        .request<{ account_id: string }>("GET", url)
-        .ready();
-      this.id = account_id;
-      return account_id;
-    } else {
-      const url = `${apiEndpoint}/${ACCOUNT}`;
-      const {
-        account: { id }
-      } = await httpClient
-        .request<{ account: { id: string } }>("GET", url)
-        .ready();
-      this.id = id;
-      return id;
-    }
+  async resolveAccountId(accountName: string) {
+    this.throwErrorIfNoConnection();
+    this.id = await this.context.connection!.resolveAccountId(accountName);
+    return this.id;
   }
 }

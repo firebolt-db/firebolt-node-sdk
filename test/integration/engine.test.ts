@@ -1,4 +1,8 @@
-import { Firebolt, FireboltResourceManager } from "../../src/index";
+import {
+  EngineStatusSummary,
+  Firebolt,
+  FireboltResourceManager
+} from "../../src/index";
 
 const authOptions = {
   client_id: process.env.FIREBOLT_CLIENT_ID as string,
@@ -8,31 +12,37 @@ const authOptions = {
 const connectionOptions = {
   auth: authOptions,
   account: process.env.FIREBOLT_ACCOUNT as string,
-  database: process.env.FIREBOLT_DATABASE as string,
-  engineName: process.env.FIREBOLT_ENGINE_NAME as string
+  database: process.env.FIREBOLT_DATABASE as string
 };
 
 jest.setTimeout(20000);
 
 describe("engine integration", () => {
-  it("starts engine", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
+  it(
+    "stops engine",
+    async () => {
+      const firebolt = Firebolt({
+        apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+      });
 
-    await firebolt.connect(connectionOptions);
+      await firebolt.connect(connectionOptions);
 
-    const engine = await firebolt.resourceManager.engine.getByName(
-      process.env.FIREBOLT_ENGINE_NAME as string
-    );
+      const engine = await firebolt.resourceManager.engine.getByName(
+        process.env.FIREBOLT_ENGINE_NAME as string
+      );
 
-    const {
-      engine: { name }
-    } = await engine.start();
+      expect(engine?.current_status_summary).toEqual(
+        EngineStatusSummary.RUNNING
+      );
 
-    expect(name).toEqual(process.env.FIREBOLT_ENGINE_NAME);
-  });
+      await engine.stop();
 
+      expect(engine?.current_status_summary).toEqual(
+        EngineStatusSummary.STOPPED
+      );
+    },
+    10 * 60 * 1000
+  );
   it(
     "starts engine and waits for it to be ready",
     async () => {
@@ -46,9 +56,15 @@ describe("engine integration", () => {
         process.env.FIREBOLT_ENGINE_NAME as string
       );
 
+      expect(engine?.current_status_summary).toEqual(
+        EngineStatusSummary.STOPPED
+      );
+
       await engine.startAndWait();
 
-      expect(engine.current_status_summary.includes("RUNNING")).toBe(true);
+      expect(engine?.current_status_summary).toEqual(
+        EngineStatusSummary.RUNNING
+      );
     },
     10 * 60 * 1000
   );
@@ -85,20 +101,6 @@ describe("engine resource manager", () => {
     expect(
       engines.find(engine => process.env.FIREBOLT_ENGINE_NAME === engine.name)
     ).toBeTruthy();
-  });
-
-  it("retrieves the engine description", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-
-    await firebolt.connect(connectionOptions);
-
-    const engine = await firebolt.resourceManager.engine.getByName(
-      process.env.FIREBOLT_ENGINE_NAME as string
-    );
-
-    expect(typeof engine.description).toEqual("string");
   });
 
   it("use separate firebolt resource client", async () => {

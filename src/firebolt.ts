@@ -43,12 +43,7 @@ export const FireboltClient = (dependencies: Dependencies) => {
   return (options: FireboltClientOptions = {}) => {
     const context = getContext(options, dependencies);
 
-    const instanceContext = {
-      ...context,
-      resourceManager: new ResourceManager(context)
-    };
-
-    const instance = new FireboltCore(instanceContext, options);
+    const instance = new FireboltCore(context, options);
     return instance;
   };
 };
@@ -56,7 +51,7 @@ export const FireboltClient = (dependencies: Dependencies) => {
 export const ResourceClient = (dependencies: Dependencies) => {
   return (options: FireboltClientOptions = {}) => {
     const context = getContext(options, dependencies);
-    const resourceManager = new ResourceManager(context);
+    const resourceManager = new ResourceManager(context, undefined);
     return resourceManager;
   };
 };

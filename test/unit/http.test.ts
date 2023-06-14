@@ -40,7 +40,7 @@ describe("http client", () => {
       queryFormatter
     });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
         auth: {
           client_id: "user",
@@ -64,7 +64,7 @@ describe("http client", () => {
       queryFormatter
     });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
         auth: {
           accessToken: "custom_access_token"
@@ -94,7 +94,7 @@ describe("http client", () => {
       queryFormatter
     });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
         auth: {
           client_id: "user",
@@ -125,7 +125,7 @@ describe("http client", () => {
       queryFormatter
     });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
         auth: {
           client_id: "user",

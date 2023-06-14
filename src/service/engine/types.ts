@@ -1,25 +1,28 @@
-export type ID = { engine_id: string; account_id: string };
-
 export type Engine = {
-  id: ID;
   name: string;
-  description: string;
   endpoint: string;
   current_status_summary: EngineStatusSummary;
 };
 
+export function processEngineStatus(
+  value: string
+): EngineStatusSummary | undefined {
+  const enumKey = Object.keys(EngineStatusSummary).find(
+    key =>
+      EngineStatusSummary[key as keyof typeof EngineStatusSummary] === value
+  );
+  if (enumKey !== undefined) {
+    return EngineStatusSummary[enumKey as keyof typeof EngineStatusSummary];
+  }
+  return undefined;
+}
+
 export enum EngineStatusSummary {
-  DELETED = "ENGINE_STATUS_SUMMARY_DELETED",
-  DELETING = "ENGINE_STATUS_SUMMARY_DELETING",
-  FAILED = "ENGINE_STATUS_SUMMARY_FAILED",
-  REPAIRING = "ENGINE_STATUS_SUMMARY_REPAIRING",
-  RESTARTING = "ENGINE_STATUS_SUMMARY_RESTARTING",
-  RESTARTING_INITIALIZING = "ENGINE_STATUS_SUMMARY_RESTARTING_INITIALIZING",
-  RUNNING = "ENGINE_STATUS_SUMMARY_RUNNING",
-  STARTING = "ENGINE_STATUS_SUMMARY_STARTING",
-  STARTING_INITIALIZING = "ENGINE_STATUS_SUMMARY_STARTING_INITIALIZING",
-  STOPPED = "ENGINE_STATUS_SUMMARY_STOPPED",
-  STOPPING = "ENGINE_STATUS_SUMMARY_STOPPING",
-  UNSPECIFIED = "ENGINE_STATUS_SUMMARY_UNSPECIFIED",
-  UPGRADING = "ENGINE_STATUS_SUMMARY_UPGRADING"
+  DELETING = "Dropping",
+  REPAIRING = "Repairing",
+  RUNNING = "Running",
+  STARTING = "Starting",
+  STARTING_INITIALIZING = "Started",
+  STOPPED = "Stopped",
+  STOPPING = "Stopping"
 }

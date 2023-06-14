@@ -11,22 +11,19 @@ export class FireboltCore {
   constructor(context: Context, options: FireboltClientOptions) {
     this.context = context;
     this.options = options;
-    this.resourceManager = context.resourceManager;
+    this.resourceManager = new ResourceManager(this.context, undefined);
   }
 
   async connect(connectionOptions: ConnectionOptions) {
-    const { account } = connectionOptions;
-    this.resourceManager.account.name = account;
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
+    this.resourceManager = new ResourceManager(this.context, connection);
     return connection;
   }
 
   async testConnection(connectionOptions: ConnectionOptions) {
-    const { account } = connectionOptions;
-    this.resourceManager.account.name = account;
     const auth = new Authenticator(this.context, connectionOptions);
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
