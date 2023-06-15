@@ -131,15 +131,6 @@ export class Connection {
     return res[0];
   }
 
-  private async getAccountId(accountName: string): Promise<string> {
-    const { apiEndpoint, httpClient } = this.context;
-    const url = `${apiEndpoint}/${ACCOUNT_ID_BY_NAME(accountName)}`;
-    const { id } = await httpClient
-      .request<{ id: string; region: string }>("GET", url)
-      .ready();
-    return id;
-  }
-
   async resolveAccountId(accountName: string) {
     const { httpClient, apiEndpoint } = this.context;
     const url = `${apiEndpoint}/${ACCOUNT_ID_BY_NAME(accountName)}`;
@@ -204,10 +195,6 @@ export class Connection {
 
     const queryParams = new URLSearchParams(paramsWithValue);
     return `${this.engineEndpoint}?${queryParams}`;
-  }
-
-  private getRequestBody(query: string) {
-    return query.trim();
   }
 
   async execute(
