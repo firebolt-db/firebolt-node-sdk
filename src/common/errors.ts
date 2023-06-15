@@ -78,3 +78,19 @@ export class AccessError extends Error {
     this.message = message;
   }
 }
+
+export class ConnectionError extends Error {
+  message: string;
+  constructor({ message }: { message: string }) {
+    super(message);
+    this.message = message;
+  }
+}
+
+export class DeprecationError extends Error {
+  message: string;
+  constructor({ message }: { message: string }) {
+    super(message);
+    this.message = message;
+  }
+}

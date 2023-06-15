@@ -1,3 +1,8 @@
+import {
+  AuthenticationError,
+  ConnectionError,
+  DeprecationError
+} from "../../common/errors";
 import { RMContext } from "../../types";
 import { DatabaseModel } from "./model";
 
@@ -10,22 +15,29 @@ export class DatabaseService {
 
   private throwErrorIfNoConnection() {
     if (typeof this.context.connection == "undefined") {
-      throw new Error(
-        "Can't execute a resource manager operation. Did you run authenticate()?"
-      );
+      throw new AuthenticationError({
+        message:
+          "Can't execute a resource manager operation. Did you run authenticate()?"
+      });
     }
   }
 
   private async getDatabaseId(databaseName: string) {
-    throw new Error("Can't call getDatabaseId as database IDs are deprecated");
+    throw new DeprecationError({
+      message: "Can't call getDatabaseId as database IDs are deprecated"
+    });
   }
 
   async getDefaultEndpointByName(name: string) {
-    throw new Error("Default engines are no longer supported");
+    throw new DeprecationError({
+      message: "Default engines are no longer supported"
+    });
   }
 
   async getById(databaseId: string): Promise<DatabaseModel> {
-    throw new Error("Can't call getById as database IDs are deprecated");
+    throw new DeprecationError({
+      message: "Can't call getById as database IDs are deprecated"
+    });
   }
 
   async getByName(databaseName: string): Promise<DatabaseModel> {
@@ -38,9 +50,9 @@ export class DatabaseService {
     const statement = await this.context.connection!.execute(query);
     const { data } = await statement.fetchResult();
     if (data.length == 0) {
-      throw new Error(
-        `Database ${databaseName} not found or is not accessbile`
-      );
+      throw new ConnectionError({
+        message: `Database ${databaseName} not found or is not accessbile`
+      });
     }
     const firstRow = data[0] as unknown[];
     const database = {

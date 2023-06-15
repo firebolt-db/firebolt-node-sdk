@@ -1,3 +1,4 @@
+import { ConnectionError, DeprecationError } from "../../common/errors";
 import { RMContext } from "../../types";
 import { Engine, EngineStatusSummary, processEngineStatus } from "./types";
 
@@ -46,7 +47,9 @@ export class EngineModel {
 
   async restart() {
     // TODO: is this right?
-    throw new Error("Restart engine is no longer programmatically supported");
+    throw new DeprecationError({
+      message: "Restart engine is no longer programmatically supported"
+    });
   }
 
   private async refreshStatus() {
@@ -56,7 +59,9 @@ export class EngineModel {
     const statement = await this.context.connection!.execute(query);
     const { data } = await statement.fetchResult();
     if (data.length == 0) {
-      throw new Error(`Engine ${this.name} not found or is not accessbile`);
+      throw new ConnectionError({
+        message: `Engine ${this.name} not found or is not accessbile`
+      });
     }
     const firstRow = data[0] as unknown[];
     const status = processEngineStatus(firstRow[0] as string);

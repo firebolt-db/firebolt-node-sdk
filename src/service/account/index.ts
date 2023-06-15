@@ -1,3 +1,4 @@
+import { AuthenticationError } from "../../common/errors";
 import { RMContext } from "../../types";
 
 export class AccountService {
@@ -13,9 +14,10 @@ export class AccountService {
   // TODO: find a unified place for this
   private throwErrorIfNoConnection() {
     if (typeof this.context.connection == "undefined") {
-      throw new Error(
-        "Can't execute a resource manager operation. Did you run authenticate()?"
-      );
+      throw new AuthenticationError({
+        message:
+          "Can't execute a resource manager operation. Did you run authenticate()?"
+      });
     }
   }
 

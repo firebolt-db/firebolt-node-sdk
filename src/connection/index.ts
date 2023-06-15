@@ -6,7 +6,7 @@ import {
 } from "../types";
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
-import { AccessError } from "../common/errors";
+import { AccessError, ConnectionError } from "../common/errors";
 import {
   ACCOUNT_ID_BY_NAME,
   ACCOUNT_SYSTEM_ENGINE,
@@ -71,7 +71,7 @@ export class Connection {
     const statement = await this.execute(query);
     const { data } = await statement.fetchResult();
     if (data.length == 0) {
-      throw new Error(`Engine ${engineName} not found.`);
+      throw new ConnectionError({ message: `Engine ${engineName} not found.` });
     }
     const filteredRows = [];
     for (const row of data) {
@@ -80,9 +80,9 @@ export class Connection {
       }
     }
     if (filteredRows.length == 0) {
-      throw new Error(
-        `Engine ${engineName} is not attached to ${databaseName}.`
-      );
+      throw new ConnectionError({
+        message: `Engine ${engineName} is not attached to ${databaseName}.`
+      });
     }
     if (filteredRows.length > 1) {
       throw new Error(
@@ -90,7 +90,9 @@ export class Connection {
       );
     }
     if ((filteredRows[0] as string[])[3] != "Running") {
-      throw new Error(`Engine ${engineName} is not running`);
+      throw new ConnectionError({
+        message: `Engine ${engineName} is not running`
+      });
     }
     return (filteredRows[0] as string[])[0];
   }

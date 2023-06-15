@@ -1,3 +1,8 @@
+import {
+  AuthenticationError,
+  ConnectionError,
+  DeprecationError
+} from "../../common/errors";
 import { RMContext } from "../../types";
 import { EngineModel } from "./model";
 import { EngineStatusSummary } from "./types";
@@ -10,14 +15,17 @@ export class EngineService {
   }
 
   async getById(engineId: string) {
-    throw new Error("Can't call getById as engine IDs are deprecated");
+    throw new DeprecationError({
+      message: "Can't call getById as engine IDs are deprecated"
+    });
   }
 
   private throwErrorIfNoConnection() {
     if (typeof this.context.connection == "undefined") {
-      throw new Error(
-        "Can't execute a resource manager operation. Did you run authenticate()?"
-      );
+      throw new AuthenticationError({
+        message:
+          "Can't execute a resource manager operation. Did you run authenticate()?"
+      });
     }
   }
 
@@ -29,7 +37,9 @@ export class EngineService {
     const statement = await this.context.connection!.execute(query);
     const { data } = await statement.fetchResult();
     if (data.length == 0) {
-      throw new Error(`Engine ${engineName} not found or is not accessbile`);
+      throw new ConnectionError({
+        message: `Engine ${engineName} not found or is not accessbile`
+      });
     }
     const firstRow = data[0] as unknown[];
     const status: EngineStatusSummary = firstRow[2] as EngineStatusSummary;

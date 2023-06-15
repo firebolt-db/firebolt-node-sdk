@@ -1,3 +1,4 @@
+import { DeprecationError } from "../../common/errors";
 import { Context } from "../../types";
 import { Database } from "./types";
 
@@ -13,6 +14,8 @@ export class DatabaseModel {
   }
 
   async getDefaultEndpoint(): Promise<string> {
-    throw new Error("Default endpoint concept no longer exists for databases.");
+    throw new DeprecationError({
+      message: "Default endpoint concept no longer exists for databases."
+    });
   }
 }
