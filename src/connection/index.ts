@@ -40,7 +40,7 @@ export class Connection {
 
   private async getSytemEngineEndpoint(): Promise<string> {
     const { apiEndpoint, httpClient } = this.context;
-    const accountName = this.options.account; // TODO: make sure this exists
+    const accountName = this.options.account;
     const url = `${apiEndpoint}/${ACCOUNT_SYSTEM_ENGINE(accountName)}`;
     const { engineUrl } = await httpClient
       .request<{ engineUrl: string }>("GET", url)
