@@ -3,18 +3,20 @@ import {
   ConnectionError,
   DeprecationError
 } from "../../common/errors";
-import { RMContext } from "../../types";
+import { Connection } from "../../connection";
+import { Context } from "../../types";
 import { DatabaseModel } from "./model";
 
 export class DatabaseService {
-  private context: RMContext;
+  private context: Context;
+  connection!: Connection;
 
-  constructor(context: RMContext) {
+  constructor(context: Context) {
     this.context = context;
   }
 
   private throwErrorIfNoConnection() {
-    if (typeof this.context.connection == "undefined") {
+    if (typeof this.connection == "undefined") {
       throw new AuthenticationError({
         message:
           "Can't execute a resource manager operation. Did you run authenticate()?"
@@ -47,7 +49,7 @@ export class DatabaseService {
       "SELECT database_name FROM information_schema.databases " +
       `WHERE database_name='${databaseName}'`;
 
-    const statement = await this.context.connection!.execute(query);
+    const statement = await this.connection.execute(query);
     const { data } = await statement.fetchResult();
     if (data.length == 0) {
       throw new ConnectionError({
@@ -65,7 +67,7 @@ export class DatabaseService {
     this.throwErrorIfNoConnection();
     const databases: DatabaseModel[] = [];
     const query = "SELECT database_name FROM information_schema.databases";
-    const statement = await this.context.connection!.execute(query);
+    const statement = await this.connection.execute(query);
     const { data } = await statement.streamResult();
 
     // TODO: getting ABORT_ERR here?

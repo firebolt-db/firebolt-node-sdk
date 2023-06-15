@@ -33,6 +33,15 @@ export class ResourceManager {
     this.engine = new EngineService(this.context);
     this.database = new DatabaseService(this.context);
     this.account = new AccountService(this.context);
+    if (connection) {
+      this.addConnectionToServices(connection);
+    }
+  }
+
+  private addConnectionToServices(connection: Connection) {
+    this.engine.connection = connection;
+    this.database.connection = connection;
+    this.account.connection = connection;
   }
 
   async authenticate(options: ConnectionOptions) {
@@ -42,9 +51,6 @@ export class ResourceManager {
     await auth.authenticate();
     const core = new FireboltCore(this.context, {});
     this.context.connection = await core.connect(options);
-    // Re-creating services since context has changed
-    this.engine = new EngineService(this.context);
-    this.database = new DatabaseService(this.context);
-    this.account = new AccountService(this.context);
+    this.addConnectionToServices(this.context.connection);
   }
 }

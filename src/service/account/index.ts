@@ -1,19 +1,21 @@
 import { AuthenticationError } from "../../common/errors";
-import { RMContext } from "../../types";
+import { Connection } from "../../connection";
+import { Context } from "../../types";
 
 export class AccountService {
-  private context: RMContext;
+  private context: Context;
 
   id!: string;
   name!: string;
+  connection!: Connection;
 
-  constructor(context: RMContext) {
+  constructor(context: Context) {
     this.context = context;
   }
 
   // TODO: find a unified place for this
   private throwErrorIfNoConnection() {
-    if (typeof this.context.connection == "undefined") {
+    if (typeof this.connection == "undefined") {
       throw new AuthenticationError({
         message:
           "Can't execute a resource manager operation. Did you run authenticate()?"
@@ -27,7 +29,7 @@ export class AccountService {
 
   async resolveAccountId(accountName: string) {
     this.throwErrorIfNoConnection();
-    this.id = await this.context.connection!.resolveAccountId(accountName);
+    this.id = await this.connection.resolveAccountId(accountName);
     return this.id;
   }
 }

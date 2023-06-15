@@ -3,14 +3,16 @@ import {
   ConnectionError,
   DeprecationError
 } from "../../common/errors";
-import { RMContext } from "../../types";
+import { Connection } from "../../connection";
+import { Context } from "../../types";
 import { EngineModel } from "./model";
 import { EngineStatusSummary } from "./types";
 
 export class EngineService {
-  private context: RMContext;
+  private context: Context;
+  connection!: Connection;
 
-  constructor(context: RMContext) {
+  constructor(context: Context) {
     this.context = context;
   }
 
@@ -21,7 +23,7 @@ export class EngineService {
   }
 
   private throwErrorIfNoConnection() {
-    if (typeof this.context.connection == "undefined") {
+    if (typeof this.connection == "undefined") {
       throw new AuthenticationError({
         message:
           "Can't execute a resource manager operation. Did you run authenticate()?"
@@ -34,7 +36,7 @@ export class EngineService {
     const query =
       "SELECT engine_name, url, status FROM information_schema.engines " +
       `WHERE engine_name='${engineName}'`;
-    const statement = await this.context.connection!.execute(query);
+    const statement = await this.connection.execute(query);
     const { data } = await statement.fetchResult();
     if (data.length == 0) {
       throw new ConnectionError({
@@ -48,7 +50,7 @@ export class EngineService {
       endpoint: firstRow[1] as string,
       current_status_summary: status
     };
-    return new EngineModel(this.context, engine);
+    return new EngineModel(this.context, this.connection, engine);
   }
 
   async getAll(): Promise<EngineModel[]> {
@@ -57,7 +59,7 @@ export class EngineService {
 
     const query =
       "SELECT engine_name, url, status FROM information_schema.engines";
-    const statement = await this.context.connection!.execute(query);
+    const statement = await this.connection.execute(query);
     const { data } = await statement.streamResult();
 
     data.on("error", error => {
@@ -70,7 +72,7 @@ export class EngineService {
         endpoint: row[1] as string,
         current_status_summary: row[2] as EngineStatusSummary
       };
-      engines.push(new EngineModel(this.context, engine));
+      engines.push(new EngineModel(this.context, this.connection, engine));
     }
 
     return engines;

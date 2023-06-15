@@ -1,24 +1,27 @@
 import { ConnectionError, DeprecationError } from "../../common/errors";
-import { RMContext } from "../../types";
+import { Connection } from "../../connection";
+import { Context } from "../../types";
 import { Engine, EngineStatusSummary, processEngineStatus } from "./types";
 
 export class EngineModel {
-  private context: RMContext;
+  private context: Context;
   name: string;
   endpoint: string;
   current_status_summary: EngineStatusSummary;
+  private connection: Connection;
 
-  constructor(context: RMContext, engine: Engine) {
+  constructor(context: Context, connection: Connection, engine: Engine) {
     const { name, endpoint, current_status_summary } = engine;
     this.name = name;
     this.endpoint = endpoint;
     this.context = context;
+    this.connection = connection;
     this.current_status_summary = current_status_summary;
   }
 
   async start() {
     const query = `START ENGINE ${this.name}`;
-    await this.context.connection!.execute(query);
+    await this.connection.execute(query);
     await this.refreshStatus();
     const res: Engine = {
       name: this.name,
@@ -35,7 +38,7 @@ export class EngineModel {
 
   async stop() {
     const query = `STOP ENGINE ${this.name}`;
-    await this.context.connection!.execute(query);
+    await this.connection.execute(query);
     await this.refreshStatus();
     const res: Engine = {
       name: this.name,
@@ -56,7 +59,7 @@ export class EngineModel {
     const query =
       "SELECT status FROM information_schema.engines " +
       `WHERE engine_name='${this.name}'`;
-    const statement = await this.context.connection!.execute(query);
+    const statement = await this.connection.execute(query);
     const { data } = await statement.fetchResult();
     if (data.length == 0) {
       throw new ConnectionError({
