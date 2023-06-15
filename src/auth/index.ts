@@ -13,8 +13,8 @@ type Login = {
   expires_in: number;
 };
 
-const authAudience = "https://api.firebolt.io";
-const authGrantType = "client_credentials";
+const AUTH_AUDIENCE = "https://api.firebolt.io";
+const AUTH_GRANT_TYPE = "client_credentials";
 
 export class Authenticator {
   context: Context;
@@ -44,7 +44,7 @@ export class Authenticator {
   }
 
   getAuthEndpoint(apiEndpoint: string) {
-    const myURL = new URL(assignProtocol(apiEndpoint)); // TODO: don't rely hardcoded str
+    const myURL = new URL(assignProtocol(apiEndpoint));
     const hostStrings = myURL.hostname.split(".");
     // We expect an apiEndpoint to be of format api.<env>.firebolt.io
     // Since we got something else, assume it's a test
@@ -64,8 +64,8 @@ export class Authenticator {
     const params = new URLSearchParams({
       client_id,
       client_secret,
-      grant_type: authGrantType,
-      audience: authAudience
+      grant_type: AUTH_GRANT_TYPE,
+      audience: AUTH_AUDIENCE
     });
     const url = `${authEndpoint}${SERVICE_ACCOUNT_LOGIN}`;
 
