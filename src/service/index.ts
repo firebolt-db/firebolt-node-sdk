@@ -5,12 +5,12 @@ import { EngineService } from "./engine";
 import { AccountService } from "./account";
 import { Authenticator } from "../auth";
 import { QueryFormatter } from "../formatter";
-import { ConnectionOptions, RMContext } from "../types";
+import { ConnectionOptions, Context } from "../types";
 import { Connection } from "../connection";
 import { FireboltCore } from "../core";
 
 export class ResourceManager {
-  private context: RMContext;
+  private context: Context;
   accountName!: string;
   engine: EngineService;
   database: DatabaseService;
@@ -25,11 +25,7 @@ export class ResourceManager {
     },
     connection: Connection | undefined = undefined
   ) {
-    this.context = {
-      ...context,
-      resourceManager: this,
-      connection: connection
-    };
+    this.context = context;
     this.engine = new EngineService(this.context);
     this.database = new DatabaseService(this.context);
     this.account = new AccountService(this.context);
@@ -50,7 +46,7 @@ export class ResourceManager {
     const auth = new Authenticator(this.context, options);
     await auth.authenticate();
     const core = new FireboltCore(this.context, {});
-    this.context.connection = await core.connect(options);
-    this.addConnectionToServices(this.context.connection);
+    const connection = await core.connect(options);
+    this.addConnectionToServices(connection);
   }
 }
