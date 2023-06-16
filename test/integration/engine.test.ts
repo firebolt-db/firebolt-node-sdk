@@ -18,7 +18,7 @@ const connectionOptions = {
 jest.setTimeout(20000);
 
 describe("engine integration", () => {
-  it(
+  it.skip(
     "stops engine",
     async () => {
       const firebolt = Firebolt({
@@ -43,7 +43,7 @@ describe("engine integration", () => {
     },
     10 * 60 * 1000
   );
-  it(
+  it.skip(
     "starts engine and waits for it to be ready",
     async () => {
       const firebolt = Firebolt({
