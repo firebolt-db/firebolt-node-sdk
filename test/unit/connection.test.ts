@@ -137,7 +137,6 @@ describe("Connection", () => {
   });
 
   it("no database and correct engine", async () => {
-    // not implemented yet
     const connectionParams: ConnectionOptions = {
       auth: {
         client_id: "dummy",
@@ -287,7 +286,6 @@ describe("Connection", () => {
   });
 
   it("stopped engine", async () => {
-    // Should it break?
     const connectionParams: ConnectionOptions = {
       auth: {
         client_id: "dummy",
