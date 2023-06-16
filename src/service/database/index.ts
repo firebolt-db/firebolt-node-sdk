@@ -44,9 +44,8 @@ export class DatabaseService {
 
   async getByName(databaseName: string): Promise<DatabaseModel> {
     this.throwErrorIfNoConnection();
-    // TODO: not sure how useful this is currently?
     const query =
-      "SELECT database_name FROM information_schema.databases " +
+      "SELECT database_name, description FROM information_schema.databases " +
       `WHERE database_name='${databaseName}'`;
 
     const statement = await this.connection.execute(query);
@@ -58,7 +57,8 @@ export class DatabaseService {
     }
     const firstRow = data[0] as unknown[];
     const database = {
-      name: firstRow[0] as string
+      name: firstRow[0] as string,
+      description: firstRow[1] as string
     };
     return new DatabaseModel(this.context, database);
   }
@@ -66,7 +66,8 @@ export class DatabaseService {
   async getAll(): Promise<DatabaseModel[]> {
     this.throwErrorIfNoConnection();
     const databases: DatabaseModel[] = [];
-    const query = "SELECT database_name FROM information_schema.databases";
+    const query =
+      "SELECT database_name, description FROM information_schema.databases";
     const statement = await this.connection.execute(query);
     const { data } = await statement.streamResult();
 
@@ -77,7 +78,8 @@ export class DatabaseService {
 
     for await (const row of data) {
       const database = {
-        name: row[0] as string
+        name: row[0] as string,
+        description: row[1] as string
       };
       databases.push(new DatabaseModel(this.context, database));
     }
