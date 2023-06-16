@@ -102,12 +102,3 @@ export type Context = {
   queryFormatter: QueryFormatter;
   apiEndpoint: string;
 };
-
-export type RMContext = {
-  logger: LoggerInterface;
-  httpClient: HttpClientInterface;
-  resourceManager: ResourceManager;
-  queryFormatter: QueryFormatter;
-  apiEndpoint: string;
-  connection: Connection | undefined;
-};
