@@ -7,6 +7,7 @@ export type Engine = {
 export function processEngineStatus(
   value: string
 ): EngineStatusSummary | undefined {
+  // Translate status from db to an EngineStatusSummary object
   const enumKey = Object.keys(EngineStatusSummary).find(
     key =>
       EngineStatusSummary[key as keyof typeof EngineStatusSummary] === value
