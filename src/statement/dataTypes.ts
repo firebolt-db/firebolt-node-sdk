@@ -87,8 +87,26 @@ export const getFireboltType = (type: string): string => {
   const match = key.match(COMPLEX_TYPE);
   if (match) {
     const [_, outerType, innerType] = match;
+    if (innerType.match(COMPLEX_TYPE)) {
+      return getFireboltType(innerType);
+    }
     const mappedType = getMappedType(innerType);
     return mappedType ? `${outerType}(${mappedType})` : key;
+  }
+  const mappedType = getMappedType(key);
+  return mappedType || key;
+};
+
+export const getInnerType = (type: string): string => {
+  const key = type.toLowerCase();
+  const match = key.match(COMPLEX_TYPE);
+  if (match) {
+    const [_, _outerType, innerType] = match;
+    if (innerType.match(COMPLEX_TYPE)) {
+      return getInnerType(innerType);
+    }
+    const mappedType = getMappedType(innerType);
+    return mappedType || innerType;
   }
   const mappedType = getMappedType(key);
   return mappedType || key;

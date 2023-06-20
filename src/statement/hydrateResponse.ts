@@ -1,15 +1,25 @@
 import BigNumber from "bignumber.js";
 import { ExecuteQueryOptions, Row } from "../types";
 import { Meta } from "../meta";
-import { isByteAType, isDateType, isNumberType } from "./dataTypes";
+import {
+  isByteAType,
+  isDateType,
+  isNumberType,
+  getInnerType
+} from "./dataTypes";
 import { hydrateDate } from "./hydrateDate";
 
 const getHydratedValue = (
   value: unknown,
-  meta: Meta,
+  type: string,
   executeQueryOptions: ExecuteQueryOptions
-) => {
-  const { type } = meta;
+): any => {
+  if (Array.isArray(value)) {
+    const innerType = getInnerType(type);
+    return value.map(element =>
+      getHydratedValue(element, innerType, executeQueryOptions)
+    );
+  }
   if (isDateType(type)) {
     return value ? hydrateDate(value as string) : value;
   }
@@ -44,14 +54,14 @@ export const hydrateRow = (
       const key = +index;
       (hydratedRow as unknown[])[key] = getHydratedValue(
         row[key],
-        column,
+        column.type,
         executeQueryOptions
       );
     } else {
       const key = column.name;
       (hydratedRow as Record<string, unknown>)[key] = getHydratedValue(
         row[key],
-        column,
+        column.type,
         executeQueryOptions
       );
     }
