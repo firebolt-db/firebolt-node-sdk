@@ -36,4 +36,26 @@ describe("integration test", () => {
     expect(long_type.type).toEqual("long");
     expect(array_type.type).toEqual("array(int)");
   });
+  it("hydrates arrays", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+
+    const statement = await connection.execute(
+      `select
+'2023-06-20 14:50:00'::TIMESTAMPNTZ as ts,
+['2023-06-20 14:50:00'::TIMESTAMPNTZ] as ts_array,
+['2023-06-20 14:50:00'::TIMESTAMPNTZ, NULL] as nullable_ts_array;`
+    );
+
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(1);
+    const row = data[0];
+    const [ts, ts_array, nullable_ts_array] = row as unknown[];
+    expect(ts instanceof Date).toEqual(true);
+    expect((ts_array as unknown[])[0] instanceof Date).toEqual(true);
+    expect((nullable_ts_array as unknown[])[0] instanceof Date).toEqual(true);
+  });
 });
