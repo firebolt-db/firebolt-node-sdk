@@ -135,7 +135,7 @@ type ConnectionOptions = {
 
 <a id="enginename"></a>
 #### engineName
-You can omit `engineName` to use the system engine, which is always on and execute AQL queries on it.
+You can omit `engineName` and execute AQL queries on such connection.
 
 <a id="accesstoken"></a>
 #### AccessToken
