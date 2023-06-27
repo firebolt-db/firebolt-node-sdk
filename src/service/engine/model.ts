@@ -49,7 +49,6 @@ export class EngineModel {
   }
 
   async restart() {
-    // TODO: is this right?
     throw new DeprecationError({
       message: "Restart engine is no longer programmatically supported"
     });
