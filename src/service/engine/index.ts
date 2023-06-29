@@ -43,14 +43,12 @@ export class EngineService {
         message: `Engine ${engineName} not found or is not accessbile`
       });
     }
-    const firstRow = data[0] as unknown[];
-    const status: EngineStatusSummary = firstRow[2] as EngineStatusSummary;
-    const engine = {
-      name: firstRow[0] as string,
-      endpoint: firstRow[1] as string,
-      current_status_summary: status
-    };
-    return new EngineModel(this.context, this.connection, engine);
+    const [name, endpoint, status] = data[0] as string[];
+    return new EngineModel(this.context, this.connection, {
+      name,
+      endpoint,
+      current_status_summary: status as EngineStatusSummary
+    });
   }
 
   async getAll(): Promise<EngineModel[]> {
