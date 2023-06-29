@@ -12,10 +12,6 @@ const engineUrlResponse = {
       type: "Text"
     },
     {
-      name: "attached_to",
-      type: "Text"
-    },
-    {
       name: "database_name",
       type: "Text"
     },
@@ -24,7 +20,7 @@ const engineUrlResponse = {
       type: "Text"
     }
   ],
-  data: [["https://some_engine.com", "dummy", "dummy", "Running"]],
+  data: [["https://some_engine.com", "dummy", "Running"]],
   rows: 1
 };
 
@@ -156,7 +152,6 @@ describe("Connection", () => {
       JSON.stringify(engineUrlResponse)
     );
     engineUrlResponseOverride.data[0][1] = "dummy2";
-    engineUrlResponseOverride.data[0][2] = "dummy2";
 
     server.use(
       rest.post("https://some_engine.com", (req, res, ctx) => {
@@ -167,7 +162,7 @@ describe("Connection", () => {
       rest.post(
         `https://some_system_engine.com/dynamic/query`,
         (req, res, ctx) => {
-          if (req.body?.startsWith("SELECT engs.url, engs.attached_to")) {
+          if (req.body?.startsWith("SELECT engs.url, dbs.database_name")) {
             return res(ctx.json(engineUrlResponseOverride));
           } else {
             return res(ctx.json(selectAttachedToResponse));
@@ -300,7 +295,7 @@ describe("Connection", () => {
     });
 
     const stoppedEngineResponse = JSON.parse(JSON.stringify(engineUrlResponse));
-    stoppedEngineResponse.data[0][3] = "Stopped";
+    stoppedEngineResponse.data[0][2] = "Stopped";
 
     server.use(
       rest.post(

@@ -63,7 +63,7 @@ export class Connection {
     databaseName: string
   ): Promise<string> {
     const query =
-      "SELECT engs.url, engs.attached_to, dbs.database_name, engs.status " +
+      "SELECT engs.url, dbs.database_name, engs.status " +
       "FROM information_schema.engines as engs " +
       "LEFT JOIN information_schema.databases as dbs " +
       "ON engs.attached_to = dbs.database_name " +
@@ -75,7 +75,8 @@ export class Connection {
     }
     const filteredRows = [];
     for (const row of data) {
-      if ((row as string[])[2] == databaseName) {
+      const [, engintDbName, ,] = row as string[];
+      if (engintDbName == databaseName) {
         filteredRows.push(row);
       }
     }
@@ -89,12 +90,13 @@ export class Connection {
         `Unexpected duplicate entries found for ${engineName} and database ${databaseName}`
       );
     }
-    if ((filteredRows[0] as string[])[3] != "Running") {
+    const [engineUrl, , status] = filteredRows[0] as string[];
+    if (status != "Running") {
       throw new ConnectionError({
         message: `Engine ${engineName} is not running`
       });
     }
-    return (filteredRows[0] as string[])[0];
+    return engineUrl;
   }
 
   private async getEngineByNameAndDb(
