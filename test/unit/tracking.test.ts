@@ -2,6 +2,7 @@ import { setupServer } from "msw/node";
 import { rest } from "msw";
 import { Firebolt } from "../../src/index";
 import { ConnectionOptions } from "../../src/types";
+import { QUERY_URL } from "../../src/common/api";
 
 const apiEndpoint = "fake.api.com";
 
@@ -60,7 +61,7 @@ describe("connection user agent", () => {
 
     server.use(
       rest.post(
-        "https://some_system_engine.com/dynamic/query",
+        `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           expect(req.headers.get("user-agent")).toContain("NodeSDK");
           return res(ctx.status(200), ctx.json({ data: [] }));
@@ -90,7 +91,7 @@ describe("connection user agent", () => {
 
     server.use(
       rest.post(
-        "https://some_system_engine.com/dynamic/query",
+        `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           expect(req.headers.get("user-agent")).toContain("NodeSDK");
           expect(req.headers.get("user-agent")).toContain("ClientA/1.1.1");

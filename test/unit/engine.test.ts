@@ -4,6 +4,7 @@ import { NodeHttpClient } from "../../src/http/node";
 import { Logger } from "../../src/logger/node";
 import { ResourceManager } from "../../src/service";
 import { QueryFormatter } from "../../src/formatter";
+import { QUERY_URL } from "../../src/common/api";
 
 const apiEndpoint = "api.fake.firebolt.io";
 const logger = new Logger();
@@ -64,7 +65,7 @@ describe("engine service", () => {
     ),
     // Query against system engine
     rest.post(
-      `https://some_system_engine.com/dynamic/query`,
+      `https://some_system_engine.com/${QUERY_URL}`,
       (req, res, ctx) => {
         return res(ctx.json(selectEngineResponse));
       }
@@ -113,7 +114,7 @@ describe("engine service", () => {
     server.use(
       // Query against system engine
       rest.post(
-        `https://some_system_engine.com/dynamic/query`,
+        `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           if (req.body?.startsWith("START ENGINE " + expectedEngine)) {
             startEngineCalled = true;
@@ -167,7 +168,7 @@ describe("engine service", () => {
     server.use(
       // Query against system engine
       rest.post(
-        `https://some_system_engine.com/dynamic/query`,
+        `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           if (req.body?.startsWith("STOP ENGINE " + expectedEngine)) {
             stopEngineCalled = true;

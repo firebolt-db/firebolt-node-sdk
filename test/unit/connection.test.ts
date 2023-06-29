@@ -2,6 +2,7 @@ import { setupServer } from "msw/node";
 import { rest } from "msw";
 import { Firebolt } from "../../src/index";
 import { ConnectionOptions } from "../../src/types";
+import { QUERY_URL } from "../../src/common/api";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -83,7 +84,7 @@ describe("Connection", () => {
       }
     ),
     rest.post(
-      `https://some_system_engine.com/dynamic/query`,
+      `https://some_system_engine.com/${QUERY_URL}`,
       (req, res, ctx) => {
         return res(ctx.json(engineUrlResponse));
       }
@@ -160,7 +161,7 @@ describe("Connection", () => {
         return res(ctx.status(200), ctx.json(selectOneResponse));
       }),
       rest.post(
-        `https://some_system_engine.com/dynamic/query`,
+        `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           if (req.body?.startsWith("SELECT engs.url, dbs.database_name")) {
             return res(ctx.json(engineUrlResponseOverride));
@@ -195,7 +196,7 @@ describe("Connection", () => {
     // Returning query result from sys engine
     server.use(
       rest.post(
-        `https://some_system_engine.com/dynamic/query`,
+        `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           if (req.body) {
             expect(req.url.toString()).not.toContain("database=");
@@ -231,7 +232,7 @@ describe("Connection", () => {
     // Returning query result from sys engine
     server.use(
       rest.post(
-        `https://some_system_engine.com/dynamic/query`,
+        `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           if (req.body) {
             expect(req.url.toString()).toContain("database=my_db");
@@ -268,7 +269,7 @@ describe("Connection", () => {
     // Revert to standard response
     server.use(
       rest.post(
-        `https://some_system_engine.com/dynamic/query`,
+        `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           return res(ctx.json(engineUrlResponse));
         }
@@ -299,7 +300,7 @@ describe("Connection", () => {
 
     server.use(
       rest.post(
-        "https://some_system_engine.com/dynamic/query",
+        `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           return res(ctx.json(stoppedEngineResponse));
         }
