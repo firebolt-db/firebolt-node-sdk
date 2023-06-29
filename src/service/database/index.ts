@@ -77,11 +77,8 @@ export class DatabaseService {
     });
 
     for await (const row of data) {
-      const database = {
-        name: row[0] as string,
-        description: row[1] as string
-      };
-      databases.push(new DatabaseModel(this.context, database));
+      const [name, description] = row as string[];
+      databases.push(new DatabaseModel(this.context, { name, description }));
     }
 
     return databases;
