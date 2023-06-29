@@ -67,12 +67,14 @@ export class EngineService {
     });
 
     for await (const row of data) {
-      const engine = {
-        name: row[0] as string,
-        endpoint: row[1] as string,
-        current_status_summary: row[2] as EngineStatusSummary
-      };
-      engines.push(new EngineModel(this.context, this.connection, engine));
+      const [name, endpoint, summary] = row as string[];
+      engines.push(
+        new EngineModel(this.context, this.connection, {
+          name,
+          endpoint,
+          current_status_summary: summary as EngineStatusSummary
+        })
+      );
     }
 
     return engines;
