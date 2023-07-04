@@ -1,20 +1,17 @@
 import { ConnectionError, DeprecationError } from "../../common/errors";
 import { Connection } from "../../connection";
-import { Context } from "../../types";
 import { Engine, EngineStatusSummary, processEngineStatus } from "./types";
 
 export class EngineModel {
-  private context: Context;
   name: string;
   endpoint: string;
   current_status_summary: EngineStatusSummary;
   private connection: Connection;
 
-  constructor(context: Context, connection: Connection, engine: Engine) {
+  constructor(connection: Connection, engine: Engine) {
     const { name, endpoint, current_status_summary } = engine;
     this.name = name;
     this.endpoint = endpoint;
-    this.context = context;
     this.connection = connection;
     this.current_status_summary = current_status_summary;
   }

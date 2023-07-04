@@ -1,13 +1,10 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { NodeHttpClient } from "../../src/http/node";
 import { Logger } from "../../src/logger/node";
-import { ResourceManager } from "../../src/service";
-import { QueryFormatter } from "../../src/formatter";
 import { QUERY_URL } from "../../src/common/api";
+import { Firebolt } from "../../src";
 
 const apiEndpoint = "api.fake.firebolt.io";
-const logger = new Logger();
 
 const selectEngineResponse = {
   meta: [
@@ -79,21 +76,15 @@ describe("engine service", () => {
   });
 
   it("gets engine by name", async () => {
-    const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
-    await resourceManager.authenticate({
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
       account: "my_account",
       auth: {
         client_id: "id",
         client_secret: "secret"
       }
     });
+    const resourceManager = firebolt.resourceManager;
     const engine = await resourceManager.engine.getByName("some_engine");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
@@ -128,22 +119,15 @@ describe("engine service", () => {
       )
     );
 
-    const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
-
-    await resourceManager.authenticate({
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
       account: "my_account",
       auth: {
         client_id: "id",
         client_secret: "secret"
       }
     });
+    const resourceManager = firebolt.resourceManager;
     const engine = await resourceManager.engine.getByName(expectedEngine);
     const {
       engine: { name: engineName }
@@ -182,22 +166,15 @@ describe("engine service", () => {
       )
     );
 
-    const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
-
-    await resourceManager.authenticate({
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
       account: "my_account",
       auth: {
         client_id: "id",
         client_secret: "secret"
       }
     });
+    const resourceManager = firebolt.resourceManager;
     const engine = await resourceManager.engine.getByName(expectedEngine);
     const {
       engine: { name: engineName }

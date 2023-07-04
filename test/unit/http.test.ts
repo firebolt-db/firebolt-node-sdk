@@ -3,7 +3,6 @@ import { rest } from "msw";
 import { Authenticator } from "../../src/auth";
 import { NodeHttpClient } from "../../src/http/node";
 import { Logger } from "../../src/logger/node";
-import { ResourceManager } from "../../src/service";
 import { QueryFormatter } from "../../src/formatter";
 
 const apiEndpoint = "api.fake.firebolt.io";
@@ -33,12 +32,6 @@ describe("http client", () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
 
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
       { queryFormatter, httpClient, apiEndpoint, logger },
       {
@@ -57,12 +50,6 @@ describe("http client", () => {
   it("supports custom accessToken", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
       { queryFormatter, httpClient, apiEndpoint, logger },
       {
@@ -87,12 +74,6 @@ describe("http client", () => {
   it("sends access token in headers", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
       { queryFormatter, httpClient, apiEndpoint, logger },
       {
@@ -118,12 +99,6 @@ describe("http client", () => {
   it("throw error if status > 300", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
       { queryFormatter, httpClient, apiEndpoint, logger },
       {

@@ -86,7 +86,6 @@ console.log(rows)
   * <a href="#database-management">Database management</a>
     * <a href="#database-getbyname">getByName</a>
     * <a href="#database">Database</a>
-* <a href="#resource-manager">Resource Manager</a>
 * <a href="#recipes">Recipes</a>
   * <a href="#streaming-results">Streaming results</a>
   * <a href="#custom-stream-transformers">Custom stream transformers</a>
@@ -415,27 +414,6 @@ const database = await firebolt.resourceManager.database.getByName("database_nam
 | `name`        | `string`                                  |       |
 | `description` | `string`                                  |       |
 
-<a id="resource-manager"></a>
-## Resource Manager
-It is possible to create `resourceManager` separately from firebolt client,
-providing only auth credentials
-
-```typescript
-import { FireboltResourceManager } from 'firebolt-sdk'
-
-const resourceManager = FireboltResourceManager();
-await resourceManager.authenticate({
-  auth: {
-    client_id: process.env.FIREBOLT_CLIENT_ID as string,
-    client_secret: process.env.FIREBOLT_CLIENT_SECRET as string,
-  },
-  account: process.env.ACCOUNT_NAME as string
-});
-
-const engine = await resourceManager.engine.getByName(
-  process.env.FIREBOLT_ENGINE_NAME as string
-);
-```
 
 <a id="recipes"></a>
 ## Recipes

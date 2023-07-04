@@ -104,12 +104,12 @@ describe("engine resource manager", () => {
   });
 
   it("use separate firebolt resource client", async () => {
-    const resourceManager = FireboltResourceManager({
+    const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
-    await resourceManager.authenticate({
-      auth: authOptions,
-      account: process.env.FIREBOLT_ACCOUNT as string
+    const connection = await firebolt.connect(connectionOptions);
+    const resourceManager = FireboltResourceManager({
+      connection
     });
     const engine = await resourceManager.engine.getByName(
       process.env.FIREBOLT_ENGINE_NAME as string

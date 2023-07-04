@@ -1,27 +1,12 @@
-import {
-  AuthenticationError,
-  ConnectionError,
-  DeprecationError
-} from "../../common/errors";
-import { Connection } from "../../connection";
-import { Context } from "../../types";
+import { ConnectionError, DeprecationError } from "../../common/errors";
+import { ResourceManagerContext } from "../../types";
 import { DatabaseModel } from "./model";
 
 export class DatabaseService {
-  private context: Context;
-  connection!: Connection;
+  context: ResourceManagerContext;
 
-  constructor(context: Context) {
+  constructor(context: ResourceManagerContext) {
     this.context = context;
-  }
-
-  private throwErrorIfNoConnection() {
-    if (typeof this.connection == "undefined") {
-      throw new AuthenticationError({
-        message:
-          "Can't execute a resource manager operation. Did you run authenticate()?"
-      });
-    }
   }
 
   private async getDatabaseId(databaseName: string) {
@@ -43,32 +28,26 @@ export class DatabaseService {
   }
 
   async getByName(databaseName: string): Promise<DatabaseModel> {
-    this.throwErrorIfNoConnection();
     const query =
       "SELECT database_name, description FROM information_schema.databases " +
       `WHERE database_name='${databaseName}'`;
 
-    const statement = await this.connection.execute(query);
+    const statement = await this.context.connection.execute(query);
     const { data } = await statement.fetchResult();
     if (data.length == 0) {
       throw new ConnectionError({
         message: `Database ${databaseName} not found or is not accessbile`
       });
     }
-    const firstRow = data[0] as unknown[];
-    const database = {
-      name: firstRow[0] as string,
-      description: firstRow[1] as string
-    };
-    return new DatabaseModel(this.context, database);
+    const [name, description] = data[0] as string[];
+    return new DatabaseModel({ name, description });
   }
 
   async getAll(): Promise<DatabaseModel[]> {
-    this.throwErrorIfNoConnection();
     const databases: DatabaseModel[] = [];
     const query =
       "SELECT database_name, description FROM information_schema.databases";
-    const statement = await this.connection.execute(query);
+    const statement = await this.context.connection.execute(query);
     const { data } = await statement.streamResult();
 
     // TODO: getting ABORT_ERR here?
@@ -78,7 +57,7 @@ export class DatabaseService {
 
     for await (const row of data) {
       const [name, description] = row as string[];
-      databases.push(new DatabaseModel(this.context, { name, description }));
+      databases.push(new DatabaseModel({ name, description }));
     }
 
     return databases;

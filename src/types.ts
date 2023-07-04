@@ -2,7 +2,6 @@ import BigNumber from "bignumber.js";
 import { HttpClientInterface, HttpClientOptions } from "./http";
 
 import { LoggerInterface, LoggerOptions } from "./logger";
-import { ResourceManager } from "./service";
 import { Meta } from "./meta";
 import { QueryFormatter } from "./formatter";
 import { Connection } from "./connection";
@@ -96,9 +95,22 @@ export type FireboltClientOptions = {
   };
 };
 
+export type ResourceManagerOptions = {
+  connection: Connection;
+  logger?: LoggerOptions;
+  dependencies?: {
+    logger: LoggerInterface;
+  };
+};
+
 export type Context = {
   logger: LoggerInterface;
   httpClient: HttpClientInterface;
   queryFormatter: QueryFormatter;
   apiEndpoint: string;
+};
+
+export type ResourceManagerContext = {
+  logger: LoggerInterface;
+  connection: Connection;
 };

@@ -6,12 +6,11 @@ import { ResourceManager } from "../service";
 export class FireboltCore {
   private options: FireboltClientOptions;
   private context: Context;
-  resourceManager: ResourceManager;
+  resourceManager!: ResourceManager;
 
   constructor(context: Context, options: FireboltClientOptions) {
     this.context = context;
     this.options = options;
-    this.resourceManager = new ResourceManager(this.context, undefined);
   }
 
   async connect(connectionOptions: ConnectionOptions) {
@@ -19,7 +18,10 @@ export class FireboltCore {
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
-    this.resourceManager = new ResourceManager(this.context, connection);
+    this.resourceManager = new ResourceManager({
+      logger: this.context.logger,
+      connection
+    });
     return connection;
   }
 
