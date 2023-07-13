@@ -9,7 +9,7 @@ on:
 
 jobs:
   release:
-    uses: ./.github/workflows/release-workflow.yml
+    uses: ./.github/workflows/release-workflow.yaml
     with:
       branch: 0.x
       majorRelease: ${{ inputs.majorRelease }}

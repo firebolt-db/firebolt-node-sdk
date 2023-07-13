@@ -65,6 +65,66 @@ describe("hydrate Date", () => {
     expect(minute).toEqual(0);
     expect(second).toEqual(10);
   });
+  it("hydrate milliseconds", () => {
+    const input = "2033-02-13 12:00:10.123+01:00";
+    const date = hydrateDate(input);
+
+    const year = date?.getUTCFullYear();
+    const month = date?.getUTCMonth();
+    const day = date?.getUTCDate();
+    const hour = date?.getUTCHours();
+    const minute = date?.getUTCMinutes();
+    const second = date?.getUTCSeconds();
+    const milliseconds = date?.getUTCMilliseconds();
+
+    expect(year).toEqual(2033);
+    expect(month).toEqual(1);
+    expect(day).toEqual(13);
+    expect(hour).toEqual(11);
+    expect(minute).toEqual(0);
+    expect(second).toEqual(10);
+    expect(milliseconds).toEqual(123);
+  });
+  it("hydrate few milliseconds", () => {
+    const input = "2033-02-13 12:00:10.01+01:00";
+    const date = hydrateDate(input);
+
+    const year = date?.getUTCFullYear();
+    const month = date?.getUTCMonth();
+    const day = date?.getUTCDate();
+    const hour = date?.getUTCHours();
+    const minute = date?.getUTCMinutes();
+    const second = date?.getUTCSeconds();
+    const milliseconds = date?.getUTCMilliseconds();
+
+    expect(year).toEqual(2033);
+    expect(month).toEqual(1);
+    expect(day).toEqual(13);
+    expect(hour).toEqual(11);
+    expect(minute).toEqual(0);
+    expect(second).toEqual(10);
+    expect(milliseconds).toEqual(10);
+  });
+  it("hydrate microseconds", () => {
+    const input = "2033-02-13 12:00:10.123456+01:00";
+    const date = hydrateDate(input);
+
+    const year = date?.getUTCFullYear();
+    const month = date?.getUTCMonth();
+    const day = date?.getUTCDate();
+    const hour = date?.getUTCHours();
+    const minute = date?.getUTCMinutes();
+    const second = date?.getUTCSeconds();
+    const milliseconds = date?.getUTCMilliseconds();
+
+    expect(year).toEqual(2033);
+    expect(month).toEqual(1);
+    expect(day).toEqual(13);
+    expect(hour).toEqual(11);
+    expect(minute).toEqual(0);
+    expect(second).toEqual(10);
+    expect(milliseconds).toEqual(123);
+  });
   it("hydrate timestamptz type 2", () => {
     const input = "2033-02-13 12:00:10-01:00";
     const date = hydrateDate(input);

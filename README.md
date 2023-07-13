@@ -487,6 +487,7 @@ const statement = await connection.execute("select 1 union all select 2");
 
 const { data } = await statement.streamResult();
 
+
 data.pipe(serializedStream).pipe(process.stdout);
 ```
 
