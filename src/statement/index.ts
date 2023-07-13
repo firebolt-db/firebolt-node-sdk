@@ -164,10 +164,16 @@ export class Statement {
   async fetchResult() {
     const response = await this.request.ready();
     const text = await response.text();
+
+    if (this.executeQueryOptions?.settings?.async_execution) {
+      return JSONbig.parse(text);
+    }
+
     const parsed = this.handleParseResponse(text);
     const normalized = normalizeResponse(parsed, this.executeQueryOptions);
 
     const { data, meta, statistics } = normalized;
+
     return {
       data,
       meta,
