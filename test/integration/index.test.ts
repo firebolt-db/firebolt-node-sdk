@@ -60,6 +60,19 @@ describe("integration test", () => {
     const row = data[0];
     expect(row).toMatchObject({ "1": 1 });
   });
+  it("async query", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    const statement = await connection.execute("SELECT 1", {
+      settings: { async_execution: true },
+      response: { normalizeData: false }
+    });
+    const result = await statement.fetchResult();
+    expect(result.query_id).toBeTruthy();
+  });
   it("returns Date type", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
