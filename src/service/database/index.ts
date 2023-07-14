@@ -48,14 +48,9 @@ export class DatabaseService {
     const query =
       "SELECT database_name, description FROM information_schema.databases";
     const statement = await this.context.connection.execute(query);
-    const { data } = await statement.streamResult();
+    const { data } = await statement.fetchResult();
 
-    // TODO: getting ABORT_ERR here?
-    data.on("error", error => {
-      console.log(error);
-    });
-
-    for await (const row of data) {
+    for (const row of data) {
       const [name, description] = row as string[];
       databases.push(new DatabaseModel({ name, description }));
     }

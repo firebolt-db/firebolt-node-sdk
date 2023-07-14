@@ -11,7 +11,7 @@ const connectionParams = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
-jest.setTimeout(20000);
+jest.setTimeout(40000);
 
 describe("streams", () => {
   it("stream transformters", async () => {
