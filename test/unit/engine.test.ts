@@ -4,6 +4,7 @@ import { Logger } from "../../src/logger/node";
 import { QUERY_URL } from "../../src/common/api";
 import { Firebolt } from "../../src";
 import { ResourceManager } from "../../src/service";
+import { ConnectionError } from "../../src/common/errors";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -233,5 +234,90 @@ describe("engine service", () => {
     expect(engines).toBeTruthy();
     expect(engines[0].endpoint).toEqual("https://some_engine.com");
     expect(engines[1].endpoint).toEqual("https://some_other_engine.com");
+  });
+
+  it("does not start engine that errors out", async () => {
+    let startEngineCalled = false;
+    const expectedEngine = "some_engine";
+    const refreshEngineResponse = {
+      meta: [
+        {
+          name: "status",
+          type: "text"
+        }
+      ],
+      data: [],
+      rows: 0
+    };
+    server.use(
+      // Query against system engine
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          if (String(req.body)?.startsWith("START ENGINE " + expectedEngine)) {
+            startEngineCalled = true;
+          }
+          if (String(req.body)?.startsWith("SELECT status")) {
+            return res(ctx.json(refreshEngineResponse));
+          } else {
+            return res(ctx.json(selectEngineResponse));
+          }
+        }
+      )
+    );
+
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const engine = await resourceManager.engine.getByName(expectedEngine);
+    expect(engine.start()).rejects.toThrowError(ConnectionError);
+  });
+  it("does not start engine that has unexpected status", async () => {
+    let startEngineCalled = false;
+    const expectedEngine = "some_engine";
+    const refreshEngineResponse = {
+      meta: [
+        {
+          name: "status",
+          type: "text"
+        }
+      ],
+      data: [["Imploding"]],
+      rows: 1
+    };
+    server.use(
+      // Query against system engine
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          if (String(req.body)?.startsWith("START ENGINE " + expectedEngine)) {
+            startEngineCalled = true;
+          }
+          if (String(req.body)?.startsWith("SELECT status")) {
+            return res(ctx.json(refreshEngineResponse));
+          } else {
+            return res(ctx.json(selectEngineResponse));
+          }
+        }
+      )
+    );
+
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const engine = await resourceManager.engine.getByName(expectedEngine);
+    expect(engine.start()).rejects.toThrowError();
   });
 });
