@@ -2,7 +2,7 @@ import { setupServer } from "msw/node";
 import { rest } from "msw";
 import { QUERY_URL } from "../../src/common/api";
 import { Firebolt } from "../../src";
-import { DeprecationError } from "../../src/common/errors";
+import { ConnectionError, DeprecationError } from "../../src/common/errors";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -103,6 +103,43 @@ describe("database service", () => {
     const db = await resourceManager.database.getByName("some_db");
     expect(db).toBeTruthy();
     expect(db.name).toEqual("some_db");
+  });
+
+  it("get not accessible db", async () => {
+    const selectNoResponse = {
+      meta: [
+        {
+          name: "name",
+          type: "text"
+        },
+        {
+          name: "description",
+          type: "text"
+        }
+      ],
+      data: [],
+      rows: 0
+    };
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(selectNoResponse));
+        }
+      )
+    );
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    expect(resourceManager.database.getByName("some_db")).rejects.toThrowError(
+      ConnectionError
+    );
   });
 
   it("gets all dbs", async () => {
