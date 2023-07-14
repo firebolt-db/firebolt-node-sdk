@@ -163,7 +163,9 @@ describe("Connection", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          if (req.body?.startsWith("SELECT engs.url, dbs.database_name")) {
+          if (
+            String(req.body)?.startsWith("SELECT engs.url, dbs.database_name")
+          ) {
             return res(ctx.json(engineUrlResponseOverride));
           } else {
             return res(ctx.json(selectAttachedToResponse));

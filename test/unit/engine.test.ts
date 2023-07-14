@@ -107,10 +107,10 @@ describe("engine service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          if (req.body?.startsWith("START ENGINE " + expectedEngine)) {
+          if (String(req.body)?.startsWith("START ENGINE " + expectedEngine)) {
             startEngineCalled = true;
           }
-          if (req.body?.startsWith("SELECT status")) {
+          if (String(req.body)?.startsWith("SELECT status")) {
             return res(ctx.json(refreshEngineResponse));
           } else {
             return res(ctx.json(selectEngineResponse));
@@ -154,10 +154,10 @@ describe("engine service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          if (req.body?.startsWith("STOP ENGINE " + expectedEngine)) {
+          if (String(req.body)?.startsWith("STOP ENGINE " + expectedEngine)) {
             stopEngineCalled = true;
           }
-          if (req.body?.startsWith("SELECT status")) {
+          if (String(req.body)?.startsWith("SELECT status")) {
             return res(ctx.json(refreshEngineResponse));
           } else {
             return res(ctx.json(selectEngineResponse));
