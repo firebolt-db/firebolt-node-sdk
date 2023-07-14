@@ -3,6 +3,7 @@ import { rest } from "msw";
 import { Logger } from "../../src/logger/node";
 import { QUERY_URL } from "../../src/common/api";
 import { Firebolt } from "../../src";
+import { ResourceManager } from "../../src/service";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -215,14 +216,19 @@ describe("engine service", () => {
       )
     );
     const firebolt = Firebolt({ apiEndpoint });
-    await firebolt.connect({
+    const connection = await firebolt.connect({
       account: "my_account",
       auth: {
         client_id: "id",
         client_secret: "secret"
       }
     });
-    const resourceManager = firebolt.resourceManager;
+    // Also test diffrent way of instantiating a resource manager
+    const logger = new Logger();
+    const resourceManager = new ResourceManager({
+      logger,
+      connection
+    });
     const engines = await resourceManager.engine.getAll();
     expect(engines).toBeTruthy();
     expect(engines[0].endpoint).toEqual("https://some_engine.com");
