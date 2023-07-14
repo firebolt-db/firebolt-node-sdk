@@ -4,7 +4,7 @@ import { Logger } from "../../src/logger/node";
 import { QUERY_URL } from "../../src/common/api";
 import { Firebolt } from "../../src";
 import { ResourceManager } from "../../src/service";
-import { ConnectionError } from "../../src/common/errors";
+import { ConnectionError, DeprecationError } from "../../src/common/errors";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -319,5 +319,19 @@ describe("engine service", () => {
     const resourceManager = firebolt.resourceManager;
     const engine = await resourceManager.engine.getByName(expectedEngine);
     expect(engine.start()).rejects.toThrowError();
+  });
+
+  it("throws deprecation on restart", async () => {
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const engine = await resourceManager.engine.getByName("some_engine");
+    expect(engine.restart()).rejects.toThrowError(DeprecationError);
   });
 });
