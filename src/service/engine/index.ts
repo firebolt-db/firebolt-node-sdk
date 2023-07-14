@@ -41,13 +41,9 @@ export class EngineService {
     const query =
       "SELECT engine_name, url, status FROM information_schema.engines";
     const statement = await this.context.connection.execute(query);
-    const { data } = await statement.streamResult();
+    const { data } = await statement.fetchResult();
 
-    data.on("error", error => {
-      console.log(error);
-    });
-
-    for await (const row of data) {
+    for (const row of data) {
       const [name, endpoint, summary] = row as string[];
       engines.push(
         new EngineModel(this.context.connection, {

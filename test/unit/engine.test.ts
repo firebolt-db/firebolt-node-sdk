@@ -25,6 +25,28 @@ const selectEngineResponse = {
   rows: 1
 };
 
+const selectEnginesResponse = {
+  meta: [
+    {
+      name: "engine_name",
+      type: "text"
+    },
+    {
+      name: "url",
+      type: "text"
+    },
+    {
+      name: "status",
+      type: "text"
+    }
+  ],
+  data: [
+    ["some_engine", "https://some_engine.com", "Running"],
+    ["some_other_engine", "https://some_other_engine.com", "Running"]
+  ],
+  rows: 2
+};
+
 describe("engine service", () => {
   const server = setupServer();
 
@@ -181,5 +203,29 @@ describe("engine service", () => {
     } = await engine.stop();
     expect(engineName).toEqual(expectedEngine);
     expect(stopEngineCalled).toEqual(true);
+  });
+
+  it("gets all engines", async () => {
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(selectEnginesResponse));
+        }
+      )
+    );
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const engines = await resourceManager.engine.getAll();
+    expect(engines).toBeTruthy();
+    expect(engines[0].endpoint).toEqual("https://some_engine.com");
+    expect(engines[1].endpoint).toEqual("https://some_other_engine.com");
   });
 });
