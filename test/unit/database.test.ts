@@ -2,6 +2,7 @@ import { setupServer } from "msw/node";
 import { rest } from "msw";
 import { QUERY_URL } from "../../src/common/api";
 import { Firebolt } from "../../src";
+import { DeprecationError } from "../../src/common/errors";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -126,5 +127,23 @@ describe("database service", () => {
     expect(dbs).toBeTruthy();
     expect(dbs[0].name).toEqual("some_db");
     expect(dbs[1].name).toEqual("some_other_db");
+  });
+
+  it("deprecated methods", async () => {
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    expect(
+      resourceManager.database.getDefaultEndpointByName("dummy")
+    ).rejects.toThrowError(DeprecationError);
+    expect(resourceManager.database.getById("111")).rejects.toThrowError(
+      DeprecationError
+    );
   });
 });

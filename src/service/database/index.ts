@@ -9,12 +9,6 @@ export class DatabaseService {
     this.context = context;
   }
 
-  private async getDatabaseId(databaseName: string) {
-    throw new DeprecationError({
-      message: "Can't call getDatabaseId as database IDs are deprecated"
-    });
-  }
-
   async getDefaultEndpointByName(name: string) {
     throw new DeprecationError({
       message: "Default engines are no longer supported"
