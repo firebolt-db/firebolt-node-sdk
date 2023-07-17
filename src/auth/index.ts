@@ -1,16 +1,20 @@
-import { LOGIN, SERVICE_ACCOUNT_LOGIN, REFRESH } from "../common/api";
+import { SERVICE_ACCOUNT_LOGIN } from "../common/api";
+import { assignProtocol } from "../common/util";
 import {
   Context,
   ConnectionOptions,
-  ServiceAccountAuth,
-  UsernamePasswordAuth,
+  ClientCredentialsAuth,
   AccessTokenAuth
 } from "../types";
 
 type Login = {
   access_token: string;
-  refresh_token: string;
+  token_type: string;
+  expires_in: number;
 };
+
+const AUTH_AUDIENCE = "https://api.firebolt.io";
+const AUTH_GRANT_TYPE = "client_credentials";
 
 export class Authenticator {
   context: Context;
@@ -34,73 +38,41 @@ export class Authenticator {
     return {};
   }
 
-  async refreshAccessToken() {
-    const { httpClient, apiEndpoint } = this.context;
-
-    const url = `${apiEndpoint}/${REFRESH}`;
-    const body = JSON.stringify({
-      refresh_token: this.refreshToken
-    });
-
-    try {
-      this.accessToken = undefined;
-
-      const { access_token } = await httpClient
-        .request<{
-          access_token: string;
-        }>("POST", url, { body, retry: false })
-        .ready();
-      this.accessToken = access_token;
-    } catch (error) {
-      console.log("Failed to refresh access token");
-      console.error(error);
-      console.log("Performing login...");
-      await this.authenticate();
-    }
-  }
-
   authenticateWithToken(auth: AccessTokenAuth) {
     const { accessToken } = auth;
     this.accessToken = accessToken;
   }
 
-  async authenticateWithPassword(auth: UsernamePasswordAuth) {
-    const { httpClient, apiEndpoint } = this.context;
-    const { username, password } = auth;
-    const url = `${apiEndpoint}/${LOGIN}`;
-    const body = JSON.stringify({
-      username,
-      password
-    });
-
-    this.accessToken = undefined;
-
-    const { access_token, refresh_token } = await httpClient
-      .request<Login>("POST", url, {
-        body,
-        retry: false
-      })
-      .ready();
-
-    this.accessToken = access_token;
-    this.refreshToken = refresh_token;
+  getAuthEndpoint(apiEndpoint: string) {
+    const myURL = new URL(assignProtocol(apiEndpoint));
+    const hostStrings = myURL.hostname.split(".");
+    // We expect an apiEndpoint to be of format api.<env>.firebolt.io
+    // Since we got something else, assume it's a test
+    if (hostStrings[0] != "api") {
+      return new URL(assignProtocol(apiEndpoint)).toString();
+    }
+    hostStrings[0] = "id";
+    myURL.hostname = hostStrings.join(".");
+    return myURL.toString();
   }
 
-  async authenticateServiceAccount(auth: ServiceAccountAuth) {
+  async authenticateServiceAccount(auth: ClientCredentialsAuth) {
     const { httpClient, apiEndpoint } = this.context;
     const { client_id, client_secret } = auth;
 
+    const authEndpoint = this.getAuthEndpoint(apiEndpoint);
     const params = new URLSearchParams({
       client_id,
       client_secret,
-      grant_type: "client_credentials"
+      grant_type: AUTH_GRANT_TYPE,
+      audience: AUTH_AUDIENCE
     });
-    const url = `${apiEndpoint}/${SERVICE_ACCOUNT_LOGIN}`;
+    const url = `${authEndpoint}${SERVICE_ACCOUNT_LOGIN}`;
 
     this.accessToken = undefined;
 
     const { access_token } = await httpClient
-      .request<{ access_token: string }>("POST", url, {
+      .request<Login>("POST", url, {
         retry: false,
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -120,17 +92,10 @@ export class Authenticator {
       return;
     }
     if (
-      (options as UsernamePasswordAuth).username &&
-      (options as UsernamePasswordAuth).password
+      (options as ClientCredentialsAuth).client_id &&
+      (options as ClientCredentialsAuth).client_secret
     ) {
-      await this.authenticateWithPassword(options as UsernamePasswordAuth);
-      return;
-    }
-    if (
-      (options as ServiceAccountAuth).client_id &&
-      (options as ServiceAccountAuth).client_secret
-    ) {
-      await this.authenticateServiceAccount(options as ServiceAccountAuth);
+      await this.authenticateServiceAccount(options as ClientCredentialsAuth);
       return;
     }
 

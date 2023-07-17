@@ -2,6 +2,7 @@ import { setupServer } from "msw/node";
 import { rest } from "msw";
 import { Firebolt } from "../../src/index";
 import { ConnectionOptions } from "../../src/types";
+import { QUERY_URL } from "../../src/common/api";
 
 const apiEndpoint = "fake.api.com";
 
@@ -9,42 +10,30 @@ describe("connection user agent", () => {
   const server = setupServer();
 
   server.use(
-    rest.post(`https://${apiEndpoint}/auth/v1/login`, (req, res, ctx) => {
+    rest.post(`https://fake.api.com/oauth/token`, (req, res, ctx) => {
       return res(
         ctx.json({
-          access_token: "fake_access_token",
-          refresh_token: "fake_refresh_token"
+          access_token: "fake_access_token"
         })
       );
     }),
     rest.get(
-      `https://${apiEndpoint}/iam/v2/accounts:getIdByName`,
-      (req, res, ctx) => {
-        return res(ctx.json({ account_id: "some_account" }));
-      }
-    ),
-    rest.get(`https://${apiEndpoint}/iam/v2/account`, (req, res, ctx) => {
-      return res(ctx.json({ account: { id: "some_account" } }));
-    }),
-    rest.get(
-      `https://${apiEndpoint}/core/v1/accounts/some_account/engines:getIdByName`,
-      (req, res, ctx) => {
-        const engine_id = {
-          engine_id: "123",
-          account_id: "some_account",
-          endpoint: "https://some_engine.com"
-        };
-        return res(ctx.json({ engine_id }));
-      }
-    ),
-    rest.get(
-      `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123`,
+      `https://fake.api.com/web/v3/account/my_account/resolve`,
       (req, res, ctx) => {
         return res(
           ctx.json({
-            engine: {
-              endpoint: "https://some_engine.com"
-            }
+            id: "1111",
+            region: "us-east-1"
+          })
+        );
+      }
+    ),
+    rest.get(
+      `https://fake.api.com/web/v3/account/my_account/engineUrl`,
+      (req, res, ctx) => {
+        return res(
+          ctx.json({
+            engineUrl: "https://some_system_engine.com"
           })
         );
       }
@@ -61,22 +50,23 @@ describe("connection user agent", () => {
   it("propagation", async () => {
     const connectionParams: ConnectionOptions = {
       auth: {
-        username: "dummy",
-        password: "dummy"
+        client_id: "dummy",
+        client_secret: "dummy"
       },
-      database: "dummy",
-      engineName: "dummy",
-      account: "account"
+      account: "my_account"
     };
     const firebolt = Firebolt({
       apiEndpoint
     });
 
     server.use(
-      rest.post("https://some_engine.com", (req, res, ctx) => {
-        expect(req.headers.get("user-agent")).toContain("NodeSDK");
-        return res(ctx.status(200), ctx.json({ data: [] }));
-      })
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          expect(req.headers.get("user-agent")).toContain("NodeSDK");
+          return res(ctx.status(200), ctx.json({ data: [] }));
+        }
+      )
     );
 
     const connection = await firebolt.connect(connectionParams);
@@ -86,11 +76,10 @@ describe("connection user agent", () => {
   it("customisation", async () => {
     const connectionParams: ConnectionOptions = {
       auth: {
-        username: "dummy",
-        password: "dummy"
+        client_id: "dummy",
+        client_secret: "dummy"
       },
-      database: "dummy",
-      engineName: "dummy",
+      account: "my_account",
       additionalParameters: {
         userClients: [{ name: "ClientA", version: "1.1.1" }],
         userDrivers: [{ name: "DriverA", version: "2.2.2" }]
@@ -101,12 +90,15 @@ describe("connection user agent", () => {
     });
 
     server.use(
-      rest.post("https://some_engine.com", (req, res, ctx) => {
-        expect(req.headers.get("user-agent")).toContain("NodeSDK");
-        expect(req.headers.get("user-agent")).toContain("ClientA/1.1.1");
-        expect(req.headers.get("user-agent")).toContain("DriverA/2.2.2");
-        return res(ctx.status(200), ctx.json({ data: [] }));
-      })
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          expect(req.headers.get("user-agent")).toContain("NodeSDK");
+          expect(req.headers.get("user-agent")).toContain("ClientA/1.1.1");
+          expect(req.headers.get("user-agent")).toContain("DriverA/2.2.2");
+          return res(ctx.status(200), ctx.json({ data: [] }));
+        }
+      )
     );
     const connection = await firebolt.connect(connectionParams);
     const statement = await connection.execute("SELECT 1");

@@ -2,9 +2,10 @@ import { Firebolt } from "../../src/index";
 
 const connectionParams = {
   auth: {
-    username: process.env.FIREBOLT_USERNAME as string,
-    password: process.env.FIREBOLT_PASSWORD as string
+    client_id: process.env.FIREBOLT_CLIENT_ID as string,
+    client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
   },
+  account: process.env.FIREBOLT_ACCOUNT as string,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
@@ -19,13 +20,7 @@ describe("boolean", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("select true::boolean", {
-      settings: {
-        advanced_mode: "true",
-        bool_output_format: "postgres",
-        output_format_firebolt_type_names: "true"
-      }
-    });
+    const statement = await connection.execute("select true::boolean");
 
     const { data, meta } = await statement.fetchResult();
     expect(meta[0].type).toEqual("boolean");

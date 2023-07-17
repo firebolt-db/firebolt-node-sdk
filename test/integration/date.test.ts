@@ -2,9 +2,10 @@ import { Firebolt } from "../../src/index";
 
 const connectionParams = {
   auth: {
-    username: process.env.FIREBOLT_USERNAME as string,
-    password: process.env.FIREBOLT_PASSWORD as string
+    client_id: process.env.FIREBOLT_CLIENT_ID as string,
+    client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
   },
+  account: process.env.FIREBOLT_ACCOUNT as string,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
@@ -62,8 +63,8 @@ describe("new date data format", () => {
     await connection.execute(insertValues);
     const statement = await connection.execute(`select * from t1 limit 10`);
     const { data, meta } = await statement.fetchResult();
-    expect(meta[2].type).toEqual("pgdate");
+    expect(meta[2].type).toEqual("date"); // PGDate is aliased as date
     expect(meta[3].type).toEqual("timestamptz");
-    expect(meta[4].type).toEqual("timestampntz");
+    expect(meta[4].type).toEqual("timestamp"); // TimestampNtz is aliased as timestamp
   });
 });

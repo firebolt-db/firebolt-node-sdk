@@ -1,15 +1,13 @@
-import { ConnectionOptions } from "../types";
-
-export const MISSING_USERNAME = 404001;
-export const MISSING_PASSWORD = 404002;
+export const MISSING_CLIENT_ID = 404001;
+export const MISSING_CLIENT_SECRET = 404002;
 export const MISSING_DATABASE = 404003;
 export const MISSING_ENGINE_ENDPOINT = 404004;
 
 export const INVALID_PARAMETERS = 400001;
 
 const errorMessages: Record<number, string> = {
-  [MISSING_PASSWORD]: "Password is missing",
-  [MISSING_USERNAME]: "Username is missing",
+  [MISSING_CLIENT_ID]: "Password is missing",
+  [MISSING_CLIENT_SECRET]: "Username is missing",
   [MISSING_DATABASE]: "Database is missing",
   [MISSING_ENGINE_ENDPOINT]:
     "At least one should be provided: engineName or engineEndpoint",
@@ -73,17 +71,26 @@ export class AuthenticationError extends Error {
   }
 }
 
-export const authDeprecationWarning = (options: ConnectionOptions) => {
-  if (!options.auth) {
-    console.error(`
-username, password, accessToken fields are deprecated.
-Please use auth object instead:
-connectionOptions = {
-auth: {
-username: 'username',
-password: 'password'
-}
-}
-`);
+export class AccessError extends Error {
+  message: string;
+  constructor({ message }: { message: string }) {
+    super(message);
+    this.message = message;
   }
-};
+}
+
+export class ConnectionError extends Error {
+  message: string;
+  constructor({ message }: { message: string }) {
+    super(message);
+    this.message = message;
+  }
+}
+
+export class DeprecationError extends Error {
+  message: string;
+  constructor({ message }: { message: string }) {
+    super(message);
+    this.message = message;
+  }
+}

@@ -1,85 +1,53 @@
-import {
-  ACCOUNT_DATABASES,
-  ACCOUNT_DATABASE,
-  ACCOUNT_ENGINE_URL_BY_DATABASE_NAME,
-  ResultsPage
-} from "../../common/api";
-import { Context } from "../../types";
+import { ConnectionError, DeprecationError } from "../../common/errors";
+import { ResourceManagerContext } from "../../types";
 import { DatabaseModel } from "./model";
-import { ID, Database } from "./types";
 
 export class DatabaseService {
-  private context: Context;
+  context: ResourceManagerContext;
 
-  constructor(context: Context) {
+  constructor(context: ResourceManagerContext) {
     this.context = context;
   }
 
-  private async getDatabaseId(databaseName: string): Promise<ID> {
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
-    const queryParams = new URLSearchParams({ database_name: databaseName });
-    const url = `${apiEndpoint}/${ACCOUNT_DATABASES(
-      accountId
-    )}:getIdByName?${queryParams}`;
-    const data = await httpClient
-      .request<{ database_id: ID }>("GET", url)
-      .ready();
-    return data.database_id;
-  }
-
   async getDefaultEndpointByName(name: string) {
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
-    const queryParams = new URLSearchParams({ database_name: name });
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_URL_BY_DATABASE_NAME(
-      accountId
-    )}?${queryParams}`;
-    const data = await httpClient
-      .request<{ engine_url: string }>("GET", url)
-      .ready();
-    return data.engine_url;
+    throw new DeprecationError({
+      message: "Default engines are no longer supported"
+    });
   }
 
   async getById(databaseId: string): Promise<DatabaseModel> {
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_DATABASE(accountId, databaseId)}`;
-    const data = await httpClient
-      .request<{ database: Database }>("GET", url)
-      .ready();
-    return new DatabaseModel(this.context, data.database);
+    throw new DeprecationError({
+      message: "Can't call getById as database IDs are deprecated"
+    });
   }
 
   async getByName(databaseName: string): Promise<DatabaseModel> {
-    const { database_id } = await this.getDatabaseId(databaseName);
-    const database = await this.getById(database_id);
-    return new DatabaseModel(this.context, database);
+    const query =
+      "SELECT database_name, description FROM information_schema.databases " +
+      `WHERE database_name='${databaseName}'`;
+
+    const statement = await this.context.connection.execute(query);
+    const { data } = await statement.fetchResult();
+    if (data.length == 0) {
+      throw new ConnectionError({
+        message: `Database ${databaseName} not found or is not accessbile`
+      });
+    }
+    const [name, description] = data[0] as string[];
+    return new DatabaseModel({ name, description });
   }
 
   async getAll(): Promise<DatabaseModel[]> {
     const databases: DatabaseModel[] = [];
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
+    const query =
+      "SELECT database_name, description FROM information_schema.databases";
+    const statement = await this.context.connection.execute(query);
+    const { data } = await statement.fetchResult();
 
-    let hasNextPage = false;
-    let cursor = "";
-    do {
-      const query = cursor
-        ? `?${new URLSearchParams({ "page.after": cursor })}`
-        : "";
-      const url = `${apiEndpoint}/${ACCOUNT_DATABASES(accountId)}${query}`;
-      const data = await httpClient
-        .request<ResultsPage<Database>>("GET", url)
-        .ready();
-
-      hasNextPage = data.page.has_next_page;
-
-      for (const edge of data.edges) {
-        cursor = edge.cursor;
-        databases.push(new DatabaseModel(this.context, edge.node));
-      }
-    } while (hasNextPage);
+    for (const row of data) {
+      const [name, description] = row as string[];
+      databases.push(new DatabaseModel({ name, description }));
+    }
 
     return databases;
   }

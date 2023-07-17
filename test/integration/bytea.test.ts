@@ -2,9 +2,10 @@ import { Firebolt } from "../../src/index";
 
 const connectionParams = {
   auth: {
-    username: process.env.FIREBOLT_USERNAME as string,
-    password: process.env.FIREBOLT_PASSWORD as string
+    client_id: process.env.FIREBOLT_CLIENT_ID as string,
+    client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
   },
+  account: process.env.FIREBOLT_ACCOUNT as string,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
@@ -41,7 +42,7 @@ describe("bytea", () => {
     const statement = await connection.execute("SELECT null::bytea");
 
     const { data, meta } = await statement.fetchResult();
-    expect(meta[0].type).toEqual("nullable(bytea)");
+    expect(meta[0].type).toEqual("bytea null");
     const row = data[0];
     expect((row as unknown[])[0]).toEqual(null);
   });

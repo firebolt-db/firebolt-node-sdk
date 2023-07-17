@@ -23,9 +23,10 @@ const firebolt = Firebolt();
 
 const connection = await firebolt.connect({
   auth: {
-    username: process.env.FIREBOLT_USERNAME,
-    password: process.env.FIREBOLT_PASSWORD,
+    client_id: process.env.FIREBOLT_CLIENT_ID,
+    client_secret: process.env.FIREBOLT_CLIENT_SECRET,
   },
+  account: process.env.FIREBOLT_ACCOUNT,
   database: process.env.FIREBOLT_DATABASE,
   engineName: process.env.FIREBOLT_ENGINE_NAME
 });
@@ -64,7 +65,7 @@ console.log(rows)
   * <a href="#create-connection">Create connection</a>
     * <a href="#connectionoptions">ConnectionOptions</a>
     * <a href="#accesstoken">AccessToken</a>
-    * <a href="#serviceaccount">Service account</a>
+    * <a href="#clientcredentials">Client credentials</a>
     * <a href="#enginename">engineName</a>
   * <a href="#test-connection">Test connection</a>
   * <a href="#engine-url">Engine URL</a>
@@ -78,17 +79,13 @@ console.log(rows)
   * <a href="#stream-result">Stream result</a>
   * <a href="#result-hydration">Result hydration</a>
   * <a href="#engine-management">Engine management</a>
-    * <a href="#getbyid">getById</a>
     * <a href="#getbyname">getByName</a>
     * <a href="#engine">Engine</a>
       * <a href="#start">start</a>
       * <a href="#stop">stop</a>
-      * <a href="#restart">restart</a>
   * <a href="#database-management">Database management</a>
-    * <a href="#database-getbyid">getById</a>
     * <a href="#database-getbyname">getByName</a>
     * <a href="#database">Database</a>
-* <a href="#resource-manager">Resource Manager</a>
 * <a href="#recipes">Recipes</a>
   * <a href="#streaming-results">Streaming results</a>
   * <a href="#custom-stream-transformers">Custom stream transformers</a>
@@ -116,22 +113,17 @@ const connection = await firebolt.connect(connectionOptions);
 <a id="connectionoptions"></a>
 #### ConnectionOptions
 ```typescript
-type UsernamePasswordAuth = {
-  username: string;
-  password: string;
-};
-
 type AccessTokenAuth = {
   accessToken: string;
 };
 
-type ServiceAccountAuth = {
+type ClientCredentialsAuth = {
   client_id: string;
   client_secret: string;
 };
 
 type ConnectionOptions = {
-  auth: UsernamePasswordAuth | AccessTokenAuth | ServiceAccountAuth;
+  auth: AccessTokenAuth | ServiceAccountAuth;
   database: string;
   engineName?: string;
   engineEndpoint?: string;
@@ -142,12 +134,11 @@ type ConnectionOptions = {
 
 <a id="enginename"></a>
 #### engineName
-You can pass `engineName: "system"` to use system engine, which is always on.
-If `engineName` or `engineEndpoint` was not passed sdk will fallback to default engine endpoint for database.
+You can omit `engineName` and execute AQL queries on such connection.
 
 <a id="accesstoken"></a>
 #### AccessToken
-Instead of passing username/password  directly,
+Instead of passing client id/secret  directly,
 you can also manage authentication outside of node sdk
 and pass accessToken when creating the connection
 
@@ -162,9 +153,9 @@ const connection = await firebolt.connect({
 });
 ```
 
-<a id="serviceaccount"></a>
-#### Service account
-Instead of passing username/password, you can also use service account
+<a id="clientcredentials"></a>
+#### Client credentials
+Default way of authenticating is with the client credentials
 
 ```typescript
 const connection = await firebolt.connect({
@@ -344,20 +335,6 @@ await firebolt.connect(connectionOptions);
 const enginesService = firebolt.resourceManager.engine
 ```
 
-<a id="getbyid"></a>
-#### getById
-
-Returns engine using engine ID
-
-```typescript
-import { Firebolt } from 'firebolt-sdk'
-const firebolt = Firebolt();
-await firebolt.connect(connectionOptions);
-const engine = await firebolt.resourceManager.engine.getById(
-  "c8a228ea-93df-4784-99f9-a99368518782",
-);
-```
-
 <a id="getbyname"></a>
 #### getByName
 
@@ -375,10 +352,8 @@ const engine = await firebolt.resourceManager.engine.getByName("engine_name")
 
 | Property                 | Type                                      | Notes |
 |--------------------------|-------------------------------------------|-------|
-| `id`                     | `{engine_id: string; account_id: string}` |       |
 | `name`                   | `string`                                  |       |
 | `endpoint`               | `string`                                  |       |
-| `description`            | `string`                                  |       |
 | `current_status_summary` | `string`                                  |       |
 
 <a id="start"></a>
@@ -407,20 +382,6 @@ const engine = await firebolt.resourceManager.engine.getByName("engine_name")
 await engine.stop()
 ```
 
-<a id="restart"></a>
-##### Restart
-
-Restarts an engine.
-
-```typescript
-import { Firebolt } from 'firebolt-sdk'
-
-const firebolt = Firebolt();
-await firebolt.connect(connectionOptions);
-const engine = await firebolt.resourceManager.engine.getByName("engine_name")
-await engine.restart()
-```
-
 <a id="database-management"></a>
 ### Database management
 
@@ -431,20 +392,6 @@ import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
 await firebolt.connect(connectionOptions);
 const databaseService = firebolt.resourceManager.database
-```
-
-<a id="database-getbyid"></a>
-#### Database getById
-
-Returns database using database ID
-
-```typescript
-import { Firebolt } from 'firebolt-sdk'
-const firebolt = Firebolt();
-await firebolt.connect(connectionOptions);
-const database = await firebolt.resourceManager.database.getById(
-  "c8a228ea-93df-4784-99f9-a99368518782",
-);
 ```
 
 <a id="getbyname"></a>
@@ -464,31 +411,9 @@ const database = await firebolt.resourceManager.database.getByName("database_nam
 
 | Property      | Type                                      | Notes |
 |---------------|-------------------------------------------|-------|
-| `id`          | `{engine_id: string; account_id: string}` |       |
 | `name`        | `string`                                  |       |
 | `description` | `string`                                  |       |
 
-<a id="resource-manager"></a>
-## Resource Manager
-It is possible to create `resourceManager` separately from firebolt client,
-providing only auth credentials
-
-```typescript
-import { FireboltResourceManager } from 'firebolt-sdk'
-
-const resourceManager = FireboltResourceManager();
-await resourceManager.authenticate({
-  auth: {
-    username: process.env.FIREBOLT_USERNAME as string,
-    password: process.env.FIREBOLT_PASSWORD as string,
-  },
-  account: process.env.ACCOUNT_NAME as string
-});
-
-const engine = await resourceManager.engine.getByName(
-  process.env.FIREBOLT_ENGINE_NAME as string
-);
-```
 
 <a id="recipes"></a>
 ## Recipes

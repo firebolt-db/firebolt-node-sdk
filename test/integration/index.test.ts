@@ -3,14 +3,113 @@ import { OutputFormat } from "../../src/types";
 
 const connectionParams = {
   auth: {
-    username: process.env.FIREBOLT_USERNAME as string,
-    password: process.env.FIREBOLT_PASSWORD as string
+    client_id: process.env.FIREBOLT_CLIENT_ID as string,
+    client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
   },
+  account: process.env.FIREBOLT_ACCOUNT as string,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
 jest.setTimeout(50000);
+
+describe("new identity integration test", () => {
+  const bareConnectionParams = {
+    auth: {
+      client_id: process.env.FIREBOLT_CLIENT_ID as string,
+      client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
+    },
+    account: process.env.FIREBOLT_ACCOUNT as string
+  };
+  it("works on system engine", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...bareConnectionParams
+    });
+
+    const statement = await connection.execute("SELECT 1");
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(1);
+    expect(meta.length).toEqual(1);
+  });
+  it("works on system engine with DB", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...bareConnectionParams,
+      database: process.env.FIREBOLT_DATABASE as string
+    });
+
+    const statement = await connection.execute(
+      "SELECT table_name FROM information_schema.tables"
+    );
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toBeGreaterThan(0);
+    expect(meta.length).toEqual(1);
+  });
+  it("works on user engine with no DB specified", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...bareConnectionParams,
+      engineName: process.env.FIREBOLT_ENGINE_NAME as string
+    });
+
+    const statement = await connection.execute("SELECT 1");
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(1);
+    expect(meta.length).toEqual(1);
+  });
+  it("works on user engine with DB", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...bareConnectionParams,
+      engineName: process.env.FIREBOLT_ENGINE_NAME as string,
+      database: process.env.FIREBOLT_DATABASE as string
+    });
+
+    await connection.execute(
+      "CREATE TABLE IF NOT EXISTS dummy_connectivity_test (id INT)"
+    );
+    const statement = await connection.execute(
+      "SELECT * FROM dummy_connectivity_test"
+    );
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(0);
+    expect(meta.length).toEqual(1);
+  });
+  it("works on user engine with no DB", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...bareConnectionParams,
+      engineName: process.env.FIREBOLT_ENGINE_NAME as string,
+      database: process.env.FIREBOLT_DATABASE as string
+    });
+
+    await connection.execute(
+      "CREATE TABLE IF NOT EXISTS dummy_connectivity_test (id INT)"
+    );
+    const statement = await connection.execute(
+      "SELECT * FROM dummy_connectivity_test"
+    );
+    const { data, meta } = await statement.fetchResult();
+    expect(data.length).toEqual(0);
+    expect(meta.length).toEqual(1);
+  });
+});
 
 describe("integration test", () => {
   it("works", async () => {
@@ -35,7 +134,9 @@ describe("integration test", () => {
     const connection2 = await firebolt.connect({
       database: process.env.FIREBOLT_DATABASE as string,
       engineName: process.env.FIREBOLT_ENGINE_NAME as string,
+      account: process.env.FIREBOLT_ACCOUNT as string,
       auth: {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
         accessToken: connection.context.httpClient.authenticator.accessToken
       }
@@ -52,7 +153,7 @@ describe("integration test", () => {
     });
 
     const connection = await firebolt.connect(connectionParams);
-    const statement = await connection.execute("SELECT 1", {
+    const statement = await connection.execute('SELECT 1 as "1"', {
       settings: { output_format: OutputFormat.JSON },
       response: { normalizeData: false }
     });
@@ -98,26 +199,6 @@ describe("integration test", () => {
         engineName: "unknown_engine"
       });
       await connection.execute("SELECT 1");
-    }).rejects.toThrow();
-  });
-
-  it("fails on wrong engine url", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-
-    const connection = await firebolt.connect({
-      auth: {
-        username: process.env.FIREBOLT_USERNAME as string,
-        password: process.env.FIREBOLT_PASSWORD as string
-      },
-      database: process.env.FIREBOLT_DATABASE as string,
-      engineEndpoint: "bad engine url"
-    });
-
-    await expect(async () => {
-      const statement = await connection.execute("SELECT 1");
-      await statement.fetchResult();
     }).rejects.toThrow();
   });
   it("destroyed unfinished statements should throw", async () => {
@@ -197,9 +278,10 @@ describe("integration test", () => {
     await expect(async () => {
       await firebolt.testConnection({
         auth: {
-          username: process.env.FIREBOLT_USERNAME as string,
-          password: process.env.FIREBOLT_PASSWORD as string
+          client_id: process.env.FIREBOLT_CLIENT_ID as string,
+          client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
         },
+        account: process.env.FIREBOLT_ACCOUNT as string,
         database: process.env.FIREBOLT_DATABASE as string,
         engineName: "unknown_engine"
       });

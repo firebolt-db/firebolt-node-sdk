@@ -1,34 +1,20 @@
-import { Context } from "../../types";
-import { ACCOUNT, ACCOUNT_BY_NAME } from "../../common/api";
+import { ResourceManagerContext } from "../../types";
 
 export class AccountService {
-  private context: Context;
-
   id!: string;
+  name!: string;
+  context: ResourceManagerContext;
 
-  constructor(context: Context) {
+  constructor(context: ResourceManagerContext) {
     this.context = context;
   }
 
-  async resolveAccountId(account?: string) {
-    const { httpClient, apiEndpoint } = this.context;
-    if (account) {
-      const queryParams = new URLSearchParams({ account_name: account });
-      const url = `${apiEndpoint}/${ACCOUNT_BY_NAME}?${queryParams}`;
-      const { account_id } = await httpClient
-        .request<{ account_id: string }>("GET", url)
-        .ready();
-      this.id = account_id;
-      return account_id;
-    } else {
-      const url = `${apiEndpoint}/${ACCOUNT}`;
-      const {
-        account: { id }
-      } = await httpClient
-        .request<{ account: { id: string } }>("GET", url)
-        .ready();
-      this.id = id;
-      return id;
-    }
+  async setAccountName(account: string) {
+    this.name = account;
+  }
+
+  async resolveAccountId(accountName: string) {
+    this.id = await this.context.connection.resolveAccountId(accountName);
+    return this.id;
   }
 }

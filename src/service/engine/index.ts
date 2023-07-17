@@ -1,67 +1,58 @@
-import { ACCOUNT_ENGINE, ACCOUNT_ENGINES, ResultsPage } from "../../common/api";
-import { Context } from "../../types";
+import { ConnectionError, DeprecationError } from "../../common/errors";
+import { ResourceManagerContext } from "../../types";
 import { EngineModel } from "./model";
-import { ID, Engine } from "./types";
+import { EngineStatusSummary } from "./types";
 
 export class EngineService {
-  private context: Context;
+  context: ResourceManagerContext;
 
-  constructor(context: Context) {
+  constructor(context: ResourceManagerContext) {
     this.context = context;
   }
 
-  private async getEngineId(engineName: string): Promise<ID> {
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
-    const queryParams = new URLSearchParams({ engine_name: engineName });
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINES(
-      accountId
-    )}:getIdByName?${queryParams}`;
-    const data = await httpClient
-      .request<{ engine_id: ID }>("GET", url)
-      .ready();
-    return data.engine_id;
-  }
-
-  async getById(engineId: string): Promise<EngineModel> {
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(accountId, engineId)}`;
-    const data = await httpClient
-      .request<{ engine: Engine }>("GET", url)
-      .ready();
-    return new EngineModel(this.context, data.engine);
+  async getById(engineId: string) {
+    throw new DeprecationError({
+      message: "Can't call getById as engine IDs are deprecated"
+    });
   }
 
   async getByName(engineName: string): Promise<EngineModel> {
-    const { engine_id } = await this.getEngineId(engineName);
-    const engine = await this.getById(engine_id);
-    return new EngineModel(this.context, engine);
+    const query =
+      "SELECT engine_name, url, status FROM information_schema.engines " +
+      `WHERE engine_name='${engineName}'`;
+    const statement = await this.context.connection.execute(query);
+    const { data } = await statement.fetchResult();
+    if (data.length == 0) {
+      throw new ConnectionError({
+        message: `Engine ${engineName} not found or is not accessbile`
+      });
+    }
+    const [name, endpoint, status] = data[0] as string[];
+    return new EngineModel(this.context.connection, {
+      name,
+      endpoint,
+      current_status_summary: status as EngineStatusSummary
+    });
   }
 
   async getAll(): Promise<EngineModel[]> {
     const engines: EngineModel[] = [];
-    const { apiEndpoint, httpClient } = this.context;
-    const accountId = this.context.resourceManager.account.id;
 
-    let hasNextPage = false;
-    let cursor = "";
-    do {
-      const query = cursor
-        ? `?${new URLSearchParams({ "page.after": cursor })}`
-        : "";
-      const url = `${apiEndpoint}/${ACCOUNT_ENGINES(accountId)}${query}`;
-      const data = await httpClient
-        .request<ResultsPage<Engine>>("GET", url)
-        .ready();
+    const query =
+      "SELECT engine_name, url, status FROM information_schema.engines";
+    const statement = await this.context.connection.execute(query);
+    const { data } = await statement.fetchResult();
 
-      hasNextPage = data.page.has_next_page;
-
-      for (const edge of data.edges) {
-        cursor = edge.cursor;
-        engines.push(new EngineModel(this.context, edge.node));
-      }
-    } while (hasNextPage);
+    for (const row of data) {
+      const [name, endpoint, summary] = row as string[];
+      engines.push(
+        new EngineModel(this.context.connection, {
+          name,
+          endpoint,
+          current_status_summary: summary as EngineStatusSummary
+        })
+      );
+    }
 
     return engines;
   }

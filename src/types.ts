@@ -2,9 +2,9 @@ import BigNumber from "bignumber.js";
 import { HttpClientInterface, HttpClientOptions } from "./http";
 
 import { LoggerInterface, LoggerOptions } from "./logger";
-import { ResourceManager } from "./service";
 import { Meta } from "./meta";
 import { QueryFormatter } from "./formatter";
+import { Connection } from "./connection";
 
 export type Statistics = {
   duration: number | BigNumber;
@@ -66,35 +66,23 @@ export type AdditionalConnectionParameters = {
   userClients?: ConnectorVersion[];
 };
 
-export type UsernamePasswordAuth = {
-  username: string;
-  password: string;
-};
-
 export type AccessTokenAuth = {
   accessToken: string;
 };
 
-export type ServiceAccountAuth = {
+export type ClientCredentialsAuth = {
   client_id: string;
   client_secret: string;
 };
 
-export type AuthOptions =
-  | UsernamePasswordAuth
-  | AccessTokenAuth
-  | ServiceAccountAuth;
+export type AuthOptions = AccessTokenAuth | ClientCredentialsAuth;
 
 export type ConnectionOptions = {
-  username?: string;
-  password?: string;
-  accessToken?: string;
   database?: string;
   engineName?: string;
-  engineEndpoint?: string;
   additionalParameters?: AdditionalConnectionParameters;
-  account?: string;
-  auth?: AuthOptions;
+  account: string;
+  auth: AuthOptions;
 };
 
 export type FireboltClientOptions = {
@@ -107,10 +95,22 @@ export type FireboltClientOptions = {
   };
 };
 
+export type ResourceManagerOptions = {
+  connection: Connection;
+  logger?: LoggerOptions;
+  dependencies?: {
+    logger: LoggerInterface;
+  };
+};
+
 export type Context = {
   logger: LoggerInterface;
   httpClient: HttpClientInterface;
-  resourceManager: ResourceManager;
   queryFormatter: QueryFormatter;
   apiEndpoint: string;
+};
+
+export type ResourceManagerContext = {
+  logger: LoggerInterface;
+  connection: Connection;
 };

@@ -3,19 +3,17 @@ import { rest } from "msw";
 import { Authenticator } from "../../src/auth";
 import { NodeHttpClient } from "../../src/http/node";
 import { Logger } from "../../src/logger/node";
-import { ResourceManager } from "../../src/service";
 import { QueryFormatter } from "../../src/formatter";
 
-const apiEndpoint = "fake.api.com";
+const apiEndpoint = "api.fake.firebolt.io";
 const logger = new Logger();
 
 const authHandler = rest.post(
-  `https://${apiEndpoint}/auth/v1/login`,
+  `https://id.fake.firebolt.io/oauth/token`,
   (req, res, ctx) => {
     return res(
       ctx.json({
-        access_token: "fake_access_token",
-        refresh_token: "fake_refresh_token"
+        access_token: "fake_access_token"
       })
     );
   }
@@ -34,17 +32,14 @@ describe("http client", () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
 
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        username: "user",
-        password: "fake_password"
+        auth: {
+          client_id: "user",
+          client_secret: "fake_password"
+        },
+        account: "my_account"
       }
     );
     server.use(authHandler);
@@ -55,16 +50,13 @@ describe("http client", () => {
   it("supports custom accessToken", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        accessToken: "custom_access_token"
+        auth: {
+          accessToken: "custom_access_token"
+        },
+        account: "my_account"
       }
     );
     server.use(
@@ -82,17 +74,14 @@ describe("http client", () => {
   it("sends access token in headers", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        username: "user",
-        password: "fake_password"
+        auth: {
+          client_id: "user",
+          client_secret: "fake_password"
+        },
+        account: "my_account"
       }
     );
     server.use(
@@ -110,17 +99,14 @@ describe("http client", () => {
   it("throw error if status > 300", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        username: "user",
-        password: "fake_password"
+        auth: {
+          client_id: "user",
+          client_secret: "fake_password"
+        },
+        account: "my_account"
       }
     );
     server.use(
@@ -136,43 +122,5 @@ describe("http client", () => {
     expect(async () => {
       await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
     }).rejects.toThrow("Record not found");
-  });
-  it("refresh token on 401", async () => {
-    const statusMock = jest.fn().mockReturnValueOnce(401).mockReturnValue(200);
-    const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
-    const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
-      {
-        username: "user",
-        password: "fake_password"
-      }
-    );
-    server.use(
-      authHandler,
-      rest.post(`https://${apiEndpoint}/auth/v1/refresh`, (req, res, ctx) => {
-        return res(
-          ctx.json({
-            access_token: "new_access_token"
-          })
-        );
-      }),
-      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
-        return res(
-          ctx.status(statusMock()),
-          ctx.json({ message: "Unauthorized", code: 401 })
-        );
-      })
-    );
-    await authenticator.authenticate();
-    const initialAccessToken = authenticator.accessToken;
-    await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
-    expect(initialAccessToken).not.toEqual(authenticator.accessToken);
   });
 });
