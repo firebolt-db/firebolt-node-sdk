@@ -34,7 +34,7 @@ jobs:
 
       - name: Run integration tests
         env:
-          FIREBOLT_ACCOUNT: "develop"
+          FIREBOLT_ACCOUNT: "developer"
           FIREBOLT_DATABASE: ${{ steps.setup.outputs.database_name }}
           FIREBOLT_ENGINE_NAME: ${{ steps.setup.outputs.engine_name }}
           FIREBOLT_API_ENDPOINT: ${{ secrets.FIREBOLT_API_ENDPOINT }}
