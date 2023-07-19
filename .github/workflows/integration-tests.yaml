@@ -1,6 +1,12 @@
 name: Run integration tests
 on:
   workflow_dispatch:
+    inputs:
+      account:
+        required: false
+        type: string
+        default: developer
+        description: 'Account to use'
   workflow_call:
     inputs:
       branch:
