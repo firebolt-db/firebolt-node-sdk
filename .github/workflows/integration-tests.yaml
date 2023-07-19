@@ -7,6 +7,11 @@ on:
         required: false
         type: string
         description: 'Branch to run on'
+      account:
+        required: false
+        type: string
+        default: developer
+        description: 'Account to use'
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -42,5 +47,6 @@ jobs:
           FIREBOLT_API_ENDPOINT: ${{ secrets.FIREBOLT_API_ENDPOINT }}
           FIREBOLT_CLIENT_ID: ${{ secrets.FIREBOLT_CLIENT_ID }}
           FIREBOLT_CLIENT_SECRET: ${{ secrets.FIREBOLT_CLIENT_SECRET }}
+          FIREBOLT_ACCOUNT: ${{ inputs.account }}
         run: |
           npm run test:ci integration
