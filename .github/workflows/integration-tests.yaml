@@ -25,22 +25,20 @@ jobs:
         run: npm install
       - name: Setup database and engine
         id: setup
-        uses: firebolt-db/integration-testing-setup@v1
+        uses: firebolt-db/integration-testing-setup@v2
         with:
-          firebolt-username: ${{ secrets.FIREBOLT_USERNAME }}
-          firebolt-password: ${{ secrets.FIREBOLT_PASSWORD }}
+          firebolt-client-id: ${{ secrets.FIREBOLT_CLIENT_ID_NEW_IDN }}
+          firebolt-client-secret: ${{ secrets.FIREBOLT_CLIENT_SECRET_NEW_IDN }}
           api-endpoint: "api.dev.firebolt.io"
           region: "us-east-1"
 
       - name: Run integration tests
         env:
-          FIREBOLT_USERNAME: ${{ secrets.FIREBOLT_USERNAME }}
-          FIREBOLT_PASSWORD: ${{ secrets.FIREBOLT_PASSWORD }}
+          FIREBOLT_ACCOUNT: "develop"
           FIREBOLT_DATABASE: ${{ steps.setup.outputs.database_name }}
           FIREBOLT_ENGINE_NAME: ${{ steps.setup.outputs.engine_name }}
-          FIREBOLT_ENGINE_ENDPOINT: ${{ steps.setup.outputs.engine_url }}
           FIREBOLT_API_ENDPOINT: ${{ secrets.FIREBOLT_API_ENDPOINT }}
-          FIREBOLT_CLIENT_ID: ${{ secrets.FIREBOLT_CLIENT_ID }}
-          FIREBOLT_CLIENT_SECRET: ${{ secrets.FIREBOLT_CLIENT_SECRET }}
+          FIREBOLT_CLIENT_ID: ${{ secrets.FIREBOLT_CLIENT_ID_NEW_IDN }}
+          FIREBOLT_CLIENT_SECRET: ${{ secrets.FIREBOLT_CLIENT_SECRET_NEW_IDN }}
         run: |
           npm run test:ci integration
