@@ -220,12 +220,18 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("SELECT * from numbers(100)", {
-      settings: {
-        output_format: OutputFormat.JSON_COMPACT,
-        use_standard_sql: 0
+    const statement = await connection.execute(
+      `
+    WITH arr AS (
+        SELECT [1,2,3,4,5,6] as a
+    )
+    SELECT a FROM arr UNNEST(a)`,
+      {
+        settings: {
+          output_format: OutputFormat.JSON_COMPACT
+        }
       }
-    });
+    );
 
     const {
       data,
@@ -253,7 +259,7 @@ describe("integration test", () => {
     const statistics = await statisticsPromise;
     console.log(statistics);
 
-    expect(rows.length).toEqual(100);
+    expect(rows.length).toEqual(6);
   });
   // it.skip("format limited", async () => {
   //   const firebolt = Firebolt({
@@ -302,9 +308,13 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("SELECT * from numbers(10)", {
-      settings: { use_standard_sql: 0 }
-    });
+    const statement = await connection.execute(
+      `
+    WITH arr AS (
+        SELECT [1,2,3,4,5,6] as a
+    )
+    SELECT a FROM arr UNNEST(a)`
+    );
 
     // to achieve seamless stream pipes you can use through2
     // or rowparser that returns strings or Buffer
