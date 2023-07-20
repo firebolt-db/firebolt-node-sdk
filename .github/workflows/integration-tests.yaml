@@ -29,6 +29,7 @@ jobs:
         with:
           firebolt-client-id: ${{ secrets.FIREBOLT_CLIENT_ID_NEW_IDN }}
           firebolt-client-secret: ${{ secrets.FIREBOLT_CLIENT_SECRET_NEW_IDN }}
+          account: "developer"
           api-endpoint: "api.dev.firebolt.io"
           region: "us-east-1"
 
