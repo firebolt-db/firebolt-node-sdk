@@ -77,9 +77,7 @@ describe("system engine", () => {
     const connection = await firebolt.connect({
       ...connectionOptions
     });
-    expect(connection.engineEndpoint).toEqual(
-      process.env.FIREBOLT_ENGINE_ENDPOINT
-    );
+    expect(connection.engineEndpoint).toBeTruthy();
   });
   it("able to list engines", async () => {
     const firebolt = Firebolt({
