@@ -1,9 +1,16 @@
 import { ConnectionError, DeprecationError } from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
+import { EngineModel } from "../engine/model";
 import { DatabaseModel } from "./model";
 
 export class DatabaseService {
   context: ResourceManagerContext;
+
+  private CREATE_PARAMETER_NAMES: string[] = [
+    "REGION",
+    "ATTACHED_ENGINES",
+    "DESCRIPTION"
+  ];
 
   constructor(context: ResourceManagerContext) {
     this.context = context;
@@ -34,7 +41,7 @@ export class DatabaseService {
       });
     }
     const [name, description] = data[0] as string[];
-    return new DatabaseModel({ name, description });
+    return new DatabaseModel({ name, description }, this.context);
   }
 
   async getAll(): Promise<DatabaseModel[]> {
@@ -46,9 +53,48 @@ export class DatabaseService {
 
     for (const row of data) {
       const [name, description] = row as string[];
-      databases.push(new DatabaseModel({ name, description }));
+      databases.push(new DatabaseModel({ name, description }, this.context));
     }
 
     return databases;
+  }
+
+  async create(
+    name: string,
+    region: string | undefined = undefined,
+    attached_engines: string[] | EngineModel[] | undefined = undefined,
+    description: string | undefined = undefined,
+    fail_if_exists: boolean = true
+  ): Promise<DatabaseModel> {
+    let query: string =
+      "CREATE ENGINE " + (fail_if_exists ? "" : "IF NOT EXISTS ") + name;
+
+    const allParamValues = [region, attached_engines, description];
+    const queryParameters = [];
+    if (region || attached_engines || description) {
+      query += " WITH ";
+      for (const [index, value] of allParamValues.entries()) {
+        if (value) {
+          query += `${this.CREATE_PARAMETER_NAMES[index]} = ?`;
+          if (
+            Array.isArray(value) &&
+            value.length > 0 &&
+            value[0] instanceof EngineModel
+          ) {
+            const engines: EngineModel[] = value as EngineModel[];
+            const newValue: string[] = engines.map(
+              (eng: EngineModel) => eng.name
+            );
+            queryParameters.push(newValue);
+          } else {
+            queryParameters.push(value);
+          }
+        }
+      }
+    }
+    await this.context.connection.execute(query, {
+      parameters: queryParameters
+    });
+    return await this.getByName(name);
   }
 }

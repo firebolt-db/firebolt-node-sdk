@@ -382,6 +382,43 @@ const engine = await firebolt.resourceManager.engine.getByName("engine_name")
 await engine.stop()
 ```
 
+<a id="create-engine"></a>
+##### Engine create
+
+Creates an engine.
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
+const engine = await firebolt.resourceManager.engine.create("engine_name");
+```
+
+<a id="attach-to-database"></a>
+##### Attach to database
+
+Attaches an engine to a database.
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
+const engine = await firebolt.resourceManager.engine.attach_to_database("engine_name", "database_name");
+```
+
+<a id="delete-engine"></a>
+##### Engine delete
+
+Deletes an engine.
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
+const engine = await firebolt.resourceManager.engine.getByName("engine_name");
+await engine.delete();
+```
+
 <a id="database-management"></a>
 ### Database management
 
@@ -414,6 +451,44 @@ const database = await firebolt.resourceManager.database.getByName("database_nam
 | `name`        | `string`                                  |       |
 | `description` | `string`                                  |       |
 
+
+<a id="create-database"></a>
+##### Database create
+
+Creates a database.
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
+const database = await firebolt.resourceManager.database.create("database_name");
+```
+
+<a id="get-attached-engines"></a>
+##### Get attached engines
+
+Get engines attached to a database.
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
+const database = await firebolt.resourceManager.database.getByName("database_name");
+const engines = database.get_attached_engines();
+```
+
+<a id="delete-database"></a>
+##### Database delete
+
+Deletes a database.
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+const firebolt = Firebolt();
+await firebolt.connect(connectionOptions);
+const database = await firebolt.resourceManager.database.getByName("database_name");
+await database.delete();
+```
 
 <a id="recipes"></a>
 ## Recipes

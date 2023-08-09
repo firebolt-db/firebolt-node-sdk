@@ -27,3 +27,14 @@ export enum EngineStatusSummary {
   STOPPED = "Stopped",
   STOPPING = "Stopping"
 }
+
+export enum EngineType {
+  GENERAL_PURPOSE = "GENERAL_PURPOSE",
+  DATA_ANALYTICS = "DATA_ANALYTICS"
+}
+
+export enum WarmupMethod {
+  MINIMAL = "MINIMAL",
+  PRELOAD_INDEXES = "PRELOAD_INDEXES",
+  PRELOAD_ALL_DATA = "PRELOAD_ALL_DATA"
+}

@@ -86,6 +86,38 @@ describe("engine integration", () => {
       process.env.FIREBOLT_ENGINE_ENDPOINT // Should be system engine, not user
     );
   });
+  it("create attach delete engine and database", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    await firebolt.connect(connectionOptions);
+    const name = `${process.env.FIREBOLT_DATABASE}_create_delete`;
+
+    const database = await firebolt.resourceManager.database.create(name);
+    expect(database.name == name);
+
+    const engine = await firebolt.resourceManager.engine.create(name);
+    expect(engine.name == name);
+
+    await firebolt.resourceManager.engine.attach_to_database(engine, database);
+    const attached_engines = await database.get_attached_engines();
+    expect(attached_engines.includes(engine));
+
+    engine.delete();
+    let query = `SELECT engine_name FROM information_schema.engines WHERE engine_name='${name}'`;
+    let statement =
+      await firebolt.resourceManager.account.context.connection.execute(query);
+    const { engine_data } = await statement.fetchResult();
+    expect(engine_data.length == 0);
+
+    database.delete();
+    query = `SELECT database_name FROM information_schema.databases WHERE database_name='${name}'`;
+    statement =
+      await firebolt.resourceManager.account.context.connection.execute(query);
+    const { database_data } = await statement.fetchResult();
+    expect(database_data.length == 0);
+  });
 });
 
 describe("engine resource manager", () => {

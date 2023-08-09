@@ -51,6 +51,15 @@ export class EngineModel {
     });
   }
 
+  async delete() {
+    await this.refreshStatus();
+    if (this.current_status_summary == EngineStatusSummary.DELETING) {
+      return;
+    }
+    const query = `DROP ENGINE ${this.name}`;
+    await this.connection.execute(query);
+  }
+
   private async refreshStatus() {
     const query =
       "SELECT status FROM information_schema.engines " +
