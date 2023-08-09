@@ -105,14 +105,14 @@ describe("engine integration", () => {
     expect(attached_engines.includes(engine));
 
     engine.delete();
-    let query = `SELECT engine_name FROM information_schema.engines WHERE engine_name='${name}'`;
+    let query = `SELECT engine_name, url, status FROM information_schema.engines WHERE engine_name='${name}'`;
     let statement =
       await firebolt.resourceManager.account.context.connection.execute(query);
     const { engine_data } = await statement.fetchResult();
     expect(engine_data.length == 0);
 
     database.delete();
-    query = `SELECT database_name FROM information_schema.databases WHERE database_name='${name}'`;
+    query = `SELECT database_name, description FROM information_schema.databases WHERE database_name='${name}'`;
     statement =
       await firebolt.resourceManager.account.context.connection.execute(query);
     const { database_data } = await statement.fetchResult();
