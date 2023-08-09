@@ -67,7 +67,7 @@ export class DatabaseService {
     fail_if_exists: boolean = true
   ): Promise<DatabaseModel> {
     let query: string =
-      "CREATE ENGINE " + (fail_if_exists ? "" : "IF NOT EXISTS ") + name;
+      "CREATE DATABASE " + (fail_if_exists ? "" : "IF NOT EXISTS ") + name;
 
     const allParamValues = [region, attached_engines, description];
     const queryParameters = [];
