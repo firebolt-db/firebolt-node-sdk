@@ -107,13 +107,13 @@ describe("engine integration", () => {
     engine.delete();
     let query = `SELECT engine_name, url, status FROM information_schema.engines WHERE engine_name='${name}'`;
     let statement = await connection.execute(query);
-    const { engine_data } = await statement.fetchResult();
+    const { data: engine_data } = await statement.fetchResult();
     expect(engine_data.length == 0);
 
     database.delete();
     query = `SELECT database_name, description FROM information_schema.databases WHERE database_name='${name}'`;
     statement = await connection.execute(query);
-    const { database_data } = await statement.fetchResult();
+    const { data: database_data } = await statement.fetchResult();
     expect(database_data.length == 0);
   });
 });
