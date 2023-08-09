@@ -114,6 +114,10 @@ describe("engine integration", () => {
     query = `SELECT database_name, description FROM information_schema.databases WHERE database_name='${name}'`;
     statement = await connection.execute(query);
     const { data: database_data } = await statement.fetchResult();
+    for (const row of database_data) {
+      const [name, endpoint, summary] = row as string[];
+      console.log(summary);
+    }
     expect(database_data.length == 0);
   });
 });
