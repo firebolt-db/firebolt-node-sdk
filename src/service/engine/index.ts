@@ -50,7 +50,7 @@ export class EngineService {
 
     const query =
       "SELECT engine_name, url, status FROM information_schema.engines " +
-      `WHERE attached_to = ${database_name}`;
+      `WHERE attached_to = '${database_name}'`;
     const statement = await this.context.connection.execute(query);
     const { data } = await statement.fetchResult();
 
