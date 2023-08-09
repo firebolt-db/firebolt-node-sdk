@@ -91,7 +91,7 @@ describe("engine integration", () => {
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
-    await firebolt.connect(connectionOptions);
+    const connection = await firebolt.connect(connectionOptions);
     const name = `${process.env.FIREBOLT_DATABASE}_create_delete`;
 
     const database = await firebolt.resourceManager.database.create(name);
@@ -106,15 +106,13 @@ describe("engine integration", () => {
 
     engine.delete();
     let query = `SELECT engine_name, url, status FROM information_schema.engines WHERE engine_name='${name}'`;
-    let statement =
-      await firebolt.resourceManager.account.context.connection.execute(query);
+    let statement = await connection.execute(query);
     const { engine_data } = await statement.fetchResult();
     expect(engine_data.length == 0);
 
     database.delete();
     query = `SELECT database_name, description FROM information_schema.databases WHERE database_name='${name}'`;
-    statement =
-      await firebolt.resourceManager.account.context.connection.execute(query);
+    statement = await connection.execute(query);
     const { database_data } = await statement.fetchResult();
     expect(database_data.length == 0);
   });
