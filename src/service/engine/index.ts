@@ -49,7 +49,7 @@ export class EngineService {
     const engines: EngineModel[] = [];
 
     const query =
-      "SELECT engine_name, url, status FROM information_schema.engines" +
+      "SELECT engine_name, url, status FROM information_schema.engines " +
       `WHERE attached_to = ${database_name}`;
     const statement = await this.context.connection.execute(query);
     const { data } = await statement.fetchResult();
