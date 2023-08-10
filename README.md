@@ -403,7 +403,7 @@ Attaches an engine to a database.
 import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
 await firebolt.connect(connectionOptions);
-const engine = await firebolt.resourceManager.engine.attach_to_database("engine_name", "database_name");
+const engine = await firebolt.resourceManager.engine.attachToDatabase("engine_name", "database_name");
 ```
 
 <a id="delete-engine"></a>
@@ -474,7 +474,7 @@ import { Firebolt } from 'firebolt-sdk'
 const firebolt = Firebolt();
 await firebolt.connect(connectionOptions);
 const database = await firebolt.resourceManager.database.getByName("database_name");
-const engines = database.get_attached_engines();
+const engines = database.getAttachedEngines();
 ```
 
 <a id="delete-database"></a>
