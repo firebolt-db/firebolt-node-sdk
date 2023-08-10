@@ -95,13 +95,6 @@ describe("engine integration", () => {
     const name = `${process.env.FIREBOLT_DATABASE}_create_delete`;
 
     const database = await firebolt.resourceManager.database.create(name);
-    const query2 = `SELECT database_name, description FROM information_schema.databases WHERE database_name='${name}'`;
-    const statement2 = await connection.execute(query2);
-    const { data: some_data } = await statement2.fetchResult();
-    for (const row of some_data) {
-      const [name, endpoint, summary] = row as string[];
-      console.log(summary);
-    }
     expect(database.name == name);
 
     const engine = await firebolt.resourceManager.engine.create(name);

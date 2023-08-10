@@ -31,8 +31,8 @@ export class DatabaseModel {
     const engines: EngineModel[] = await this.get_attached_engines();
     for (const engine of engines) {
       if (
-        engine.current_status_summary != EngineStatusSummary.STARTING &&  
-        engine.current_status_summary != EngineStatusSummary.STOPPING
+        engine.current_status_summary == EngineStatusSummary.STARTING ||  
+        engine.current_status_summary == EngineStatusSummary.STOPPING
       ) {
         throw new Error(
           "Unable to call delete: Engine must not be in starting or stopping state."
