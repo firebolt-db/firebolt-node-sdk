@@ -23,12 +23,12 @@ export class DatabaseModel {
     });
   }
 
-  async get_attached_engines() : Promise<EngineModel[]> {
+  async getAttachedEngines() : Promise<EngineModel[]> {
     return await this.resourceManager.engine.getByDB(this.name);
   }
 
   async delete() {
-    const engines: EngineModel[] = await this.get_attached_engines();
+    const engines: EngineModel[] = await this.getAttachedEngines();
     for (const engine of engines) {
       if (
         engine.current_status_summary == EngineStatusSummary.STARTING ||  
@@ -39,7 +39,7 @@ export class DatabaseModel {
         );
       }
     }
-    const query = `DROP DATABASE ${this.name}`;
+    const query = `DROP DATABASE "${this.name}"`;
     this.resourceManager.database.context.connection.execute(query);
   }
 }

@@ -2,6 +2,7 @@ import { ConnectionError, DeprecationError } from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
 import { EngineModel } from "../engine/model";
 import { DatabaseModel } from "./model";
+import { CreateDatabaseOptions } from "./types"
 
 export class DatabaseService {
   context: ResourceManagerContext;
@@ -61,17 +62,21 @@ export class DatabaseService {
 
   async create(
     name: string,
-    region: string | undefined = undefined,
-    attached_engines: string[] | EngineModel[] | undefined = undefined,
-    description: string | undefined = undefined,
-    fail_if_exists: boolean = true
+    options: CreateDatabaseOptions = {}
   ): Promise<DatabaseModel> {
+    if (options.fail_if_exists == undefined) {
+      options.fail_if_exists = true;
+    }
     let query: string =
-      "CREATE DATABASE " + (fail_if_exists ? "" : "IF NOT EXISTS ") + name;
+      `CREATE DATABASE ${options.fail_if_exists ? "" : "IF NOT EXISTS "} "${name}"`;
 
-    const allParamValues = [region, attached_engines, description];
+    const allParamValues = [
+      options.region, 
+      options.attached_engines, 
+      options.description
+    ];
     const queryParameters = [];
-    if (region || attached_engines || description) {
+    if (options.region || options.attached_engines || options.description) {
       query += " WITH ";
       for (const [index, value] of allParamValues.entries()) {
         if (value) {

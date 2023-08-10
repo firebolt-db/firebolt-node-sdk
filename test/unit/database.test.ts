@@ -183,4 +183,21 @@ describe("database service", () => {
       DeprecationError
     );
   });
+
+  it("create and delete database", async () => {
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const db = await resourceManager.database.create("some_db");
+    expect(db).toBeTruthy();
+    expect(db.name).toEqual("some_db");
+    await db.delete();
+    expect(resourceManager.database.getByName("some_db")).rejects.toThrowError(ConnectionError);
+  });
 });

@@ -100,8 +100,8 @@ describe("engine integration", () => {
     const engine = await firebolt.resourceManager.engine.create(name);
     expect(engine.name == name);
 
-    await firebolt.resourceManager.engine.attach_to_database(engine, database);
-    const attached_engines = await database.get_attached_engines();
+    await firebolt.resourceManager.engine.attachToDatabase(engine, database);
+    const attached_engines = await database.getAttachedEngines();
     expect(attached_engines.includes(engine));
 
     await engine.delete();

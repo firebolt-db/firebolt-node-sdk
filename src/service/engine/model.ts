@@ -56,7 +56,7 @@ export class EngineModel {
     if (this.current_status_summary == EngineStatusSummary.DELETING) {
       return;
     }
-    const query = `DROP ENGINE ${this.name}`;
+    const query = `DROP ENGINE "${this.name}"`;
     await this.connection.execute(query);
   }
 

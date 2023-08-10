@@ -334,4 +334,21 @@ describe("engine service", () => {
     const engine = await resourceManager.engine.getByName("some_engine");
     expect(engine.restart()).rejects.toThrowError(DeprecationError);
   });
+
+  it("create and delete engine", async () => {
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const engine = await resourceManager.engine.create("some_engine");
+    expect(engine).toBeTruthy();
+    expect(engine.endpoint).toEqual("https://some_engine.com");
+    await engine.delete();
+    expect(resourceManager.engine.getByName("some_engine")).rejects.toThrowError(ConnectionError);
+  });
 });

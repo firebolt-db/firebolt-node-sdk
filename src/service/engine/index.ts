@@ -2,7 +2,7 @@ import { ConnectionError, DeprecationError } from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
 import { DatabaseModel } from "../database/model";
 import { EngineModel } from "./model";
-import { EngineStatusSummary, EngineType, WarmupMethod } from "./types";
+import { EngineStatusSummary, CreateEngineOptions, EngineType } from "./types";
 
 export class EngineService {
   context: ResourceManagerContext;
@@ -92,27 +92,33 @@ export class EngineService {
 
   async create(
     name: string,
-    region: string | undefined = undefined,
-    engine_type: string | EngineType = EngineType.GENERAL_PURPOSE,
-    spec: string | undefined = undefined,
-    scale: number | undefined = undefined,
-    auto_stop: number | undefined = undefined,
-    warmup: string | WarmupMethod | undefined = undefined,
-    fail_if_exists: boolean = true
+    options: CreateEngineOptions = {}
   ): Promise<EngineModel> {
+    if (options.fail_if_exists == undefined) {
+      options.fail_if_exists = true;
+    }
+    if (options.engine_type == undefined) {
+      options.engine_type = EngineType.GENERAL_PURPOSE;
+    }
     let query: string =
-      "CREATE ENGINE " + (fail_if_exists ? "" : "IF NOT EXISTS ") + name;
+      `CREATE ENGINE ${options.fail_if_exists ? "" : "IF NOT EXISTS "} "${name}"`;
 
     const allParamValues = [
-      region,
-      engine_type,
-      spec,
-      scale,
-      auto_stop,
-      warmup
+      options.region,
+      options.engine_type,
+      options.spec,
+      options.scale,
+      options.auto_stop,
+      options.warmup
     ];
     const queryParameters: string[] = [];
-    if (region || engine_type || spec || scale || auto_stop || warmup) {
+    if (
+      options.region || 
+      options.engine_type || 
+      options.spec || 
+      options.scale || 
+      options.auto_stop || 
+      options.warmup) {
       query += " WITH ";
       for (const [index, value] of allParamValues.entries()) {
         if (value) {
@@ -127,14 +133,14 @@ export class EngineService {
     return await this.getByName(name);
   }
 
-  async attach_to_database(
+  async attachToDatabase(
     engine: EngineModel | string,
     database: DatabaseModel | string
   ) {
     const engine_name = engine instanceof EngineModel ? engine.name : engine;
     const database_name =
       database instanceof DatabaseModel ? database.name : database;
-    const query = `ATTACH ENGINE ${engine_name} TO ${database_name}`;
+    const query = `ATTACH ENGINE "${engine_name}" TO "${database_name}"`;
     await this.context.connection.execute(query);
   }
 }

@@ -38,3 +38,13 @@ export enum WarmupMethod {
   PRELOAD_INDEXES = "PRELOAD_INDEXES",
   PRELOAD_ALL_DATA = "PRELOAD_ALL_DATA"
 }
+
+export type CreateEngineOptions = {
+  region?: string;
+  engine_type?: string | EngineType;
+  spec?: string;
+  scale?: number;
+  auto_stop?: number;
+  warmup?: string | WarmupMethod;
+  fail_if_exists?: boolean;
+}
