@@ -1,4 +1,5 @@
 import { ConnectionError, DeprecationError } from "../../common/errors";
+import { QueryFormatter } from "../../formatter";
 import { ResourceManagerContext } from "../../types";
 import { EngineModel } from "../engine/model";
 import { DatabaseModel } from "./model";
@@ -6,12 +7,6 @@ import { CreateDatabaseOptions } from "./types"
 
 export class DatabaseService {
   context: ResourceManagerContext;
-
-  private CREATE_PARAMETER_NAMES: string[] = [
-    "REGION",
-    "ATTACHED_ENGINES",
-    "DESCRIPTION"
-  ];
 
   constructor(context: ResourceManagerContext) {
     this.context = context;
@@ -70,32 +65,34 @@ export class DatabaseService {
     let query: string =
       `CREATE DATABASE ${options.fail_if_exists ? "" : "IF NOT EXISTS "} "${name}"`;
 
-    const allParamValues = [
-      options.region, 
-      options.attached_engines, 
-      options.description
-    ];
     const queryParameters = [];
-    if (options.region || options.attached_engines || options.description) {
-      query += " WITH ";
-      for (const [index, value] of allParamValues.entries()) {
-        if (value) {
-          query += `${this.CREATE_PARAMETER_NAMES[index]} = ?`;
-          if (
-            Array.isArray(value) &&
-            value.length > 0 &&
-            value[0] instanceof EngineModel
-          ) {
-            const engines: EngineModel[] = value as EngineModel[];
-            const newValue: string[] = engines.map(
-              (eng: EngineModel) => eng.name
-            );
-            queryParameters.push(newValue);
-          } else {
-            queryParameters.push(value);
-          }
-        }
+    let attachedEnginesSql: string = ""
+    if (
+      Array.isArray(options.attached_engines) &&
+      options.attached_engines.length > 0
+    ) {
+      if (options.attached_engines[0] instanceof EngineModel) {
+        const engines: EngineModel[] = options.attached_engines as EngineModel[];
+        const attachedEngines = engines.map(engine => `"${engine.name}"`).join(" ");
+        attachedEnginesSql = ` ATTACHED_ENGINES = (${attachedEngines})`;
       }
+      else {
+        const engines: string[] = options.attached_engines as string[];
+        const attachedEngines = engines.map(engine => `"${engine}"`).join(" ");
+        attachedEnginesSql = ` ATTACHED_ENGINES = (${attachedEngines})`;
+      }
+    }
+    if (options.region || options.description || attachedEnginesSql) {
+      query += " WITH";
+      if (options.region) {
+        query += " REGION = ?";
+        queryParameters.push(options.region);
+      }
+      if (options.description) {
+        query += " DESCRIPTION = ?";
+        queryParameters.push(options.description);
+      }
+      query += attachedEnginesSql;
     }
     await this.context.connection.execute(query, {
       parameters: queryParameters
