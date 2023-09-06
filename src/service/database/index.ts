@@ -1,5 +1,4 @@
 import { ConnectionError, DeprecationError } from "../../common/errors";
-import { QueryFormatter } from "../../formatter";
 import { ResourceManagerContext } from "../../types";
 import { EngineModel } from "../engine/model";
 import { DatabaseModel } from "./model";
