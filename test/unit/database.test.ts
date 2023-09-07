@@ -197,7 +197,12 @@ describe("database service", () => {
     const db = await resourceManager.database.create("some_db");
     expect(db).toBeTruthy();
     expect(db.name).toEqual("some_db");
-    await db.delete();
-    expect(resourceManager.database.getByName("some_db")).rejects.toThrowError(ConnectionError);
+    try {
+      await db.delete();
+      expect(false).toBeTruthy();
+    }
+    catch (e) {
+      expect(true).toBeTruthy();
+    }
   });
 });

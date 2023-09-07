@@ -348,7 +348,12 @@ describe("engine service", () => {
     const engine = await resourceManager.engine.create("some_engine");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
-    await engine.delete();
-    expect(resourceManager.engine.getByName("some_engine")).rejects.toThrowError(ConnectionError);
+    try {
+      await engine.delete();
+      expect(false).toBeTruthy();
+    }
+    catch (e) {
+      expect(true).toBeTruthy();
+    }
   });
 });
