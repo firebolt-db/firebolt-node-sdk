@@ -197,6 +197,10 @@ describe("database service", () => {
     const db = await resourceManager.database.create("some_db");
     expect(db).toBeTruthy();
     expect(db.name).toEqual("some_db");
+    const engine = await resourceManager.engine.create("some_engine");
+    await resourceManager.engine.attachToDatabase(engine, db);
+    const engines = await db.getAttachedEngines();
+    expect(engines[0].endpoint).toEqual(engine.endpoint);
     try {
       await db.delete();
       expect(false).toBeTruthy();
