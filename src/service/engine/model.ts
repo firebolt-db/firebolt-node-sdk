@@ -52,7 +52,6 @@ export class EngineModel {
   }
 
   async delete() {
-    await this.refreshStatus();
     if (this.current_status_summary == EngineStatusSummary.DELETING) {
       return;
     }

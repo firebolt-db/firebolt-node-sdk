@@ -195,17 +195,23 @@ describe("database service", () => {
       }
     });
     const resourceManager = firebolt.resourceManager;
-    const options: CreateDatabaseOptions = {}
-    options.description = "description";
-    options.region = "region";
-    options.fail_if_exists = false;
+    
+    const engine = await resourceManager.engine.create("some_engine");
+    const options: CreateDatabaseOptions = {
+      description: "description",
+      region: "region",
+      attached_engines: [engine]
+    };
+
     const db = await resourceManager.database.create("some_db", options);
     expect(db).toBeTruthy();
     expect(db.name).toEqual("some_db");
-    const engine = await resourceManager.engine.create("some_engine");
-    await resourceManager.engine.attachToDatabase(engine, db);
+    const other_engine = await resourceManager.engine.create("some_other_engine");
+    await resourceManager.engine.attachToDatabase(other_engine, db);
     const engines = await db.getAttachedEngines();
+    console.log(engine.endpoint)
     expect(engines[0].endpoint).toEqual(engine.endpoint);
+    expect(engines[1].endpoint).toEqual(other_engine.endpoint);
     try {
       await db.delete();
       expect(false).toBeTruthy();
