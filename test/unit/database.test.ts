@@ -3,6 +3,7 @@ import { rest } from "msw";
 import { QUERY_URL } from "../../src/common/api";
 import { Firebolt } from "../../src";
 import { ConnectionError, DeprecationError } from "../../src/common/errors";
+import { CreateDatabaseOptions } from "../../src/service/database/types"
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -194,7 +195,11 @@ describe("database service", () => {
       }
     });
     const resourceManager = firebolt.resourceManager;
-    const db = await resourceManager.database.create("some_db");
+    const options: CreateDatabaseOptions = {}
+    options.description = "description";
+    options.region = "region";
+    options.fail_if_exists = false;
+    const db = await resourceManager.database.create("some_db", options);
     expect(db).toBeTruthy();
     expect(db.name).toEqual("some_db");
     const engine = await resourceManager.engine.create("some_engine");
