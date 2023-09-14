@@ -1,6 +1,8 @@
 import { ConnectionError, DeprecationError } from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
+import { EngineModel } from "../engine/model";
 import { DatabaseModel } from "./model";
+import { CreateDatabaseOptions } from "./types"
 
 export class DatabaseService {
   context: ResourceManagerContext;
@@ -34,7 +36,7 @@ export class DatabaseService {
       });
     }
     const [name, description] = data[0] as string[];
-    return new DatabaseModel({ name, description });
+    return new DatabaseModel({ name, description }, this.context);
   }
 
   async getAll(): Promise<DatabaseModel[]> {
@@ -46,9 +48,46 @@ export class DatabaseService {
 
     for (const row of data) {
       const [name, description] = row as string[];
-      databases.push(new DatabaseModel({ name, description }));
+      databases.push(new DatabaseModel({ name, description }, this.context));
     }
 
     return databases;
+  }
+
+  async create(
+    name: string,
+    options: CreateDatabaseOptions = {}
+  ): Promise<DatabaseModel> {
+    if (options.fail_if_exists == undefined) {
+      options.fail_if_exists = true;
+    }
+    let query: string =
+      `CREATE DATABASE ${options.fail_if_exists ? "" : "IF NOT EXISTS "} "${name}"`;
+
+    const queryParameters = [];
+    let attachedEnginesSql: string = ""
+    if (
+      Array.isArray(options.attached_engines) &&
+      options.attached_engines.length > 0
+    ) {
+      const attachedEngines = options.attached_engines.map(engine => engine instanceof EngineModel ? `"${engine.name}"` : `"${engine}"`).join(" ");
+      attachedEnginesSql = ` ATTACHED_ENGINES = (${attachedEngines})`;
+    }
+    if (options.region || options.description || attachedEnginesSql) {
+      query += " WITH";
+      if (options.region) {
+        query += " REGION = ?";
+        queryParameters.push(options.region);
+      }
+      if (options.description) {
+        query += " DESCRIPTION = ?";
+        queryParameters.push(options.description);
+      }
+      query += attachedEnginesSql;
+    }
+    await this.context.connection.execute(query, {
+      parameters: queryParameters
+    });
+    return await this.getByName(name);
   }
 }

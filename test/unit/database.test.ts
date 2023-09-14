@@ -3,6 +3,7 @@ import { rest } from "msw";
 import { QUERY_URL } from "../../src/common/api";
 import { Firebolt } from "../../src";
 import { ConnectionError, DeprecationError } from "../../src/common/errors";
+import { CreateDatabaseOptions } from "../../src/service/database/types"
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -182,5 +183,41 @@ describe("database service", () => {
     expect(resourceManager.database.getById("111")).rejects.toThrowError(
       DeprecationError
     );
+  });
+
+  it("create and delete database", async () => {
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    
+    const engine = await resourceManager.engine.create("some_engine");
+    const options: CreateDatabaseOptions = {
+      description: "description",
+      region: "region",
+      attached_engines: [engine]
+    };
+
+    const db = await resourceManager.database.create("some_db", options);
+    expect(db).toBeTruthy();
+    expect(db.name).toEqual("some_db");
+    const other_engine = await resourceManager.engine.create("some_other_engine");
+    await resourceManager.engine.attachToDatabase(other_engine, db);
+    const engines = await db.getAttachedEngines();
+    console.log(engine.endpoint)
+    expect(engines[0].endpoint).toEqual(engine.endpoint);
+    expect(engines[1].endpoint).toEqual(other_engine.endpoint);
+    try {
+      await db.delete();
+      expect(false).toBeTruthy();
+    }
+    catch (e) {
+      expect(true).toBeTruthy();
+    }
   });
 });
