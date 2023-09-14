@@ -70,16 +70,8 @@ export class DatabaseService {
       Array.isArray(options.attached_engines) &&
       options.attached_engines.length > 0
     ) {
-      if (options.attached_engines[0] instanceof EngineModel) {
-        const engines: EngineModel[] = options.attached_engines as EngineModel[];
-        const attachedEngines = engines.map(engine => `"${engine.name}"`).join(" ");
-        attachedEnginesSql = ` ATTACHED_ENGINES = (${attachedEngines})`;
-      }
-      else {
-        const engines: string[] = options.attached_engines as string[];
-        const attachedEngines = engines.map(engine => `"${engine}"`).join(" ");
-        attachedEnginesSql = ` ATTACHED_ENGINES = (${attachedEngines})`;
-      }
+      const attachedEngines = options.attached_engines.map(engine => engine instanceof EngineModel ? `"${engine.name}"` : `"${engine}"`).join(" ");
+      attachedEnginesSql = ` ATTACHED_ENGINES = (${attachedEngines})`;
     }
     if (options.region || options.description || attachedEnginesSql) {
       query += " WITH";
