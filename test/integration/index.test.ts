@@ -58,7 +58,7 @@ describe("integration test", () => {
     });
     const { data } = await statement.fetchResult();
     const row = data[0];
-    expect(row).toMatchObject({ "1": 1 });
+    expect(row).toMatchObject({ "?column?": 1 });
   });
   it("async query", async () => {
     const firebolt = Firebolt({

@@ -12,8 +12,8 @@ const connectionParams = {
 jest.setTimeout(500000);
 
 describe("long running request", () => {
-  it.skip("handles long request", async () => {
-    const query = `SELECT sleepEachRow(1) from numbers(360)`;
+  it("handles long request", async () => {
+    const query = `SELECT checksum(*) FROM generate_series(1, 10000000000)`;
 
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
@@ -21,12 +21,10 @@ describe("long running request", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute(query, {
-      settings: { use_standard_sql: 0, advanced_mode: 1 }
-    });
+    const statement = await connection.execute(query);
 
     const { data, meta } = await statement.fetchResult();
-    expect(data.length).toEqual(360);
-    expect(meta.length).toEqual(1);
+    expect(data).toBeTruthy();
+    expect(meta).toBeTruthy();
   });
 });
