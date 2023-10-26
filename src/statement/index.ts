@@ -3,7 +3,8 @@ import {
   ExecuteQueryOptions,
   StreamOptions,
   Context,
-  Statistics
+  Statistics,
+  Row
 } from "../types";
 import { Meta } from "../meta";
 import { isDataQuery } from "../common/util";
@@ -166,7 +167,12 @@ export class Statement {
     const text = await response.text();
 
     if (this.executeQueryOptions?.settings?.async_execution) {
-      return JSONbig.parse(text);
+      return JSONbig.parse(text) as {
+        data: Row[];
+        meta: Meta[];
+        statistics: Statistics;
+        query_id: string
+      };
     }
 
     const parsed = this.handleParseResponse(text);
