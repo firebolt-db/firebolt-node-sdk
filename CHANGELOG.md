@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.6](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.2.5...v0.2.6) (2023-10-26)
+
+
+### Bug Fixes
+
+* add keepalive agent timeout ([#57](https://github.com/firebolt-db/firebolt-node-sdk/issues/57)) ([0032d75](https://github.com/firebolt-db/firebolt-node-sdk/commit/0032d75a0593fb0ddb13f1c1b4f90abc85c405e2))
+
 ### [0.2.5](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.2.4...v0.2.5) (2023-07-13)
 
 ### [0.2.4](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.2.3...v0.2.4) (2023-06-20)
