@@ -1,4 +1,5 @@
-import { Agent } from "https";
+import { HttpsAgent } from "agentkeepalive";
+
 import Abort from "abort-controller";
 import fetch from "node-fetch";
 import { AbortSignal } from "node-fetch/externals";
@@ -37,7 +38,12 @@ export class NodeHttpClient {
   } {
     const { headers = {}, body, retry = true } = options || {};
     const controller = new AbortController();
-    const agent = new Agent({ keepAlive: true, keepAliveMsecs: 1000 });
+    const agent = new HttpsAgent({
+      keepAlive: true,
+      keepAliveMsecs: 1000,
+      timeout: 60000,
+      freeSocketTimeout: 30000
+    });
 
     const abort = () => {
       controller.abort();
