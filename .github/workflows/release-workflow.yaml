@@ -11,6 +11,10 @@ on:
         required: true
         type: string
         description: 'main or 0.x branch'
+      tag:
+        required: false
+        type: string
+        description: 'Tag name. Leave empty for regular release.'
 
 jobs:
   # integration-tests:
@@ -46,14 +50,14 @@ jobs:
 
     - name: Release
       run: |
-        ${{github.event.inputs.majorRelease != '' && format('npm run release -- --release-as {1}', github.event.inputs.majorRelease) || 'npm run release'}}
+        npm run release ${{github.event.inputs.majorRelease != '' && format('-- --release-as {1}', github.event.inputs.majorRelease) || ''}} ${{github.event.inputs.tag != '' && format('--prerelease {1}', github.event.inputs.tag) || ''}}
 
     - name: Publish to npm
       run: |
         echo //registry.npmjs.org/:_authToken=${{secrets.NPM_PUBLISH_KEY}} >> .npmrc
         echo email=${{ secrets.NPM_EMAIL }} >> .npmrc
         echo always-auth=true >> .npmrc
-        npm publish
+        npm publish ${{ github.events.inputs.tag != '' && format('--tag {1}', github.event.inputs.tag) || '' }}
 
     - name: Push git tags
       run: |
