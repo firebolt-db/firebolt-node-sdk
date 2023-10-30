@@ -50,11 +50,7 @@ jobs:
 
     - name: Release
       run: |
-        ${{ join(
-        'npm run release',
-        github.event.inputs.majorRelease != '' && format(' -- --release-as {1}', github.event.inputs.majorRelease) || '',
-        github.event.inputs.tag != '' && format(' --prerelease {1}', github.event.inputs.tag) || ''
-        }}
+        ${{ format('npm run release{}{}', github.event.inputs.majorRelease != '' && format(' -- --release-as {1}', github.event.inputs.majorRelease) || '',github.event.inputs.tag != '' && format(' --prerelease {1}', github.event.inputs.tag) || ''}}
 
     - name: Publish to npm
       run: |
