@@ -100,8 +100,9 @@ export class EngineService {
     if (options.engine_type == undefined) {
       options.engine_type = EngineType.GENERAL_PURPOSE;
     }
-    let query: string =
-      `CREATE ENGINE ${options.fail_if_exists ? "" : "IF NOT EXISTS "} "${name}"`;
+    let query = `CREATE ENGINE ${
+      options.fail_if_exists ? "" : "IF NOT EXISTS "
+    } "${name}"`;
 
     const allParamValues = [
       options.region,
@@ -111,19 +112,20 @@ export class EngineService {
       options.auto_stop,
       options.warmup
     ];
-    const queryParameters: string[] = [];
+    const queryParameters: (string | number)[] = [];
     if (
-      options.region || 
-      options.engine_type || 
-      options.spec || 
-      options.scale || 
-      options.auto_stop || 
-      options.warmup) {
+      options.region ||
+      options.engine_type ||
+      options.spec ||
+      options.scale ||
+      options.auto_stop ||
+      options.warmup
+    ) {
       query += " WITH ";
       for (const [index, value] of allParamValues.entries()) {
         if (value) {
           query += `${this.CREATE_PARAMETER_NAMES[index]} = ?`;
-          queryParameters.push(value.toString());
+          queryParameters.push(value);
         }
       }
     }
