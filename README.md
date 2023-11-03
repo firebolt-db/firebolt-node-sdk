@@ -7,7 +7,7 @@
 This library is published in the NPM registry and can be installed using any compatible package manager.
 
 ```sh
-npm install firebolt-sdk --save
+npm install firebolt-sdk@"<1.0.0-alpha" --save
 
 # For Yarn, use the command below.
 yarn add firebolt-sdk
