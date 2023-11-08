@@ -14,7 +14,7 @@ on:
       tag:
         required: false
         type: string
-        description: 'Tag name. Leave empty for regular release.'
+        description: 'Prerelease tag name. Leave empty for regular release.'
 
 jobs:
   # integration-tests:
