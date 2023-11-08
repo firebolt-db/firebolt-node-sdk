@@ -1,8 +1,5 @@
-import {
-  EngineStatusSummary,
-  Firebolt,
-  FireboltResourceManager
-} from "../../src/index";
+import { EngineStatusSummary, Firebolt, FireboltResourceManager } from "../../src/index";
+import { EngineType, WarmupMethod } from "../../src/service/engine/types";
 
 const authOptions = {
   client_id: process.env.FIREBOLT_CLIENT_ID as string,
@@ -94,10 +91,22 @@ describe("engine integration", () => {
     const connection = await firebolt.connect(connectionOptions);
     const name = `${process.env.FIREBOLT_DATABASE}_create_delete`;
 
-    const database = await firebolt.resourceManager.database.create(name);
+    const database = await firebolt.resourceManager.database.create(name, {
+      description: "test database",
+      fail_if_exists: true,
+      region: "us-east-1"
+    });
     expect(database.name == name);
 
-    const engine = await firebolt.resourceManager.engine.create(name);
+    const engine = await firebolt.resourceManager.engine.create(name, {
+      region: "us-east-1",
+      engine_type: EngineType.GENERAL_PURPOSE,
+      spec: "B2",
+      scale: 1,
+      auto_stop: 20 * 60,
+      warmup: WarmupMethod.MINIMAL,
+      fail_if_exists: true
+    });
     expect(engine.name == name);
 
     await firebolt.resourceManager.engine.attachToDatabase(engine, database);
