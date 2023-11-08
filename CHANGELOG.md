@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.0.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.2.5...v1.0.0) (2023-11-08)
+
+
+### Features
+
+* new identity support ([#43](https://github.com/firebolt-db/firebolt-node-sdk/issues/43)) ([a742cd6](https://github.com/firebolt-db/firebolt-node-sdk/commit/a742cd66fbcca9ef712ab07d43c5d9fbb1126119))
+* support create delete and attach database and engine ([#56](https://github.com/firebolt-db/firebolt-node-sdk/issues/56)) ([3bbc573](https://github.com/firebolt-db/firebolt-node-sdk/commit/3bbc5738507260a4e05e023903972b930e42f632))
+
 ## [1.0.0-alpha.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.2.5...v1.0.0-alpha.0) (2023-11-08)
 
 
