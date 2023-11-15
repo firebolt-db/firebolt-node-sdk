@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.9](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.2.8...v0.2.9) (2023-11-15)
+
+
+### Bug Fixes
+
+* **keepalive:** cache http agent by host, set keepalive for first request ([#65](https://github.com/firebolt-db/firebolt-node-sdk/issues/65)) ([e759739](https://github.com/firebolt-db/firebolt-node-sdk/commit/e759739bcf171235189bcd4934ba1780c45379c8))
+
 ### [0.2.8](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.2.7...v0.2.8) (2023-10-31)
 
 ### [0.2.7](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.2.5...v0.2.7) (2023-10-26)
