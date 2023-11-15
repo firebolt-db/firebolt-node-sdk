@@ -25,8 +25,44 @@ const DEFAULT_ERROR = "Server error";
 
 const DEFAULT_USER_AGENT = systemInfoString();
 
+const createSocket = HttpsAgent.prototype.createSocket;
+
+const agentOptions = {
+  keepAlive: true,
+  keepAliveMsecs: 1000,
+  timeout: 0,
+  freeSocketTimeout: 30000
+};
+
+// workaround to set keep alive timeout on first request
+// Keep Alive option is not working on https.agent #47137
+// https://github.com/nodejs/node/issues/47137
+
+HttpsAgent.prototype.createSocket = function (req, options, cb) {
+  req.on("socket", socket => {
+    socket.setKeepAlive(agentOptions.keepAlive, agentOptions.keepAliveMsecs);
+  });
+  createSocket.call(this, req, options, cb);
+};
+
 export class NodeHttpClient {
   authenticator!: Authenticator;
+  agentCache!: Map<string, HttpsAgent>;
+
+  constructor() {
+    this.agentCache = new Map();
+  }
+
+  getAgent = (url: string): HttpsAgent => {
+    const { hostname } = new URL(`https://${url}`);
+    if (this.agentCache.has(hostname)) {
+      return this.agentCache.get(hostname) as HttpsAgent;
+    }
+
+    const agent = new HttpsAgent(agentOptions);
+    this.agentCache.set(hostname, agent);
+    return agent;
+  };
 
   request<T>(
     method: string,
@@ -38,12 +74,7 @@ export class NodeHttpClient {
   } {
     const { headers = {}, body, retry = true } = options || {};
     const controller = new AbortController();
-    const agent = new HttpsAgent({
-      keepAlive: true,
-      keepAliveMsecs: 1000,
-      timeout: 60000,
-      freeSocketTimeout: 30000
-    });
+    const agent = this.getAgent(url);
 
     const abort = () => {
       controller.abort();
