@@ -56,7 +56,6 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    resourceManager.account.id = "some_account";
     const engine = await resourceManager.engine.getByName("some_engine");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
@@ -70,7 +69,6 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    resourceManager.account.id = "some_account";
     const engine = await resourceManager.engine.getById("123");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
@@ -96,7 +94,6 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    resourceManager.account.id = "some_account";
     const engine = await resourceManager.engine.getById("123");
     const {
       engine: {
@@ -127,7 +124,6 @@ describe("engine service", () => {
       logger,
       queryFormatter
     });
-    resourceManager.account.id = "some_account";
     const engine = await resourceManager.engine.getById("123");
     const {
       engine: {
