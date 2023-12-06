@@ -3,7 +3,7 @@ import { assignProtocol } from "../common/util";
 import {
   Context,
   ConnectionOptions,
-  ClientCredentialsAuth,
+  ServiceAccountAuth,
   AccessTokenAuth
 } from "../types";
 
@@ -56,7 +56,7 @@ export class Authenticator {
     return myURL.toString();
   }
 
-  async authenticateServiceAccount(auth: ClientCredentialsAuth) {
+  async authenticateServiceAccount(auth: ServiceAccountAuth) {
     const { httpClient, apiEndpoint } = this.context;
     const { client_id, client_secret } = auth;
 
@@ -92,10 +92,10 @@ export class Authenticator {
       return;
     }
     if (
-      (options as ClientCredentialsAuth).client_id &&
-      (options as ClientCredentialsAuth).client_secret
+      (options as ServiceAccountAuth).client_id &&
+      (options as ServiceAccountAuth).client_secret
     ) {
-      await this.authenticateServiceAccount(options as ClientCredentialsAuth);
+      await this.authenticateServiceAccount(options as ServiceAccountAuth);
       return;
     }
 
