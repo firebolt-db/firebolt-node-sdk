@@ -1,4 +1,4 @@
-import { Firebolt, FireboltResourceManager } from "../../src/index";
+import { Firebolt, FireboltResourceManager } from "../../../src/index";
 
 const authOptions = {
   username: process.env.FIREBOLT_USERNAME as string,

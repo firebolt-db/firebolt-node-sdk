@@ -1,4 +1,4 @@
-import { Firebolt } from "../../src/index";
+import { Firebolt } from "../../../src/index";
 
 const auth = {
   client_id: process.env.FIREBOLT_CLIENT_ID as string,
