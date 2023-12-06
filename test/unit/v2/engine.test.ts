@@ -1,10 +1,10 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Logger } from "../../src/logger/node";
-import { QUERY_URL } from "../../src/common/api";
-import { Firebolt } from "../../src";
-import { ResourceManager } from "../../src/service";
-import { ConnectionError, DeprecationError } from "../../src/common/errors";
+import { Logger } from "../../../src/logger/node";
+import { QUERY_URL } from "../../../src/common/api";
+import { Firebolt } from "../../../src";
+import { ResourceManager } from "../../../src/service";
+import { ConnectionError, DeprecationError } from "../../../src/common/errors";
 
 const apiEndpoint = "api.fake.firebolt.io";
 

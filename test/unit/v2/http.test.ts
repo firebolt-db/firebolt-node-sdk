@@ -1,9 +1,9 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Authenticator } from "../../src/auth";
-import { NodeHttpClient } from "../../src/http/node";
-import { Logger } from "../../src/logger/node";
-import { QueryFormatter } from "../../src/formatter";
+import { Authenticator } from "../../../src/auth";
+import { NodeHttpClient } from "../../../src/http/node";
+import { Logger } from "../../../src/logger/node";
+import { QueryFormatter } from "../../../src/formatter";
 
 const apiEndpoint = "api.fake.firebolt.io";
 const logger = new Logger();

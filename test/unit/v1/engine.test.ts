@@ -1,9 +1,9 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { NodeHttpClient } from "../../src/http/node";
-import { Logger } from "../../src/logger/node";
-import { ResourceManager } from "../../src/service";
-import { QueryFormatter } from "../../src/formatter";
+import { NodeHttpClient } from "../../../src/http/node";
+import { Logger } from "../../../src/logger/node";
+import { ResourceManager } from "../../../src/service";
+import { QueryFormatter } from "../../../src/formatter";
 
 const apiEndpoint = "fake.api.com";
 const logger = new Logger();
