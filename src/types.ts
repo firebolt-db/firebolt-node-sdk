@@ -66,7 +66,7 @@ export type AdditionalConnectionParameters = {
   userClients?: ConnectorVersion[];
 };
 
-export type UsernamePaswordAuth = {
+export type UsernamePasswordAuth = {
   username: string;
   password: string;
 };
@@ -76,7 +76,7 @@ export type ServiceAccountAuth = {
   client_secret: string;
 };
 
-export type AuthOptions = UsernamePaswordAuth | ServiceAccountAuth;
+export type AuthOptions = UsernamePasswordAuth | ServiceAccountAuth;
 
 export type ConnectionOptions = {
   database?: string;

@@ -1,10 +1,10 @@
-import { SERVICE_ACCOUNT_LOGIN } from "../common/api";
+import { SERVICE_ACCOUNT_LOGIN, USERNAME_PASSWORD_LOGIN } from "../common/api";
 import { assignProtocol } from "../common/util";
 import {
   Context,
   ConnectionOptions,
   ServiceAccountAuth,
-  AccessTokenAuth
+  UsernamePasswordAuth
 } from "../types";
 
 type Login = {
@@ -38,12 +38,7 @@ export class Authenticator {
     return {};
   }
 
-  authenticateWithToken(auth: AccessTokenAuth) {
-    const { accessToken } = auth;
-    this.accessToken = accessToken;
-  }
-
-  getAuthEndpoint(apiEndpoint: string) {
+  private static getAuthEndpoint(apiEndpoint: string) {
     const myURL = new URL(assignProtocol(apiEndpoint));
     const hostStrings = myURL.hostname.split(".");
     // We expect an apiEndpoint to be of format api.<env>.firebolt.io
@@ -56,11 +51,32 @@ export class Authenticator {
     return myURL.toString();
   }
 
-  async authenticateServiceAccount(auth: ServiceAccountAuth) {
+  private async authenticateUsernamePassword(auth: UsernamePasswordAuth) {
+    const { httpClient, apiEndpoint } = this.context;
+    const { username, password } = auth;
+    const url = `${apiEndpoint}/${USERNAME_PASSWORD_LOGIN}`;
+    const body = JSON.stringify({
+      username,
+      password
+    });
+
+    this.accessToken = undefined;
+
+    const { access_token } = await httpClient
+      .request<Login>("POST", url, {
+        body,
+        retry: false
+      })
+      .ready();
+
+    this.accessToken = access_token;
+  }
+
+  private async authenticateServiceAccount(auth: ServiceAccountAuth) {
     const { httpClient, apiEndpoint } = this.context;
     const { client_id, client_secret } = auth;
 
-    const authEndpoint = this.getAuthEndpoint(apiEndpoint);
+    const authEndpoint = Authenticator.getAuthEndpoint(apiEndpoint);
     const params = new URLSearchParams({
       client_id,
       client_secret,
@@ -87,8 +103,11 @@ export class Authenticator {
   async authenticate() {
     const options = this.options.auth || this.options;
 
-    if ((options as AccessTokenAuth).accessToken) {
-      this.authenticateWithToken(options as AccessTokenAuth);
+    if (
+      (options as UsernamePasswordAuth).username &&
+      (options as UsernamePasswordAuth).password
+    ) {
+      await this.authenticateUsernamePassword(options as UsernamePasswordAuth);
       return;
     }
     if (

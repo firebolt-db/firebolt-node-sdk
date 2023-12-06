@@ -5,3 +5,7 @@ export const ACCOUNT_SYSTEM_ENGINE = (accountName: string) =>
   `web/v3/account/${accountName}/engineUrl`;
 export const ACCOUNT_ID_BY_NAME = (accountName: string) =>
   `web/v3/account/${accountName}/resolve`;
+
+// V1
+
+export const USERNAME_PASSWORD_LOGIN = "auth/v1/login";
