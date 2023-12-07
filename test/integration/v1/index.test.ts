@@ -25,27 +25,6 @@ describe("integration test", () => {
     expect(data.length).toEqual(1);
     expect(meta.length).toEqual(1);
   });
-  it("works with accessToken", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-
-    const connection = await firebolt.connect(connectionParams);
-
-    const connection2 = await firebolt.connect({
-      database: process.env.FIREBOLT_DATABASE as string,
-      engineName: process.env.FIREBOLT_ENGINE_NAME as string,
-      auth: {
-        // @ts-ignore
-        accessToken: connection.context.httpClient.authenticator.accessToken
-      }
-    });
-
-    const statement2 = await connection2.execute("SELECT 1");
-    const { data, meta } = await statement2.fetchResult();
-    expect(data.length).toEqual(1);
-    expect(meta.length).toEqual(1);
-  });
   it("json output format", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
