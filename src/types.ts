@@ -114,4 +114,6 @@ export type Context = {
 export type ResourceManagerContext = {
   logger: LoggerInterface;
   connection: Connection;
+  httpClient: HttpClientInterface;
+  apiEndpoint: string;
 };

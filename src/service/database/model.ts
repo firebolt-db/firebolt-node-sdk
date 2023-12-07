@@ -1,6 +1,6 @@
 import { DeprecationError } from "../../common/errors";
 import { Database } from "./types";
-import { ResourceManager } from "../../service"
+import { ResourceManager } from "../index";
 import { ResourceManagerContext } from "../../types";
 import { EngineModel } from "../engine/model";
 import { EngineStatusSummary } from "../engine/types";
@@ -23,7 +23,7 @@ export class DatabaseModel {
     });
   }
 
-  async getAttachedEngines() : Promise<EngineModel[]> {
+  async getAttachedEngines(): Promise<EngineModel[]> {
     return await this.resourceManager.engine.getByDB(this.name);
   }
 
@@ -31,7 +31,7 @@ export class DatabaseModel {
     const engines: EngineModel[] = await this.getAttachedEngines();
     for (const engine of engines) {
       if (
-        engine.current_status_summary == EngineStatusSummary.STARTING ||  
+        engine.current_status_summary == EngineStatusSummary.STARTING ||
         engine.current_status_summary == EngineStatusSummary.STOPPING
       ) {
         throw new Error(
@@ -40,6 +40,6 @@ export class DatabaseModel {
       }
     }
     const query = `DROP DATABASE "${this.name}"`;
-    this.resourceManager.database.context.connection.execute(query);
+    await this.resourceManager.database.context.connection.execute(query);
   }
 }

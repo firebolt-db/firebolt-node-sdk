@@ -2,7 +2,7 @@ import { ConnectionError, DeprecationError } from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
 import { EngineModel } from "../engine/model";
 import { DatabaseModel } from "./model";
-import { CreateDatabaseOptions } from "./types"
+import { CreateDatabaseOptions } from "./types";
 
 export class DatabaseService {
   context: ResourceManagerContext;
@@ -61,16 +61,21 @@ export class DatabaseService {
     if (options.fail_if_exists == undefined) {
       options.fail_if_exists = true;
     }
-    let query: string =
-      `CREATE DATABASE ${options.fail_if_exists ? "" : "IF NOT EXISTS "} "${name}"`;
+    let query = `CREATE DATABASE ${
+      options.fail_if_exists ? "" : "IF NOT EXISTS "
+    } "${name}"`;
 
     const queryParameters = [];
-    let attachedEnginesSql: string = ""
+    let attachedEnginesSql = "";
     if (
       Array.isArray(options.attached_engines) &&
       options.attached_engines.length > 0
     ) {
-      const attachedEngines = options.attached_engines.map(engine => engine instanceof EngineModel ? `"${engine.name}"` : `"${engine}"`).join(" ");
+      const attachedEngines = options.attached_engines
+        .map(engine =>
+          engine instanceof EngineModel ? `"${engine.name}"` : `"${engine}"`
+        )
+        .join(" ");
       attachedEnginesSql = ` ATTACHED_ENGINES = (${attachedEngines})`;
     }
     if (options.region || options.description || attachedEnginesSql) {

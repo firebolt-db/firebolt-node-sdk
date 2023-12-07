@@ -1,6 +1,7 @@
 import { EngineModel } from "../engine/model";
 
 export type Database = {
+  id?: string;
   name: string;
   description: string;
 };
