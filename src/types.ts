@@ -96,12 +96,8 @@ export type FireboltClientOptions = {
   };
 };
 
-export type ResourceManagerOptions = {
+export type ResourceManagerOptions = FireboltClientOptions & {
   connection: Connection;
-  logger?: LoggerOptions;
-  dependencies?: {
-    logger: LoggerInterface;
-  };
 };
 
 export type Context = {

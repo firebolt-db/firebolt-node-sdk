@@ -33,4 +33,7 @@ export class DatabaseModel {
       .ready();
     return data.engine_url;
   }
+
+  async delete() {
+  }
 }

@@ -4,18 +4,23 @@ import {
   ACCOUNT_ENGINE_STOP,
   ACCOUNT_ENGINE_RESTART
 } from "../../../common/api";
-import { Context } from "../../../types";
+import { ResourceManagerContext } from "../../../types";
 import { ID, Engine, EngineStatusSummary } from "./types";
 
 export class EngineModel {
-  private context: Context;
+  private readonly context: ResourceManagerContext;
+  private readonly accountId: string;
   id: ID;
   name: string;
   description: string;
   endpoint: string;
   current_status_summary: EngineStatusSummary;
 
-  constructor(context: Context, engine: Engine) {
+  constructor(
+    context: ResourceManagerContext,
+    engine: Engine,
+    accountId: string
+  ) {
     const { id, name, description, endpoint, current_status_summary } = engine;
     this.id = id;
     this.name = name;
@@ -23,26 +28,26 @@ export class EngineModel {
     this.endpoint = endpoint;
     this.context = context;
     this.current_status_summary = current_status_summary;
+    this.accountId = accountId;
   }
 
   async start() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_START(accountId, id)}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_START(this.accountId, id)}`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
     return data;
   }
 
-  async startAndWait() {
+  async startAndWait(): Promise<{ engine: Engine }> {
     const {
       engine: { current_status_summary }
     } = await this.start();
     this.current_status_summary = current_status_summary;
     if (this.current_status_summary.includes("RUNNING")) {
-      return;
+      return { engine: this };
     }
 
     let interval: NodeJS.Timer;
@@ -58,13 +63,13 @@ export class EngineModel {
         clearInterval(interval);
       }
     });
+    return { engine: this };
   }
 
   async stop() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_STOP(accountId, id)}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_STOP(this.accountId, id)}`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -74,8 +79,7 @@ export class EngineModel {
   async restart() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_RESTART(accountId, id)}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_RESTART(this.accountId, id)}`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -85,11 +89,12 @@ export class EngineModel {
   private async refreshStatus() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const accountId = this.context.resourceManager.account.id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(accountId, id)}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(this.accountId, id)}`;
     const {
       engine: { current_status_summary }
     } = await httpClient.request<{ engine: Engine }>("GET", url).ready();
     this.current_status_summary = current_status_summary;
   }
+
+  async delete() {}
 }

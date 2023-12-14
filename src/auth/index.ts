@@ -21,7 +21,6 @@ export class Authenticator {
   options: ConnectionOptions;
 
   accessToken?: string;
-  refreshToken?: string;
 
   constructor(context: Context, options: ConnectionOptions) {
     context.httpClient.authenticator = this;
@@ -100,20 +99,29 @@ export class Authenticator {
     this.accessToken = access_token;
   }
 
-  async authenticate() {
+  isUsernamePassword() {
     const options = this.options.auth || this.options;
-
-    if (
+    return (
       (options as UsernamePasswordAuth).username &&
       (options as UsernamePasswordAuth).password
-    ) {
+    );
+  }
+
+  isServiceAccount() {
+    const options = this.options.auth || this.options;
+    return (
+      (options as ServiceAccountAuth).client_id &&
+      (options as ServiceAccountAuth).client_secret
+    );
+  }
+
+  async authenticate() {
+    const options = this.options.auth || this.options;
+    if (this.isUsernamePassword()) {
       await this.authenticateUsernamePassword(options as UsernamePasswordAuth);
       return;
     }
-    if (
-      (options as ServiceAccountAuth).client_id &&
-      (options as ServiceAccountAuth).client_secret
-    ) {
+    if (this.isServiceAccount()) {
       await this.authenticateServiceAccount(options as ServiceAccountAuth);
       return;
     }

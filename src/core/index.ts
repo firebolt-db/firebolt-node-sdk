@@ -18,10 +18,12 @@ export class FireboltCore {
     const connection = new Connection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
-    this.resourceManager = new ResourceManager({
-      logger: this.context.logger,
-      connection
-    });
+    const context = {
+      connection,
+      ...this.context
+    };
+    this.resourceManager = new ResourceManager(context);
+    await this.resourceManager.initialize();
     return connection;
   }
 

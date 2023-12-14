@@ -7,6 +7,7 @@ import {
 import { ResourceManagerContext } from "../../../types";
 import { DatabaseModel } from "./model";
 import { ID, Database } from "./types";
+import { CreateDatabaseOptions } from "../types";
 
 export class DatabaseService {
   private readonly context: ResourceManagerContext;
@@ -85,5 +86,12 @@ export class DatabaseService {
     } while (hasNextPage);
 
     return databases;
+  }
+
+  async create(
+    name: string,
+    options: CreateDatabaseOptions
+  ): Promise<DatabaseModel> {
+    return await this.getByName(name);
   }
 }
