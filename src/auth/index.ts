@@ -101,7 +101,7 @@ export class Authenticator {
 
   isUsernamePassword() {
     const options = this.options.auth || this.options;
-    return (
+    return !!(
       (options as UsernamePasswordAuth).username &&
       (options as UsernamePasswordAuth).password
     );
@@ -109,7 +109,7 @@ export class Authenticator {
 
   isServiceAccount() {
     const options = this.options.auth || this.options;
-    return (
+    return !!(
       (options as ServiceAccountAuth).client_id &&
       (options as ServiceAccountAuth).client_secret
     );

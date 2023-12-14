@@ -109,7 +109,7 @@ export type Context = {
 
 export type ResourceManagerContext = {
   logger: LoggerInterface;
-  connection: Connection;
   httpClient: HttpClientInterface;
+  connection: Connection;
   apiEndpoint: string;
 };

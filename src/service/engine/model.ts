@@ -45,7 +45,7 @@ export class EngineModel {
     return { engine: res };
   }
 
-  async restart() {
+  async restart(): Promise<{ engine: Engine }> {
     throw new DeprecationError({
       message: "Restart engine is no longer programmatically supported"
     });

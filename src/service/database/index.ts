@@ -11,7 +11,7 @@ export class DatabaseService {
     this.context = context;
   }
 
-  async getDefaultEndpointByName(name: string) {
+  async getDefaultEndpointByName(name: string): Promise<string> {
     throw new DeprecationError({
       message: "Default engines are no longer supported"
     });

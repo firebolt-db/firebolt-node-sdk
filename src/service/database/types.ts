@@ -26,4 +26,5 @@ export interface DatabaseServiceInterface {
     name: string,
     options: CreateDatabaseOptions
   ): Promise<DatabaseModelInterface>;
+  getDefaultEndpointByName(name: string): Promise<string>;
 }

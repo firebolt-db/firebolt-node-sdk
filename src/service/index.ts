@@ -9,24 +9,22 @@ import { ResourceManagerContext } from "../types";
 
 export class ResourceManager {
   private context: ResourceManagerContext;
-  accountName!: string;
-  engine?: EngineServiceInterface;
-  database?: DatabaseServiceInterface;
+  engine: EngineServiceInterface;
+  database: DatabaseServiceInterface;
 
   constructor(context: ResourceManagerContext) {
     this.context = context;
-  }
-
-  async initialize() {
-    const { httpClient, connection } = this.context;
-    const accountId = await connection.resolveAccountId();
+    const { httpClient } = this.context;
     if (httpClient.authenticator.isServiceAccount()) {
       this.engine = new EngineServiceV2(this.context);
       this.database = new DatabaseServiceV2(this.context);
-    }
-    if (httpClient.authenticator.isUsernamePassword()) {
-      this.engine = new EngineServiceV1(this.context, accountId);
-      this.database = new DatabaseServiceV1(this.context, accountId);
+    } else if (httpClient.authenticator.isUsernamePassword()) {
+      this.engine = new EngineServiceV1(this.context);
+      this.database = new DatabaseServiceV1(this.context);
+    } else {
+      throw new Error(
+        "Invalid auth credentials provided. Please check your credentials and try again."
+      );
     }
   }
 }

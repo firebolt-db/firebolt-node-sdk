@@ -1,28 +1,26 @@
-import {
-  ACCOUNT_ENGINE,
-  ACCOUNT_ENGINES,
-  ResultsPage
-} from "../../../common/api";
+import { ACCOUNT_ENGINE, ACCOUNT_ENGINES, ResultsPage } from "../../../common/api";
 import { ResourceManagerContext } from "../../../types";
 import { EngineModel } from "./model";
-import { ID, Engine } from "./types";
+import { Engine, EngineStatusSummary, ID } from "./types";
 import { CreateEngineOptions } from "../types";
 import { DatabaseModel } from "../../database/v1/model";
 
 export class EngineService {
   private readonly context: ResourceManagerContext;
-  private readonly accountId: string;
 
-  constructor(context: ResourceManagerContext, accountId: string) {
+  constructor(context: ResourceManagerContext) {
     this.context = context;
-    this.accountId = accountId;
+  }
+
+  private get accountId(): Promise<string> {
+    return this.context.connection.resolveAccountId();
   }
 
   private async getEngineId(engineName: string): Promise<ID> {
     const { apiEndpoint, httpClient } = this.context;
     const queryParams = new URLSearchParams({ engine_name: engineName });
     const url = `${apiEndpoint}/${ACCOUNT_ENGINES(
-      this.accountId
+      await this.accountId
     )}:getIdByName?${queryParams}`;
     const data = await httpClient
       .request<{ engine_id: ID }>("GET", url)
@@ -32,11 +30,14 @@ export class EngineService {
 
   async getById(engineId: string): Promise<EngineModel> {
     const { apiEndpoint, httpClient } = this.context;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(this.accountId, engineId)}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(
+      await this.accountId,
+      engineId
+    )}`;
     const data = await httpClient
       .request<{ engine: Engine }>("GET", url)
       .ready();
-    return new EngineModel(this.context, data.engine, this.accountId);
+    return new EngineModel(this.context, data.engine);
   }
 
   async getByDB(database_name: string): Promise<EngineModel[]> {
@@ -46,7 +47,7 @@ export class EngineService {
   async getByName(engineName: string): Promise<EngineModel> {
     const { engine_id } = await this.getEngineId(engineName);
     const engine = await this.getById(engine_id);
-    return new EngineModel(this.context, engine, this.accountId);
+    return new EngineModel(this.context, engine);
   }
 
   async getAll(): Promise<EngineModel[]> {
@@ -59,7 +60,9 @@ export class EngineService {
       const query = cursor
         ? `?${new URLSearchParams({ "page.after": cursor })}`
         : "";
-      const url = `${apiEndpoint}/${ACCOUNT_ENGINES(this.accountId)}${query}`;
+      const url = `${apiEndpoint}/${ACCOUNT_ENGINES(
+        await this.accountId
+      )}${query}`;
       const data = await httpClient
         .request<ResultsPage<Engine>>("GET", url)
         .ready();
@@ -68,7 +71,7 @@ export class EngineService {
 
       for (const edge of data.edges) {
         cursor = edge.cursor;
-        engines.push(new EngineModel(this.context, edge.node, this.accountId));
+        engines.push(new EngineModel(this.context, edge.node));
       }
     } while (hasNextPage);
 
@@ -79,7 +82,16 @@ export class EngineService {
     name: string,
     options: CreateEngineOptions
   ): Promise<EngineModel> {
-    return new EngineModel(this.context, {}, this.accountId);
+    return new EngineModel(this.context, {
+      id: {
+        account_id: "",
+        engine_id: ""
+      },
+      name: "",
+      description: "",
+      endpoint: "",
+      current_status_summary: EngineStatusSummary.DELETED
+    });
   }
 
   async attachToDatabase(

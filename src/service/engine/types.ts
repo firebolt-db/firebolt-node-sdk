@@ -65,6 +65,7 @@ export interface EngineModelInterface {
   start(): Promise<{ engine: Engine }>;
   startAndWait(): Promise<{ engine: Engine }>;
   stop(): Promise<{ engine: Engine }>;
+  restart(): Promise<{ engine: Engine }>;
   delete(): Promise<void>;
 }
 
@@ -74,7 +75,7 @@ export interface EngineServiceInterface {
   getByDB(database_name: string): Promise<EngineModelInterface[]>;
   create(
     name: string,
-    options: CreateEngineOptions
+    options?: CreateEngineOptions
   ): Promise<EngineModelInterface>;
   attachToDatabase(
     engine: EngineModelInterface | string,

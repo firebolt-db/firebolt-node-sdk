@@ -9,7 +9,6 @@ import { ID, Engine, EngineStatusSummary } from "./types";
 
 export class EngineModel {
   private readonly context: ResourceManagerContext;
-  private readonly accountId: string;
   id: ID;
   name: string;
   description: string;
@@ -19,7 +18,6 @@ export class EngineModel {
   constructor(
     context: ResourceManagerContext,
     engine: Engine,
-    accountId: string
   ) {
     const { id, name, description, endpoint, current_status_summary } = engine;
     this.id = id;
@@ -28,13 +26,19 @@ export class EngineModel {
     this.endpoint = endpoint;
     this.context = context;
     this.current_status_summary = current_status_summary;
-    this.accountId = accountId;
+  }
+
+  private get accountId(): Promise<string> {
+    return this.context.connection.resolveAccountId();
   }
 
   async start() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_START(this.accountId, id)}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_START(
+      await this.accountId,
+      id
+    )}`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -69,7 +73,10 @@ export class EngineModel {
   async stop() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_STOP(this.accountId, id)}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_STOP(
+      await this.accountId,
+      id
+    )}`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -79,7 +86,10 @@ export class EngineModel {
   async restart() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_RESTART(this.accountId, id)}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE_RESTART(
+      await this.accountId,
+      id
+    )}`;
     const data = await httpClient
       .request<{ engine: Engine }>("POST", url)
       .ready();
@@ -89,7 +99,7 @@ export class EngineModel {
   private async refreshStatus() {
     const { apiEndpoint, httpClient } = this.context;
     const id = this.id.engine_id;
-    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(this.accountId, id)}`;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(await this.accountId, id)}`;
     const {
       engine: { current_status_summary }
     } = await httpClient.request<{ engine: Engine }>("GET", url).ready();

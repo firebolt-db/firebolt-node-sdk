@@ -23,7 +23,6 @@ export class FireboltCore {
       ...this.context
     };
     this.resourceManager = new ResourceManager(context);
-    await this.resourceManager.initialize();
     return connection;
   }
 

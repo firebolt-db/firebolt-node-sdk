@@ -3,30 +3,28 @@ import { ResourceManagerContext } from "../../../types";
 import { ID, Database } from "./types";
 
 export class DatabaseModel {
-  private context: ResourceManagerContext;
-  private accountId: string;
+  private readonly context: ResourceManagerContext;
   id: ID;
   name: string;
   description: string;
 
-  constructor(
-    context: ResourceManagerContext,
-    database: Database,
-    accountId: string
-  ) {
+  constructor(context: ResourceManagerContext, database: Database) {
     const { id, name, description } = database;
     this.id = id;
     this.name = name;
     this.description = description;
     this.context = context;
-    this.accountId = accountId;
+  }
+
+  private get accountId(): Promise<string> {
+    return this.context.connection.resolveAccountId();
   }
 
   async getDefaultEndpoint(): Promise<string> {
     const { apiEndpoint, httpClient } = this.context;
     const queryParams = new URLSearchParams({ database_name: this.name });
     const url = `${apiEndpoint}/${ACCOUNT_ENGINE_URL_BY_DATABASE_NAME(
-      this.accountId
+      await this.accountId
     )}?${queryParams}`;
     const data = await httpClient
       .request<{ engine_url: string }>("GET", url)
@@ -34,6 +32,5 @@ export class DatabaseModel {
     return data.engine_url;
   }
 
-  async delete() {
-  }
+  async delete() {}
 }
