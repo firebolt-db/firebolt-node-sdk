@@ -56,7 +56,7 @@ export type CreateEngineOptions = {
   auto_stop?: number;
   warmup?: string | WarmupMethod;
   fail_if_exists?: boolean;
-}
+};
 
 export interface EngineModelInterface {
   name: string;

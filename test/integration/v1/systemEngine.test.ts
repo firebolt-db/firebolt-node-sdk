@@ -115,7 +115,7 @@ describe("system engine", () => {
       const statement = await connection.execute("show engines");
       const { data } = await statement.fetchResult();
       const database = (data as unknown[][]).find(
-        row => row[0] === databaseName
+        row => row[5] === databaseName
       );
       expect(database).toBeTruthy();
     } catch (error) {

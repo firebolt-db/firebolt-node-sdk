@@ -46,8 +46,7 @@ export class EngineService {
 
   async getByName(engineName: string): Promise<EngineModel> {
     const { engine_id } = await this.getEngineId(engineName);
-    const engine = await this.getById(engine_id);
-    return new EngineModel(this.context, engine);
+    return await this.getById(engine_id);
   }
 
   async getAll(): Promise<EngineModel[]> {

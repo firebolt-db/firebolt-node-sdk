@@ -1,4 +1,5 @@
 import { Firebolt } from "../../../src/index";
+import { assignProtocol } from "../../../src/common/util";
 
 const connectionOptions = {
   auth: {
@@ -25,7 +26,9 @@ describe("database integration", () => {
 
     const defaultUrl = await database.getDefaultEndpoint();
 
-    expect(defaultUrl).toEqual(process.env.FIREBOLT_ENGINE_ENDPOINT);
+    expect(assignProtocol(defaultUrl)).toEqual(
+      assignProtocol(process.env.FIREBOLT_ENGINE_ENDPOINT as string)
+    );
   });
 });
 

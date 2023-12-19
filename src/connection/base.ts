@@ -114,4 +114,8 @@ export abstract class Connection {
       this.activeRequests.delete(request);
     }
   }
+
+  public get httpClient() {
+    return this.context.httpClient;
+  }
 }

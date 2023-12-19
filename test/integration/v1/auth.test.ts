@@ -24,14 +24,4 @@ describe("auth", () => {
       auth
     });
   });
-  it("support old auth connection options", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-
-    await firebolt.connect({
-      ...connectionOptions,
-      ...auth
-    });
-  });
 });

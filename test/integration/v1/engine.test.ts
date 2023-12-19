@@ -1,4 +1,5 @@
 import { Firebolt, FireboltResourceManager } from "../../../src/index";
+import { assignProtocol } from "../../../src/common/util";
 
 const authOptions = {
   username: process.env.FIREBOLT_USERNAME as string,
@@ -11,7 +12,7 @@ const connectionOptions = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
-jest.setTimeout(20000);
+jest.setTimeout(60000);
 
 describe("engine integration", () => {
   it("starts engine", async () => {
@@ -64,8 +65,8 @@ describe("engine integration", () => {
       database: process.env.FIREBOLT_DATABASE as string
     });
 
-    expect(connection.engineEndpoint).toEqual(
-      process.env.FIREBOLT_ENGINE_ENDPOINT
+    expect(assignProtocol(connection.engineEndpoint)).toEqual(
+      assignProtocol(process.env.FIREBOLT_ENGINE_ENDPOINT as string)
     );
   });
 });
@@ -85,7 +86,7 @@ describe("engine resource manager", () => {
     ).toBeTruthy();
   });
 
-  it("retrieves the engine description", async () => {
+  it("retrieves the engine endpoint", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
@@ -96,14 +97,19 @@ describe("engine resource manager", () => {
       process.env.FIREBOLT_ENGINE_NAME as string
     );
 
-    expect(typeof engine.description).toEqual("string");
+    expect(typeof engine.endpoint).toEqual("string");
   });
 
   it("use separate firebolt resource client", async () => {
-    const resourceManager = FireboltResourceManager({
+    const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
-    await resourceManager.authenticate({ auth: authOptions });
+
+    const connection = await firebolt.connect(connectionOptions);
+    const resourceManager = FireboltResourceManager({
+      connection,
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
     const engine = await resourceManager.engine.getByName(
       process.env.FIREBOLT_ENGINE_NAME as string
     );

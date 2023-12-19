@@ -58,7 +58,9 @@ export const ResourceClient = (dependencies: Dependencies) => {
     const { connection } = options;
     const context = {
       connection,
-      ...getContext(options, dependencies)
+      ...getContext(options, dependencies),
+      // make sure to use already authenticated client from connection
+      httpClient: connection.httpClient
     };
     return new ResourceManager(context);
   };

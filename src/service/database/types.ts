@@ -19,6 +19,7 @@ export interface DatabaseModelInterface {
   description: string;
   delete(): Promise<void>;
   getAttachedEngines(): Promise<EngineModelInterface[]>;
+  getDefaultEndpoint(): Promise<string>;
 }
 
 export interface DatabaseServiceInterface {
