@@ -3,7 +3,6 @@ import { rest } from "msw";
 import { Authenticator } from "../../../src/auth";
 import { NodeHttpClient } from "../../../src/http/node";
 import { Logger } from "../../../src/logger/node";
-import { ResourceManager } from "../../../src/service";
 import { QueryFormatter } from "../../../src/formatter";
 
 const apiEndpoint = "fake.api.com";
@@ -33,18 +32,13 @@ describe("http client", () => {
   it("stores access token", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        username: "user",
-        password: "fake_password"
+        auth: {
+          username: "user",
+          password: "fake_password"
+        }
       }
     );
     server.use(authHandler);
@@ -55,17 +49,13 @@ describe("http client", () => {
   it("sends access token in headers", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        username: "user",
-        password: "fake_password"
+        auth: {
+          username: "user",
+          password: "fake_password"
+        }
       }
     );
     server.use(
@@ -83,17 +73,13 @@ describe("http client", () => {
   it("throw error if status > 300", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        username: "user",
-        password: "fake_password"
+        auth: {
+          username: "user",
+          password: "fake_password"
+        }
       }
     );
     server.use(
@@ -106,7 +92,7 @@ describe("http client", () => {
       })
     );
     await authenticator.authenticate();
-    expect(async () => {
+    await expect(async () => {
       await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
     }).rejects.toThrow("Record not found");
   });
@@ -114,17 +100,13 @@ describe("http client", () => {
     const statusMock = jest.fn().mockReturnValueOnce(401).mockReturnValue(200);
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger, resourceManager },
+      { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        username: "user",
-        password: "fake_password"
+        auth: {
+          username: "user",
+          password: "fake_password"
+        }
       }
     );
     server.use(

@@ -4,6 +4,8 @@ import { NodeHttpClient } from "../../../src/http/node";
 import { Logger } from "../../../src/logger/node";
 import { ResourceManager } from "../../../src/service";
 import { QueryFormatter } from "../../../src/formatter";
+import { Firebolt } from "../../../src";
+import { Authenticator } from "../../../src/auth";
 
 const apiEndpoint = "fake.api.com";
 const logger = new Logger();
@@ -38,6 +40,26 @@ describe("engine service", () => {
           })
         );
       }
+    ),
+    // Authentication
+    rest.post(`https://${apiEndpoint}/auth/v1/login`, (req, res, ctx) => {
+      return res(
+        ctx.json({
+          access_token: "fake_access_token",
+          refresh_token: "fake_refresh_token"
+        })
+      );
+    }),
+    // Get account id
+    rest.get(
+      `https://${apiEndpoint}/iam/v2/accounts:getIdByName`,
+      (req, res, ctx) => {
+        return res(
+          ctx.json({
+            account_id: "some_account"
+          })
+        );
+      }
     )
   );
   beforeAll(() => {
@@ -48,28 +70,34 @@ describe("engine service", () => {
   });
 
   it("gets engine by name", async () => {
+    const connectionOptions = {
+      account: "my_account",
+      auth: {
+        username: "username",
+        password: "password"
+      }
+    };
+    const firebolt = Firebolt({ apiEndpoint });
+    const connection = await firebolt.connect(connectionOptions);
+    // Also test diffrent way of instantiating a resource manager
+    const logger = new Logger();
     const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
+    new Authenticator(
+      {
+        httpClient,
+        logger,
+        apiEndpoint,
+        queryFormatter: new QueryFormatter()
+      },
+      connectionOptions
+    );
     const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
       logger,
-      queryFormatter
+      connection,
+      apiEndpoint,
+      httpClient
     });
     const engine = await resourceManager.engine.getByName("some_engine");
-    expect(engine).toBeTruthy();
-    expect(engine.endpoint).toEqual("https://some_engine.com");
-  });
-  it("gets engine by id", async () => {
-    const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
-    const resourceManager = new ResourceManager({
-      httpClient,
-      apiEndpoint,
-      logger,
-      queryFormatter
-    });
-    const engine = await resourceManager.engine.getById("123");
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
   });
@@ -78,29 +106,42 @@ describe("engine service", () => {
       rest.post(
         `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123:start`,
         (req, res, ctx) => {
-          return res(
-            ctx.status(200),
-            ctx.json({ engine: { id: { engine_id: 123 } } })
-          );
+          return res(ctx.status(200), ctx.json({ engine: { name: "some_engine" } }));
         }
       )
     );
-
+    const connectionOptions = {
+      account: "my_account",
+      auth: {
+        username: "username",
+        password: "password"
+      }
+    };
+    const firebolt = Firebolt({ apiEndpoint });
+    const connection = await firebolt.connect(connectionOptions);
+    // Also test diffrent way of instantiating a resource manager
+    const logger = new Logger();
     const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
+    new Authenticator(
+      {
+        httpClient,
+        logger,
+        apiEndpoint,
+        queryFormatter: new QueryFormatter()
+      },
+      connectionOptions
+    );
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter
+      connection
     });
-    const engine = await resourceManager.engine.getById("123");
+    const engine = await resourceManager.engine.getByName("some_engine");
     const {
-      engine: {
-        id: { engine_id }
-      }
+      engine: { name: engine_name }
     } = await engine.start();
-    expect(engine_id).toEqual(123);
+    expect(engine_name).toEqual("some_engine");
   });
 
   it("stops engine", async () => {
@@ -110,26 +151,43 @@ describe("engine service", () => {
         (req, res, ctx) => {
           return res(
             ctx.status(200),
-            ctx.json({ engine: { id: { engine_id: 123 } } })
+            ctx.json({ engine: { name: "some_engine" } })
           );
         }
       )
     );
 
+    const connectionOptions = {
+      account: "my_account",
+      auth: {
+        username: "username",
+        password: "password"
+      }
+    };
+    const firebolt = Firebolt({ apiEndpoint });
+    const connection = await firebolt.connect(connectionOptions);
+    // Also test diffrent way of instantiating a resource manager
+    const logger = new Logger();
     const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
+    new Authenticator(
+      {
+        httpClient,
+        logger,
+        apiEndpoint,
+        queryFormatter: new QueryFormatter()
+      },
+      connectionOptions
+    );
     const resourceManager = new ResourceManager({
       httpClient,
       apiEndpoint,
       logger,
-      queryFormatter
+      connection
     });
-    const engine = await resourceManager.engine.getById("123");
+    const engine = await resourceManager.engine.getByName("some_engine");
     const {
-      engine: {
-        id: { engine_id }
-      }
+      engine: { name: engine_name }
     } = await engine.stop();
-    expect(engine_id).toEqual(123);
+    expect(engine_name).toEqual("some_engine");
   });
 });

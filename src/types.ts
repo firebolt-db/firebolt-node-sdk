@@ -81,8 +81,9 @@ export type AuthOptions = UsernamePasswordAuth | ServiceAccountAuth;
 export type ConnectionOptions = {
   database?: string;
   engineName?: string;
+  engineEndpoint?: string;
   additionalParameters?: AdditionalConnectionParameters;
-  account: string;
+  account?: string;
   auth: AuthOptions;
 };
 

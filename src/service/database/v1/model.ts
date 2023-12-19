@@ -1,6 +1,7 @@
 import { ACCOUNT_ENGINE_URL_BY_DATABASE_NAME } from "../../../common/api";
 import { ResourceManagerContext } from "../../../types";
 import { ID, Database } from "./types";
+import { ResourceManager } from "../../index";
 
 export class DatabaseModel {
   private readonly context: ResourceManagerContext;
@@ -30,6 +31,11 @@ export class DatabaseModel {
       .request<{ engine_url: string }>("GET", url)
       .ready();
     return data.engine_url;
+  }
+
+  async getAttachedEngines() {
+    const resourceManager = new ResourceManager(this.context)
+    return resourceManager.engine.getByDB(this.name)
   }
 
   async delete() {}

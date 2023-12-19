@@ -10,6 +10,9 @@ export const ACCOUNT_ID_BY_NAME = (accountName: string) =>
 
 export const USERNAME_PASSWORD_LOGIN = "auth/v1/login";
 
+export const ACCOUNT = "iam/v2/account";
+export const ACCOUNT_BY_NAME = "iam/v2/accounts:getIdByName";
+
 export const ACCOUNT_ENGINE = (accountId: string, engineId: string) =>
   `core/v1/accounts/${accountId}/engines/${engineId}`;
 

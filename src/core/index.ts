@@ -1,4 +1,4 @@
-import { Connection } from "../connection";
+import { makeConnection } from "../connection";
 import { Authenticator } from "../auth";
 import { Context, ConnectionOptions, FireboltClientOptions } from "../types";
 import { ResourceManager } from "../service";
@@ -15,7 +15,7 @@ export class FireboltCore {
 
   async connect(connectionOptions: ConnectionOptions) {
     const auth = new Authenticator(this.context, connectionOptions);
-    const connection = new Connection(this.context, connectionOptions);
+    const connection = makeConnection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
     const context = {
@@ -28,7 +28,7 @@ export class FireboltCore {
 
   async testConnection(connectionOptions: ConnectionOptions) {
     const auth = new Authenticator(this.context, connectionOptions);
-    const connection = new Connection(this.context, connectionOptions);
+    const connection = makeConnection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
     await connection.execute("select 1");
