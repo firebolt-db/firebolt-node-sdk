@@ -109,12 +109,15 @@ describe("http client", () => {
         }
       }
     );
+    let call_number = 0;
     server.use(
-      authHandler,
-      rest.post(`https://${apiEndpoint}/auth/v1/refresh`, (req, res, ctx) => {
+      rest.post(`https://${apiEndpoint}/auth/v1/login`, (req, res, ctx) => {
+        const access_token =
+          call_number == 0 ? "fake_access_token" : "new_access_token";
+        call_number++;
         return res(
           ctx.json({
-            access_token: "new_access_token"
+            access_token: access_token
           })
         );
       }),
