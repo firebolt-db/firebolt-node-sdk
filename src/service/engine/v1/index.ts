@@ -6,8 +6,8 @@ import {
 } from "../../../common/api";
 import { ResourceManagerContext } from "../../../types";
 import { EngineModel } from "./model";
-import { Engine, EngineStatusSummary, ID } from "./types";
-import { CreateEngineOptions } from "../types";
+import { Engine, ID } from "./types";
+import { CreateEngineOptions, WarmupMethod } from "../types";
 import { DatabaseModel } from "../../database/v1/model";
 import {
   getCheepestInstance,
@@ -89,6 +89,15 @@ export class EngineService {
     return engines;
   }
 
+  private warmupToString(name: string): string {
+    const mapping: { [key: string]: string } = {
+      MINIMAL: "ENGINE_SETTINGS_WARM_UP_MINIMAL",
+      PRELOAD_INDEXES: "ENGINE_SETTINGS_WARM_UP_INDEXES",
+      PRELOAD_ALL_DATA: "ENGINE_SETTINGS_WARM_UP_ALL"
+    };
+    return mapping[name] || name;
+  }
+
   async create(
     name: string,
     options: CreateEngineOptions
@@ -121,22 +130,22 @@ export class EngineService {
       account_id: await this.accountId,
       engine: {
         name: name,
-        compute_region_id: resolveRegionKey(
-          options.region,
-          apiEndpoint,
-          httpClient
-        ),
+        compute_region_id: region_key,
         settings: {
           ...(options.engine_type && { engine_type: options.engine_type }),
           ...(options.auto_stop && {
-            auto_stop_delay_duration: options.auto_stop * 60
+            auto_stop_delay_duration: `${options.auto_stop * 60}s`
           }),
-          ...(options.warmup && { warm_up: options.warmup.toString() })
+          ...(options.warmup && {
+            warm_up: this.warmupToString(options.warmup)
+          })
         }
       },
       engine_revision: {
         specification: {
-          db_compute_instances_type_key: instance_type_id,
+          db_compute_instances_type_id: instance_type_id,
+          proxy_instances_type_id: instance_type_id,
+          proxy_instances_count: 1,
           ...(options.scale && { db_compute_instances_count: options.scale })
         }
       }

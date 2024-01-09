@@ -1,5 +1,7 @@
 import { Firebolt, FireboltResourceManager } from "../../../src/index";
 import { assignProtocol } from "../../../src/common/util";
+import { EngineType, WarmupMethod } from "../../../src/service/engine/types";
+import { DatabaseService } from "../../../src/service/database/v1";
 
 const authOptions = {
   username: process.env.FIREBOLT_USERNAME as string,
@@ -114,5 +116,43 @@ describe("engine resource manager", () => {
       process.env.FIREBOLT_ENGINE_NAME as string
     );
     expect(engine.name).toEqual(process.env.FIREBOLT_ENGINE_NAME);
+  });
+
+  it("creates and deletes an engine", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    await firebolt.connect(connectionOptions);
+
+    const engine_name = `${process.env.FIREBOLT_ENGINE_NAME}_create_test`;
+
+    const engine = await firebolt.resourceManager.engine.create(engine_name, {
+      region: "us-east-1",
+      engine_type: EngineType.GENERAL_PURPOSE,
+      scale: 1,
+      auto_stop: 10,
+      warmup: WarmupMethod.MINIMAL
+    });
+
+    expect(engine.name).toEqual(engine_name);
+
+    await engine.delete();
+  });
+
+  it("attaches an engine to a database", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    await firebolt.connect(connectionOptions);
+    const engineName = `${process.env.FIREBOLT_ENGINE_NAME}_attach_test`;
+
+    const engine = await firebolt.resourceManager.engine.create(engineName);
+
+    await firebolt.resourceManager.engine.attachToDatabase(
+      engine,
+      process.env.FIREBOLT_DATABASE as string
+    );
   });
 });
