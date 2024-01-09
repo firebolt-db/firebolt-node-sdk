@@ -1,4 +1,7 @@
-import { ACCOUNT_ENGINE_URL_BY_DATABASE_NAME } from "../../../common/api";
+import {
+  ACCOUNT_ENGINE_URL_BY_DATABASE_NAME,
+  ACCOUNT_DATABASE
+} from "../../../common/api";
 import { ResourceManagerContext } from "../../../types";
 import { ID, Database } from "./types";
 import { ResourceManager } from "../../index";
@@ -34,9 +37,16 @@ export class DatabaseModel {
   }
 
   async getAttachedEngines() {
-    const resourceManager = new ResourceManager(this.context)
-    return resourceManager.engine.getByDB(this.name)
+    const resourceManager = new ResourceManager(this.context);
+    return resourceManager.engine.getByDB(this.name);
   }
 
-  async delete() {}
+  async delete() {
+    const { apiEndpoint, httpClient } = this.context;
+    const url = `${apiEndpoint}/${ACCOUNT_DATABASE(
+      await this.accountId,
+      this.id.database_id
+    )}`;
+    await httpClient.request("DELETE", url).ready();
+  }
 }

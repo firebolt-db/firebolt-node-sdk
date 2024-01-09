@@ -8,6 +8,7 @@ import { ResourceManagerContext } from "../../../types";
 import { DatabaseModel } from "./model";
 import { ID, Database } from "./types";
 import { CreateDatabaseOptions } from "../types";
+import { resolveRegionKey } from "../../utils";
 
 export class DatabaseService {
   private readonly context: ResourceManagerContext;
@@ -94,6 +95,26 @@ export class DatabaseService {
     name: string,
     options: CreateDatabaseOptions
   ): Promise<DatabaseModel> {
-    return await this.getByName(name);
+    const { apiEndpoint, httpClient } = this.context;
+    if (options.region === undefined) {
+      throw new Error("Region is required");
+    }
+    const databasePayload = {
+      account_id: await this.accountId,
+      database: {
+        name: name,
+        description: options.description,
+        compute_region_id: resolveRegionKey(
+          options.region,
+          apiEndpoint,
+          httpClient
+        )
+      }
+    };
+    const url = `${apiEndpoint}/${ACCOUNT_DATABASES(await this.accountId)}`;
+    const data = await httpClient
+      .request<{ database: Database }>("POST", url, databasePayload)
+      .ready();
+    return new DatabaseModel(this.context, data.database);
   }
 }

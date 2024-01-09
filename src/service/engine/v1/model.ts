@@ -15,10 +15,7 @@ export class EngineModel {
   endpoint: string;
   current_status_summary: EngineStatusSummary;
 
-  constructor(
-    context: ResourceManagerContext,
-    engine: Engine,
-  ) {
+  constructor(context: ResourceManagerContext, engine: Engine) {
     const { id, name, description, endpoint, current_status_summary } = engine;
     this.id = id;
     this.name = name;
@@ -106,5 +103,7 @@ export class EngineModel {
     this.current_status_summary = current_status_summary;
   }
 
-  async delete() {}
+  async delete() {
+    // TODO: Implement
+  }
 }

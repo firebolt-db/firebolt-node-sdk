@@ -35,6 +35,8 @@ export const ACCOUNT_ENGINE_RESTART = (accountId: string, engineId: string) =>
 export const ACCOUNT_ENGINE_STOP = (accountId: string, engineId: string) =>
   ACCOUNT_ENGINE(accountId, engineId) + ":stop";
 
+export const REGIONS = "/compute/v1/regions";
+
 export type EdgeResult<T> = {
   cursor: string;
   node: T;

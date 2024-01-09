@@ -1,4 +1,8 @@
-import { ACCOUNT_ENGINE, ACCOUNT_ENGINES, ResultsPage } from "../../../common/api";
+import {
+  ACCOUNT_ENGINE,
+  ACCOUNT_ENGINES,
+  ResultsPage
+} from "../../../common/api";
 import { ResourceManagerContext } from "../../../types";
 import { EngineModel } from "./model";
 import { Engine, EngineStatusSummary, ID } from "./types";
@@ -81,6 +85,7 @@ export class EngineService {
     name: string,
     options: CreateEngineOptions
   ): Promise<EngineModel> {
+    // TODO: Implement
     return new EngineModel(this.context, {
       id: {
         account_id: "",
@@ -96,5 +101,7 @@ export class EngineService {
   async attachToDatabase(
     engine: EngineModel | string,
     database: DatabaseModel | string
-  ): Promise<void> {}
+  ): Promise<void> {
+    // TODO: Implement
+  }
 }
