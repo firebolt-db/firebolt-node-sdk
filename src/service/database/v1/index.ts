@@ -9,6 +9,8 @@ import { DatabaseModel } from "./model";
 import { ID, Database } from "./types";
 import { CreateDatabaseOptions } from "../types";
 import { resolveRegionKey } from "../../utils";
+import { EngineModel } from "../../engine/model";
+import { ResourceManager } from "../../index";
 
 export class DatabaseService {
   private readonly context: ResourceManagerContext;
@@ -99,22 +101,30 @@ export class DatabaseService {
     if (options.region === undefined) {
       throw new Error("Region is required");
     }
-    const databasePayload = {
+    const databasePayload = JSON.stringify({
       account_id: await this.accountId,
       database: {
         name: name,
         description: options.description,
-        compute_region_id: resolveRegionKey(
+        compute_region_id: await resolveRegionKey(
           options.region,
           apiEndpoint,
           httpClient
         )
       }
-    };
+    });
     const url = `${apiEndpoint}/${ACCOUNT_DATABASES(await this.accountId)}`;
     const data = await httpClient
-      .request<{ database: Database }>("POST", url, databasePayload)
+      .request<{ database: Database }>("POST", url, { body: databasePayload })
       .ready();
-    return new DatabaseModel(this.context, data.database);
+
+    const database = new DatabaseModel(this.context, data.database);
+    if (options.attached_engines) {
+      const resourceManager = new ResourceManager(this.context);
+      for (const engine in options.attached_engines) {
+        await resourceManager.engine.attachToDatabase(engine, database);
+      }
+    }
+    return database;
   }
 }

@@ -30,6 +30,37 @@ describe("database integration", () => {
       assignProtocol(process.env.FIREBOLT_ENGINE_ENDPOINT as string)
     );
   });
+
+  it("creates and deletes a database", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    await firebolt.connect(connectionOptions);
+
+    const database_name = `${
+      process.env.FIREBOLT_DATABASE as string
+    }_test_create`;
+
+    const database = await firebolt.resourceManager.database.create(
+      database_name,
+      {
+        description: "test description",
+        region: "us-east-1"
+      }
+    );
+
+    expect(database.name).toEqual(database_name);
+    expect(database.description).toEqual("test description");
+    expect(
+      await firebolt.resourceManager.database.getByName(database.name)
+    ).toBeTruthy();
+
+    await database.delete();
+    // We don't verify that the database doesn't exist anymore because
+    // it takes a couple of seconds for backend to acknowledge the deletion
+    // and sleeping approach would still be flaky.
+  });
 });
 
 describe("engine resource manager", () => {

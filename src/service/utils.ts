@@ -12,7 +12,7 @@ export async function resolveRegionKey(
       edges: [
         {
           node: {
-            key: { provider_id: string; region_id: string };
+            id: { provider_id: string; region_id: string };
             name: string;
           };
         }
@@ -21,7 +21,7 @@ export async function resolveRegionKey(
     .ready();
   for (const edge of data.edges) {
     if (edge.node.name == name) {
-      return edge.node.key;
+      return edge.node.id;
     }
   }
   throw new Error(`Region ${name} not found`);
