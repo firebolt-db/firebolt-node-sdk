@@ -1,6 +1,7 @@
 import {
   ACCOUNT_ENGINE,
   ACCOUNT_ENGINES,
+  ACCOUNT_DATABASE_BINDING_URL,
   ResultsPage
 } from "../../../common/api";
 import { ResourceManagerContext } from "../../../types";
@@ -8,6 +9,13 @@ import { EngineModel } from "./model";
 import { Engine, EngineStatusSummary, ID } from "./types";
 import { CreateEngineOptions } from "../types";
 import { DatabaseModel } from "../../database/v1/model";
+import {
+  getCheepestInstance,
+  resolveEngineSpec,
+  resolveRegionKey
+} from "../../utils";
+import { ResourceManager } from "../../index";
+import { DatabaseService } from "../../database/v1";
 
 export class EngineService {
   private readonly context: ResourceManagerContext;
@@ -85,23 +93,89 @@ export class EngineService {
     name: string,
     options: CreateEngineOptions
   ): Promise<EngineModel> {
-    // TODO: Implement
-    return new EngineModel(this.context, {
-      id: {
-        account_id: "",
-        engine_id: ""
+    const { apiEndpoint, httpClient } = this.context;
+    if (options.region === undefined) {
+      throw new Error("region is required");
+    }
+    const region_key = await resolveRegionKey(
+      options.region,
+      apiEndpoint,
+      httpClient
+    );
+    const instance_type_id =
+      (options.spec &&
+        (await resolveEngineSpec(
+          options.spec,
+          region_key.region_id,
+          await this.accountId,
+          apiEndpoint,
+          httpClient
+        ))) ||
+      (await getCheepestInstance(
+        region_key.region_id,
+        await this.accountId,
+        apiEndpoint,
+        httpClient
+      ));
+    const enginePayload = JSON.stringify({
+      account_id: await this.accountId,
+      engine: {
+        name: name,
+        compute_region_id: resolveRegionKey(
+          options.region,
+          apiEndpoint,
+          httpClient
+        ),
+        settings: {
+          ...(options.engine_type && { engine_type: options.engine_type }),
+          ...(options.auto_stop && {
+            auto_stop_delay_duration: options.auto_stop * 60
+          }),
+          ...(options.warmup && { warm_up: options.warmup.toString() })
+        }
       },
-      name: "",
-      description: "",
-      endpoint: "",
-      current_status_summary: EngineStatusSummary.DELETED
+      engine_revision: {
+        specification: {
+          db_compute_instances_type_key: instance_type_id,
+          ...(options.scale && { db_compute_instances_count: options.scale })
+        }
+      }
     });
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINES(await this.accountId)}`;
+    const data = await httpClient
+      .request<{ engine: Engine }>("POST", url, { body: enginePayload })
+      .ready();
+    return new EngineModel(this.context, data.engine);
   }
 
   async attachToDatabase(
     engine: EngineModel | string,
     database: DatabaseModel | string
   ): Promise<void> {
-    // TODO: Implement
+    const { apiEndpoint, httpClient } = this.context;
+    const engineId =
+      typeof engine === "string"
+        ? (await this.getEngineId(engine)).engine_id
+        : engine.id.engine_id;
+    const databases = new DatabaseService(this.context);
+    const databaseId =
+      typeof database === "string"
+        ? (await databases.getById(database)).id.database_id
+        : database.id.database_id;
+    const url = `${apiEndpoint}/${ACCOUNT_DATABASE_BINDING_URL(
+      await this.accountId,
+      databaseId,
+      engineId
+    )}`;
+    const payload = JSON.stringify({
+      binding: {
+        id: {
+          account_id: await this.accountId,
+          database_id: databaseId,
+          engine_id: engineId
+        }
+      }
+    });
+    await httpClient.request("POST", url, { body: payload }).ready();
   }
 }

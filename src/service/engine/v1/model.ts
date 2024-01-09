@@ -104,6 +104,9 @@ export class EngineModel {
   }
 
   async delete() {
-    // TODO: Implement
+    const { apiEndpoint, httpClient } = this.context;
+    const id = this.id.engine_id;
+    const url = `${apiEndpoint}/${ACCOUNT_ENGINE(await this.accountId, id)}`;
+    await httpClient.request("DELETE", url).ready();
   }
 }

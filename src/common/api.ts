@@ -28,6 +28,12 @@ export const ACCOUNT_DATABASE = (accountId: string, databaseId: string) =>
 export const ACCOUNT_DATABASES = (accountId: string) =>
   `core/v1/accounts/${accountId}/databases`;
 
+export const ACCOUNT_DATABASE_BINDING_URL = (
+  accountId: string,
+  databaseId: string,
+  engineId: string
+) => ACCOUNT_DATABASE(accountId, databaseId) + `/bindings/${engineId}`;
+
 export const ACCOUNT_ENGINE_START = (accountId: string, engineId: string) =>
   ACCOUNT_ENGINE(accountId, engineId) + ":start";
 export const ACCOUNT_ENGINE_RESTART = (accountId: string, engineId: string) =>
@@ -36,6 +42,8 @@ export const ACCOUNT_ENGINE_STOP = (accountId: string, engineId: string) =>
   ACCOUNT_ENGINE(accountId, engineId) + ":stop";
 
 export const REGIONS = "/compute/v1/regions";
+export const ACCOUNT_INSTANCE_TYPES = (accountId: string) =>
+  `/aws/v2/accounts/${accountId}/instanceTypes`;
 
 export type EdgeResult<T> = {
   cursor: string;
