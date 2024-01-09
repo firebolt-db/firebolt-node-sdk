@@ -61,6 +61,22 @@ describe("database integration", () => {
     // it takes a couple of seconds for backend to acknowledge the deletion
     // and sleeping approach would still be flaky.
   });
+
+  it("retrieves all databases", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    await firebolt.connect(connectionOptions);
+
+    const databases = await firebolt.resourceManager.database.getAll();
+
+    expect(
+      databases.find(
+        database => process.env.FIREBOLT_DATABASE === database.name
+      )
+    ).toBeTruthy();
+  });
 });
 
 describe("engine resource manager", () => {
