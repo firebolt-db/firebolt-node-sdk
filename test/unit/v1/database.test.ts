@@ -48,6 +48,28 @@ describe("database service", () => {
           })
         );
       }
+    ),
+    // Get database id by name
+    rest.get(
+      `https://${apiEndpoint}/${ACCOUNT_DATABASES("some_account")}:getIdByName`,
+      (req, res, ctx) => {
+        return res(
+          ctx.json({
+            database_id: dbObject.id
+          })
+        );
+      }
+    ),
+    // Get database by id
+    rest.get(
+      `https://${apiEndpoint}/${ACCOUNT_DATABASE("some_account", "123")}`,
+      (req, res, ctx) => {
+        return res(
+          ctx.json({
+            database: dbObject
+          })
+        );
+      }
     )
   );
 
@@ -59,32 +81,6 @@ describe("database service", () => {
   });
 
   it("gets db by name", async () => {
-    server.use(
-      // Get database id by name
-      rest.get(
-        `https://${apiEndpoint}/${ACCOUNT_DATABASES(
-          "some_account"
-        )}:getIdByName`,
-        (req, res, ctx) => {
-          return res(
-            ctx.json({
-              database_id: dbObject.id
-            })
-          );
-        }
-      ),
-      // Get database by id
-      rest.get(
-        `https://${apiEndpoint}/${ACCOUNT_DATABASE("some_account", "123")}`,
-        (req, res, ctx) => {
-          return res(
-            ctx.json({
-              database: dbObject
-            })
-          );
-        }
-      )
-    );
     const firebolt = Firebolt({ apiEndpoint });
     await firebolt.connect({
       account: "my_account",
@@ -222,30 +218,6 @@ describe("database service", () => {
 
   it("gets default endpoint", async () => {
     server.use(
-      // Get database id by name
-      rest.get(
-        `https://${apiEndpoint}/${ACCOUNT_DATABASES(
-          "some_account"
-        )}:getIdByName`,
-        (req, res, ctx) => {
-          return res(
-            ctx.json({
-              database_id: dbObject.id
-            })
-          );
-        }
-      ),
-      // Get database
-      rest.get(
-        `https://${apiEndpoint}/${ACCOUNT_DATABASE("some_account", "123")}`,
-        (req, res, ctx) => {
-          return res(
-            ctx.json({
-              database: dbObject
-            })
-          );
-        }
-      ),
       // Get default endpoint
       rest.get(
         `https://${apiEndpoint}/${ACCOUNT_ENGINE_URL_BY_DATABASE_NAME(
@@ -280,30 +252,6 @@ describe("database service", () => {
 
   it("gets attached engines for a database", async () => {
     server.use(
-      // Get database id by name
-      rest.get(
-        `https://${apiEndpoint}/${ACCOUNT_DATABASES(
-          "some_account"
-        )}:getIdByName`,
-        (req, res, ctx) => {
-          return res(
-            ctx.json({
-              database_id: dbObject.id
-            })
-          );
-        }
-      ),
-      // Get database
-      rest.get(
-        `https://${apiEndpoint}/${ACCOUNT_DATABASE("some_account", "123")}`,
-        (req, res, ctx) => {
-          return res(
-            ctx.json({
-              database: dbObject
-            })
-          );
-        }
-      ),
       // Get attached engines
       rest.get(
         `https://${apiEndpoint}/${ACCOUNT_BINDINGS_URL("some_account")}`,

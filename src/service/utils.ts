@@ -61,7 +61,7 @@ export async function resolveEngineSpec(
   accountId: string,
   apiEndpoint: string,
   httpClient: HttpClientInterface
-): Promise<object> {
+): Promise<instanceTypeResponse["edges"][0]["node"]["id"]> {
   const data = await listInstanceTypes(accountId, apiEndpoint, httpClient);
   for (const edge of data.edges) {
     if (edge.node.name == name && edge.node.id.region_id == regionId) {
@@ -76,7 +76,7 @@ export async function getCheapestInstance(
   accountId: string,
   apiEndpoint: string,
   httpClient: HttpClientInterface
-) {
+): Promise<instanceTypeResponse["edges"][0]["node"]["id"]> {
   const data = await listInstanceTypes(accountId, apiEndpoint, httpClient);
 
   const instances = data.edges
