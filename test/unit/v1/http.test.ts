@@ -71,7 +71,7 @@ describe("http client", () => {
     await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
   });
   it("throw error if status > 300", async () => {
-    const httpClient = new NodeHttpClient(); // legit:ignore-secrets
+    const httpClient = new NodeHttpClient(); // legit:ignore
     const queryFormatter = new QueryFormatter();
     const authenticator = new Authenticator(
       { queryFormatter, httpClient, apiEndpoint, logger },
