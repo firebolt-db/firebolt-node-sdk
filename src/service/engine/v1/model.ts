@@ -53,11 +53,14 @@ export class EngineModel {
 
     let interval: NodeJS.Timer;
     await new Promise<void>(resolve => {
-      interval = setInterval(async () => {
-        await this.refreshStatus();
-        if (this.current_status_summary.includes("RUNNING")) {
-          return resolve();
-        }
+      interval = setInterval(() => {
+        // wrap in async function to use await
+        (async () => {
+          await this.refreshStatus();
+          if (this.current_status_summary.includes("RUNNING")) {
+            return resolve();
+          }
+        })();
       }, 10 * 1000); // Check every 10 seconds.
     }).finally(() => {
       if (interval) {
