@@ -9,7 +9,6 @@ import { DatabaseModel } from "./model";
 import { ID, Database } from "./types";
 import { CreateDatabaseOptions } from "../types";
 import { resolveRegionKey } from "../../utils";
-import { EngineModel } from "../../engine/model";
 import { ResourceManager } from "../../index";
 
 export class DatabaseService {

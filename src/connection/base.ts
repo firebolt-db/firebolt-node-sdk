@@ -40,7 +40,7 @@ export abstract class Connection {
 
     const paramsWithValue = Object.keys(params).reduce<Record<string, string>>(
       (acc, key) => {
-        const param = params[key as keyof typeof params];
+        const param = params[key];
         if (param !== undefined) {
           acc[key] = param;
         }
@@ -69,12 +69,12 @@ export abstract class Connection {
 
     executeQueryOptions.settings = {
       ...defaultQuerySettings,
-      ...(executeQueryOptions.settings || {})
+      ...(executeQueryOptions.settings ?? {})
     };
 
     executeQueryOptions.response = {
       ...defaultResponseSettings,
-      ...(executeQueryOptions.response || {})
+      ...(executeQueryOptions.response ?? {})
     };
 
     const { parameters, namedParameters } = executeQueryOptions;

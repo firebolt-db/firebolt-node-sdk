@@ -1,10 +1,9 @@
-import { LoggerInterface } from "../logger";
 import { DatabaseServiceInterface } from "./database/types";
 import { DatabaseService as DatabaseServiceV2 } from "./database";
-import { DatabaseService as DatabaseServiceV1} from "./database/v1";
+import { DatabaseService as DatabaseServiceV1 } from "./database/v1";
 import { EngineServiceInterface } from "./engine/types";
 import { EngineService as EngineServiceV2 } from "./engine";
-import { EngineService as EngineServiceV1} from "./engine/v1";
+import { EngineService as EngineServiceV1 } from "./engine/v1";
 import { ResourceManagerContext } from "../types";
 
 export class ResourceManager {

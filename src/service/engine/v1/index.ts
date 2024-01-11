@@ -9,7 +9,7 @@ import {
 import { ResourceManagerContext } from "../../../types";
 import { EngineModel } from "./model";
 import { Engine, ID } from "./types";
-import { CreateEngineOptions, WarmupMethod } from "../types";
+import { CreateEngineOptions } from "../types";
 import { DatabaseModel } from "../../database/v1/model";
 import {
   getCheapestInstance,
@@ -17,7 +17,6 @@ import {
   resolveRegionKey
 } from "../../utils";
 import { DatabaseService } from "../../database/v1";
-import { ResourceManager } from "../../index";
 
 export class EngineService {
   private readonly context: ResourceManagerContext;
@@ -179,7 +178,7 @@ export class EngineService {
           db_compute_instances_type_id: instance_type_id,
           proxy_instances_type_id: instance_type_id,
           proxy_instances_count: 1,
-          db_compute_instances_count: options.scale || 1
+          db_compute_instances_count: options.scale ?? 1
         }
       }
     });

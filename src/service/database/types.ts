@@ -1,4 +1,3 @@
-import { EngineModel } from "../engine/model";
 import { EngineModelInterface } from "../engine/types";
 
 export type Database = {
