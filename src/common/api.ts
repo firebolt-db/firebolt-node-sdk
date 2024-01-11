@@ -8,7 +8,7 @@ export const ACCOUNT_ID_BY_NAME = (accountName: string) =>
 
 // V1
 
-export const USERNAME_PASSWORD_LOGIN = "auth/v1/login";
+export const USERNAME_PASSWORD_LOGIN = "auth/v1/login"; // legit:ignore-secrets
 
 export const ACCOUNT = "iam/v2/account";
 export const ACCOUNT_BY_NAME = "iam/v2/accounts:getIdByName";
