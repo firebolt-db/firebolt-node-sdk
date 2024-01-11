@@ -56,11 +56,14 @@ export class EngineService {
 
   private async getByIds(engineIds: string[]): Promise<EngineModel[]> {
     const { apiEndpoint, httpClient } = this.context;
+    if (engineIds.length === 0) {
+      return [];
+    }
     const accountId = await this.accountId;
     const enginesPayload = JSON.stringify({
       engine_ids: engineIds.map(id => ({ engineId: id, accountId: accountId }))
     });
-    const url = `${apiEndpoint}${ENGINES_BY_IDS_URL}`;
+    const url = `${apiEndpoint}/${ENGINES_BY_IDS_URL}`;
     const data = await httpClient
       .request<{ engines: Engine[] }>("POST", url, { body: enginesPayload })
       .ready();
@@ -133,7 +136,7 @@ export class EngineService {
     options: CreateEngineOptions
   ): Promise<EngineModel> {
     const { apiEndpoint, httpClient } = this.context;
-    if (!("region" in options) || options.region === undefined) {
+    if (!options || !("region" in options) || options.region === undefined) {
       throw new Error("region is required");
     }
     const region_key = await resolveRegionKey(

@@ -1,9 +1,9 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { QUERY_URL } from "../../src/common/api";
-import { Firebolt } from "../../src";
-import { ConnectionError, DeprecationError } from "../../src/common/errors";
-import { CreateDatabaseOptions } from "../../src/service/database/types";
+import { QUERY_URL } from "../../../src/common/api";
+import { Firebolt } from "../../../src";
+import { ConnectionError, DeprecationError } from "../../../src/common/errors";
+import { CreateDatabaseOptions } from "../../../src/service/database/types";
 
 const apiEndpoint = "api.fake.firebolt.io";
 

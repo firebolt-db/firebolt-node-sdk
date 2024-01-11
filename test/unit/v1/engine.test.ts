@@ -9,6 +9,14 @@ import { Authenticator } from "../../../src/auth";
 
 const apiEndpoint = "fake.api.com";
 const logger = new Logger();
+const engineObject = {
+  id: {
+    engine_id: "123",
+    account_id: "some_account"
+  },
+  name: "some_engine",
+  endpoint: "https://some_engine.com"
+};
 
 describe("engine service", () => {
   const server = setupServer();
@@ -16,29 +24,13 @@ describe("engine service", () => {
     rest.get(
       `https://${apiEndpoint}/core/v1/accounts/some_account/engines:getIdByName`,
       (req, res, ctx) => {
-        const engine_id = {
-          engine_id: "123",
-          account_id: "some_account"
-        };
-        return res(ctx.json({ engine_id }));
+        return res(ctx.json(engineObject.id));
       }
     ),
     rest.get(
       `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123`,
       (req, res, ctx) => {
-        const engine_id = {
-          engine_id: "123",
-          account_id: "some_account"
-        };
-        return res(
-          ctx.json({
-            engine: {
-              id: engine_id,
-              name: "some_engine",
-              endpoint: "https://some_engine.com"
-            }
-          })
-        );
+        return res(ctx.json(engineObject));
       }
     ),
     // Authentication
@@ -106,7 +98,10 @@ describe("engine service", () => {
       rest.post(
         `https://${apiEndpoint}/core/v1/accounts/some_account/engines/123:start`,
         (req, res, ctx) => {
-          return res(ctx.status(200), ctx.json({ engine: { name: "some_engine" } }));
+          return res(
+            ctx.status(200),
+            ctx.json({ engine: { name: "some_engine" } })
+          );
         }
       )
     );

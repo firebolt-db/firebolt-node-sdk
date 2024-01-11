@@ -41,14 +41,14 @@ export const ACCOUNT_ENGINE_RESTART = (accountId: string, engineId: string) =>
 export const ACCOUNT_ENGINE_STOP = (accountId: string, engineId: string) =>
   ACCOUNT_ENGINE(accountId, engineId) + ":stop";
 
-export const REGIONS = "/compute/v1/regions";
+export const REGIONS = "compute/v1/regions";
 export const ACCOUNT_INSTANCE_TYPES = (accountId: string) =>
-  `/aws/v2/accounts/${accountId}/instanceTypes`;
+  `aws/v2/accounts/${accountId}/instanceTypes`;
 
 export const ACCOUNT_BINDINGS_URL = (accountId: string) =>
-  `/core/v1/accounts/${accountId}/bindings`;
+  `core/v1/accounts/${accountId}/bindings`;
 
-export const ENGINES_BY_IDS_URL = "/core/v1/engines:getByIds";
+export const ENGINES_BY_IDS_URL = "core/v1/engines:getByIds";
 
 export type EdgeResult<T> = {
   cursor: string;

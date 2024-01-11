@@ -1,5 +1,6 @@
 import { Firebolt } from "../../../src/index";
 import { assignProtocol } from "../../../src/common/util";
+import { DatabaseModel } from "../../../src/service/database/v1/model";
 
 const connectionOptions = {
   auth: {
@@ -77,36 +78,24 @@ describe("database integration", () => {
       )
     ).toBeTruthy();
   });
-});
 
-describe("engine resource manager", () => {
-  it("retrieves all databases", async () => {
+  it("retrieves a database by its name and id", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
     await firebolt.connect(connectionOptions);
 
-    const databases = await firebolt.resourceManager.database.getAll();
-
-    expect(
-      databases.find(
-        database => process.env.FIREBOLT_DATABASE === database.name
-      )
-    ).toBeTruthy();
-  });
-
-  it("retrieves a database by its name", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-
-    await firebolt.connect(connectionOptions);
-
-    const { name } = await firebolt.resourceManager.database.getByName(
+    const database = await firebolt.resourceManager.database.getByName(
       process.env.FIREBOLT_DATABASE as string
     );
 
-    expect(name).toEqual(process.env.FIREBOLT_DATABASE);
+    expect(database.name).toEqual(process.env.FIREBOLT_DATABASE);
+    const database_id = (database as DatabaseModel).id.database_id;
+
+    const database2 = await firebolt.resourceManager.database.getById(
+      database_id
+    );
+    expect(database2.name).toEqual(process.env.FIREBOLT_DATABASE);
   });
 });
