@@ -45,6 +45,11 @@ export const REGIONS = "/compute/v1/regions";
 export const ACCOUNT_INSTANCE_TYPES = (accountId: string) =>
   `/aws/v2/accounts/${accountId}/instanceTypes`;
 
+export const ACCOUNT_BINDINGS_URL = (accountId: string) =>
+  `/core/v1/accounts/${accountId}/bindings`;
+
+export const ENGINES_BY_IDS_URL = "/core/v1/engines:getByIds";
+
 export type EdgeResult<T> = {
   cursor: string;
   node: T;

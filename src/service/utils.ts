@@ -71,7 +71,7 @@ export async function resolveEngineSpec(
   throw new Error(`Instance type ${name} not found`);
 }
 
-export async function getCheepestInstance(
+export async function getCheapestInstance(
   regionId: string,
   accountId: string,
   apiEndpoint: string,

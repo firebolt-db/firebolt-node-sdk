@@ -2,6 +2,8 @@ import {
   ACCOUNT_ENGINE,
   ACCOUNT_ENGINES,
   ACCOUNT_DATABASE_BINDING_URL,
+  ACCOUNT_BINDINGS_URL,
+  ENGINES_BY_IDS_URL,
   ResultsPage
 } from "../../../common/api";
 import { ResourceManagerContext } from "../../../types";
@@ -10,11 +12,10 @@ import { Engine, ID } from "./types";
 import { CreateEngineOptions, WarmupMethod } from "../types";
 import { DatabaseModel } from "../../database/v1/model";
 import {
-  getCheepestInstance,
+  getCheapestInstance,
   resolveEngineSpec,
   resolveRegionKey
 } from "../../utils";
-import { ResourceManager } from "../../index";
 import { DatabaseService } from "../../database/v1";
 
 export class EngineService {
@@ -52,8 +53,32 @@ export class EngineService {
     return new EngineModel(this.context, data.engine);
   }
 
+  private async getByIds(engineIds: string[]): Promise<EngineModel[]> {
+    const { apiEndpoint, httpClient } = this.context;
+    const accountId = await this.accountId;
+    const enginesPayload = JSON.stringify(
+      engineIds.map(id => ({ engineId: id, accountId: accountId }))
+    );
+    const url = `${apiEndpoint}/${ENGINES_BY_IDS_URL}`;
+    const data = await httpClient
+      .request<{ engines: Engine[] }>("POST", url, { body: enginesPayload })
+      .ready();
+    return data.engines.map(engine => new EngineModel(this.context, engine));
+  }
+
   async getByDB(database_name: string): Promise<EngineModel[]> {
-    return [];
+    const { apiEndpoint, httpClient } = this.context;
+    const url = `${apiEndpoint}/${ACCOUNT_BINDINGS_URL(
+      await this.accountId
+    )}?filter.id_database_id_eq=${database_name}`;
+    const data = await httpClient
+      .request<{
+        edges: [{ node: { id: { engine_id: string } } }];
+      }>("GET", url)
+      .ready();
+
+    const engine_ids = data.edges.map(edge => edge.node.id.engine_id);
+    return await this.getByIds(engine_ids);
   }
 
   async getByName(engineName: string): Promise<EngineModel> {
@@ -120,7 +145,7 @@ export class EngineService {
           apiEndpoint,
           httpClient
         ))) ||
-      (await getCheepestInstance(
+      (await getCheapestInstance(
         region_key.region_id,
         await this.accountId,
         apiEndpoint,
