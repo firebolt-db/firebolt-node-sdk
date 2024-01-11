@@ -17,6 +17,7 @@ import {
   resolveRegionKey
 } from "../../utils";
 import { DatabaseService } from "../../database/v1";
+import { ResourceManager } from "../../index";
 
 export class EngineService {
   private readonly context: ResourceManagerContext;
@@ -56,10 +57,10 @@ export class EngineService {
   private async getByIds(engineIds: string[]): Promise<EngineModel[]> {
     const { apiEndpoint, httpClient } = this.context;
     const accountId = await this.accountId;
-    const enginesPayload = JSON.stringify(
-      engineIds.map(id => ({ engineId: id, accountId: accountId }))
-    );
-    const url = `${apiEndpoint}/${ENGINES_BY_IDS_URL}`;
+    const enginesPayload = JSON.stringify({
+      engine_ids: engineIds.map(id => ({ engineId: id, accountId: accountId }))
+    });
+    const url = `${apiEndpoint}${ENGINES_BY_IDS_URL}`;
     const data = await httpClient
       .request<{ engines: Engine[] }>("POST", url, { body: enginesPayload })
       .ready();
@@ -68,9 +69,13 @@ export class EngineService {
 
   async getByDB(database_name: string): Promise<EngineModel[]> {
     const { apiEndpoint, httpClient } = this.context;
+
+    const databases = new DatabaseService(this.context);
+    const database_id = (await databases.getByName(database_name)).id
+      .database_id;
     const url = `${apiEndpoint}/${ACCOUNT_BINDINGS_URL(
       await this.accountId
-    )}?filter.id_database_id_eq=${database_name}`;
+    )}?filter.id_database_id_eq=${database_id}`;
     const data = await httpClient
       .request<{
         edges: [{ node: { id: { engine_id: string } } }];
@@ -128,7 +133,7 @@ export class EngineService {
     options: CreateEngineOptions
   ): Promise<EngineModel> {
     const { apiEndpoint, httpClient } = this.context;
-    if (options.region === undefined) {
+    if (!("region" in options) || options.region === undefined) {
       throw new Error("region is required");
     }
     const region_key = await resolveRegionKey(
@@ -171,7 +176,7 @@ export class EngineService {
           db_compute_instances_type_id: instance_type_id,
           proxy_instances_type_id: instance_type_id,
           proxy_instances_count: 1,
-          ...(options.scale && { db_compute_instances_count: options.scale })
+          db_compute_instances_count: options.scale || 1
         }
       }
     });
@@ -194,7 +199,7 @@ export class EngineService {
     const databases = new DatabaseService(this.context);
     const databaseId =
       typeof database === "string"
-        ? (await databases.getById(database)).id.database_id
+        ? (await databases.getByName(database)).id.database_id
         : database.id.database_id;
     const url = `${apiEndpoint}/${ACCOUNT_DATABASE_BINDING_URL(
       await this.accountId,

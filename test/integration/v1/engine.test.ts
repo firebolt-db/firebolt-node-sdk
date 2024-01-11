@@ -148,11 +148,23 @@ describe("engine resource manager", () => {
     await firebolt.connect(connectionOptions);
     const engineName = `${process.env.FIREBOLT_ENGINE_NAME}_attach_test`;
 
-    const engine = await firebolt.resourceManager.engine.create(engineName);
+    const engine = await firebolt.resourceManager.engine.create(engineName, {
+      region: "us-east-1"
+    });
 
-    await firebolt.resourceManager.engine.attachToDatabase(
-      engine,
-      process.env.FIREBOLT_DATABASE as string
-    );
+    try {
+      await firebolt.resourceManager.engine.attachToDatabase(
+        engine,
+        process.env.FIREBOLT_DATABASE as string
+      );
+
+      const engines = await firebolt.resourceManager.engine.getByDB(
+        process.env.FIREBOLT_DATABASE as string
+      );
+
+      expect(engines.filter(e => e.name == engineName)).toHaveLength(1);
+    } finally {
+      await engine.delete();
+    }
   });
 });
