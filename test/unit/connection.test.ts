@@ -1,6 +1,6 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Firebolt } from "../../src/index";
+import { Firebolt } from "../../src";
 import { ConnectionOptions } from "../../src/types";
 import { QUERY_URL } from "../../src/common/api";
 

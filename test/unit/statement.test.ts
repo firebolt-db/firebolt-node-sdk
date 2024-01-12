@@ -93,7 +93,7 @@ describe("format query", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, [
-      new Date("2022-05-04 17:37:19+00")
+      new Date("2022-05-04 17:37:19 UTC")
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
       `"select '2022-05-04 17:37:19' from table"`
@@ -104,7 +104,7 @@ describe("format query", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, [
-      new Date("1000-01-01 12:21:21+00")
+      new Date("1000-01-01 12:21:21 UTC")
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
       `"select '1000-01-01 12:21:21' from table"`

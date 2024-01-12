@@ -1,5 +1,5 @@
-import { Firebolt } from "../../src/index";
-import { OutputFormat } from "../../src/types";
+import { Firebolt } from "../../../src/index";
+import { OutputFormat } from "../../../src/types";
 
 const connectionParams = {
   auth: {
@@ -121,29 +121,6 @@ describe("integration test", () => {
 
     const statement = await connection.execute("SELECT 1");
     const { data, meta } = await statement.fetchResult();
-    expect(data.length).toEqual(1);
-    expect(meta.length).toEqual(1);
-  });
-  it("works with accessToken", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-
-    const connection = await firebolt.connect(connectionParams);
-
-    const connection2 = await firebolt.connect({
-      database: process.env.FIREBOLT_DATABASE as string,
-      engineName: process.env.FIREBOLT_ENGINE_NAME as string,
-      account: process.env.FIREBOLT_ACCOUNT as string,
-      auth: {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        accessToken: connection.context.httpClient.authenticator.accessToken
-      }
-    });
-
-    const statement2 = await connection2.execute("SELECT 1");
-    const { data, meta } = await statement2.fetchResult();
     expect(data.length).toEqual(1);
     expect(meta.length).toEqual(1);
   });

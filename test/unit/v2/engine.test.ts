@@ -1,10 +1,12 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Logger } from "../../src/logger/node";
-import { QUERY_URL } from "../../src/common/api";
-import { Firebolt } from "../../src";
-import { ResourceManager } from "../../src/service";
-import { ConnectionError, DeprecationError } from "../../src/common/errors";
+import { Logger } from "../../../src/logger/node";
+import { QUERY_URL } from "../../../src/common/api";
+import { Firebolt, QueryFormatter } from "../../../src";
+import { ResourceManager } from "../../../src/service";
+import { ConnectionError, DeprecationError } from "../../../src/common/errors";
+import { NodeHttpClient } from "../../../src/http/node";
+import { Authenticator} from "../../../src/auth";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -216,19 +218,33 @@ describe("engine service", () => {
         }
       )
     );
-    const firebolt = Firebolt({ apiEndpoint });
-    const connection = await firebolt.connect({
+
+    const connectionOptions = {
       account: "my_account",
       auth: {
         client_id: "id",
         client_secret: "secret"
       }
-    });
+    }
+    const firebolt = Firebolt({ apiEndpoint });
+    const connection = await firebolt.connect(connectionOptions);
     // Also test diffrent way of instantiating a resource manager
     const logger = new Logger();
+    const httpClient = new NodeHttpClient();
+    new Authenticator(
+      {
+        httpClient,
+        logger,
+        apiEndpoint,
+        queryFormatter: new QueryFormatter()
+      },
+      connectionOptions
+    );
     const resourceManager = new ResourceManager({
       logger,
-      connection
+      connection,
+      apiEndpoint,
+      httpClient
     });
     const engines = await resourceManager.engine.getAll();
     expect(engines).toBeTruthy();

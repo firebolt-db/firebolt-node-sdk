@@ -1,11 +1,10 @@
-import { Firebolt } from "../../src/index";
+import { Firebolt } from "../../../src/index";
 
 const connectionParams = {
   auth: {
-    client_id: process.env.FIREBOLT_CLIENT_ID as string,
-    client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
+    username: process.env.FIREBOLT_USERNAME as string,
+    password: process.env.FIREBOLT_PASSWORD as string
   },
-  account: process.env.FIREBOLT_ACCOUNT as string,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
@@ -15,7 +14,7 @@ jest.setTimeout(100000);
 const dml = `
 CREATE FACT TABLE IF NOT EXISTS t1
 (
-id INT  NOT NULL UNIQUE,
+id INT NOT NULL,
 description TEXT NULL,
 pg_date pgdate NOT NULL ,
 time_wtz timestamptz NOT NULL ,
@@ -63,8 +62,8 @@ describe("new date data format", () => {
     await connection.execute(insertValues);
     const statement = await connection.execute(`select * from t1 limit 10`);
     const { data, meta } = await statement.fetchResult();
-    expect(meta[2].type).toEqual("date"); // PGDate is aliased as date
+    expect(meta[2].type).toEqual("date");
     expect(meta[3].type).toEqual("timestamptz");
-    expect(meta[4].type).toEqual("timestamp"); // TimestampNtz is aliased as timestamp
+    expect(meta[4].type).toEqual("timestamp");
   });
 });

@@ -1,8 +1,8 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Firebolt } from "../../src/index";
-import { ConnectionOptions } from "../../src/types";
-import { QUERY_URL } from "../../src/common/api";
+import { Firebolt } from "../../../src/index";
+import { ConnectionOptions } from "../../../src/types";
+import { QUERY_URL } from "../../../src/common/api";
 
 const apiEndpoint = "fake.api.com";
 

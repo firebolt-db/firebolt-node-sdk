@@ -1,5 +1,5 @@
-import { EngineStatusSummary, Firebolt, FireboltResourceManager } from "../../src/index";
-import { EngineType, WarmupMethod } from "../../src/service/engine/types";
+import { EngineStatusSummary, Firebolt, FireboltResourceManager } from "../../../src/index";
+import { EngineType, WarmupMethod } from "../../../src/service/engine/types";
 
 const authOptions = {
   client_id: process.env.FIREBOLT_CLIENT_ID as string,

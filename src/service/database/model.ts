@@ -1,20 +1,19 @@
 import { DeprecationError } from "../../common/errors";
 import { Database } from "./types";
-import { ResourceManager } from "../../service"
+import { ResourceManager } from "../index";
 import { ResourceManagerContext } from "../../types";
-import { EngineModel } from "../engine/model";
-import { EngineStatusSummary } from "../engine/types";
+import { EngineModelInterface, EngineStatusSummary } from "../engine/types";
 
 export class DatabaseModel {
   name: string;
   description: string;
-  private resourceManager: ResourceManager;
+  private context: ResourceManagerContext;
 
   constructor(database: Database, context: ResourceManagerContext) {
     const { name, description } = database;
     this.name = name;
     this.description = description;
-    this.resourceManager = new ResourceManager(context);
+    this.context = context;
   }
 
   async getDefaultEndpoint(): Promise<string> {
@@ -23,15 +22,16 @@ export class DatabaseModel {
     });
   }
 
-  async getAttachedEngines() : Promise<EngineModel[]> {
-    return await this.resourceManager.engine.getByDB(this.name);
+  async getAttachedEngines(): Promise<EngineModelInterface[]> {
+    const resourceManager = new ResourceManager(this.context);
+    return await resourceManager.engine.getByDB(this.name);
   }
 
   async delete() {
-    const engines: EngineModel[] = await this.getAttachedEngines();
+    const engines: EngineModelInterface[] = await this.getAttachedEngines();
     for (const engine of engines) {
       if (
-        engine.current_status_summary == EngineStatusSummary.STARTING ||  
+        engine.current_status_summary == EngineStatusSummary.STARTING ||
         engine.current_status_summary == EngineStatusSummary.STOPPING
       ) {
         throw new Error(
@@ -40,6 +40,6 @@ export class DatabaseModel {
       }
     }
     const query = `DROP DATABASE "${this.name}"`;
-    this.resourceManager.database.context.connection.execute(query);
+    await this.context.connection.execute(query);
   }
 }
