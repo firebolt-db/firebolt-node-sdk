@@ -80,7 +80,9 @@ export async function getCheapestInstance(
   const data = await listInstanceTypes(accountId, apiEndpoint, httpClient);
 
   const instances = data.edges
-    .filter(e => e.node.id.region_id == regionId)
+    .filter(
+      e => e.node.id.region_id == regionId && e.node.price_per_hour_cents > 0
+    )
     .sort((a, b) => {
       return a.node.price_per_hour_cents - b.node.price_per_hour_cents;
     });

@@ -225,6 +225,16 @@ describe("engine service", () => {
                     },
                     price_per_hour_cents: 1
                   }
+                },
+                {
+                  node: {
+                    name: "irregular_instance_type",
+                    id: {
+                      instance_type_id: "789",
+                      region_id: "123"
+                    },
+                    price_per_hour_cents: 0
+                  }
                 }
               ]
             })
