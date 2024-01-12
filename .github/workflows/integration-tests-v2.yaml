@@ -2,10 +2,6 @@ name: Run integration tests for 2.0
 on:
   workflow_dispatch:
     inputs:
-      branch:
-        required: false
-        type: string
-        description: 'Branch to run on'
       environment:
         description: 'Environment to run the tests against'
         type: choice
@@ -16,10 +12,6 @@ on:
           - staging
   workflow_call:
     inputs:
-      branch:
-        required: false
-        type: string
-        description: 'Branch to run on'
       environment:
         description: 'Environment to run the tests against'
         type: choice
@@ -43,8 +35,6 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v2
-        with:
-          ref: ${{ inputs.branch }}
 
       - name: Set up node.js
         uses: actions/setup-node@v2
