@@ -15,6 +15,9 @@ const defaultResponseSettings = {
   normalizeData: false
 };
 
+const updateParametersHeader = "Firebolt-Update-Parameters";
+const allowedUpdateParameters = ["database"];
+
 export abstract class Connection {
   protected context: Context;
   protected options: ConnectionOptions;
@@ -61,6 +64,30 @@ export abstract class Connection {
     return { database, ...settings };
   }
 
+  private processHeaders(headers: Headers) {
+    const updateHeaderValue = headers.get(updateParametersHeader);
+    if (updateHeaderValue) {
+      const updateParameters = updateHeaderValue
+        .split(",")
+        .reduce((acc: Record<string, string>, param) => {
+          const [key, value] = param.split("=");
+          if (allowedUpdateParameters.includes(key)) {
+            acc[key] = value;
+          }
+          return acc;
+        }, {});
+
+      if (updateParameters.database) {
+        this.options.database = updateParameters.database;
+        delete updateParameters.database;
+      }
+      this.options.additionalParameters = {
+        ...this.options.additionalParameters,
+        ...updateParameters
+      };
+    }
+  }
+
   async execute(
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
@@ -87,7 +114,7 @@ export abstract class Connection {
     const body = formattedQuery;
     const url = this.getRequestUrl(executeQueryOptions);
 
-    const request = httpClient.request<unknown>("POST", url, {
+    const request = httpClient.request<Response>("POST", url, {
       headers: { "user-agent": this.userAgent },
       body,
       raw: true
@@ -96,7 +123,8 @@ export abstract class Connection {
     this.activeRequests = this.activeRequests.add(request);
 
     try {
-      await request.ready();
+      const response = await request.ready();
+      this.processHeaders(response.headers);
       const statement = new Statement(this.context, {
         query: formattedQuery,
         request,

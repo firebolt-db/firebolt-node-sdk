@@ -313,4 +313,43 @@ describe("Connection", () => {
       "Engine dummy is not running"
     );
   });
+
+  it("handles update parameters header", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    let otherDbUsed = false;
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        if ((await req.text()).startsWith("USE DATABASE")) {
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set(
+              "Firebolt-Update-Parameters",
+              "database=dummy2,other=parameter"
+            )
+          );
+        }
+        if (req.url.searchParams.get("database") === "dummy2") {
+          otherDbUsed = true;
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.execute("USE DATABASE dummy2");
+    await connection.execute("SELECT 1");
+    expect(otherDbUsed).toEqual(true);
+  });
 });
