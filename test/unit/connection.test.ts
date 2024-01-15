@@ -330,6 +330,13 @@ describe("Connection", () => {
 
     let otherDbUsed = false;
     server.use(
+      // Return engine url
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
+        }
+      ),
       rest.post(`https://some_engine.com`, async (req, res, ctx) => {
         if ((await req.text()).startsWith("USE DATABASE")) {
           return res(
