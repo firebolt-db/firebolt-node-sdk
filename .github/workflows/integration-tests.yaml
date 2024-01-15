@@ -44,7 +44,7 @@ on:
         required: true
 jobs:
   integration-test-v1:
-    uses: ./.github/workflows/integration-tests-v1.yml
+    uses: ./.github/workflows/integration-tests-v1.yaml
     with:
       environment: ${{ inputs.environment }}
     secrets:
@@ -57,7 +57,7 @@ jobs:
       SERVICE_ID_STG: ${{ secrets.SERVICE_ID_STG }}
       SERVICE_SECRET_STG: ${{ secrets.SERVICE_SECRET_STG }}
   integration-test-v2:
-    uses: ./.github/workflows/integration-tests-v2.yml
+    uses: ./.github/workflows/integration-tests-v2.yaml
     with:
       environment: ${{ inputs.environment }}
     secrets:
