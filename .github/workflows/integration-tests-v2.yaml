@@ -66,7 +66,7 @@ jobs:
           FIREBOLT_DATABASE: ${{ steps.setup.outputs.database_name }}
           FIREBOLT_ENGINE_NAME: ${{ steps.setup.outputs.engine_name }}
           FIREBOLT_API_ENDPOINT: "api.${{ inputs.environment }}.firebolt.io"
-          FIREBOLT_CLIENT_ID: ${{ env.CLIENT_ID
+          FIREBOLT_CLIENT_ID: ${{ env.CLIENT_ID }}
           FIREBOLT_CLIENT_SECRET: ${{ env.CLIENT_SECRET }}
         run: |
           npm run test:ci integration
