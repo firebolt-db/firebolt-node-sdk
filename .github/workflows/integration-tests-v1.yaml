@@ -82,4 +82,4 @@ jobs:
           FIREBOLT_CLIENT_ID: ${{ env.CLIENT_ID }}
           FIREBOLT_CLIENT_SECRET: ${{ env.CLIENT_SECRET }}
         run: |
-          npm run test:ci integration
+          npm run test:ci integration/v1
