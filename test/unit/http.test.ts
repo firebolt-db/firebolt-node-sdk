@@ -101,8 +101,28 @@ describe.each([
       })
     );
     await authenticator.authenticate();
-    expect(async () => {
+    await expect(async () => {
       await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
     }).rejects.toThrow("Record not found");
+  });
+
+  it("sends protocol version in headers", async () => {
+    const httpClient = new NodeHttpClient();
+    const queryFormatter = new QueryFormatter();
+    const authenticator = new Authenticator(
+      { queryFormatter, httpClient, apiEndpoint, logger },
+      {
+        auth,
+        account: "my_account"
+      }
+    );
+    server.use(
+      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
+        expect(req.headers.get("Firebolt-Protocol-Version")).toEqual("2.0");
+        return res(ctx.json({ ok: true }));
+      })
+    );
+    await authenticator.authenticate();
+    await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
   });
 });

@@ -24,6 +24,9 @@ const DEFAULT_ERROR = "Server error";
 
 const DEFAULT_USER_AGENT = systemInfoString();
 
+const PROTOCOL_VERSION_HEADER = "Firebolt-Protocol-Version";
+const PROTOCOL_VERSION = "2.0";
+
 export class NodeHttpClient {
   authenticator!: Authenticator;
 
@@ -60,6 +63,7 @@ export class NodeHttpClient {
         headers: {
           "user-agent": userAgent,
           "Content-Type": "application/json",
+          [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
           ...headers
         },
         body
