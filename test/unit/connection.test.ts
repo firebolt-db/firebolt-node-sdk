@@ -343,7 +343,7 @@ describe("Connection", () => {
             ctx.json(selectOneResponse),
             ctx.set(
               "Firebolt-Update-Parameters",
-              "database=dummy2,other=parameter"
+              "database= dummy2,other=parameter"
             )
           );
         }

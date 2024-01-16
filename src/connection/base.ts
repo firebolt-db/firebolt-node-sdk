@@ -72,7 +72,7 @@ export abstract class Connection {
         .reduce((acc: Record<string, string>, param) => {
           const [key, value] = param.split("=");
           if (allowedUpdateParameters.includes(key)) {
-            acc[key] = value;
+            acc[key] = value.trim();
           }
           return acc;
         }, {});
