@@ -35,6 +35,7 @@ describe("sql queries are supported", () => {
       await connection.execute(
         `use ${process.env.FIREBOLT_DATABASE as string}`
       );
+      await connection.execute(create_table_sql);
       let statement = await connection.execute(select_table_sql);
       let { data } = await statement.fetchResult();
       expect(data.length).toEqual(1);
