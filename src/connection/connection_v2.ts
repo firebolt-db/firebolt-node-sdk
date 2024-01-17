@@ -1,5 +1,10 @@
 import { ExecuteQueryOptions } from "../types";
-import { AccessError, ConnectionError } from "../common/errors";
+import {
+  AccessError,
+  AccountNotFoundError,
+  ApiError,
+  ConnectionError
+} from "../common/errors";
 import {
   ACCOUNT_ID_BY_NAME,
   ACCOUNT_SYSTEM_ENGINE,
@@ -22,10 +27,17 @@ export class ConnectionV2 extends BaseConnection {
     const { apiEndpoint, httpClient } = this.context;
     const accountName = this.account;
     const url = `${apiEndpoint}/${ACCOUNT_SYSTEM_ENGINE(accountName)}`;
-    const { engineUrl } = await httpClient
-      .request<{ engineUrl: string }>("GET", url)
-      .ready();
-    return engineUrl;
+    try {
+      const { engineUrl } = await httpClient
+        .request<{ engineUrl: string }>("GET", url)
+        .ready();
+      return engineUrl;
+    } catch (e) {
+      if (e instanceof ApiError && e.status == 404) {
+        throw new AccountNotFoundError({ account_name: accountName });
+      }
+      throw e;
+    }
   }
 
   private async isDatabaseAccessible(databaseName: string): Promise<boolean> {
