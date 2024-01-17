@@ -42,6 +42,7 @@
   "dependencies": {
     "@types/json-bigint": "^1.0.1",
     "abort-controller": "^3.0.0",
+    "agentkeepalive": "^4.5.0",
     "json-bigint": "^1.0.0",
     "node-fetch": "^2.6.6"
   }
