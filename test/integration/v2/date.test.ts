@@ -15,7 +15,7 @@ jest.setTimeout(100000);
 const dml = `
 CREATE FACT TABLE IF NOT EXISTS t1
 (
-id INT  NOT NULL UNIQUE,
+id INT NOT NULL,
 description TEXT NULL,
 pg_date pgdate NOT NULL ,
 time_wtz timestamptz NOT NULL ,

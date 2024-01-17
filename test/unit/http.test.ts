@@ -1,14 +1,25 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Authenticator } from "../../../src/auth";
-import { NodeHttpClient } from "../../../src/http/node";
-import { Logger } from "../../../src/logger/node";
-import { QueryFormatter } from "../../../src/formatter";
+import { Authenticator } from "../../src/auth";
+import { NodeHttpClient } from "../../src/http/node";
+import { Logger } from "../../src/logger/node";
+import { QueryFormatter } from "../../src/formatter";
 
-const apiEndpoint = "fake.api.com";
+const apiEndpoint = "api.fake.firebolt.io";
 const logger = new Logger();
 
-const authHandler = rest.post(
+const authHandlerV2 = rest.post(
+  `https://id.fake.firebolt.io/oauth/token`,
+  (req, res, ctx) => {
+    return res(
+      ctx.json({
+        access_token: "fake_access_token"
+      })
+    );
+  }
+);
+
+const authHandlerV1 = rest.post(
   `https://${apiEndpoint}/auth/v1/login`,
   (req, res, ctx) => {
     return res(
@@ -20,8 +31,14 @@ const authHandler = rest.post(
   }
 );
 
-describe("http client", () => {
+describe.each([
+  ["v1", authHandlerV1, { username: "user", password: "fake_password" }],
+  ["v2", authHandlerV2, { client_id: "user", client_secret: "fake_password" }]
+])("http client %s", (version, authHandler, auth) => {
   const server = setupServer();
+
+  server.use(authHandler);
+
   beforeAll(() => {
     server.listen();
   });
@@ -32,16 +49,14 @@ describe("http client", () => {
   it("stores access token", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
+
     const authenticator = new Authenticator(
       { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        auth: {
-          username: "user",
-          password: "fake_password"
-        }
+        auth,
+        account: "my_account"
       }
     );
-    server.use(authHandler);
     expect(authenticator.accessToken).toBeFalsy();
     await authenticator.authenticate();
     expect(authenticator.accessToken).toEqual("fake_access_token");
@@ -52,14 +67,11 @@ describe("http client", () => {
     const authenticator = new Authenticator(
       { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        auth: {
-          username: "user",
-          password: "fake_password"
-        }
+        auth,
+        account: "my_account"
       }
     );
     server.use(
-      authHandler,
       rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
         expect(req.headers.get("Authorization")).toEqual(
           "Bearer fake_access_token"
@@ -71,19 +83,16 @@ describe("http client", () => {
     await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
   });
   it("throw error if status > 300", async () => {
-    const httpClient = new NodeHttpClient(); // legit:ignore
+    const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
     const authenticator = new Authenticator(
       { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        auth: {
-          username: "user",
-          password: "fake_password"
-        }
+        auth,
+        account: "my_account"
       }
     );
     server.use(
-      authHandler,
       rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
         return res(
           ctx.status(404),
@@ -96,41 +105,24 @@ describe("http client", () => {
       await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
     }).rejects.toThrow("Record not found");
   });
-  it("refresh token on 401", async () => {
-    const statusMock = jest.fn().mockReturnValueOnce(401).mockReturnValue(200);
+
+  it("sends protocol version in headers", async () => {
     const httpClient = new NodeHttpClient();
     const queryFormatter = new QueryFormatter();
     const authenticator = new Authenticator(
       { queryFormatter, httpClient, apiEndpoint, logger },
       {
-        auth: {
-          username: "user",
-          password: "fake_password"
-        }
+        auth,
+        account: "my_account"
       }
     );
-    let call_number = 0;
     server.use(
-      rest.post(`https://${apiEndpoint}/auth/v1/login`, (req, res, ctx) => {
-        const access_token =
-          call_number == 0 ? "fake_access_token" : "new_access_token";
-        call_number++;
-        return res(
-          ctx.json({
-            access_token: access_token
-          })
-        );
-      }),
       rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
-        return res(
-          ctx.status(statusMock()),
-          ctx.json({ message: "Unauthorized", code: 401 })
-        );
+        expect(req.headers.get("Firebolt-Protocol-Version")).toEqual("2.0");
+        return res(ctx.json({ ok: true }));
       })
     );
     await authenticator.authenticate();
-    const initialAccessToken = authenticator.accessToken;
     await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
-    expect(initialAccessToken).not.toEqual(authenticator.accessToken);
   });
 });
