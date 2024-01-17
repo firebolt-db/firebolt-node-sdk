@@ -1,5 +1,6 @@
 import { Firebolt } from "../../../src/index";
 import { OutputFormat } from "../../../src/types";
+import { AccountNotFoundError } from "../../../src/common/errors";
 
 const connectionParams = {
   auth: {
@@ -285,5 +286,22 @@ describe("integration test", () => {
     });
 
     data.pipe(process.stdout);
+  });
+  it("show helpful error message on account not found", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    await expect(async () => {
+      await firebolt.testConnection({
+        auth: {
+          client_id: process.env.FIREBOLT_CLIENT_ID as string,
+          client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
+        },
+        account: "invalid_account",
+        database: process.env.FIREBOLT_DATABASE as string,
+        engineName: process.env.FIREBOLT_ENGINE_NAME as string
+      });
+    }).rejects.toThrow(AccountNotFoundError);
   });
 });
