@@ -22,9 +22,7 @@ describe("long running request", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute(query, {
-      settings: { use_standard_sql: 0, advanced_mode: 1 }
-    });
+    const statement = await connection.execute(query);
 
     const { data, meta } = await statement.fetchResult();
     expect(data.length).toEqual(360);
