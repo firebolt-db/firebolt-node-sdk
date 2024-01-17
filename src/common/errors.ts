@@ -94,3 +94,17 @@ export class DeprecationError extends Error {
     this.message = message;
   }
 }
+
+export class AccountNotFoundError extends Error {
+  message: string;
+  constructor({ account_name }: { account_name: string }) {
+    const message =
+      `Account '${account_name}' does not exist ` +
+      "in this organization or is not authorized. " +
+      "Please verify the account name and make sure your " +
+      "service account has the correct RBAC permissions and " +
+      "is linked to a user.";
+    super(message);
+    this.message = message;
+  }
+}
