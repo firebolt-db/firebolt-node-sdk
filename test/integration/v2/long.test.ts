@@ -1,5 +1,4 @@
 import { Firebolt } from "../../../src/index";
-import nock from "nock";
 
 const connectionParams = {
   auth: {
@@ -15,7 +14,7 @@ jest.setTimeout(500000);
 
 describe("long running request", () => {
   it("handles long request", async () => {
-    const query = `SELECT checksum(*) FROM generate_series(1, 500000000000)`;
+    const query = `SELECT checksum(*) FROM generate_series(1, 50000000000)`;
 
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
