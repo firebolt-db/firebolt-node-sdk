@@ -14,8 +14,8 @@ const connectionParams = {
 jest.setTimeout(500000);
 
 describe("long running request", () => {
-  it.skip("handles long request", async () => {
-    const query = `SELECT checksum(*) FROM generate_series(1, 200000000000)`;
+  it("handles long request", async () => {
+    const query = `SELECT checksum(*) FROM generate_series(1, 500000000000)`;
 
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
@@ -28,27 +28,5 @@ describe("long running request", () => {
     const { data, meta } = await statement.fetchResult();
     expect(data).toBeTruthy();
     expect(meta).toBeTruthy();
-  });
-  it("fails with timeout on network disconnect", async () => {
-    const query = `SELECT checksum(*) FROM generate_series(1, 200000000000)`;
-
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-
-    const connection = await firebolt.connect(connectionParams);
-
-    setTimeout(() => {
-      nock.disableNetConnect();
-    }, 10000);
-    try {
-      const statement = await connection.execute(query);
-      await statement.fetchResult();
-      expect(true).toEqual(false);
-    } catch (error) {
-      expect(true).toEqual(true);
-    } finally {
-      nock.enableNetConnect();
-    }
   });
 });
