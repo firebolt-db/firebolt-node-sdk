@@ -17,17 +17,9 @@ on:
         required: false
         type: string
     secrets:
-      FIREBOLT_USERNAME:
-        required: true
-      FIREBOLT_PASSWORD:
-        required: true
       FIREBOLT_STG_USERNAME:
         required: true
       FIREBOLT_STG_PASSWORD:
-        required: true
-      SERVICE_ID:
-        required: true
-      SERVICE_SECRET:
         required: true
       SERVICE_ID_STG:
         required: true
@@ -38,22 +30,14 @@ on:
         required: true
       FIREBOLT_CLIENT_SECRET_STG_NEW_IDN:
         required: true
-      FIREBOLT_CLIENT_ID_DEV_NEW_IDN:
-        required: true
-      FIREBOLT_CLIENT_SECRET_DEV_NEW_IDN:
-        required: true
 jobs:
   integration-test-v1:
     uses: ./.github/workflows/integration-tests-v1.yaml
     with:
       environment: ${{ inputs.environment }}
     secrets:
-      FIREBOLT_USERNAME: ${{ secrets.FIREBOLT_USERNAME }}
-      FIREBOLT_PASSWORD: ${{ secrets.FIREBOLT_PASSWORD }}
       FIREBOLT_STG_USERNAME: ${{ secrets.FIREBOLT_STG_USERNAME }}
       FIREBOLT_STG_PASSWORD: ${{ secrets.FIREBOLT_STG_PASSWORD }}
-      SERVICE_ID: ${{ secrets.SERVICE_ID }}
-      SERVICE_SECRET: ${{ secrets.SERVICE_SECRET }}
       SERVICE_ID_STG: ${{ secrets.SERVICE_ID_STG }}
       SERVICE_SECRET_STG: ${{ secrets.SERVICE_SECRET_STG }}
   integration-test-v2:
@@ -63,6 +47,4 @@ jobs:
     secrets:
       FIREBOLT_CLIENT_ID_STG_NEW_IDN: ${{ secrets.FIREBOLT_CLIENT_ID_STG_NEW_IDN }}
       FIREBOLT_CLIENT_SECRET_STG_NEW_IDN: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
-      FIREBOLT_CLIENT_ID_DEV_NEW_IDN: ${{ secrets.FIREBOLT_CLIENT_ID_DEV_NEW_IDN }}
-      FIREBOLT_CLIENT_SECRET_DEV_NEW_IDN: ${{ secrets.FIREBOLT_CLIENT_SECRET_DEV_NEW_IDN }}
 
