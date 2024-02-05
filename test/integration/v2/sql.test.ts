@@ -17,7 +17,8 @@ const connectionParams = {
 jest.setTimeout(20000);
 
 describe("sql queries are supported", () => {
-  it("supports use database statement", async () => {
+  // TODO: Unskip when this is supported on staging
+  it.skip("supports use database statement", async () => {
     const new_database_name =
       (process.env.FIREBOLT_DATABASE as string) + "_use_test";
     const table_name = "test_use_database";
