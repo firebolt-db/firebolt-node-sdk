@@ -1,17 +1,12 @@
 import { Firebolt } from "../../../src/index";
 
-const systemEngineConnectionParams = {
+const connectionParams = {
   auth: {
     client_id: process.env.FIREBOLT_CLIENT_ID as string,
     client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
   },
-  account: process.env.FIREBOLT_ACCOUNT as string
-};
-
-const connectionParams = {
-  database: process.env.FIREBOLT_DATABASE as string,
-  engineName: process.env.FIREBOLT_ENGINE_NAME as string,
-  ...systemEngineConnectionParams
+  account: process.env.FIREBOLT_ACCOUNT as string,
+  engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
 jest.setTimeout(20000);
@@ -28,12 +23,10 @@ describe("sql queries are supported", () => {
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
-    const connection = await firebolt.connect(systemEngineConnectionParams);
+    const connection = await firebolt.connect(connectionParams);
     try {
       await connection.execute(`create database ${new_database_name}`);
 
-      // Use statement in not supported on staging now, when it is supported
-      // we can remove the expected error
       await expect(
         connection.execute(`use ${process.env.FIREBOLT_DATABASE as string}`)
       ).rejects.toThrow();
