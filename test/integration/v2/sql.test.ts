@@ -35,9 +35,7 @@ describe("sql queries are supported", () => {
       // Use statement in not supported on staging now, when it is supported
       // we can remove the expected error
       await expect(
-        await connection.execute(
-          `use ${process.env.FIREBOLT_DATABASE as string}`
-        )
+        connection.execute(`use ${process.env.FIREBOLT_DATABASE as string}`)
       ).rejects.toThrow();
       // await connection.execute(create_table_sql);
       // let statement = await connection.execute(select_table_sql);
