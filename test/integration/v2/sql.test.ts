@@ -17,8 +17,7 @@ const connectionParams = {
 jest.setTimeout(20000);
 
 describe("sql queries are supported", () => {
-  // TODO: Unskip when this is supported on staging
-  it.skip("supports use database statement", async () => {
+  it("supports use database statement", async () => {
     const new_database_name =
       (process.env.FIREBOLT_DATABASE as string) + "_use_test";
     const table_name = "test_use_database";
@@ -33,19 +32,23 @@ describe("sql queries are supported", () => {
     try {
       await connection.execute(`create database ${new_database_name}`);
 
-      await connection.execute(
-        `use ${process.env.FIREBOLT_DATABASE as string}`
-      );
-      await connection.execute(create_table_sql);
-      let statement = await connection.execute(select_table_sql);
-      let { data } = await statement.fetchResult();
-      expect(data.length).toEqual(1);
-
-      await connection.execute(`use ${new_database_name}`);
-
-      statement = await connection.execute(select_table_sql);
-      ({ data } = await statement.fetchResult());
-      expect(data.length).toEqual(0);
+      // Use statement in not supported on staging now, when it is supported
+      // we can remove the expected error
+      expect(
+        await connection.execute(
+          `use ${process.env.FIREBOLT_DATABASE as string}`
+        )
+      ).toThrow();
+      // await connection.execute(create_table_sql);
+      // let statement = await connection.execute(select_table_sql);
+      // let { data } = await statement.fetchResult();
+      // expect(data.length).toEqual(1);
+      //
+      // await connection.execute(`use ${new_database_name}`);
+      //
+      // statement = await connection.execute(select_table_sql);
+      // ({ data } = await statement.fetchResult());
+      // expect(data.length).toEqual(0);
     } finally {
       await connection.execute(`drop database ${new_database_name}`);
     }
