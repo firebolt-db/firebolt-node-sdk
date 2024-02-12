@@ -9,6 +9,18 @@ import {
 } from "./dataTypes";
 import { hydrateDate } from "./hydrateDate";
 
+const infNanValues = ["inf", "-inf", "nan", "-nan"];
+
+const hydrateInfNan = (value: string) => {
+  if (value === "inf") {
+    return Infinity;
+  }
+  if (value === "-inf") {
+    return -Infinity;
+  }
+  return NaN;
+};
+
 const getHydratedValue = (
   value: unknown,
   type: string,
@@ -24,6 +36,9 @@ const getHydratedValue = (
     return value ? hydrateDate(value as string) : value;
   }
   if (isNumberType(type)) {
+    if (infNanValues.includes(value as string)) {
+      return hydrateInfNan(value as string);
+    }
     if (
       executeQueryOptions.response?.bigNumberAsString &&
       typeof value === "object" &&

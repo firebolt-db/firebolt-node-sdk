@@ -6,6 +6,7 @@ import {
   TimestampNTZ,
   Tuple
 } from "../../src/formatter";
+import { hydrateRow } from "../../src/statement/hydrateResponse";
 
 describe("format query", () => {
   it("format", () => {
@@ -274,5 +275,27 @@ describe("format query", () => {
     expect(formattedQuery).toMatchInlineSnapshot(
       `"SELECT 'hello_world'::bytea == '\\\\\\\\x68656c6c6f5f776f726c64'"`
     );
+  });
+});
+
+describe("parse values", () => {
+  it("parses inf and nan values", () => {
+    const row = {
+      pinf: "inf",
+      ninf: "-inf",
+      pnan: "nan",
+      nnan: "-nan"
+    };
+    const meta = [
+      { name: "pinf", type: "float" },
+      { name: "ninf", type: "float" },
+      { name: "pnan", type: "float" },
+      { name: "nnan", type: "float" }
+    ];
+    const res: Record<string, number> = hydrateRow(row, meta, {});
+    expect(res["pinf"]).toBe(Infinity);
+    expect(res["ninf"]).toBe(-Infinity);
+    expect(isNaN(res["pnan"])).toBe(true);
+    expect(isNaN(res["nnan"])).toBe(true);
   });
 });
