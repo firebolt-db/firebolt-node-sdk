@@ -19,6 +19,8 @@ const defaultResponseSettings = {
 const updateParametersHeader = "Firebolt-Update-Parameters";
 const allowedUpdateParameters = ["database"];
 const updateEndpointHeader = "Firebolt-Update-Endpoint";
+const resetSessionHeader = "Firebolt-Reset-Session";
+const immutableParameters = ["database", "account_id", "output_format"];
 
 export abstract class Connection {
   protected context: Context;
@@ -86,6 +88,16 @@ export abstract class Connection {
     };
   }
 
+  private handleResetSessionHeader() {
+    const remainingParameters: Record<string, string> = {};
+    for (const key in this.parameters) {
+      if (immutableParameters.includes(key)) {
+        remainingParameters[key] = this.parameters[key];
+      }
+    }
+    this.parameters = remainingParameters;
+  }
+
   private async handleUpdateEndpointHeader(headerValue: string): Promise<void> {
     const url = new URL(headerValue);
     const newParams = Object.fromEntries(url.searchParams.entries());
@@ -112,6 +124,10 @@ export abstract class Connection {
     const updateHeaderValue = headers.get(updateParametersHeader);
     if (updateHeaderValue) {
       this.handleUpdateParametersHeader(updateHeaderValue);
+    }
+
+    if (headers.has(resetSessionHeader)) {
+      this.handleResetSessionHeader();
     }
 
     const updateEndpointValue = headers.get(updateEndpointHeader);
