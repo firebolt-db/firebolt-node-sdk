@@ -13,8 +13,13 @@ import {
 
 import { Connection as BaseConnection } from "./base";
 
+interface AccountInfo {
+  id: string;
+  infraVersion: number;
+}
+
 export class ConnectionV2 extends BaseConnection {
-  private accountId: string | undefined;
+  private accountInfo: AccountInfo | undefined;
 
   private get account(): string {
     if (!this.options.account) {
@@ -125,13 +130,18 @@ export class ConnectionV2 extends BaseConnection {
     return res[0];
   }
 
-  async resolveAccountId() {
+  async resolveAccountInfo() {
     const { httpClient, apiEndpoint } = this.context;
     const url = `${apiEndpoint}/${ACCOUNT_ID_BY_NAME(this.account)}`;
-    const { id } = await httpClient
-      .request<{ id: string; region: string }>("GET", url)
+    const { id, infraVersion } = await httpClient
+      .request<{ id: string; region: string; infraVersion: string }>("GET", url)
       .ready();
-    return id;
+    return { id, infraVersion: parseInt(infraVersion ?? "1") };
+  }
+
+  async resolveAccountId() {
+    const accInfo = await this.resolveAccountInfo();
+    return accInfo.id;
   }
 
   async resolveEngineEndpoint() {
@@ -139,7 +149,7 @@ export class ConnectionV2 extends BaseConnection {
     // Connect to system engine first
     const systemUrl = await this.getSystemEngineEndpoint();
     this.engineEndpoint = `${systemUrl}/${QUERY_URL}`;
-    this.accountId = await this.resolveAccountId();
+    this.accountInfo = await this.resolveAccountInfo();
     if (engineName && database) {
       const engineEndpoint = await this.getEngineByNameAndDb(
         engineName,
@@ -147,7 +157,7 @@ export class ConnectionV2 extends BaseConnection {
       );
       this.engineEndpoint = engineEndpoint;
       // Account id is no longer needed
-      this.accountId = undefined;
+      this.accountInfo = undefined;
       return this.engineEndpoint;
     }
     if (engineName) {
@@ -164,7 +174,7 @@ export class ConnectionV2 extends BaseConnection {
       this.options.database = database;
       this.engineEndpoint = engineEndpoint;
       // Account id is no longer needed
-      this.accountId = undefined;
+      this.accountInfo = undefined;
       return this.engineEndpoint;
     }
     // If nothing specified connect to generic system engine
@@ -175,7 +185,7 @@ export class ConnectionV2 extends BaseConnection {
     executeQueryOptions: ExecuteQueryOptions
   ): Record<string, string | undefined> {
     return {
-      account_id: this.accountId,
+      account_id: this.accountInfo?.id,
       ...super.getBaseParameters(executeQueryOptions)
     };
   }
