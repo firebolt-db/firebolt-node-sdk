@@ -13,14 +13,7 @@ import {
 
 import { Connection as BaseConnection } from "./base";
 
-interface AccountInfo {
-  id: string;
-  infraVersion: number;
-}
-
 export class ConnectionV2 extends BaseConnection {
-  private accountInfo: AccountInfo | undefined;
-
   private get account(): string {
     if (!this.options.account) {
       throw new Error("Account name is required");

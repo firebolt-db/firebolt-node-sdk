@@ -16,6 +16,11 @@ const defaultResponseSettings = {
   normalizeData: false
 };
 
+interface AccountInfo {
+  id: string;
+  infraVersion: number;
+}
+
 const updateParametersHeader = "Firebolt-Update-Parameters";
 const allowedUpdateParameters = ["database"];
 const updateEndpointHeader = "Firebolt-Update-Endpoint";
@@ -27,6 +32,7 @@ export abstract class Connection {
   protected options: ConnectionOptions;
   protected userAgent: string;
   protected parameters: Record<string, string>;
+  protected accountInfo: AccountInfo | undefined;
   engineEndpoint!: string;
   activeRequests = new Set<{ abort: () => void }>();
 
@@ -103,10 +109,9 @@ export abstract class Connection {
     const newParams = Object.fromEntries(url.searchParams.entries());
 
     // Validate account_id if present
-    if (
-      newParams.account_id &&
-      (await this.resolveAccountId()) !== newParams.account_id
-    ) {
+    const currentAccountId =
+      this.accountInfo?.id ?? (await this.resolveAccountId());
+    if (newParams.account_id && currentAccountId !== newParams.account_id) {
       throw new ConnectionError({
         message: `Failed to execute USE ENGINE command. Account parameter mismatch. Contact support.`
       });

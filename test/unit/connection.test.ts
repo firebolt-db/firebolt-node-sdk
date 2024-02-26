@@ -413,6 +413,47 @@ describe("Connection", () => {
     expect(searchParamsUsed.get("param")).toEqual("value");
   });
 
+  it("validates account_id in update endpoint header", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    server.use(
+      // Return engine url
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
+        }
+      ),
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        if ((await req.text()).startsWith("USE ENGINE")) {
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set(
+              "Firebolt-Update-Endpoint",
+              "https://some_other_engine.com?param=value&account_id=different_account"
+            )
+          );
+        }
+      })
+    );
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(
+      connection.execute("USE ENGINE other_engine")
+    ).rejects.toThrow();
+  });
+
   it("handles reset session header", async () => {
     const connectionParams: ConnectionOptions = {
       auth: {
