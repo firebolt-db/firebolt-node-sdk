@@ -105,7 +105,9 @@ export abstract class Connection {
   }
 
   private async handleUpdateEndpointHeader(headerValue: string): Promise<void> {
-    const url = new URL(headerValue);
+    const url = new URL(
+      headerValue.startsWith("http") ? headerValue : `https://${headerValue}`
+    );
     const newParams = Object.fromEntries(url.searchParams.entries());
 
     // Validate account_id if present

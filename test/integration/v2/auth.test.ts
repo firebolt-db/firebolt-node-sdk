@@ -7,7 +7,7 @@ const auth = {
 
 const connectionOptions = {
   database: process.env.FIREBOLT_DATABASE as string,
-  account: process.env.FIREBOLT_ACCOUNT as string
+  account: process.env.FIREBOLT_ACCOUNT_V1 as string
 };
 
 jest.setTimeout(20000);

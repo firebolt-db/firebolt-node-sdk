@@ -7,7 +7,7 @@ const connectionParams = {
     client_id: process.env.FIREBOLT_CLIENT_ID as string,
     client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
   },
-  account: process.env.FIREBOLT_ACCOUNT as string,
+  account: process.env.FIREBOLT_ACCOUNT_V1 as string,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
@@ -20,7 +20,7 @@ describe("new identity integration test", () => {
       client_id: process.env.FIREBOLT_CLIENT_ID as string,
       client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
     },
-    account: process.env.FIREBOLT_ACCOUNT as string
+    account: process.env.FIREBOLT_ACCOUNT_V1 as string
   };
   it("works on system engine", async () => {
     const firebolt = Firebolt({
@@ -146,7 +146,7 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
     const statement = await connection.execute("SELECT 1", {
-      settings: { async_execution: true },
+      settings: { async_execution: "true" },
       response: { normalizeData: false }
     });
     const result = await statement.fetchResult();
@@ -250,7 +250,7 @@ describe("integration test", () => {
           client_id: process.env.FIREBOLT_CLIENT_ID as string,
           client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
         },
-        account: process.env.FIREBOLT_ACCOUNT as string,
+        account: process.env.FIREBOLT_ACCOUNT_V1 as string,
         database: process.env.FIREBOLT_DATABASE as string,
         engineName: "unknown_engine"
       });
