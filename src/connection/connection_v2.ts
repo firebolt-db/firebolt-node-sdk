@@ -143,34 +143,44 @@ export class ConnectionV2 extends BaseConnection {
     const systemUrl = await this.getSystemEngineEndpoint();
     this.engineEndpoint = `${systemUrl}/${QUERY_URL}`;
     this.accountInfo = await this.resolveAccountInfo();
-    if (engineName && database) {
-      const engineEndpoint = await this.getEngineByNameAndDb(
-        engineName,
-        database
-      );
-      this.engineEndpoint = engineEndpoint;
-      // Account id is no longer needed
-      this.accountInfo = undefined;
-      return this.engineEndpoint;
-    }
-    if (engineName) {
-      const database = await this.getEngineDatabase(engineName);
-      if (!database) {
-        throw new AccessError({
-          message: `Engine ${engineName} is attached to a database that current user can not access.`
-        });
+
+    if (this.accountInfo.infraVersion >= 2) {
+      if (database) {
+        await this.execute(`USE DATABASE ${database}`);
       }
-      const engineEndpoint = await this.getEngineByNameAndDb(
-        engineName,
-        database
-      );
-      this.parameters["database"] = database;
-      this.engineEndpoint = engineEndpoint;
-      // Account id is no longer needed
-      this.accountInfo = undefined;
-      return this.engineEndpoint;
+      if (engineName) {
+        await this.execute(`USE ENGINE ${engineName}`);
+      }
+    } else {
+      if (engineName && database) {
+        const engineEndpoint = await this.getEngineByNameAndDb(
+          engineName,
+          database
+        );
+        this.engineEndpoint = engineEndpoint;
+        // Account id is no longer needed
+        this.accountInfo = undefined;
+        return this.engineEndpoint;
+      }
+      if (engineName) {
+        const database = await this.getEngineDatabase(engineName);
+        if (!database) {
+          throw new AccessError({
+            message: `Engine ${engineName} is attached to a database that current user can not access.`
+          });
+        }
+        const engineEndpoint = await this.getEngineByNameAndDb(
+          engineName,
+          database
+        );
+        this.parameters["database"] = database;
+        this.engineEndpoint = engineEndpoint;
+        // Account id is no longer needed
+        this.accountInfo = undefined;
+        return this.engineEndpoint;
+      }
+      // If nothing specified connect to generic system engine
     }
-    // If nothing specified connect to generic system engine
     return this.engineEndpoint;
   }
 
