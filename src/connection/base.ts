@@ -6,6 +6,7 @@ import {
 } from "../types";
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
+import { ConnectionError } from "../common/errors";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.COMPACT
@@ -17,17 +18,23 @@ const defaultResponseSettings = {
 
 const updateParametersHeader = "Firebolt-Update-Parameters";
 const allowedUpdateParameters = ["database"];
+const updateEndpointHeader = "Firebolt-Update-Endpoint";
 
 export abstract class Connection {
   protected context: Context;
   protected options: ConnectionOptions;
   protected userAgent: string;
+  protected parameters: Record<string, string>;
   engineEndpoint!: string;
   activeRequests = new Set<{ abort: () => void }>();
 
   constructor(context: Context, options: ConnectionOptions) {
     this.context = context;
     this.options = options;
+    this.parameters = {
+      ...(options.database ? { database: options.database } : {}),
+      ...defaultQuerySettings
+    };
     this.userAgent = generateUserAgent(
       options.additionalParameters?.userClients,
       options.additionalParameters?.userDrivers
@@ -60,31 +67,56 @@ export abstract class Connection {
     executeQueryOptions: ExecuteQueryOptions
   ): Record<string, string | undefined> {
     const { settings } = executeQueryOptions;
-    const { database } = this.options;
-    return { database, ...settings };
+    return { ...this.parameters, ...settings };
   }
 
-  private processHeaders(headers: Headers) {
+  private handleUpdateParametersHeader(headerValue: string) {
+    const updateParameters = headerValue
+      .split(",")
+      .reduce((acc: Record<string, string>, param) => {
+        const [key, value] = param.split("=");
+        if (allowedUpdateParameters.includes(key)) {
+          acc[key] = value.trim();
+        }
+        return acc;
+      }, {});
+    this.parameters = {
+      ...this.parameters,
+      ...updateParameters
+    };
+  }
+
+  private async handleUpdateEndpointHeader(headerValue: string): Promise<void> {
+    const url = new URL(headerValue);
+    const newParams = Object.fromEntries(url.searchParams.entries());
+
+    // Validate account_id if present
+    if (
+      newParams.account_id &&
+      (await this.resolveAccountId()) !== newParams.account_id
+    ) {
+      throw new ConnectionError({
+        message: `Failed to execute USE ENGINE command. Account parameter mismatch. Contact support.`
+      });
+    }
+
+    // Remove url parameters and update engineEndpoint
+    this.engineEndpoint = url.toString().replace(url.search, "");
+    this.parameters = {
+      ...this.parameters,
+      ...newParams
+    };
+  }
+
+  private async processHeaders(headers: Headers) {
     const updateHeaderValue = headers.get(updateParametersHeader);
     if (updateHeaderValue) {
-      const updateParameters = updateHeaderValue
-        .split(",")
-        .reduce((acc: Record<string, string>, param) => {
-          const [key, value] = param.split("=");
-          if (allowedUpdateParameters.includes(key)) {
-            acc[key] = value.trim();
-          }
-          return acc;
-        }, {});
+      this.handleUpdateParametersHeader(updateHeaderValue);
+    }
 
-      if (updateParameters.database) {
-        this.options.database = updateParameters.database;
-        delete updateParameters.database;
-      }
-      this.options.additionalParameters = {
-        ...this.options.additionalParameters,
-        ...updateParameters
-      };
+    const updateEndpointValue = headers.get(updateEndpointHeader);
+    if (updateEndpointValue) {
+      await this.handleUpdateEndpointHeader(updateEndpointValue);
     }
   }
 
@@ -93,11 +125,6 @@ export abstract class Connection {
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<Statement> {
     const { httpClient, queryFormatter } = this.context;
-
-    executeQueryOptions.settings = {
-      ...defaultQuerySettings,
-      ...(executeQueryOptions.settings ?? {})
-    };
 
     executeQueryOptions.response = {
       ...defaultResponseSettings,
@@ -124,7 +151,7 @@ export abstract class Connection {
 
     try {
       const response = await request.ready();
-      this.processHeaders(response.headers);
+      await this.processHeaders(response.headers);
       const statement = new Statement(this.context, {
         query: formattedQuery,
         request,

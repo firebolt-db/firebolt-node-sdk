@@ -171,7 +171,7 @@ export class ConnectionV2 extends BaseConnection {
         engineName,
         database
       );
-      this.options.database = database;
+      this.parameters["database"] = database;
       this.engineEndpoint = engineEndpoint;
       // Account id is no longer needed
       this.accountInfo = undefined;

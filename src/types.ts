@@ -29,7 +29,7 @@ export enum OutputFormat {
   JSON = "JSON"
 }
 
-export type QuerySettings = Record<string, unknown> & {
+export type QuerySettings = Record<string, string | undefined> & {
   output_format?: OutputFormat;
 };
 
