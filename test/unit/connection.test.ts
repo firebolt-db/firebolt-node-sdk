@@ -44,6 +44,12 @@ const selectOneResponse = {
   rows: 1
 };
 
+const emptyResponse = {
+  meta: [],
+  data: [],
+  rows: 0
+};
+
 const selectAttachedToResponse = {
   meta: [
     {
@@ -526,5 +532,77 @@ describe("Connection", () => {
     await connection.execute("SELECT 1");
     expect(searchParamsUsed.get("param")).toEqual(null);
     expect(searchParamsUsed.get("database")).toEqual("dummy");
+  });
+
+  it("uses sql to connect to account v2", async () => {
+    let databaseUsed = "";
+    server.use(
+      rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
+        return res(
+          ctx.json({
+            access_token: "fake_access_token"
+          })
+        );
+      }),
+      rest.get(
+        `https://api.fake.firebolt.io/web/v3/account/my_account/resolve`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              id: "1111",
+              region: "us-east-1",
+              infraVersion: "2"
+            })
+          );
+        }
+      ),
+      rest.get(
+        `https://api.fake.firebolt.io/web/v3/account/my_account/engineUrl`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              engineUrl: "https://some_system_engine.com"
+            })
+          );
+        }
+      ),
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json(emptyResponse),
+            ctx.set("Firebolt-Update-Endpoint", "https://some_engine.com")
+          );
+        }
+      ),
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        if ((await req.text()).startsWith("USE DATABASE")) {
+          return res(
+            ctx.json(emptyResponse),
+            ctx.set("Firebolt-Update-Parameters", "database=dummy")
+          );
+        } else {
+          databaseUsed = req.url.searchParams.get("database") ?? "";
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.execute("SELECT 1");
+    expect(databaseUsed).toEqual("dummy");
   });
 });
