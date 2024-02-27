@@ -75,7 +75,18 @@ export abstract class Connection {
     executeQueryOptions: ExecuteQueryOptions
   ): Record<string, string | undefined> {
     const { settings } = executeQueryOptions;
-    return { ...this.parameters, ...settings };
+
+    // convert all settings values to string
+    const strSettings = Object.entries(settings ?? {}).reduce<
+      Record<string, string>
+    >((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value.toString();
+      }
+      return acc;
+    }, {});
+
+    return { ...this.parameters, ...strSettings };
   }
 
   private handleUpdateParametersHeader(headerValue: string) {
