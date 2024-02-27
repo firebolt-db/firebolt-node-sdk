@@ -146,7 +146,7 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
     const statement = await connection.execute("SELECT 1", {
-      settings: { async_execution: "true" },
+      settings: { async_execution: true },
       response: { normalizeData: false }
     });
     const result = await statement.fetchResult();
