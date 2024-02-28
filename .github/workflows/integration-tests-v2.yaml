@@ -33,7 +33,7 @@ jobs:
           region: "us-east-1"
 
       - name: Setup database and engine
-        id: setup
+        id: setup-v2
         uses: firebolt-db/integration-testing-setup@v2
         with:
           firebolt-client-id: ${{ secrets.FIREBOLT_CLIENT_ID_STG_NEW_IDN }}
