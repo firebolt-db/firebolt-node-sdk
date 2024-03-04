@@ -14,9 +14,35 @@ const connectionParams = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
-jest.setTimeout(50000);
+jest.setTimeout(500000);
 
 describe("infra v2 integration test", () => {
+  beforeAll(async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+    const connection = await firebolt.connect(systemEngineConnectionParams);
+    await connection.execute(
+      `CREATE ENGINE IF NOT EXISTS ${connectionParams.engineName}`
+    );
+    await connection.execute(
+      `CREATE DATABASE IF NOT EXISTS ${connectionParams.database}`
+    );
+  });
+
+  afterAll(async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+    const connection = await firebolt.connect(systemEngineConnectionParams);
+    await connection.execute(
+      `DROP ENGINE IF EXISTS ${connectionParams.engineName}`
+    );
+    await connection.execute(
+      `DROP DATABASE IF EXISTS ${connectionParams.database}`
+    );
+  });
+
   it("connects", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
