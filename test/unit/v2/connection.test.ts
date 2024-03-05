@@ -4,6 +4,7 @@ import { Firebolt } from "../../../src";
 import { ConnectionOptions } from "../../../src/types";
 import { AccountNotFoundError } from "../../../src/common/errors";
 import { ConnectionV2 } from "../../../src/connection/connection_v2";
+import { QUERY_URL } from "../../../src/common/api";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -138,6 +139,12 @@ describe("Connection V2", () => {
               engineUrl: "https://some_system_engine.com"
             })
           );
+        }
+      ),
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
         }
       )
     );
