@@ -35,6 +35,7 @@ describe("infra v2 integration test", () => {
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
     const connection = await firebolt.connect(systemEngineConnectionParams);
+    await connection.execute(`STOP ENGINE ${connectionParams.engineName}`);
     await connection.execute(
       `DROP ENGINE IF EXISTS ${connectionParams.engineName}`
     );
