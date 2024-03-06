@@ -136,7 +136,7 @@ export class QueryFormatter {
   }
 
   private escapeBuffer(param: Buffer) {
-    return this.escapeString("\\x" + param.toString("hex"));
+    return "'\\x" + param.toString("hex") + "'";
   }
 
   private escapeArray(param: unknown[], prefix = "[", suffix = "]") {
