@@ -45,4 +45,27 @@ describe("bytea", () => {
     const row = data[0];
     expect((row as unknown[])[0]).toEqual(null);
   });
+
+  it("handles bytea insert and then select", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+
+    await connection.execute("CREATE TABLE bytea_test (id int, data bytea)");
+    const bytea_value = Buffer.from("hello_world_123ツ\n\u0048");
+
+    await connection.execute("INSERT INTO bytea_test VALUES (1, ?::bytea)", {
+      parameters: [bytea_value]
+    });
+
+    const statement = await connection.execute("SELECT data FROM bytea_test");
+
+    const { data, meta } = await statement.fetchResult();
+    expect(meta[0].type).toEqual("bytea");
+    const row = data[0];
+    expect((row as unknown[])[0]).toEqual(bytea_value);
+    await connection.execute("DROP TABLE IF EXISTS bytea_test");
+  });
 });

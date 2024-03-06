@@ -273,7 +273,7 @@ describe("format query", () => {
     const formattedQuery = queryFormatter.formatQuery(query, [buffer]);
     // Jest escaping rules are different, so we need to double the amount of quotes compared to .toEqual()
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"SELECT 'hello_world'::bytea == '\\\\\\\\x68656c6c6f5f776f726c64'"`
+      `"SELECT 'hello_world'::bytea == '\\\\x68656c6c6f5f776f726c64'"`
     );
   });
 });
