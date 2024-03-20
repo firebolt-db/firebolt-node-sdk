@@ -98,6 +98,10 @@ describe("infra v2 integration test", () => {
       await connection.execute(`use engine ${engine_name}`);
 
       await connection.execute(insert_sql);
+
+      await connection.execute(`use engine system`);
+
+      await expect(connection.execute(insert_sql)).rejects.toThrow();
     } finally {
       await connection.execute(`drop table ${table_name}`);
     }
