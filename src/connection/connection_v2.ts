@@ -12,6 +12,7 @@ import {
 } from "../common/api";
 
 import { Connection as BaseConnection } from "./base";
+import * as path from "path";
 
 export class ConnectionV2 extends BaseConnection {
   private get account(): string {
@@ -29,7 +30,8 @@ export class ConnectionV2 extends BaseConnection {
       const { engineUrl } = await httpClient
         .request<{ engineUrl: string }>("GET", url)
         .ready();
-      return engineUrl;
+      const parsedUrl = new URL(engineUrl);
+      return parsedUrl.toString().replace(parsedUrl.search, "");
     } catch (e) {
       if (e instanceof ApiError && e.status == 404) {
         throw new AccountNotFoundError({ account_name: accountName });
@@ -141,7 +143,7 @@ export class ConnectionV2 extends BaseConnection {
     const { engineName, database } = this.options;
     // Connect to system engine first
     const systemUrl = await this.getSystemEngineEndpoint();
-    this.engineEndpoint = `${systemUrl}/${QUERY_URL}`;
+    this.engineEndpoint = path.join(systemUrl, QUERY_URL);
     this.accountInfo = await this.resolveAccountInfo();
 
     if (this.accountInfo.infraVersion >= 2) {
