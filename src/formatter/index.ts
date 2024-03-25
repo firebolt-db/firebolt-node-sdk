@@ -136,7 +136,11 @@ export class QueryFormatter {
   }
 
   private escapeBuffer(param: Buffer) {
-    return "'\\x" + param.toString("hex") + "'";
+    const bytesFormatted = [];
+    for (let i = 0; i < param.length; i++) {
+      bytesFormatted.push("\\x" + param[i].toString(16).padStart(2, "0"));
+    }
+    return "E'" + bytesFormatted.join("") + "'";
   }
 
   private escapeArray(param: unknown[], prefix = "[", suffix = "]") {
