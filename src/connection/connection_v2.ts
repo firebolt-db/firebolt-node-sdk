@@ -30,8 +30,8 @@ export class ConnectionV2 extends BaseConnection {
       const { engineUrl } = await httpClient
         .request<{ engineUrl: string }>("GET", url)
         .ready();
-      const parsedUrl = new URL(engineUrl);
-      return parsedUrl.toString().replace(parsedUrl.search, "");
+      // cut off query parameters that go after ?
+      return engineUrl.split("?")[0];
     } catch (e) {
       if (e instanceof ApiError && e.status == 404) {
         throw new AccountNotFoundError({ account_name: accountName });
