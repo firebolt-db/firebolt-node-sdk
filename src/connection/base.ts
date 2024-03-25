@@ -6,6 +6,7 @@ import {
 } from "../types";
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
+import { ConnectionError } from "../common/errors";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.COMPACT
@@ -15,19 +16,33 @@ const defaultResponseSettings = {
   normalizeData: false
 };
 
+interface AccountInfo {
+  id: string;
+  infraVersion: number;
+}
+
 const updateParametersHeader = "Firebolt-Update-Parameters";
 const allowedUpdateParameters = ["database"];
+const updateEndpointHeader = "Firebolt-Update-Endpoint";
+const resetSessionHeader = "Firebolt-Reset-Session";
+const immutableParameters = ["database", "account_id", "output_format"];
 
 export abstract class Connection {
   protected context: Context;
   protected options: ConnectionOptions;
   protected userAgent: string;
+  protected parameters: Record<string, string>;
+  protected accountInfo: AccountInfo | undefined;
   engineEndpoint!: string;
   activeRequests = new Set<{ abort: () => void }>();
 
   constructor(context: Context, options: ConnectionOptions) {
     this.context = context;
     this.options = options;
+    this.parameters = {
+      ...(options.database ? { database: options.database } : {}),
+      ...defaultQuerySettings
+    };
     this.userAgent = generateUserAgent(
       options.additionalParameters?.userClients,
       options.additionalParameters?.userDrivers
@@ -60,31 +75,82 @@ export abstract class Connection {
     executeQueryOptions: ExecuteQueryOptions
   ): Record<string, string | undefined> {
     const { settings } = executeQueryOptions;
-    const { database } = this.options;
-    return { database, ...settings };
+
+    // convert all settings values to string
+    const strSettings = Object.entries(settings ?? {}).reduce<
+      Record<string, string>
+    >((acc, [key, value]) => {
+      if (value !== undefined) {
+        acc[key] = value.toString();
+      }
+      return acc;
+    }, {});
+
+    return { ...this.parameters, ...strSettings };
   }
 
-  private processHeaders(headers: Headers) {
+  private handleUpdateParametersHeader(headerValue: string) {
+    const updateParameters = headerValue
+      .split(",")
+      .reduce((acc: Record<string, string>, param) => {
+        const [key, value] = param.split("=");
+        if (allowedUpdateParameters.includes(key)) {
+          acc[key] = value.trim();
+        }
+        return acc;
+      }, {});
+    this.parameters = {
+      ...this.parameters,
+      ...updateParameters
+    };
+  }
+
+  private handleResetSessionHeader() {
+    const remainingParameters: Record<string, string> = {};
+    for (const key in this.parameters) {
+      if (immutableParameters.includes(key)) {
+        remainingParameters[key] = this.parameters[key];
+      }
+    }
+    this.parameters = remainingParameters;
+  }
+
+  private async handleUpdateEndpointHeader(headerValue: string): Promise<void> {
+    const url = new URL(
+      headerValue.startsWith("http") ? headerValue : `https://${headerValue}`
+    );
+    const newParams = Object.fromEntries(url.searchParams.entries());
+
+    // Validate account_id if present
+    const currentAccountId =
+      this.accountInfo?.id ?? (await this.resolveAccountId());
+    if (newParams.account_id && currentAccountId !== newParams.account_id) {
+      throw new ConnectionError({
+        message: `Failed to execute USE ENGINE command. Account parameter mismatch. Contact support.`
+      });
+    }
+
+    // Remove url parameters and update engineEndpoint
+    this.engineEndpoint = url.toString().replace(url.search, "");
+    this.parameters = {
+      ...this.parameters,
+      ...newParams
+    };
+  }
+
+  private async processHeaders(headers: Headers) {
     const updateHeaderValue = headers.get(updateParametersHeader);
     if (updateHeaderValue) {
-      const updateParameters = updateHeaderValue
-        .split(",")
-        .reduce((acc: Record<string, string>, param) => {
-          const [key, value] = param.split("=");
-          if (allowedUpdateParameters.includes(key)) {
-            acc[key] = value.trim();
-          }
-          return acc;
-        }, {});
+      this.handleUpdateParametersHeader(updateHeaderValue);
+    }
 
-      if (updateParameters.database) {
-        this.options.database = updateParameters.database;
-        delete updateParameters.database;
-      }
-      this.options.additionalParameters = {
-        ...this.options.additionalParameters,
-        ...updateParameters
-      };
+    if (headers.has(resetSessionHeader)) {
+      this.handleResetSessionHeader();
+    }
+
+    const updateEndpointValue = headers.get(updateEndpointHeader);
+    if (updateEndpointValue) {
+      await this.handleUpdateEndpointHeader(updateEndpointValue);
     }
   }
 
@@ -93,11 +159,6 @@ export abstract class Connection {
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<Statement> {
     const { httpClient, queryFormatter } = this.context;
-
-    executeQueryOptions.settings = {
-      ...defaultQuerySettings,
-      ...(executeQueryOptions.settings ?? {})
-    };
 
     executeQueryOptions.response = {
       ...defaultResponseSettings,
@@ -124,7 +185,7 @@ export abstract class Connection {
 
     try {
       const response = await request.ready();
-      this.processHeaders(response.headers);
+      await this.processHeaders(response.headers);
       const statement = new Statement(this.context, {
         query: formattedQuery,
         request,

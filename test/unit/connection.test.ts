@@ -1,8 +1,12 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Firebolt } from "../../src";
+import { Firebolt, QueryFormatter } from "../../src";
 import { ConnectionOptions } from "../../src/types";
 import { QUERY_URL } from "../../src/common/api";
+import { ConnectionV2 } from "../../src/connection/connection_v2";
+import { Authenticator } from "../../src/auth";
+import { Logger } from "../../src/logger/node";
+import { NodeHttpClient } from "../../src/http/node";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -38,6 +42,12 @@ const selectOneResponse = {
     }
   ],
   rows: 1
+};
+
+const emptyResponse = {
+  meta: [],
+  data: [],
+  rows: 0
 };
 
 const selectAttachedToResponse = {
@@ -358,5 +368,241 @@ describe("Connection", () => {
     await connection.execute("USE DATABASE dummy2");
     await connection.execute("SELECT 1");
     expect(otherDbUsed).toEqual(true);
+  });
+
+  it("handles update endpoint header", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    let otherEngineUsed = false;
+    let searchParamsUsed = new URLSearchParams();
+    server.use(
+      // Return engine url
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
+        }
+      ),
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        if ((await req.text()).startsWith("USE ENGINE")) {
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set(
+              "Firebolt-Update-Endpoint",
+              "https://some_other_engine.com?param=value"
+            )
+          );
+        }
+      }),
+      rest.post(`https://some_other_engine.com`, async (req, res, ctx) => {
+        otherEngineUsed = true;
+        searchParamsUsed = req.url.searchParams;
+        return res(ctx.json(selectOneResponse));
+      })
+    );
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.execute("USE ENGINE other_engine");
+    await connection.execute("SELECT 1");
+    expect(otherEngineUsed).toEqual(true);
+    expect(searchParamsUsed.get("param")).toEqual("value");
+  });
+
+  it("validates account_id in update endpoint header", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    server.use(
+      // Return engine url
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
+        }
+      ),
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        if ((await req.text()).startsWith("USE ENGINE")) {
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set(
+              "Firebolt-Update-Endpoint",
+              "https://some_other_engine.com?param=value&account_id=different_account"
+            )
+          );
+        }
+      })
+    );
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(
+      connection.execute("USE ENGINE other_engine")
+    ).rejects.toThrow();
+  });
+
+  it("handles reset session header", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+
+    let searchParamsUsed = new URLSearchParams();
+    server.use(
+      // Return engine url
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
+        }
+      ),
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("USE ENGINE")) {
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set("Firebolt-Reset-Session", "")
+          );
+        }
+        if (body.startsWith("SELECT 1")) {
+          searchParamsUsed = req.url.searchParams;
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    class MockConnection extends ConnectionV2 {
+      updateParameters(params: Record<string, string>) {
+        this.parameters = {
+          ...this.parameters,
+          ...params
+        };
+      }
+    }
+
+    // A hack to allow updating connection parameters stored internally
+    async function mockConnect(connectionOptions: ConnectionOptions) {
+      const context = {
+        logger: new Logger(),
+        httpClient: new NodeHttpClient(),
+        apiEndpoint,
+        queryFormatter: new QueryFormatter()
+      };
+
+      const auth = new Authenticator(context, connectionOptions);
+      const connection = new MockConnection(context, connectionOptions);
+      await auth.authenticate();
+      await connection.resolveEngineEndpoint();
+      return connection;
+    }
+
+    const connection = await mockConnect(connectionParams);
+    connection.updateParameters({ param: "value" });
+
+    await connection.execute("SELECT 1");
+    expect(searchParamsUsed.get("param")).toEqual("value");
+    expect(searchParamsUsed.get("database")).toEqual("dummy");
+
+    await connection.execute("USE ENGINE other_engine");
+
+    await connection.execute("SELECT 1");
+    expect(searchParamsUsed.get("param")).toEqual(null);
+    expect(searchParamsUsed.get("database")).toEqual("dummy");
+  });
+
+  it("uses sql to connect to account v2", async () => {
+    let databaseUsed = "";
+    server.use(
+      rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
+        return res(
+          ctx.json({
+            access_token: "fake_access_token"
+          })
+        );
+      }),
+      rest.get(
+        `https://api.fake.firebolt.io/web/v3/account/my_account/resolve`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              id: "1111",
+              region: "us-east-1",
+              infraVersion: "2"
+            })
+          );
+        }
+      ),
+      rest.get(
+        `https://api.fake.firebolt.io/web/v3/account/my_account/engineUrl`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              engineUrl: "https://some_system_engine.com"
+            })
+          );
+        }
+      ),
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json(emptyResponse),
+            ctx.set("Firebolt-Update-Endpoint", "https://some_engine.com")
+          );
+        }
+      ),
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        if ((await req.text()).startsWith("USE DATABASE")) {
+          return res(
+            ctx.json(emptyResponse),
+            ctx.set("Firebolt-Update-Parameters", "database=dummy")
+          );
+        } else {
+          databaseUsed = req.url.searchParams.get("database") ?? "";
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.execute("SELECT 1");
+    expect(databaseUsed).toEqual("dummy");
   });
 });

@@ -28,13 +28,14 @@ jobs:
         with:
           firebolt-client-id: ${{ secrets.FIREBOLT_CLIENT_ID_STG_NEW_IDN }}
           firebolt-client-secret: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
-          account: ${{ vars.FIREBOLT_ACCOUNT }}
+          account: ${{ vars.FIREBOLT_ACCOUNT_V1 }}
           api-endpoint: "api.staging.firebolt.io"
           region: "us-east-1"
 
       - name: Run integration tests
         env:
-          FIREBOLT_ACCOUNT: ${{ vars.FIREBOLT_ACCOUNT }}
+          FIREBOLT_ACCOUNT_V1: ${{ vars.FIREBOLT_ACCOUNT_V1 }}
+          FIREBOLT_ACCOUNT_V2: ${{ vars.FIREBOLT_ACCOUNT_V2 }}
           FIREBOLT_DATABASE: ${{ steps.setup.outputs.database_name }}
           FIREBOLT_ENGINE_NAME: ${{ steps.setup.outputs.engine_name }}
           FIREBOLT_API_ENDPOINT: "api.staging.firebolt.io"

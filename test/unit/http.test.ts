@@ -118,7 +118,7 @@ describe.each([
     );
     server.use(
       rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
-        expect(req.headers.get("Firebolt-Protocol-Version")).toEqual("2.0");
+        expect(req.headers.get("Firebolt-Protocol-Version")).toEqual("2.1");
         return res(ctx.json({ ok: true }));
       })
     );

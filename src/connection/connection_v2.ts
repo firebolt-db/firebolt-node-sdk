@@ -12,10 +12,9 @@ import {
 } from "../common/api";
 
 import { Connection as BaseConnection } from "./base";
+import * as path from "path";
 
 export class ConnectionV2 extends BaseConnection {
-  private accountId: string | undefined;
-
   private get account(): string {
     if (!this.options.account) {
       throw new Error("Account name is required");
@@ -31,7 +30,8 @@ export class ConnectionV2 extends BaseConnection {
       const { engineUrl } = await httpClient
         .request<{ engineUrl: string }>("GET", url)
         .ready();
-      return engineUrl;
+      // cut off query parameters that go after ?
+      return engineUrl.split("?")[0];
     } catch (e) {
       if (e instanceof ApiError && e.status == 404) {
         throw new AccountNotFoundError({ account_name: accountName });
@@ -125,49 +125,64 @@ export class ConnectionV2 extends BaseConnection {
     return res[0];
   }
 
-  async resolveAccountId() {
+  async resolveAccountInfo() {
     const { httpClient, apiEndpoint } = this.context;
     const url = `${apiEndpoint}/${ACCOUNT_ID_BY_NAME(this.account)}`;
-    const { id } = await httpClient
-      .request<{ id: string; region: string }>("GET", url)
+    const { id, infraVersion } = await httpClient
+      .request<{ id: string; region: string; infraVersion: string }>("GET", url)
       .ready();
-    return id;
+    return { id, infraVersion: parseInt(infraVersion ?? "1") };
+  }
+
+  async resolveAccountId() {
+    const accInfo = await this.resolveAccountInfo();
+    return accInfo.id;
   }
 
   async resolveEngineEndpoint() {
     const { engineName, database } = this.options;
     // Connect to system engine first
     const systemUrl = await this.getSystemEngineEndpoint();
-    this.engineEndpoint = `${systemUrl}/${QUERY_URL}`;
-    this.accountId = await this.resolveAccountId();
-    if (engineName && database) {
-      const engineEndpoint = await this.getEngineByNameAndDb(
-        engineName,
-        database
-      );
-      this.engineEndpoint = engineEndpoint;
-      // Account id is no longer needed
-      this.accountId = undefined;
-      return this.engineEndpoint;
-    }
-    if (engineName) {
-      const database = await this.getEngineDatabase(engineName);
-      if (!database) {
-        throw new AccessError({
-          message: `Engine ${engineName} is attached to a database that current user can not access.`
-        });
+    this.engineEndpoint = path.join(systemUrl, QUERY_URL);
+    this.accountInfo = await this.resolveAccountInfo();
+
+    if (this.accountInfo.infraVersion >= 2) {
+      if (database) {
+        await this.execute(`USE DATABASE ${database}`);
       }
-      const engineEndpoint = await this.getEngineByNameAndDb(
-        engineName,
-        database
-      );
-      this.options.database = database;
-      this.engineEndpoint = engineEndpoint;
-      // Account id is no longer needed
-      this.accountId = undefined;
-      return this.engineEndpoint;
+      if (engineName) {
+        await this.execute(`USE ENGINE ${engineName}`);
+      }
+    } else {
+      if (engineName && database) {
+        const engineEndpoint = await this.getEngineByNameAndDb(
+          engineName,
+          database
+        );
+        this.engineEndpoint = engineEndpoint;
+        // Account id is no longer needed
+        this.accountInfo = undefined;
+        return this.engineEndpoint;
+      }
+      if (engineName) {
+        const database = await this.getEngineDatabase(engineName);
+        if (!database) {
+          throw new AccessError({
+            message: `Engine ${engineName} is attached to a database that current user can not access.`
+          });
+        }
+        const engineEndpoint = await this.getEngineByNameAndDb(
+          engineName,
+          database
+        );
+        this.parameters["database"] = database;
+        this.engineEndpoint = engineEndpoint;
+        // Account id is no longer needed
+        this.accountInfo = undefined;
+        return this.engineEndpoint;
+      }
+      // If nothing specified connect to generic system engine
     }
-    // If nothing specified connect to generic system engine
     return this.engineEndpoint;
   }
 
@@ -175,7 +190,7 @@ export class ConnectionV2 extends BaseConnection {
     executeQueryOptions: ExecuteQueryOptions
   ): Record<string, string | undefined> {
     return {
-      account_id: this.accountId,
+      account_id: this.accountInfo?.id,
       ...super.getBaseParameters(executeQueryOptions)
     };
   }
