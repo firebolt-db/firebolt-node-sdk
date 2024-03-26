@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.1.0...v1.2.0) (2024-03-26)
+
+
+### Features
+
+* Fir 30153 support use engine in node sdk ([#78](https://github.com/firebolt-db/firebolt-node-sdk/issues/78)) ([ca753db](https://github.com/firebolt-db/firebolt-node-sdk/commit/ca753dbbe5735e12d78a81a081696c1664369830))
+
+
+### Bug Fixes
+
+* bytea formatting for new ff  ([#80](https://github.com/firebolt-db/firebolt-node-sdk/issues/80)) ([22f936f](https://github.com/firebolt-db/firebolt-node-sdk/commit/22f936f02b6d7c55dcac9073635104b8003b2dea))
+* Fir 30653 update bytea formatting in node sdk ([#79](https://github.com/firebolt-db/firebolt-node-sdk/issues/79)) ([19cc266](https://github.com/firebolt-db/firebolt-node-sdk/commit/19cc2666dd57489512d91df8eb9b6915c7e65c09))
+
 ## [1.1.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v0.2.5...v1.1.0) (2024-01-15)
 
 
