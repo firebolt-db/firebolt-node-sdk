@@ -189,9 +189,12 @@ export class ConnectionV2 extends BaseConnection {
   protected getBaseParameters(
     executeQueryOptions: ExecuteQueryOptions
   ): Record<string, string | undefined> {
-    return {
-      account_id: this.accountInfo?.id,
-      ...super.getBaseParameters(executeQueryOptions)
-    };
+    if (this.accountInfo?.infraVersion == 1) {
+      return {
+        account_id: this.accountInfo?.id,
+        ...super.getBaseParameters(executeQueryOptions)
+      };
+    }
+    return super.getBaseParameters(executeQueryOptions);
   }
 }
