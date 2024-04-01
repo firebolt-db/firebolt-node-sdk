@@ -22,7 +22,9 @@ export class ConnectionV2 extends BaseConnection {
     return this.options.account;
   }
 
-  private async getSystemEngineEndpoint(): Promise<string> {
+  private async getSystemEngineEndpointParameters(): Promise<
+    [string, Record<string, string>]
+  > {
     const { apiEndpoint, httpClient } = this.context;
     const accountName = this.account;
     const url = `${apiEndpoint}/${ACCOUNT_SYSTEM_ENGINE(accountName)}`;
@@ -30,8 +32,7 @@ export class ConnectionV2 extends BaseConnection {
       const { engineUrl } = await httpClient
         .request<{ engineUrl: string }>("GET", url)
         .ready();
-      // cut off query parameters that go after ?
-      return engineUrl.split("?")[0];
+      return this.splitEndpoint(engineUrl);
     } catch (e) {
       if (e instanceof ApiError && e.status == 404) {
         throw new AccountNotFoundError({ account_name: accountName });
@@ -142,8 +143,10 @@ export class ConnectionV2 extends BaseConnection {
   async resolveEngineEndpoint() {
     const { engineName, database } = this.options;
     // Connect to system engine first
-    const systemUrl = await this.getSystemEngineEndpoint();
+    const [systemUrl, systemParameters] =
+      await this.getSystemEngineEndpointParameters();
     this.engineEndpoint = path.join(systemUrl, QUERY_URL);
+    this.parameters = { ...this.parameters, ...systemParameters };
     this.accountInfo = await this.resolveAccountInfo();
 
     if (this.accountInfo.infraVersion >= 2) {

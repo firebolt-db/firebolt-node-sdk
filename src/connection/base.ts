@@ -115,11 +115,16 @@ export abstract class Connection {
     this.parameters = remainingParameters;
   }
 
-  private async handleUpdateEndpointHeader(headerValue: string): Promise<void> {
+  protected splitEndpoint(endpoint: string): [string, Record<string, string>] {
     const url = new URL(
-      headerValue.startsWith("http") ? headerValue : `https://${headerValue}`
+      endpoint.startsWith("http") ? endpoint : `https://${endpoint}`.trim()
     );
-    const newParams = Object.fromEntries(url.searchParams.entries());
+    const params = Object.fromEntries(url.searchParams.entries());
+    return [url.toString().replace(url.search, ""), params];
+  }
+
+  private async handleUpdateEndpointHeader(headerValue: string): Promise<void> {
+    const [endpoint, newParams] = this.splitEndpoint(headerValue);
 
     // Validate account_id if present
     const currentAccountId =
@@ -131,7 +136,7 @@ export abstract class Connection {
     }
 
     // Remove url parameters and update engineEndpoint
-    this.engineEndpoint = url.toString().replace(url.search, "");
+    this.engineEndpoint = endpoint;
     this.parameters = {
       ...this.parameters,
       ...newParams
