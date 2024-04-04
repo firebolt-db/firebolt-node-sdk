@@ -605,4 +605,86 @@ describe("Connection", () => {
     await connection.execute("SELECT 1");
     expect(databaseUsed).toEqual("dummy");
   });
+
+  it("handles set statements correctly", async () => {
+    let searchParamsUsed = new URLSearchParams();
+    server.use(
+      // Return engine url
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
+        }
+      ),
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("SELECT 1")) {
+          searchParamsUsed = req.url.searchParams;
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.execute("SET param=value");
+    await connection.execute("SELECT 1");
+    expect(searchParamsUsed.get("param")).toEqual("value");
+  });
+
+  it("handles invalid set statements correctly", async () => {
+    let searchParamsUsed = new URLSearchParams();
+    let searchParamsUsed2 = new URLSearchParams();
+    server.use(
+      // Return engine url
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
+        }
+      ),
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("SELECT 1")) {
+          searchParamsUsed = req.url.searchParams;
+          return res(ctx.status(500));
+        }
+        if (body.startsWith("SELECT 2")) {
+          searchParamsUsed2 = req.url.searchParams;
+          return res(ctx.json(emptyResponse));
+        }
+      })
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(connection.execute("SET param=value")).rejects.toThrow();
+    await connection.execute("SELECT 2");
+    expect(searchParamsUsed.get("param")).toEqual("value");
+    expect(searchParamsUsed2.get("param")).toEqual(null);
+  });
 });

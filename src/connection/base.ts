@@ -26,6 +26,7 @@ const allowedUpdateParameters = ["database"];
 const updateEndpointHeader = "Firebolt-Update-Endpoint";
 const resetSessionHeader = "Firebolt-Reset-Session";
 const immutableParameters = ["database", "account_id", "output_format"];
+const testConnectionQuery = "SELECT 1";
 
 export abstract class Connection {
   protected context: Context;
@@ -171,11 +172,21 @@ export abstract class Connection {
     };
 
     const { parameters, namedParameters } = executeQueryOptions;
-    const formattedQuery = queryFormatter.formatQuery(
-      query,
-      parameters,
-      namedParameters
-    );
+
+    let setKey = "",
+      setValue = "",
+      formattedQuery: string;
+    if (queryFormatter.isSetStatement(query)) {
+      [setKey, setValue] = queryFormatter.splitSetStatement(query);
+      this.parameters[setKey] = setValue;
+      formattedQuery = testConnectionQuery;
+    } else {
+      formattedQuery = queryFormatter.formatQuery(
+        query,
+        parameters,
+        namedParameters
+      );
+    }
 
     const body = formattedQuery;
     const url = this.getRequestUrl(executeQueryOptions);
@@ -197,6 +208,12 @@ export abstract class Connection {
         executeQueryOptions
       });
       return statement;
+    } catch (error) {
+      // In case it was a set query, remove set parameter if query fails
+      if (setKey.length > 0) {
+        delete this.parameters[setKey];
+      }
+      throw error;
     } finally {
       this.activeRequests.delete(request);
     }
