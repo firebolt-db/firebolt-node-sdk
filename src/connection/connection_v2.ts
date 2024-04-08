@@ -22,7 +22,7 @@ export class ConnectionV2 extends BaseConnection {
     return this.options.account;
   }
 
-  private async getSystemEngineEndpointParameters(): Promise<
+  private async getSystemEngineEndpointAndParameters(): Promise<
     [string, Record<string, string>]
   > {
     const { apiEndpoint, httpClient } = this.context;
@@ -144,7 +144,7 @@ export class ConnectionV2 extends BaseConnection {
     const { engineName, database } = this.options;
     // Connect to system engine first
     const [systemUrl, systemParameters] =
-      await this.getSystemEngineEndpointParameters();
+      await this.getSystemEngineEndpointAndParameters();
     this.engineEndpoint = path.join(systemUrl, QUERY_URL);
     this.parameters = { ...this.parameters, ...systemParameters };
     this.accountInfo = await this.resolveAccountInfo();
