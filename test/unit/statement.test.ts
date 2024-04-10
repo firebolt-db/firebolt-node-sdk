@@ -320,8 +320,10 @@ describe("set statements", () => {
       'set query_parameters={"name":"param1","value":"Hello, world!"}',
       "query_parameters",
       '{"name":"param1","value":"Hello, world!"}'
-    ]
-  ])("parses set statement %s correctly", (query, key, value) => {
+    ],
+    ["set key='val=ue'", "key", "val=ue"],
+    ["set key='val\nue'", "key", "val\nue"]
+  ])("parses set statement %j %j %j correctly", (query, key, value) => {
     expect(new QueryFormatter().splitSetStatement(query)).toEqual([key, value]);
   });
 });

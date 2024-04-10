@@ -270,11 +270,13 @@ export class QueryFormatter {
     query = this.trimTrailingSemicolon(query);
 
     const strippedEquation = query.trim().substring(SET_PREFIX.length).trim();
-    const items = strippedEquation.split("=", 2);
-    if (items.length !== 2) {
+    const items = strippedEquation.split(/=(.*)/s);
+    // split with a capturing group for some reason always returns
+    // an empty string as the third element, we can just ignore it
+    if (items.length !== 3) {
       throw new Error("Invalid SET statement format");
     }
-    const [key, value] = items;
+    const [key, value] = items.slice(0, 2);
     if (key.length == 0 || value.length == 0) {
       throw new Error("Invalid SET statement format");
     }
