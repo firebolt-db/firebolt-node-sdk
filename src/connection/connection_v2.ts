@@ -145,7 +145,7 @@ export class ConnectionV2 extends BaseConnection {
     // Connect to system engine first
     const [systemUrl, systemParameters] =
       await this.getSystemEngineEndpointAndParameters();
-    this.engineEndpoint = path.join(systemUrl, QUERY_URL);
+    this.engineEndpoint = new URL(QUERY_URL, systemUrl).href;
     this.parameters = { ...this.parameters, ...systemParameters };
     this.accountInfo = await this.resolveAccountInfo();
 
