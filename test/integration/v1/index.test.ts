@@ -118,12 +118,14 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("SELECT * from numbers(100)", {
-      settings: {
-        output_format: OutputFormat.JSON_COMPACT,
-        use_standard_sql: 0
+    const statement = await connection.execute(
+      "SELECT * from generate_series(1, 100)",
+      {
+        settings: {
+          output_format: OutputFormat.JSON_COMPACT
+        }
       }
-    });
+    );
 
     const {
       data,
@@ -184,9 +186,9 @@ describe("integration test", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("SELECT * from numbers(10)", {
-      settings: { use_standard_sql: 0 }
-    });
+    const statement = await connection.execute(
+      "SELECT * from generate_series(1, 10)"
+    );
 
     // to achieve seamless stream pipes you can use through2
     // or rowparser that returns strings or Buffer
