@@ -210,4 +210,63 @@ describe("Connection V2", () => {
     const accountInfo = await (connection as ConnectionV2).resolveAccountInfo();
     expect(accountInfo.infraVersion).toBe(1);
   });
+  it("respects system engine query parameters for account version 2", async () => {
+    let systemEngineParamsUsed = {};
+    server.use(
+      rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
+        return res(
+          ctx.json({
+            access_token: "fake_access_token"
+          })
+        );
+      }),
+      rest.get(
+        `https://api.fake.firebolt.io/web/v3/account/my_account/resolve`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              id: "123",
+              infraVersion: 2
+            })
+          );
+        }
+      ),
+      rest.get(
+        `https://api.fake.firebolt.io/web/v3/account/my_account/engineUrl`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              engineUrl: "https://some_system_engine.com?param=value"
+            })
+          );
+        }
+      ),
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          systemEngineParamsUsed = Object.fromEntries(
+            req.url.searchParams.entries()
+          );
+          return res(ctx.json(engineUrlResponse));
+        }
+      )
+    );
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.execute("SELECT 1");
+    expect(systemEngineParamsUsed).toHaveProperty("param");
+    expect(systemEngineParamsUsed).not.toHaveProperty("account_id");
+  });
 });
