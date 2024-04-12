@@ -15,6 +15,7 @@ const CHARS_ESCAPE_MAP: Record<string, string> = {
   "'": "\\'",
   "\\": "\\\\"
 };
+const SET_PREFIX = "set ";
 
 export class Tuple {
   value: unknown[];
@@ -237,5 +238,44 @@ export class QueryFormatter {
       query = this.format(query, parameters ?? [], namedParameters ?? {});
     }
     return query;
+  }
+
+  isSetStatement(query: string): boolean {
+    return query.trim().toLowerCase().startsWith(SET_PREFIX);
+  }
+
+  trimTrailingSemicolon(text: string): string {
+    let end = text.length;
+    while (end > 0 && text[end - 1] == ";") {
+      end--;
+    }
+    return text.substring(0, end);
+  }
+
+  trimStringQuotes(text: string): string {
+    if (text.length < 2) {
+      return text;
+    }
+
+    const firstChar = text[0];
+    const lastChar = text[text.length - 1];
+    if (firstChar === lastChar && (firstChar === "'" || firstChar === '"')) {
+      return text.substring(1, text.length - 1);
+    }
+
+    return text;
+  }
+
+  splitSetStatement(query: string): [string, string] {
+    query = this.trimTrailingSemicolon(query);
+
+    const strippedEquation = query.trim().substring(SET_PREFIX.length).trim();
+    const index = strippedEquation.indexOf("=");
+    const key = strippedEquation.slice(0, index),
+      value = strippedEquation.slice(index + 1);
+    if (key.length == 0 || value.length == 0) {
+      throw new Error("Invalid SET statement format");
+    }
+    return [key.trim(), this.trimStringQuotes(value.trim())];
   }
 }

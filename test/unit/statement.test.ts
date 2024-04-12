@@ -299,3 +299,31 @@ describe("parse values", () => {
     expect(isNaN(res["nnan"])).toBe(true);
   });
 });
+
+describe("set statements", () => {
+  it.each([
+    ["select 1", false],
+    ["set foo = 1", true],
+    ["  set   foo = 1", true],
+    ["update table set foo = 1", false]
+  ])("detects set statement %s correctly", (query, expected) => {
+    expect(new QueryFormatter().isSetStatement(query)).toBe(expected);
+  });
+
+  it.each([
+    ["set foo = bar", "foo", "bar"],
+    ["  set   foo     =   bar   ", "foo", "bar"],
+    ["\t\r set \t\nfoo  \t\r   =   \t\n bar   \r\n", "foo", "bar"],
+    ["set foo = bar;", "foo", "bar"],
+    ["set a='some 'string'", "a", "some 'string"],
+    [
+      'set query_parameters={"name":"param1","value":"Hello, world!"}',
+      "query_parameters",
+      '{"name":"param1","value":"Hello, world!"}'
+    ],
+    ["set key='val=ue'", "key", "val=ue"],
+    ["set key='val\nue'", "key", "val\nue"]
+  ])("parses set statement %j %j %j correctly", (query, key, value) => {
+    expect(new QueryFormatter().splitSetStatement(query)).toEqual([key, value]);
+  });
+});
