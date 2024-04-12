@@ -609,13 +609,6 @@ describe("Connection", () => {
   it("handles set statements correctly", async () => {
     let searchParamsUsed = new URLSearchParams();
     server.use(
-      // Return engine url
-      rest.post(
-        `https://some_system_engine.com/${QUERY_URL}`,
-        (req, res, ctx) => {
-          return res(ctx.json(engineUrlResponse));
-        }
-      ),
       rest.post(`https://some_engine.com`, async (req, res, ctx) => {
         const body = await req.text();
         if (body.startsWith("SELECT 1")) {
@@ -648,13 +641,6 @@ describe("Connection", () => {
     let searchParamsUsed = new URLSearchParams();
     let searchParamsUsed2 = new URLSearchParams();
     server.use(
-      // Return engine url
-      rest.post(
-        `https://some_system_engine.com/${QUERY_URL}`,
-        (req, res, ctx) => {
-          return res(ctx.json(engineUrlResponse));
-        }
-      ),
       rest.post(`https://some_engine.com`, async (req, res, ctx) => {
         const body = await req.text();
         if (body.startsWith("SELECT 1")) {
