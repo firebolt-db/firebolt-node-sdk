@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.2.0...v1.3.0) (2024-04-17)
+
+
+### Features
+
+* Fir 29768 add support for set statements in node sdk ([#83](https://github.com/firebolt-db/firebolt-node-sdk/issues/83)) ([fd58b0e](https://github.com/firebolt-db/firebolt-node-sdk/commit/fd58b0e7c3ef164b91cd4069099e03015a379ca4))
+* Fir 31841 dont append account id for system engine url in node sdk ([#82](https://github.com/firebolt-db/firebolt-node-sdk/issues/82)) ([08b8245](https://github.com/firebolt-db/firebolt-node-sdk/commit/08b8245e111113ecdda550d15abd8bb928e4a1d8))
+
 ## [1.2.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.1.0...v1.2.0) (2024-03-26)
 
 
