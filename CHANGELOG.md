@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.3.0...v1.3.1) (2024-04-22)
+
+
+### Bug Fixes
+
+* update how we iterate meta in hydrateRow ([#85](https://github.com/firebolt-db/firebolt-node-sdk/issues/85)) ([5ab89d5](https://github.com/firebolt-db/firebolt-node-sdk/commit/5ab89d505eb9f81a93bd1c1812b80799bee927a5))
+
 ## [1.3.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.2.0...v1.3.0) (2024-04-17)
 
 
