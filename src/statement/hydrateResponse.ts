@@ -63,8 +63,7 @@ export const hydrateRow = (
   const isArray = Array.isArray(row);
   const hydratedRow = isArray ? [] : {};
 
-  for (const index in meta) {
-    const column = meta[index];
+  for (const [index, column] of meta.entries()) {
     if (isArray) {
       const key = +index;
       (hydratedRow as unknown[])[key] = getHydratedValue(
