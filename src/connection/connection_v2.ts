@@ -11,7 +11,7 @@ import {
   QUERY_URL
 } from "../common/api";
 
-import { Connection as BaseConnection } from "./base";
+import { Connection as BaseConnection, AccountInfo } from "./base";
 import * as path from "path";
 
 export class ConnectionV2 extends BaseConnection {
@@ -126,18 +126,19 @@ export class ConnectionV2 extends BaseConnection {
     return res[0];
   }
 
-  async resolveAccountInfo() {
-    const { httpClient, apiEndpoint } = this.context;
-    const url = `${apiEndpoint}/${ACCOUNT_ID_BY_NAME(this.account)}`;
-    const { id, infraVersion } = await httpClient
-      .request<{ id: string; region: string; infraVersion: string }>("GET", url)
-      .ready();
-    return { id, infraVersion: parseInt(infraVersion ?? "1") };
-  }
-
-  async resolveAccountId() {
-    const accInfo = await this.resolveAccountInfo();
-    return accInfo.id;
+  async resolveAccountInfo(): Promise<AccountInfo> {
+    if (this.accountInfo === undefined) {
+      const { httpClient, apiEndpoint } = this.context;
+      const url = `${apiEndpoint}/${ACCOUNT_ID_BY_NAME(this.account)}`;
+      const { id, infraVersion } = await httpClient
+        .request<{ id: string; region: string; infraVersion: string }>(
+          "GET",
+          url
+        )
+        .ready();
+      this.accountInfo = { id, infraVersion: parseInt(infraVersion ?? "1") };
+    }
+    return this.accountInfo;
   }
 
   async resolveEngineEndpoint() {
