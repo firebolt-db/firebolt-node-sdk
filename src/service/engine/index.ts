@@ -113,9 +113,6 @@ export class EngineService {
           )}`
         });
       }
-      throw new DeprecationError({
-        message: "Region parameter is not supported for this account"
-      });
     } else if (options.engine_type == undefined) {
       options.engine_type = EngineType.GENERAL_PURPOSE;
     }

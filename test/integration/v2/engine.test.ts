@@ -12,14 +12,12 @@ const authOptions = {
 
 const connectionOptionsV1 = {
   auth: authOptions,
-  account: process.env.FIREBOLT_ACCOUNT_V1 as string,
-  database: process.env.FIREBOLT_DATABASE as string
+  account: process.env.FIREBOLT_ACCOUNT_V1 as string
 };
 
 const connectionOptionsV2 = {
   auth: authOptions,
-  account: process.env.FIREBOLT_ACCOUNT_V2 as string,
-  database: process.env.FIREBOLT_DATABASE as string
+  account: process.env.FIREBOLT_ACCOUNT_V2 as string
 };
 
 const createDatabaseOptionsV1 = {
@@ -179,11 +177,26 @@ describe.each([
 
     await firebolt.connect(connectionOptions);
 
-    const engines = await firebolt.resourceManager.engine.getAll();
+    const engine_name = (process.env.FIREBOLT_ENGINE_NAME as string) + "_list";
+    try {
+      await firebolt.resourceManager.engine.create(engine_name, {
+        fail_if_exists: false
+      });
 
-    expect(
-      engines.find(engine => process.env.FIREBOLT_ENGINE_NAME === engine.name)
-    ).toBeTruthy();
+      const engines = await firebolt.resourceManager.engine.getAll();
+
+      expect(engines.find(engine => engine_name === engine.name)).toBeTruthy();
+    } finally {
+      try {
+        const engine = await firebolt.resourceManager.engine.getByName(
+          engine_name
+        );
+        await engine?.stop();
+        await engine?.delete();
+      } catch {
+        //ignore
+      }
+    }
   });
 
   it("use separate firebolt resource client", async () => {
@@ -194,9 +207,22 @@ describe.each([
     const resourceManager = FireboltResourceManager({
       connection
     });
-    const engine = await resourceManager.engine.getByName(
-      process.env.FIREBOLT_ENGINE_NAME as string
-    );
-    expect(engine.name).toEqual(process.env.FIREBOLT_ENGINE_NAME);
+    const engine_name =
+      (process.env.FIREBOLT_ENGINE_NAME as string) + "_getByName";
+    try {
+      await resourceManager.engine.create(engine_name, {
+        fail_if_exists: false
+      });
+      const engine = await resourceManager.engine.getByName(engine_name);
+      expect(engine.name).toEqual(engine_name);
+    } finally {
+      try {
+        const engine = await resourceManager.engine.getByName(engine_name);
+        await engine?.stop();
+        await engine?.delete();
+      } catch {
+        //ignore
+      }
+    }
   });
 });
