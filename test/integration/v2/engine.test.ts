@@ -42,12 +42,9 @@ const createEngineOptionsV1 = {
 };
 
 const createEngineOptionsV2 = {
-  region: "us-east-1",
-  engine_type: EngineType.GENERAL_PURPOSE,
-  spec: "B2",
+  spec: "S",
   scale: 1,
   auto_stop: 20 * 60,
-  warmup: WarmupMethod.MINIMAL,
   fail_if_exists: true
 };
 
