@@ -7,14 +7,20 @@ import { EngineStatusSummary, CreateEngineOptions, EngineType } from "./types";
 export class EngineService {
   context: ResourceManagerContext;
 
-  private CREATE_PARAMETER_NAMES: string[] = [
-    "REGION",
-    "ENGINE_TYPE",
-    "SPEC",
-    "SCALE",
-    "AUTO_STOP",
-    "WARMUP"
-  ];
+  private CREATE_PARAMETER_NAMES: Record<string, string> = {
+    region: "REGION",
+    engine_type: "ENGINE_TYPE",
+    spec: "SPEC",
+    scale: "SCALE",
+    auto_stop: "AUTO_STOP",
+    warmup: "WARMUP"
+  };
+
+  private CREATE_PARAMETER_NAMES_V2: Record<string, string> = {
+    spec: "TYPE",
+    scale: "NODES",
+    auto_stop: "AUTO_STOP"
+  };
 
   constructor(context: ResourceManagerContext) {
     this.context = context;
@@ -90,41 +96,59 @@ export class EngineService {
     return engines;
   }
 
+  private async validateCreateOptions(
+    accountVersion: number,
+    options: CreateEngineOptions
+  ) {
+    const disallowedV2Options = ["region", "engine_type", "warmup"];
+    if (accountVersion >= 2) {
+      // find a list of disallowed options that are set and report them in an exception
+      const disallowedOptions = disallowedV2Options.filter(
+        option => (options as Record<string, string>)[option] !== undefined
+      );
+      if (disallowedOptions.length > 0) {
+        throw new DeprecationError({
+          message: `The following engine options are not supported for this account: ${disallowedOptions.join(
+            ", "
+          )}`
+        });
+      }
+      throw new DeprecationError({
+        message: "Region parameter is not supported for this account"
+      });
+    } else if (options.engine_type == undefined) {
+      options.engine_type = EngineType.GENERAL_PURPOSE;
+    }
+    if (options.fail_if_exists == undefined) {
+      options.fail_if_exists = true;
+    }
+  }
+
   async create(
     name: string,
     options: CreateEngineOptions = {}
   ): Promise<EngineModel> {
-    if (options.fail_if_exists == undefined) {
-      options.fail_if_exists = true;
-    }
-    if (options.engine_type == undefined) {
-      options.engine_type = EngineType.GENERAL_PURPOSE;
-    }
+    const accountVersion = (await this.context.connection.resolveAccountInfo())
+      .infraVersion;
+    await this.validateCreateOptions(accountVersion, options);
+
+    const { fail_if_exists, ...createOptions } = options;
+
     let query = `CREATE ENGINE ${
-      options.fail_if_exists ? "" : "IF NOT EXISTS "
+      fail_if_exists ? "" : "IF NOT EXISTS "
     } "${name}"`;
 
-    const allParamValues = [
-      options.region,
-      options.engine_type,
-      options.spec,
-      options.scale,
-      options.auto_stop,
-      options.warmup
-    ];
     const queryParameters: (string | number)[] = [];
-    if (
-      options.region ||
-      options.engine_type ||
-      options.spec ||
-      options.scale ||
-      options.auto_stop ||
-      options.warmup
-    ) {
+    const createParameterNames =
+      accountVersion >= 2
+        ? this.CREATE_PARAMETER_NAMES_V2
+        : this.CREATE_PARAMETER_NAMES;
+
+    if (Object.values(createOptions).some(v => v !== undefined)) {
       query += " WITH ";
-      for (const [index, value] of allParamValues.entries()) {
-        if (value) {
-          query += `${this.CREATE_PARAMETER_NAMES[index]} = ?`;
+      for (const [key, value] of Object.entries(createOptions)) {
+        if (key in createParameterNames) {
+          query += `${createParameterNames[key]} = ?`;
           queryParameters.push(value);
         }
       }
