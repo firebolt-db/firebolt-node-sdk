@@ -158,8 +158,8 @@ export class EngineService {
             query += `${createParameterNames[key]} = ${value} `;
           } else {
             query += `${createParameterNames[key]} = ?`;
+            queryParameters.push(value);
           }
-          queryParameters.push(value);
         }
       }
     }
