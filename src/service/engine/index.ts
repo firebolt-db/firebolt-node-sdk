@@ -155,9 +155,10 @@ export class EngineService {
         if (key in createParameterNames) {
           if (key == "spec" && accountVersion >= 2) {
             // spec value is provided raw without quotes for accounts v2
-            query += `${createParameterNames[key]} = ${value}`;
+            query += `${createParameterNames[key]} = ${value} `;
+          } else {
+            query += `${createParameterNames[key]} = ?`;
           }
-          query += `${createParameterNames[key]} = ?`;
           queryParameters.push(value);
         }
       }
