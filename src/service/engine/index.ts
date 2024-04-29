@@ -175,7 +175,7 @@ export class EngineService {
   ) {
     const accountVersion = (await this.context.connection.resolveAccountInfo())
       .infraVersion;
-    if (accountVersion < 2) {
+    if (accountVersion >= 2) {
       throw new DeprecationError({
         message: "Attach engine is not supported for this account."
       });
