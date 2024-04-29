@@ -173,6 +173,13 @@ export class EngineService {
     engine: EngineModel | string,
     database: DatabaseModel | string
   ) {
+    const accountVersion = (await this.context.connection.resolveAccountInfo())
+      .infraVersion;
+    if (accountVersion < 2) {
+      throw new DeprecationError({
+        message: "Attach engine is not supported for this account."
+      });
+    }
     const engine_name = engine instanceof EngineModel ? engine.name : engine;
     const database_name =
       database instanceof DatabaseModel ? database.name : database;

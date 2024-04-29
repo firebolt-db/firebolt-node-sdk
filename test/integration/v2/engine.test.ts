@@ -144,7 +144,13 @@ describe.each([
       );
       expect(engine.name == name);
 
-      await firebolt.resourceManager.engine.attachToDatabase(engine, database);
+      const accountId = (await connection.resolveAccountInfo()).infraVersion;
+      if (accountId == 1) {
+        await firebolt.resourceManager.engine.attachToDatabase(
+          engine,
+          database
+        );
+      }
       const attached_engines = await database.getAttachedEngines();
       expect(attached_engines.includes(engine));
 
