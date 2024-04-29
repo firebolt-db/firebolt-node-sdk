@@ -96,7 +96,7 @@ export class EngineService {
     return engines;
   }
 
-  private async validateCreateOptions(
+  private validateCreateOptions(
     accountVersion: number,
     options: CreateEngineOptions
   ) {
@@ -113,7 +113,14 @@ export class EngineService {
           )}`
         });
       }
-    } else if (options.engine_type == undefined) {
+    }
+  }
+
+  private setDefaultCreateOptions(
+    accountVersion: number,
+    options: CreateEngineOptions
+  ) {
+    if (accountVersion == 1 && options.engine_type == undefined) {
       options.engine_type = EngineType.GENERAL_PURPOSE;
     }
     if (options.fail_if_exists == undefined) {
@@ -127,7 +134,8 @@ export class EngineService {
   ): Promise<EngineModel> {
     const accountVersion = (await this.context.connection.resolveAccountInfo())
       .infraVersion;
-    await this.validateCreateOptions(accountVersion, options);
+    this.validateCreateOptions(accountVersion, options);
+    this.setDefaultCreateOptions(accountVersion, options);
 
     const { fail_if_exists, ...createOptions } = options;
 
