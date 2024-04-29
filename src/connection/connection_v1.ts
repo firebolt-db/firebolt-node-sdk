@@ -1,6 +1,8 @@
 import { ACCOUNT, ACCOUNT_BY_NAME } from "../common/api";
-import { Connection as BaseConnection } from "./base";
+import { AccountInfo, Connection as BaseConnection } from "./base";
 import { ResourceManager } from "../service";
+
+const INFRA_VERSION = 1;
 
 export class ConnectionV1 extends BaseConnection {
   async resolveEngineEndpoint() {
@@ -25,7 +27,7 @@ export class ConnectionV1 extends BaseConnection {
     return this.engineEndpoint;
   }
 
-  async resolveAccountInfo() {
+  async resolveAccountInfo(): Promise<AccountInfo> {
     if (this.accountInfo === undefined) {
       const { httpClient, apiEndpoint } = this.context;
       const { account } = this.options;
@@ -35,7 +37,7 @@ export class ConnectionV1 extends BaseConnection {
         const { account_id } = await httpClient
           .request<{ account_id: string }>("GET", url)
           .ready();
-        this.accountInfo = { id: account_id, infraVersion: 1 };
+        this.accountInfo = { id: account_id, infraVersion: INFRA_VERSION };
       } else {
         const url = `${apiEndpoint}/${ACCOUNT}`;
         const {
