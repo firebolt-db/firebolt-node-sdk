@@ -155,8 +155,10 @@ describe.each([
       expect(attached_engines.includes(engine));
 
       try {
-        await engine.stop()
-      } catch (e) {// Engine is already stopped}
+        await engine.stop();
+      } catch (e) {
+        // Engine is already stopped
+      }
       await engine.delete();
       let query = `SELECT engine_name, url, status FROM information_schema.engines WHERE engine_name='${name}'`;
       let statement = await connection.execute(query);
