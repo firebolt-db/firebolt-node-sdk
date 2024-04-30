@@ -16,7 +16,7 @@ const defaultResponseSettings = {
   normalizeData: false
 };
 
-interface AccountInfo {
+export interface AccountInfo {
   id: string;
   infraVersion: number;
 }
@@ -52,7 +52,12 @@ export abstract class Connection {
 
   abstract resolveEngineEndpoint(): Promise<string>;
 
-  abstract resolveAccountId(): Promise<string>;
+  abstract resolveAccountInfo(): Promise<AccountInfo>;
+
+  async resolveAccountId() {
+    const accInfo = await this.resolveAccountInfo();
+    return accInfo.id;
+  }
 
   protected getRequestUrl(executeQueryOptions: ExecuteQueryOptions): string {
     const params = this.getBaseParameters(executeQueryOptions);

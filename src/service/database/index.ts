@@ -54,13 +54,32 @@ export class DatabaseService {
     return databases;
   }
 
+  private validateCreateOptions(
+    accountVersion: number,
+    options: CreateDatabaseOptions
+  ) {
+    if (accountVersion >= 2 && options.region) {
+      throw new DeprecationError({
+        message: "Region parameter is not supported for this account"
+      });
+    }
+  }
+
+  private setDefaultCreateOptions(options: CreateDatabaseOptions) {
+    if (options.fail_if_exists == undefined) {
+      options.fail_if_exists = true;
+    }
+  }
+
   async create(
     name: string,
     options: CreateDatabaseOptions = {}
   ): Promise<DatabaseModel> {
-    if (options.fail_if_exists == undefined) {
-      options.fail_if_exists = true;
-    }
+    const accountVersion = (await this.context.connection.resolveAccountInfo())
+      .infraVersion;
+    this.validateCreateOptions(accountVersion, options);
+    this.setDefaultCreateOptions(options);
+
     let query = `CREATE DATABASE ${
       options.fail_if_exists ? "" : "IF NOT EXISTS "
     } "${name}"`;

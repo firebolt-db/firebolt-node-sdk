@@ -86,24 +86,20 @@ describe("infra v2 integration test", () => {
     });
 
     const connection = await firebolt.connect(systemEngineConnectionParams);
-    try {
-      // should not create table when database is not specified
-      await expect(connection.execute(create_table_sql)).rejects.toThrow();
+    // should not create table when database is not specified
+    await expect(connection.execute(create_table_sql)).rejects.toThrow();
 
-      await connection.execute(`use database ${database_name}`);
-      await connection.execute(create_table_sql);
+    await connection.execute(`use database ${database_name}`);
+    await connection.execute(create_table_sql);
 
-      await expect(connection.execute(insert_sql)).rejects.toThrow();
+    await expect(connection.execute(insert_sql)).rejects.toThrow();
 
-      await connection.execute(`use engine ${engine_name}`);
+    await connection.execute(`use engine ${engine_name}`);
 
-      await connection.execute(insert_sql);
+    await connection.execute(insert_sql);
 
-      await connection.execute(`use engine system`);
+    await connection.execute(`use engine system`);
 
-      await expect(connection.execute(insert_sql)).rejects.toThrow();
-    } finally {
-      await connection.execute(`drop table ${table_name}`);
-    }
+    await expect(connection.execute(insert_sql)).rejects.toThrow();
   });
 });
