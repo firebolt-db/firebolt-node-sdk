@@ -1,0 +1,52 @@
+{
+  "uid" : "c7b344b2f3f016f7",
+  "name" : "able to list engines",
+  "fullName" : "system engine.able to list engines",
+  "historyId" : "db8b02b567faabfecae361dab781f764",
+  "time" : {
+    "start" : 1714580501818,
+    "stop" : 1714580503562,
+    "duration" : 1744
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "failed",
+  "statusMessage" : "Error: expect(received).toEqual(expected) // deep equality\n                \n                Expected: false\n                Received: true",
+  "statusTrace" : "Error: expect(received).toEqual(expected) // deep equality\n                \n                Expected: false\n                Received: true\n                    at Object.<anonymous> (/home/runner/work/firebolt-node-sdk/firebolt-node-sdk/test/integration/v2/systemEngine.test.ts:50:20)\n                    at processTicksAndRejections (node:internal/process/task_queues:96:5)",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "system engine"
+  }, {
+    "name" : "testClass",
+    "value" : "system engine"
+  }, {
+    "name" : "testMethod",
+    "value" : "able to list engines"
+  }, {
+    "name" : "package",
+    "value" : "system engine"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ {
+      "name" : "Product defects",
+      "matchedStatuses" : [ ],
+      "flaky" : false
+    } ],
+    "tags" : [ ]
+  },
+  "source" : "c7b344b2f3f016f7.json",
+  "parameterValues" : [ ]
+}

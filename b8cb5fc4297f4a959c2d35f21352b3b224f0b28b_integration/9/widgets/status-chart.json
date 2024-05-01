@@ -1,1 +1,91 @@
-[ ]
+[ {
+  "uid" : "8eed2411a3ef9a73",
+  "name" : "works on user engine with DB",
+  "time" : {
+    "start" : 1714580500399,
+    "stop" : 1714580502927,
+    "duration" : 2528
+  },
+  "status" : "failed",
+  "severity" : "normal"
+}, {
+  "uid" : "eacc02fe9c52af8c",
+  "name" : "resolve engine endpoint",
+  "time" : {
+    "start" : 1714580497878,
+    "stop" : 1714580501818,
+    "duration" : 3940
+  },
+  "status" : "failed",
+  "severity" : "normal"
+}, {
+  "uid" : "828bb3b113409d98",
+  "name" : "works on system engine",
+  "time" : {
+    "start" : 1714580492619,
+    "stop" : 1714580494294,
+    "duration" : 1675
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "bffaf8394117f817",
+  "name" : "works on user engine with no DB",
+  "time" : {
+    "start" : 1714580502927,
+    "stop" : 1714580505206,
+    "duration" : 2279
+  },
+  "status" : "failed",
+  "severity" : "normal"
+}, {
+  "uid" : "32ca2d017201d000",
+  "name" : "start/stop engine",
+  "time" : {
+    "start" : 1714580507075,
+    "stop" : 1714580507075,
+    "duration" : 0
+  },
+  "status" : "skipped",
+  "severity" : "normal"
+}, {
+  "uid" : "73f24661cc6926de",
+  "name" : "works on user engine with no DB specified",
+  "time" : {
+    "start" : 1714580495211,
+    "stop" : 1714580500399,
+    "duration" : 5188
+  },
+  "status" : "failed",
+  "severity" : "normal"
+}, {
+  "uid" : "703ea83a2f3636db",
+  "name" : "able to list databases",
+  "time" : {
+    "start" : 1714580503562,
+    "stop" : 1714580507075,
+    "duration" : 3513
+  },
+  "status" : "failed",
+  "severity" : "normal"
+}, {
+  "uid" : "6b6e676d9fbcbe4d",
+  "name" : "works on system engine with DB",
+  "time" : {
+    "start" : 1714580494294,
+    "stop" : 1714580495211,
+    "duration" : 917
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "c7b344b2f3f016f7",
+  "name" : "able to list engines",
+  "time" : {
+    "start" : 1714580501818,
+    "stop" : 1714580503562,
+    "duration" : 1744
+  },
+  "status" : "failed",
+  "severity" : "normal"
+} ]

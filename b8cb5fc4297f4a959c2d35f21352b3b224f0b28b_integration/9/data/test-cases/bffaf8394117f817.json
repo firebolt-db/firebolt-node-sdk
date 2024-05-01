@@ -1,0 +1,52 @@
+{
+  "uid" : "bffaf8394117f817",
+  "name" : "works on user engine with no DB",
+  "fullName" : "new identity integration test.works on user engine with no DB",
+  "historyId" : "e42075bb17368d652897861640932301",
+  "time" : {
+    "start" : 1714580502927,
+    "stop" : 1714580505206,
+    "duration" : 2279
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "failed",
+  "statusMessage" : "Error: \n                Request failed\n                URL: integration-testing-1714580259016.01h6xa49e5dxdz4tm0qc9mk7cz.us-east-1.staging.firebolt.io?database=integration_testing__1714580259016&output_format=JSON_Compact\n                Reason: <html>\n                <head><title>502 Bad Gateway</title></head>\n                <body>\n                <center><h1>502 Bad Gateway</h1></center>\n                </body>\n                </html>\n                \n                Response status: 502\n                \n                \n                ",
+  "statusTrace" : "Error: \n                Request failed\n                URL: integration-testing-1714580259016.01h6xa49e5dxdz4tm0qc9mk7cz.us-east-1.staging.firebolt.io?database=integration_testing__1714580259016&output_format=JSON_Compact\n                Reason: <html>\n                <head><title>502 Bad Gateway</title></head>\n                <body>\n                <center><h1>502 Bad Gateway</h1></center>\n                </body>\n                </html>\n                \n                Response status: 502\n                \n                \n                \n                    at makeRequest (/home/runner/work/firebolt-node-sdk/firebolt-node-sdk/src/http/node.ts:147:17)\n                    at processTicksAndRejections (node:internal/process/task_queues:96:5)\n                    at ConnectionV2.execute (/home/runner/work/firebolt-node-sdk/firebolt-node-sdk/src/connection/base.ts:203:24)\n                    at Object.<anonymous> (/home/runner/work/firebolt-node-sdk/firebolt-node-sdk/test/integration/v2/index.test.ts:103:5)",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "new identity integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "new identity integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "works on user engine with no DB"
+  }, {
+    "name" : "package",
+    "value" : "new identity integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ {
+      "name" : "Product defects",
+      "matchedStatuses" : [ ],
+      "flaky" : false
+    } ],
+    "tags" : [ ]
+  },
+  "source" : "bffaf8394117f817.json",
+  "parameterValues" : [ ]
+}

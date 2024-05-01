@@ -1,1 +1,189 @@
-{ }
+{
+  "e42075bb17368d652897861640932301" : {
+    "statistic" : {
+      "failed" : 1,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "bffaf8394117f817",
+      "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/b8cb5fc4297f4a959c2d35f21352b3b224f0b28b_integration/9//#testresult/bffaf8394117f817",
+      "status" : "failed",
+      "statusDetails" : "Error: \n                Request failed\n                URL: integration-testing-1714580259016.01h6xa49e5dxdz4tm0qc9mk7cz.us-east-1.staging.firebolt.io?database=integration_testing__1714580259016&output_format=JSON_Compact\n                Reason: <html>\n                <head><title>502 Bad Gateway</title></head>\n                <body>\n                <center><h1>502 Bad Gateway</h1></center>\n                </body>\n                </html>\n                \n                Response status: 502\n                \n                \n                ",
+      "time" : {
+        "start" : 1714580502927,
+        "stop" : 1714580505206,
+        "duration" : 2279
+      }
+    } ]
+  },
+  "216b2fbdaaf66a167e7ca7ec5d148683" : {
+    "statistic" : {
+      "failed" : 0,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 1,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "828bb3b113409d98",
+      "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/b8cb5fc4297f4a959c2d35f21352b3b224f0b28b_integration/9//#testresult/828bb3b113409d98",
+      "status" : "passed",
+      "time" : {
+        "start" : 1714580492619,
+        "stop" : 1714580494294,
+        "duration" : 1675
+      }
+    } ]
+  },
+  "db8b02b567faabfecae361dab781f764" : {
+    "statistic" : {
+      "failed" : 1,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "c7b344b2f3f016f7",
+      "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/b8cb5fc4297f4a959c2d35f21352b3b224f0b28b_integration/9//#testresult/c7b344b2f3f016f7",
+      "status" : "failed",
+      "statusDetails" : "Error: expect(received).toEqual(expected) // deep equality\n                \n                Expected: false\n                Received: true",
+      "time" : {
+        "start" : 1714580501818,
+        "stop" : 1714580503562,
+        "duration" : 1744
+      }
+    } ]
+  },
+  "620c687430aa0769cbb8cdfbed0d38f3" : {
+    "statistic" : {
+      "failed" : 0,
+      "broken" : 0,
+      "skipped" : 1,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "32ca2d017201d000",
+      "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/b8cb5fc4297f4a959c2d35f21352b3b224f0b28b_integration/9//#testresult/32ca2d017201d000",
+      "status" : "skipped",
+      "statusDetails" : "Error: expect(received).toEqual(expected) // deep equality\n                \n                Expected: false\n                Received: true",
+      "time" : {
+        "start" : 1714580507075,
+        "stop" : 1714580507075,
+        "duration" : 0
+      }
+    } ]
+  },
+  "82b54c43c99289a3da338a7a86a5e605" : {
+    "statistic" : {
+      "failed" : 1,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "8eed2411a3ef9a73",
+      "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/b8cb5fc4297f4a959c2d35f21352b3b224f0b28b_integration/9//#testresult/8eed2411a3ef9a73",
+      "status" : "failed",
+      "statusDetails" : "Error: \n                Request failed\n                URL: integration-testing-1714580259016.01h6xa49e5dxdz4tm0qc9mk7cz.us-east-1.staging.firebolt.io?database=integration_testing__1714580259016&output_format=JSON_Compact\n                Reason: <html>\n                <head><title>502 Bad Gateway</title></head>\n                <body>\n                <center><h1>502 Bad Gateway</h1></center>\n                </body>\n                </html>\n                \n                Response status: 502\n                \n                \n                ",
+      "time" : {
+        "start" : 1714580500399,
+        "stop" : 1714580502927,
+        "duration" : 2528
+      }
+    } ]
+  },
+  "6664117617ae074e8a18f9ad442a740a" : {
+    "statistic" : {
+      "failed" : 0,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 1,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "6b6e676d9fbcbe4d",
+      "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/b8cb5fc4297f4a959c2d35f21352b3b224f0b28b_integration/9//#testresult/6b6e676d9fbcbe4d",
+      "status" : "passed",
+      "time" : {
+        "start" : 1714580494294,
+        "stop" : 1714580495211,
+        "duration" : 917
+      }
+    } ]
+  },
+  "f821e91f7b9350868f6e31e624e000f7" : {
+    "statistic" : {
+      "failed" : 1,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "eacc02fe9c52af8c",
+      "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/b8cb5fc4297f4a959c2d35f21352b3b224f0b28b_integration/9//#testresult/eacc02fe9c52af8c",
+      "status" : "failed",
+      "statusDetails" : "Error: expect(received).toEqual(expected) // deep equality\n                \n                Expected: false\n                Received: true",
+      "time" : {
+        "start" : 1714580497878,
+        "stop" : 1714580501818,
+        "duration" : 3940
+      }
+    } ]
+  },
+  "d580a16eb147e941d90fc8dcd30d4837" : {
+    "statistic" : {
+      "failed" : 1,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "703ea83a2f3636db",
+      "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/b8cb5fc4297f4a959c2d35f21352b3b224f0b28b_integration/9//#testresult/703ea83a2f3636db",
+      "status" : "failed",
+      "statusDetails" : "Error: expect(received).toEqual(expected) // deep equality\n                \n                Expected: false\n                Received: true",
+      "time" : {
+        "start" : 1714580503562,
+        "stop" : 1714580507075,
+        "duration" : 3513
+      }
+    } ]
+  },
+  "7b8740ebb4e152bff76ea071b7052227" : {
+    "statistic" : {
+      "failed" : 1,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 1
+    },
+    "items" : [ {
+      "uid" : "73f24661cc6926de",
+      "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/b8cb5fc4297f4a959c2d35f21352b3b224f0b28b_integration/9//#testresult/73f24661cc6926de",
+      "status" : "failed",
+      "statusDetails" : "Error: \n                Request failed\n                URL: integration-testing-1714580259016.01h6xa49e5dxdz4tm0qc9mk7cz.us-east-1.staging.firebolt.io?output_format=JSON_Compact&database=integration_testing__1714580259016\n                Reason: <html>\n                <head><title>502 Bad Gateway</title></head>\n                <body>\n                <center><h1>502 Bad Gateway</h1></center>\n                </body>\n                </html>\n                \n                Response status: 502\n                \n                \n                ",
+      "time" : {
+        "start" : 1714580495211,
+        "stop" : 1714580500399,
+        "duration" : 5188
+      }
+    } ]
+  }
+}

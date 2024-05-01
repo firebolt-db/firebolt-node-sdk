@@ -1,5 +1,130 @@
 {
   "uid" : "83edc06c07f9ae9e47eb6dd1b683e4e2",
-  "children" : [ ],
+  "children" : [ {
+    "name" : "new identity integration test",
+    "children" : [ {
+      "name" : "works on system engine",
+      "uid" : "828bb3b113409d98",
+      "parentUid" : "cb5569a715a007698eecad5968430433",
+      "status" : "passed",
+      "time" : {
+        "start" : 1714580492619,
+        "stop" : 1714580494294,
+        "duration" : 1675
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "works on system engine with DB",
+      "uid" : "6b6e676d9fbcbe4d",
+      "parentUid" : "cb5569a715a007698eecad5968430433",
+      "status" : "passed",
+      "time" : {
+        "start" : 1714580494294,
+        "stop" : 1714580495211,
+        "duration" : 917
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "works on user engine with no DB specified",
+      "uid" : "73f24661cc6926de",
+      "parentUid" : "cb5569a715a007698eecad5968430433",
+      "status" : "failed",
+      "time" : {
+        "start" : 1714580495211,
+        "stop" : 1714580500399,
+        "duration" : 5188
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "works on user engine with DB",
+      "uid" : "8eed2411a3ef9a73",
+      "parentUid" : "cb5569a715a007698eecad5968430433",
+      "status" : "failed",
+      "time" : {
+        "start" : 1714580500399,
+        "stop" : 1714580502927,
+        "duration" : 2528
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "works on user engine with no DB",
+      "uid" : "bffaf8394117f817",
+      "parentUid" : "cb5569a715a007698eecad5968430433",
+      "status" : "failed",
+      "time" : {
+        "start" : 1714580502927,
+        "stop" : 1714580505206,
+        "duration" : 2279
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    } ],
+    "uid" : "cb5569a715a007698eecad5968430433"
+  }, {
+    "name" : "system engine",
+    "children" : [ {
+      "name" : "resolve engine endpoint",
+      "uid" : "eacc02fe9c52af8c",
+      "parentUid" : "feb0f88c3a78405fa6921c9822213086",
+      "status" : "failed",
+      "time" : {
+        "start" : 1714580497878,
+        "stop" : 1714580501818,
+        "duration" : 3940
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "able to list engines",
+      "uid" : "c7b344b2f3f016f7",
+      "parentUid" : "feb0f88c3a78405fa6921c9822213086",
+      "status" : "failed",
+      "time" : {
+        "start" : 1714580501818,
+        "stop" : 1714580503562,
+        "duration" : 1744
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "able to list databases",
+      "uid" : "703ea83a2f3636db",
+      "parentUid" : "feb0f88c3a78405fa6921c9822213086",
+      "status" : "failed",
+      "time" : {
+        "start" : 1714580503562,
+        "stop" : 1714580507075,
+        "duration" : 3513
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "start/stop engine",
+      "uid" : "32ca2d017201d000",
+      "parentUid" : "feb0f88c3a78405fa6921c9822213086",
+      "status" : "skipped",
+      "time" : {
+        "start" : 1714580507075,
+        "stop" : 1714580507075,
+        "duration" : 0
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    } ],
+    "uid" : "feb0f88c3a78405fa6921c9822213086"
+  } ],
   "name" : "packages"
 }

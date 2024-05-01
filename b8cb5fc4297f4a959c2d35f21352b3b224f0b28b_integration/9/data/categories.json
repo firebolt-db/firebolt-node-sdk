@@ -1,5 +1,99 @@
 {
   "uid" : "4b4757e66a1912dae1a509f688f20b0f",
-  "children" : [ ],
+  "children" : [ {
+    "name" : "Product defects",
+    "children" : [ {
+      "name" : "Error: \n                Request failed\n                URL: integration-testing-1714580259016.01h6xa49e5dxdz4tm0qc9mk7cz.us-east-1.staging.firebolt.io?output_format=JSON_Compact&database=integration_testing__1714580259016\n                Reason: <html>\n                <head><title>502 Bad Gateway</title></head>\n                <body>\n                <center><h1>502 Bad Gateway</h1></center>\n                </body>\n                </html>\n                \n                Response status: 502\n                \n                \n                ",
+      "children" : [ {
+        "name" : "works on user engine with no DB specified",
+        "uid" : "73f24661cc6926de",
+        "parentUid" : "57c562bccfe3f59fe4ca2636a9763662",
+        "status" : "failed",
+        "time" : {
+          "start" : 1714580495211,
+          "stop" : 1714580500399,
+          "duration" : 5188
+        },
+        "flaky" : false,
+        "newFailed" : false,
+        "parameters" : [ ]
+      } ],
+      "uid" : "57c562bccfe3f59fe4ca2636a9763662"
+    }, {
+      "name" : "Error: expect(received).toEqual(expected) // deep equality\n                \n                Expected: false\n                Received: true",
+      "children" : [ {
+        "name" : "resolve engine endpoint",
+        "uid" : "eacc02fe9c52af8c",
+        "parentUid" : "682ffec9cb3ebfa68848dab654017fc8",
+        "status" : "failed",
+        "time" : {
+          "start" : 1714580497878,
+          "stop" : 1714580501818,
+          "duration" : 3940
+        },
+        "flaky" : false,
+        "newFailed" : false,
+        "parameters" : [ ]
+      }, {
+        "name" : "able to list engines",
+        "uid" : "c7b344b2f3f016f7",
+        "parentUid" : "682ffec9cb3ebfa68848dab654017fc8",
+        "status" : "failed",
+        "time" : {
+          "start" : 1714580501818,
+          "stop" : 1714580503562,
+          "duration" : 1744
+        },
+        "flaky" : false,
+        "newFailed" : false,
+        "parameters" : [ ]
+      }, {
+        "name" : "able to list databases",
+        "uid" : "703ea83a2f3636db",
+        "parentUid" : "682ffec9cb3ebfa68848dab654017fc8",
+        "status" : "failed",
+        "time" : {
+          "start" : 1714580503562,
+          "stop" : 1714580507075,
+          "duration" : 3513
+        },
+        "flaky" : false,
+        "newFailed" : false,
+        "parameters" : [ ]
+      } ],
+      "uid" : "682ffec9cb3ebfa68848dab654017fc8"
+    }, {
+      "name" : "Error: \n                Request failed\n                URL: integration-testing-1714580259016.01h6xa49e5dxdz4tm0qc9mk7cz.us-east-1.staging.firebolt.io?database=integration_testing__1714580259016&output_format=JSON_Compact\n                Reason: <html>\n                <head><title>502 Bad Gateway</title></head>\n                <body>\n                <center><h1>502 Bad Gateway</h1></center>\n                </body>\n                </html>\n                \n                Response status: 502\n                \n                \n                ",
+      "children" : [ {
+        "name" : "works on user engine with DB",
+        "uid" : "8eed2411a3ef9a73",
+        "parentUid" : "d989a920c84539532f5bd7b222812c28",
+        "status" : "failed",
+        "time" : {
+          "start" : 1714580500399,
+          "stop" : 1714580502927,
+          "duration" : 2528
+        },
+        "flaky" : false,
+        "newFailed" : false,
+        "parameters" : [ ]
+      }, {
+        "name" : "works on user engine with no DB",
+        "uid" : "bffaf8394117f817",
+        "parentUid" : "d989a920c84539532f5bd7b222812c28",
+        "status" : "failed",
+        "time" : {
+          "start" : 1714580502927,
+          "stop" : 1714580505206,
+          "duration" : 2279
+        },
+        "flaky" : false,
+        "newFailed" : false,
+        "parameters" : [ ]
+      } ],
+      "uid" : "d989a920c84539532f5bd7b222812c28"
+    } ],
+    "uid" : "8fb3a91ba5aaf9de24cc8a92edc82b5d"
+  } ],
   "name" : "categories"
 }

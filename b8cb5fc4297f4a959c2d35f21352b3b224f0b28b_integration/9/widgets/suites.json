@@ -1,4 +1,26 @@
 {
-  "total" : 0,
-  "items" : [ ]
+  "total" : 2,
+  "items" : [ {
+    "uid" : "3bccf169a3f74118009ef280860e9617",
+    "name" : "new identity integration test",
+    "statistic" : {
+      "failed" : 3,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 2,
+      "unknown" : 0,
+      "total" : 5
+    }
+  }, {
+    "uid" : "55164ee47098ae1f41dd930dfea06fec",
+    "name" : "system engine",
+    "statistic" : {
+      "failed" : 3,
+      "broken" : 0,
+      "skipped" : 1,
+      "passed" : 0,
+      "unknown" : 0,
+      "total" : 4
+    }
+  } ]
 }
