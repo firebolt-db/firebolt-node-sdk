@@ -1,0 +1,50 @@
+{
+  "uid" : "6395dc2ddaf2b12d",
+  "name" : "works on system engine",
+  "fullName" : "new identity integration test works on system engine",
+  "historyId" : "2600ddbe03124afedf4933f9da41710b:d41d8cd98f00b204e9800998ecf8427e",
+  "time" : {
+    "start" : 1715350796157,
+    "stop" : 1715350797097,
+    "duration" : 940
+  },
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "language",
+    "value" : "javascript"
+  }, {
+    "name" : "framework",
+    "value" : "jest"
+  }, {
+    "name" : "package",
+    "value" : "test.integration.v2"
+  }, {
+    "name" : "thread",
+    "value" : "1"
+  }, {
+    "name" : "host",
+    "value" : "fv-az1776-460"
+  }, {
+    "name" : "parentSuite",
+    "value" : "new identity integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "6395dc2ddaf2b12d.json",
+  "parameterValues" : [ ]
+}

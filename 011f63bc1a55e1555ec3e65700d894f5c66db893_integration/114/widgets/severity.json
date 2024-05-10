@@ -1,0 +1,121 @@
+[ {
+  "uid" : "d6f8712e1311f1f",
+  "name" : "starts engine and waits for it to be ready",
+  "time" : {
+    "start" : 1715350796118,
+    "stop" : 1715350796124,
+    "duration" : 6
+  },
+  "status" : "skipped",
+  "severity" : "normal"
+}, {
+  "uid" : "b1f8866628490e72",
+  "name" : "works on user engine with DB",
+  "time" : {
+    "start" : 1715350796170,
+    "stop" : 1715350802369,
+    "duration" : 6199
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "a41f724f96c418f7",
+  "name" : "works on user engine with no DB specified",
+  "time" : {
+    "start" : 1715350796170,
+    "stop" : 1715350800324,
+    "duration" : 4154
+  },
+  "status" : "failed",
+  "severity" : "normal"
+}, {
+  "uid" : "9546d9eaa50ec247",
+  "name" : "works on system engine with DB",
+  "time" : {
+    "start" : 1715350796170,
+    "stop" : 1715350797607,
+    "duration" : 1437
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "c4e6357d37a065af",
+  "name" : "resolve engine endpoint",
+  "time" : {
+    "start" : 1715350796101,
+    "stop" : 1715350799626,
+    "duration" : 3525
+  },
+  "status" : "unknown",
+  "severity" : "normal"
+}, {
+  "uid" : "ce23f639d64c2b7a",
+  "name" : "start/stop engine",
+  "time" : {
+    "start" : 1715350796103,
+    "stop" : 1715350799627,
+    "duration" : 3524
+  },
+  "status" : "skipped",
+  "severity" : "normal"
+}, {
+  "uid" : "b4478e68903a23c9",
+  "name" : "able to list databases",
+  "time" : {
+    "start" : 1715350796103,
+    "stop" : 1715350799627,
+    "duration" : 3524
+  },
+  "status" : "unknown",
+  "severity" : "normal"
+}, {
+  "uid" : "1bea18094921d81c",
+  "name" : "resolve default engine endpoint if not provided",
+  "time" : {
+    "start" : 1715350796119,
+    "stop" : 1715350797010,
+    "duration" : 891
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "6aed6911067e8be",
+  "name" : "works on user engine with no DB",
+  "time" : {
+    "start" : 1715350796170,
+    "stop" : 1715350804305,
+    "duration" : 8135
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "20b861892118cc0f",
+  "name" : "stops engine",
+  "time" : {
+    "start" : 1715350796117,
+    "stop" : 1715350796123,
+    "duration" : 6
+  },
+  "status" : "skipped",
+  "severity" : "normal"
+}, {
+  "uid" : "6395dc2ddaf2b12d",
+  "name" : "works on system engine",
+  "time" : {
+    "start" : 1715350796157,
+    "stop" : 1715350797097,
+    "duration" : 940
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "6d0c9230df3e6687",
+  "name" : "able to list engines",
+  "time" : {
+    "start" : 1715350796103,
+    "stop" : 1715350799627,
+    "duration" : 3524
+  },
+  "status" : "unknown",
+  "severity" : "normal"
+} ]

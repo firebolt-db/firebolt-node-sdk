@@ -1,0 +1,26 @@
+{
+  "uid" : "4b4757e66a1912dae1a509f688f20b0f",
+  "children" : [ {
+    "name" : "Product defects",
+    "children" : [ {
+      "name" : "\nRequest failed\nURL: integration-testing-1715350592132.01h6xa49e5dxdz4tm0qc9mk7cz.us-east-1.staging.firebolt.io?output_format=JSON_Compact&database=integration_testing__1715350592132\nReason: <html>\r\n<head><title>502 Bad Gateway</title></head>\r\n<body>\r\n<center><h1>502 Bad Gateway</h1></center>\r\n</body>\r\n</html>\r\n\nResponse status: 502\n\n\n",
+      "children" : [ {
+        "name" : "works on user engine with no DB specified",
+        "uid" : "a41f724f96c418f7",
+        "parentUid" : "89287587db55d9cf5629660ab51dc320",
+        "status" : "failed",
+        "time" : {
+          "start" : 1715350796170,
+          "stop" : 1715350800324,
+          "duration" : 4154
+        },
+        "flaky" : false,
+        "newFailed" : false,
+        "parameters" : [ ]
+      } ],
+      "uid" : "89287587db55d9cf5629660ab51dc320"
+    } ],
+    "uid" : "8fb3a91ba5aaf9de24cc8a92edc82b5d"
+  } ],
+  "name" : "categories"
+}

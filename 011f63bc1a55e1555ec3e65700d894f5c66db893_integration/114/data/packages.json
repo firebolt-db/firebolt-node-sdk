@@ -1,0 +1,165 @@
+{
+  "uid" : "83edc06c07f9ae9e47eb6dd1b683e4e2",
+  "children" : [ {
+    "name" : "test.integration.v2",
+    "children" : [ {
+      "name" : "resolve engine endpoint",
+      "uid" : "c4e6357d37a065af",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "unknown",
+      "time" : {
+        "start" : 1715350796101,
+        "stop" : 1715350799626,
+        "duration" : 3525
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "able to list databases",
+      "uid" : "b4478e68903a23c9",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "unknown",
+      "time" : {
+        "start" : 1715350796103,
+        "stop" : 1715350799627,
+        "duration" : 3524
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "able to list engines",
+      "uid" : "6d0c9230df3e6687",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "unknown",
+      "time" : {
+        "start" : 1715350796103,
+        "stop" : 1715350799627,
+        "duration" : 3524
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "start/stop engine",
+      "uid" : "ce23f639d64c2b7a",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "skipped",
+      "time" : {
+        "start" : 1715350796103,
+        "stop" : 1715350799627,
+        "duration" : 3524
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "stops engine",
+      "uid" : "20b861892118cc0f",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "skipped",
+      "time" : {
+        "start" : 1715350796117,
+        "stop" : 1715350796123,
+        "duration" : 6
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "starts engine and waits for it to be ready",
+      "uid" : "d6f8712e1311f1f",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "skipped",
+      "time" : {
+        "start" : 1715350796118,
+        "stop" : 1715350796124,
+        "duration" : 6
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "resolve default engine endpoint if not provided",
+      "uid" : "1bea18094921d81c",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "passed",
+      "time" : {
+        "start" : 1715350796119,
+        "stop" : 1715350797010,
+        "duration" : 891
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "works on system engine",
+      "uid" : "6395dc2ddaf2b12d",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "passed",
+      "time" : {
+        "start" : 1715350796157,
+        "stop" : 1715350797097,
+        "duration" : 940
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "works on user engine with no DB",
+      "uid" : "6aed6911067e8be",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "passed",
+      "time" : {
+        "start" : 1715350796170,
+        "stop" : 1715350804305,
+        "duration" : 8135
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "works on user engine with DB",
+      "uid" : "b1f8866628490e72",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "passed",
+      "time" : {
+        "start" : 1715350796170,
+        "stop" : 1715350802369,
+        "duration" : 6199
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "works on user engine with no DB specified",
+      "uid" : "a41f724f96c418f7",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "failed",
+      "time" : {
+        "start" : 1715350796170,
+        "stop" : 1715350800324,
+        "duration" : 4154
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    }, {
+      "name" : "works on system engine with DB",
+      "uid" : "9546d9eaa50ec247",
+      "parentUid" : "5e516741ca24d187c39ad4e691a7ca29",
+      "status" : "passed",
+      "time" : {
+        "start" : 1715350796170,
+        "stop" : 1715350797607,
+        "duration" : 1437
+      },
+      "flaky" : false,
+      "newFailed" : false,
+      "parameters" : [ ]
+    } ],
+    "uid" : "test.integration.v2"
+  } ],
+  "name" : "packages"
+}

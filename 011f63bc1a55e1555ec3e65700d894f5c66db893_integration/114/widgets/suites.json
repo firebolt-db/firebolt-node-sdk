@@ -1,0 +1,37 @@
+{
+  "total" : 3,
+  "items" : [ {
+    "uid" : "3bccf169a3f74118009ef280860e9617",
+    "name" : "new identity integration test",
+    "statistic" : {
+      "failed" : 1,
+      "broken" : 0,
+      "skipped" : 0,
+      "passed" : 4,
+      "unknown" : 0,
+      "total" : 5
+    }
+  }, {
+    "uid" : "620899e6bb174b0fe853aacfca548363",
+    "name" : "engine integration for account v1",
+    "statistic" : {
+      "failed" : 0,
+      "broken" : 0,
+      "skipped" : 2,
+      "passed" : 1,
+      "unknown" : 0,
+      "total" : 3
+    }
+  }, {
+    "uid" : "55164ee47098ae1f41dd930dfea06fec",
+    "name" : "system engine",
+    "statistic" : {
+      "failed" : 0,
+      "broken" : 0,
+      "skipped" : 1,
+      "passed" : 0,
+      "unknown" : 3,
+      "total" : 4
+    }
+  } ]
+}
