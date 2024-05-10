@@ -43,7 +43,7 @@ describe("format query", () => {
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo\nbar"]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select 'foo\\\\nbar' from table"`
+      `"select 'foo\\nbar' from table"`
     );
   });
   it("format '", () => {
@@ -51,11 +51,11 @@ describe("format query", () => {
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo'bar"]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select 'foo\\\\'bar' from table"`
+      `"select 'foo\\'bar' from table"`
     );
   });
 
-  it("format '", () => {
+  it("format `", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo`bar"]);
@@ -68,7 +68,7 @@ describe("format query", () => {
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, [["foo", 'bar"']]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select ['foo', 'bar\\\\\\"'] from table"`
+      `"select ['foo', 'bar\\"'] from table"`
     );
   });
   it("format nested array", () => {
@@ -78,7 +78,7 @@ describe("format query", () => {
       ["foo", ["foo", 'bar"']]
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select ['foo', ['foo', 'bar\\\\\\"']] from table"`
+      `"select ['foo', ['foo', 'bar\\"']] from table"`
     );
   });
   it("escape bignumber", () => {
@@ -101,7 +101,7 @@ describe("format query", () => {
     );
   });
 
-  it("format date", () => {
+  it("format date old", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, [
@@ -147,7 +147,7 @@ describe("format query", () => {
       "SELECT 'str \\' ? -- not comment', /* comment? */ ? -- comment?";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo"]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"SELECT 'str \\\\' ? -- not comment', /* comment? */ 'foo' -- comment?"`
+      `"SELECT 'str \\' ? -- not comment', /* comment? */ 'foo' -- comment?"`
     );
   });
   it("format tuple", () => {
@@ -273,7 +273,7 @@ describe("format query", () => {
     const formattedQuery = queryFormatter.formatQuery(query, [buffer]);
     // Jest escaping rules are different, so we need to double the amount of quotes compared to .toEqual()
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"SELECT 'hello_world'::bytea == E'\\\\x68\\\\x65\\\\x6c\\\\x6c\\\\x6f\\\\x5f\\\\x77\\\\x6f\\\\x72\\\\x6c\\\\x64'"`
+      `"SELECT 'hello_world'::bytea == E'\\x68\\x65\\x6c\\x6c\\x6f\\x5f\\x77\\x6f\\x72\\x6c\\x64'"`
     );
   });
 });
