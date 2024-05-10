@@ -1,0 +1,50 @@
+{
+  "uid" : "ec20c1360a646cba",
+  "name" : "show helpful error message on account not found",
+  "fullName" : "integration test show helpful error message on account not found",
+  "historyId" : "0ac5204765272ed72883247a26e1ed90:d41d8cd98f00b204e9800998ecf8427e",
+  "time" : {
+    "start" : 1715357425329,
+    "stop" : 1715357455231,
+    "duration" : 29902
+  },
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "language",
+    "value" : "javascript"
+  }, {
+    "name" : "framework",
+    "value" : "jest"
+  }, {
+    "name" : "package",
+    "value" : "test.integration.v2"
+  }, {
+    "name" : "thread",
+    "value" : "1"
+  }, {
+    "name" : "host",
+    "value" : "fv-az802-581"
+  }, {
+    "name" : "parentSuite",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "ec20c1360a646cba.json",
+  "parameterValues" : [ ]
+}

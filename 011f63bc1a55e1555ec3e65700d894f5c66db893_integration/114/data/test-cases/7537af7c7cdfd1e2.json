@@ -1,0 +1,50 @@
+{
+  "uid" : "7537af7c7cdfd1e2",
+  "name" : "destroyed unfinished statements should throw",
+  "fullName" : "integration test destroyed unfinished statements should throw",
+  "historyId" : "703ca7a02cee9efc879517906e90d5e0:d41d8cd98f00b204e9800998ecf8427e",
+  "time" : {
+    "start" : 1715357425328,
+    "stop" : 1715357446672,
+    "duration" : 21344
+  },
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "language",
+    "value" : "javascript"
+  }, {
+    "name" : "framework",
+    "value" : "jest"
+  }, {
+    "name" : "package",
+    "value" : "test.integration.v2"
+  }, {
+    "name" : "thread",
+    "value" : "1"
+  }, {
+    "name" : "host",
+    "value" : "fv-az802-581"
+  }, {
+    "name" : "parentSuite",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "7537af7c7cdfd1e2.json",
+  "parameterValues" : [ ]
+}

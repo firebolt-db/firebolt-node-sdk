@@ -1,0 +1,70 @@
+{
+  "uid" : "e09056b338f0634f",
+  "name" : "works on system engine with DB",
+  "fullName" : "new identity integration test works on system engine with DB",
+  "historyId" : "7f5d9e8f57de7d2b04f093bb7285a038:d41d8cd98f00b204e9800998ecf8427e",
+  "time" : {
+    "start" : 1715357425325,
+    "stop" : 1715357427141,
+    "duration" : 1816
+  },
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "language",
+    "value" : "javascript"
+  }, {
+    "name" : "framework",
+    "value" : "jest"
+  }, {
+    "name" : "package",
+    "value" : "test.integration.v2"
+  }, {
+    "name" : "thread",
+    "value" : "1"
+  }, {
+    "name" : "host",
+    "value" : "fv-az802-581"
+  }, {
+    "name" : "parentSuite",
+    "value" : "new identity integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "history" : {
+      "statistic" : {
+        "failed" : 0,
+        "broken" : 0,
+        "skipped" : 0,
+        "passed" : 2,
+        "unknown" : 0,
+        "total" : 2
+      },
+      "items" : [ {
+        "uid" : "9546d9eaa50ec247",
+        "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/011f63bc1a55e1555ec3e65700d894f5c66db893_integration/114//#testresult/9546d9eaa50ec247",
+        "status" : "passed",
+        "time" : {
+          "start" : 1715350796170,
+          "stop" : 1715350797607,
+          "duration" : 1437
+        }
+      } ]
+    },
+    "tags" : [ ]
+  },
+  "source" : "e09056b338f0634f.json",
+  "parameterValues" : [ ]
+}

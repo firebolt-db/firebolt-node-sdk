@@ -1,157 +1,638 @@
 {
   "uid" : "b1a8273437954620fa374b796ffaacdd",
   "children" : [ {
-    "name" : "resolve engine endpoint",
-    "uid" : "c4e6357d37a065af",
-    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
-    "status" : "unknown",
-    "time" : {
-      "start" : 1715350796101,
-      "stop" : 1715350799626,
-      "duration" : 3525
-    },
-    "flaky" : false,
-    "newFailed" : false,
-    "parameters" : [ ]
-  }, {
-    "name" : "able to list databases",
-    "uid" : "b4478e68903a23c9",
-    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
-    "status" : "unknown",
-    "time" : {
-      "start" : 1715350796103,
-      "stop" : 1715350799627,
-      "duration" : 3524
-    },
-    "flaky" : false,
-    "newFailed" : false,
-    "parameters" : [ ]
-  }, {
-    "name" : "able to list engines",
-    "uid" : "6d0c9230df3e6687",
-    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
-    "status" : "unknown",
-    "time" : {
-      "start" : 1715350796103,
-      "stop" : 1715350799627,
-      "duration" : 3524
-    },
-    "flaky" : false,
-    "newFailed" : false,
-    "parameters" : [ ]
-  }, {
-    "name" : "start/stop engine",
-    "uid" : "ce23f639d64c2b7a",
-    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
-    "status" : "skipped",
-    "time" : {
-      "start" : 1715350796103,
-      "stop" : 1715350799627,
-      "duration" : 3524
-    },
-    "flaky" : false,
-    "newFailed" : false,
-    "parameters" : [ ]
-  }, {
     "name" : "stops engine",
-    "uid" : "20b861892118cc0f",
+    "uid" : "de7632898328f2e5",
     "parentUid" : "b1a8273437954620fa374b796ffaacdd",
     "status" : "skipped",
     "time" : {
-      "start" : 1715350796117,
-      "stop" : 1715350796123,
-      "duration" : 6
+      "start" : 1715357425303,
+      "stop" : 1715357425311,
+      "duration" : 8
     },
     "flaky" : false,
     "newFailed" : false,
     "parameters" : [ ]
   }, {
     "name" : "starts engine and waits for it to be ready",
-    "uid" : "d6f8712e1311f1f",
+    "uid" : "9b4d943ff07ba2f3",
     "parentUid" : "b1a8273437954620fa374b796ffaacdd",
     "status" : "skipped",
     "time" : {
-      "start" : 1715350796118,
-      "stop" : 1715350796124,
-      "duration" : 6
+      "start" : 1715357425306,
+      "stop" : 1715357425311,
+      "duration" : 5
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "create attach delete engine and database",
+    "uid" : "6e96e8397ee7928d",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425307,
+      "stop" : 1715357442675,
+      "duration" : 17368
     },
     "flaky" : false,
     "newFailed" : false,
     "parameters" : [ ]
   }, {
     "name" : "resolve default engine endpoint if not provided",
-    "uid" : "1bea18094921d81c",
+    "uid" : "a80dafe01a2b4b96",
     "parentUid" : "b1a8273437954620fa374b796ffaacdd",
     "status" : "passed",
     "time" : {
-      "start" : 1715350796119,
-      "stop" : 1715350797010,
-      "duration" : 891
+      "start" : 1715357425307,
+      "stop" : 1715357426167,
+      "duration" : 860
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "stops engine",
+    "uid" : "dc7e82585953d53e",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "skipped",
+    "time" : {
+      "start" : 1715357425307,
+      "stop" : 1715357442676,
+      "duration" : 17369
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "starts engine and waits for it to be ready",
+    "uid" : "401f86f80e5d326a",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "skipped",
+    "time" : {
+      "start" : 1715357425307,
+      "stop" : 1715357442676,
+      "duration" : 17369
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "create attach delete engine and database",
+    "uid" : "28541a640cb42a30",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425308,
+      "stop" : 1715357460112,
+      "duration" : 34804
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "resolve default engine endpoint if not provided",
+    "uid" : "e2ca47a093282dfd",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425308,
+      "stop" : 1715357443152,
+      "duration" : 17844
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "use separate firebolt resource client",
+    "uid" : "f7738b65d52a37dd",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425309,
+      "stop" : 1715357467416,
+      "duration" : 42107
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "retrieves all engines",
+    "uid" : "4bc94cfbc166de56",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425309,
+      "stop" : 1715357483836,
+      "duration" : 58527
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "retrieves all engines",
+    "uid" : "9f48377f6a5ed6b9",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425309,
+      "stop" : 1715357463601,
+      "duration" : 38292
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "use separate firebolt resource client",
+    "uid" : "cd481b50675afbd1",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425310,
+      "stop" : 1715357495741,
+      "duration" : 70431
     },
     "flaky" : false,
     "newFailed" : false,
     "parameters" : [ ]
   }, {
     "name" : "works on system engine",
-    "uid" : "6395dc2ddaf2b12d",
+    "uid" : "26e4e015f853b06d",
     "parentUid" : "b1a8273437954620fa374b796ffaacdd",
     "status" : "passed",
     "time" : {
-      "start" : 1715350796157,
-      "stop" : 1715350797097,
-      "duration" : 940
-    },
-    "flaky" : false,
-    "newFailed" : false,
-    "parameters" : [ ]
-  }, {
-    "name" : "works on user engine with no DB",
-    "uid" : "6aed6911067e8be",
-    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
-    "status" : "passed",
-    "time" : {
-      "start" : 1715350796170,
-      "stop" : 1715350804305,
-      "duration" : 8135
-    },
-    "flaky" : false,
-    "newFailed" : false,
-    "parameters" : [ ]
-  }, {
-    "name" : "works on user engine with DB",
-    "uid" : "b1f8866628490e72",
-    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
-    "status" : "passed",
-    "time" : {
-      "start" : 1715350796170,
-      "stop" : 1715350802369,
-      "duration" : 6199
-    },
-    "flaky" : false,
-    "newFailed" : false,
-    "parameters" : [ ]
-  }, {
-    "name" : "works on user engine with no DB specified",
-    "uid" : "a41f724f96c418f7",
-    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
-    "status" : "failed",
-    "time" : {
-      "start" : 1715350796170,
-      "stop" : 1715350800324,
-      "duration" : 4154
+      "start" : 1715357425324,
+      "stop" : 1715357426420,
+      "duration" : 1096
     },
     "flaky" : false,
     "newFailed" : false,
     "parameters" : [ ]
   }, {
     "name" : "works on system engine with DB",
-    "uid" : "9546d9eaa50ec247",
+    "uid" : "e09056b338f0634f",
     "parentUid" : "b1a8273437954620fa374b796ffaacdd",
     "status" : "passed",
     "time" : {
-      "start" : 1715350796170,
-      "stop" : 1715350797607,
-      "duration" : 1437
+      "start" : 1715357425325,
+      "stop" : 1715357427141,
+      "duration" : 1816
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "works on user engine with no DB specified",
+    "uid" : "37656cdde4f8b888",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425325,
+      "stop" : 1715357429912,
+      "duration" : 4587
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "works on user engine with no DB",
+    "uid" : "8b111d4e8cd3e51c",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425326,
+      "stop" : 1715357434691,
+      "duration" : 9365
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "works on user engine with DB",
+    "uid" : "3b24ca5c2e2abf7f",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425326,
+      "stop" : 1715357432332,
+      "duration" : 7006
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "json output format",
+    "uid" : "121927538eda676f",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425327,
+      "stop" : 1715357439189,
+      "duration" : 13862
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "fails on no engine found",
+    "uid" : "3ef503c33ce6924a",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425327,
+      "stop" : 1715357444876,
+      "duration" : 19549
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "returns Date type",
+    "uid" : "365c1de4c318ebcc",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425327,
+      "stop" : 1715357443289,
+      "duration" : 17962
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "async query",
+    "uid" : "b4db88a46b7ec785",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425327,
+      "stop" : 1715357441193,
+      "duration" : 15866
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "stream",
+    "uid" : "2db7cf409d157a67",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425328,
+      "stop" : 1715357448808,
+      "duration" : 23480
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "test connection",
+    "uid" : "741144dd5c7354d3",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425328,
+      "stop" : 1715357452722,
+      "duration" : 27394
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "custom parser",
+    "uid" : "cf82da9d4c01dcd5",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425328,
+      "stop" : 1715357454818,
+      "duration" : 29490
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "destroyed unfinished statements should throw",
+    "uid" : "7537af7c7cdfd1e2",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425328,
+      "stop" : 1715357446672,
+      "duration" : 21344
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "failed test connection",
+    "uid" : "5a82983314eb082b",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425328,
+      "stop" : 1715357450735,
+      "duration" : 25407
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "show helpful error message on account not found",
+    "uid" : "ec20c1360a646cba",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425329,
+      "stop" : 1715357455231,
+      "duration" : 29902
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "resolve engine endpoint",
+    "uid" : "1a6c3a7878b2d66",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425368,
+      "stop" : 1715357433285,
+      "duration" : 7917
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "able to list engines",
+    "uid" : "44025695570474fb",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425369,
+      "stop" : 1715357436754,
+      "duration" : 11385
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "able to list databases",
+    "uid" : "a04eabc8c4ecce40",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357425369,
+      "stop" : 1715357439604,
+      "duration" : 14235
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "start/stop engine",
+    "uid" : "c41b7da2837cdd82",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "skipped",
+    "time" : {
+      "start" : 1715357425369,
+      "stop" : 1715357439605,
+      "duration" : 14236
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "supports use database and use engine",
+    "uid" : "658fcbf1b6446323",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357452572,
+      "stop" : 1715357468871,
+      "duration" : 16299
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "connects",
+    "uid" : "a9093d5ba402627d",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357452572,
+      "stop" : 1715357465596,
+      "duration" : 13024
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "supports use engine",
+    "uid" : "6d7f9fd5186f6aed",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357452572,
+      "stop" : 1715357466629,
+      "duration" : 14057
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "works",
+    "uid" : "c3c0ea90ff1eaed2",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357455437,
+      "stop" : 1715357458308,
+      "duration" : 2871
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "handles select bytea",
+    "uid" : "2958d1c4b77459ea",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357460982,
+      "stop" : 1715357463894,
+      "duration" : 2912
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "handles select null bytea",
+    "uid" : "531693ad3e036914",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357460982,
+      "stop" : 1715357466213,
+      "duration" : 5231
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "handles bytea insert and then select",
+    "uid" : "feec43728626c013",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357460983,
+      "stop" : 1715357469321,
+      "duration" : 8338
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "works",
+    "uid" : "31501cc0bb9f7201",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357469522,
+      "stop" : 1715357471625,
+      "duration" : 2103
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "hydrates arrays",
+    "uid" : "be3357cfae3bfca8",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357469523,
+      "stop" : 1715357473807,
+      "duration" : 4284
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "stream transformters",
+    "uid" : "22036ab56b16f9d",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357473363,
+      "stop" : 1715357475519,
+      "duration" : 2156
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "retrieves all databases",
+    "uid" : "b208e494e1c41746",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357473982,
+      "stop" : 1715357474873,
+      "duration" : 891
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "retrieves a database by its name",
+    "uid" : "a6d517eeabc1cced",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357473982,
+      "stop" : 1715357475867,
+      "duration" : 1885
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "set statements are executed correctly",
+    "uid" : "3cb58a54b406017a",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357475708,
+      "stop" : 1715357477991,
+      "duration" : 2283
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "handles long request",
+    "uid" : "956363d93e11619f",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357476053,
+      "stop" : 1715357930184,
+      "duration" : 454131
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "inf and nan values are parsed correctly",
+    "uid" : "6b64c57b49c2c40f",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357478175,
+      "stop" : 1715357480271,
+      "duration" : 2096
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "handles select boolean",
+    "uid" : "f9aabea9d6433618",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357480435,
+      "stop" : 1715357482439,
+      "duration" : 2004
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "retrieves default url",
+    "uid" : "31aee77218ce4914",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357482605,
+      "stop" : 1715357484348,
+      "duration" : 1743
+    },
+    "flaky" : false,
+    "newFailed" : false,
+    "parameters" : [ ]
+  }, {
+    "name" : "support new auth connection options",
+    "uid" : "534013ece63c6ad5",
+    "parentUid" : "b1a8273437954620fa374b796ffaacdd",
+    "status" : "passed",
+    "time" : {
+      "start" : 1715357484505,
+      "stop" : 1715357484974,
+      "duration" : 469
     },
     "flaky" : false,
     "newFailed" : false,

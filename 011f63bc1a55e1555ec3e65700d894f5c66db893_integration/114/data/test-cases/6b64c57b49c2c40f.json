@@ -1,0 +1,50 @@
+{
+  "uid" : "6b64c57b49c2c40f",
+  "name" : "inf and nan values are parsed correctly",
+  "fullName" : "inf and nan values parsing inf and nan values are parsed correctly",
+  "historyId" : "4b3bf0996d9a7ea16412704d313d7f85:d41d8cd98f00b204e9800998ecf8427e",
+  "time" : {
+    "start" : 1715357478175,
+    "stop" : 1715357480271,
+    "duration" : 2096
+  },
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "language",
+    "value" : "javascript"
+  }, {
+    "name" : "framework",
+    "value" : "jest"
+  }, {
+    "name" : "package",
+    "value" : "test.integration.v2"
+  }, {
+    "name" : "thread",
+    "value" : "3"
+  }, {
+    "name" : "host",
+    "value" : "fv-az802-581"
+  }, {
+    "name" : "parentSuite",
+    "value" : "inf and nan values parsing"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "6b64c57b49c2c40f.json",
+  "parameterValues" : [ ]
+}

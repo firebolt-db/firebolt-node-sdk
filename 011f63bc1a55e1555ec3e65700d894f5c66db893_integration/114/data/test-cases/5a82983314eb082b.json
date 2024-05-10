@@ -1,0 +1,50 @@
+{
+  "uid" : "5a82983314eb082b",
+  "name" : "failed test connection",
+  "fullName" : "integration test failed test connection",
+  "historyId" : "d8e3330a175de992b93d4a830fbd375c:d41d8cd98f00b204e9800998ecf8427e",
+  "time" : {
+    "start" : 1715357425328,
+    "stop" : 1715357450735,
+    "duration" : 25407
+  },
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "language",
+    "value" : "javascript"
+  }, {
+    "name" : "framework",
+    "value" : "jest"
+  }, {
+    "name" : "package",
+    "value" : "test.integration.v2"
+  }, {
+    "name" : "thread",
+    "value" : "1"
+  }, {
+    "name" : "host",
+    "value" : "fv-az802-581"
+  }, {
+    "name" : "parentSuite",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "5a82983314eb082b.json",
+  "parameterValues" : [ ]
+}

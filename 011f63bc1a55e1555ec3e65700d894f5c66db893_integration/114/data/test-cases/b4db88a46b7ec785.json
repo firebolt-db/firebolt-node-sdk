@@ -1,0 +1,50 @@
+{
+  "uid" : "b4db88a46b7ec785",
+  "name" : "async query",
+  "fullName" : "integration test async query",
+  "historyId" : "0da5c83b610f5e3737a8a7e604284aae:d41d8cd98f00b204e9800998ecf8427e",
+  "time" : {
+    "start" : 1715357425327,
+    "stop" : 1715357441193,
+    "duration" : 15866
+  },
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "language",
+    "value" : "javascript"
+  }, {
+    "name" : "framework",
+    "value" : "jest"
+  }, {
+    "name" : "package",
+    "value" : "test.integration.v2"
+  }, {
+    "name" : "thread",
+    "value" : "1"
+  }, {
+    "name" : "host",
+    "value" : "fv-az802-581"
+  }, {
+    "name" : "parentSuite",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure2"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "b4db88a46b7ec785.json",
+  "parameterValues" : [ ]
+}

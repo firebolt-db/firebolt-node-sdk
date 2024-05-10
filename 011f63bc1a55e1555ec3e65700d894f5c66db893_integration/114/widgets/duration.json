@@ -1,120 +1,490 @@
 [ {
-  "uid" : "6aed6911067e8be",
+  "uid" : "2db7cf409d157a67",
+  "name" : "stream",
+  "time" : {
+    "start" : 1715357425328,
+    "stop" : 1715357448808,
+    "duration" : 23480
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "2958d1c4b77459ea",
+  "name" : "handles select bytea",
+  "time" : {
+    "start" : 1715357460982,
+    "stop" : 1715357463894,
+    "duration" : 2912
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "31aee77218ce4914",
+  "name" : "retrieves default url",
+  "time" : {
+    "start" : 1715357482605,
+    "stop" : 1715357484348,
+    "duration" : 1743
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "121927538eda676f",
+  "name" : "json output format",
+  "time" : {
+    "start" : 1715357425327,
+    "stop" : 1715357439189,
+    "duration" : 13862
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "28541a640cb42a30",
+  "name" : "create attach delete engine and database",
+  "time" : {
+    "start" : 1715357425308,
+    "stop" : 1715357460112,
+    "duration" : 34804
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "3ef503c33ce6924a",
+  "name" : "fails on no engine found",
+  "time" : {
+    "start" : 1715357425327,
+    "stop" : 1715357444876,
+    "duration" : 19549
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "8b111d4e8cd3e51c",
   "name" : "works on user engine with no DB",
   "time" : {
-    "start" : 1715350796170,
-    "stop" : 1715350804305,
-    "duration" : 8135
+    "start" : 1715357425326,
+    "stop" : 1715357434691,
+    "duration" : 9365
   },
   "status" : "passed",
   "severity" : "normal"
 }, {
-  "uid" : "c4e6357d37a065af",
-  "name" : "resolve engine endpoint",
+  "uid" : "531693ad3e036914",
+  "name" : "handles select null bytea",
   "time" : {
-    "start" : 1715350796101,
-    "stop" : 1715350799626,
-    "duration" : 3525
-  },
-  "status" : "unknown",
-  "severity" : "normal"
-}, {
-  "uid" : "b4478e68903a23c9",
-  "name" : "able to list databases",
-  "time" : {
-    "start" : 1715350796103,
-    "stop" : 1715350799627,
-    "duration" : 3524
-  },
-  "status" : "unknown",
-  "severity" : "normal"
-}, {
-  "uid" : "b1f8866628490e72",
-  "name" : "works on user engine with DB",
-  "time" : {
-    "start" : 1715350796170,
-    "stop" : 1715350802369,
-    "duration" : 6199
+    "start" : 1715357460982,
+    "stop" : 1715357466213,
+    "duration" : 5231
   },
   "status" : "passed",
   "severity" : "normal"
 }, {
-  "uid" : "20b861892118cc0f",
-  "name" : "stops engine",
+  "uid" : "b208e494e1c41746",
+  "name" : "retrieves all databases",
   "time" : {
-    "start" : 1715350796117,
-    "stop" : 1715350796123,
-    "duration" : 6
-  },
-  "status" : "skipped",
-  "severity" : "normal"
-}, {
-  "uid" : "6395dc2ddaf2b12d",
-  "name" : "works on system engine",
-  "time" : {
-    "start" : 1715350796157,
-    "stop" : 1715350797097,
-    "duration" : 940
+    "start" : 1715357473982,
+    "stop" : 1715357474873,
+    "duration" : 891
   },
   "status" : "passed",
   "severity" : "normal"
 }, {
-  "uid" : "a41f724f96c418f7",
-  "name" : "works on user engine with no DB specified",
+  "uid" : "3cb58a54b406017a",
+  "name" : "set statements are executed correctly",
   "time" : {
-    "start" : 1715350796170,
-    "stop" : 1715350800324,
-    "duration" : 4154
-  },
-  "status" : "failed",
-  "severity" : "normal"
-}, {
-  "uid" : "9546d9eaa50ec247",
-  "name" : "works on system engine with DB",
-  "time" : {
-    "start" : 1715350796170,
-    "stop" : 1715350797607,
-    "duration" : 1437
+    "start" : 1715357475708,
+    "stop" : 1715357477991,
+    "duration" : 2283
   },
   "status" : "passed",
   "severity" : "normal"
 }, {
-  "uid" : "6d0c9230df3e6687",
+  "uid" : "956363d93e11619f",
+  "name" : "handles long request",
+  "time" : {
+    "start" : 1715357476053,
+    "stop" : 1715357930184,
+    "duration" : 454131
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "f9aabea9d6433618",
+  "name" : "handles select boolean",
+  "time" : {
+    "start" : 1715357480435,
+    "stop" : 1715357482439,
+    "duration" : 2004
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "6b64c57b49c2c40f",
+  "name" : "inf and nan values are parsed correctly",
+  "time" : {
+    "start" : 1715357478175,
+    "stop" : 1715357480271,
+    "duration" : 2096
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "741144dd5c7354d3",
+  "name" : "test connection",
+  "time" : {
+    "start" : 1715357425328,
+    "stop" : 1715357452722,
+    "duration" : 27394
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "44025695570474fb",
   "name" : "able to list engines",
   "time" : {
-    "start" : 1715350796103,
-    "stop" : 1715350799627,
-    "duration" : 3524
+    "start" : 1715357425369,
+    "stop" : 1715357436754,
+    "duration" : 11385
   },
-  "status" : "unknown",
+  "status" : "passed",
   "severity" : "normal"
 }, {
-  "uid" : "ce23f639d64c2b7a",
-  "name" : "start/stop engine",
+  "uid" : "6e96e8397ee7928d",
+  "name" : "create attach delete engine and database",
   "time" : {
-    "start" : 1715350796103,
-    "stop" : 1715350799627,
-    "duration" : 3524
+    "start" : 1715357425307,
+    "stop" : 1715357442675,
+    "duration" : 17368
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "de7632898328f2e5",
+  "name" : "stops engine",
+  "time" : {
+    "start" : 1715357425303,
+    "stop" : 1715357425311,
+    "duration" : 8
   },
   "status" : "skipped",
   "severity" : "normal"
 }, {
-  "uid" : "d6f8712e1311f1f",
-  "name" : "starts engine and waits for it to be ready",
-  "time" : {
-    "start" : 1715350796118,
-    "stop" : 1715350796124,
-    "duration" : 6
-  },
-  "status" : "skipped",
-  "severity" : "normal"
-}, {
-  "uid" : "1bea18094921d81c",
+  "uid" : "a80dafe01a2b4b96",
   "name" : "resolve default engine endpoint if not provided",
   "time" : {
-    "start" : 1715350796119,
-    "stop" : 1715350797010,
-    "duration" : 891
+    "start" : 1715357425307,
+    "stop" : 1715357426167,
+    "duration" : 860
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "658fcbf1b6446323",
+  "name" : "supports use database and use engine",
+  "time" : {
+    "start" : 1715357452572,
+    "stop" : 1715357468871,
+    "duration" : 16299
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "a04eabc8c4ecce40",
+  "name" : "able to list databases",
+  "time" : {
+    "start" : 1715357425369,
+    "stop" : 1715357439604,
+    "duration" : 14235
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "e09056b338f0634f",
+  "name" : "works on system engine with DB",
+  "time" : {
+    "start" : 1715357425325,
+    "stop" : 1715357427141,
+    "duration" : 1816
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "be3357cfae3bfca8",
+  "name" : "hydrates arrays",
+  "time" : {
+    "start" : 1715357469523,
+    "stop" : 1715357473807,
+    "duration" : 4284
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "365c1de4c318ebcc",
+  "name" : "returns Date type",
+  "time" : {
+    "start" : 1715357425327,
+    "stop" : 1715357443289,
+    "duration" : 17962
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "cf82da9d4c01dcd5",
+  "name" : "custom parser",
+  "time" : {
+    "start" : 1715357425328,
+    "stop" : 1715357454818,
+    "duration" : 29490
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "26e4e015f853b06d",
+  "name" : "works on system engine",
+  "time" : {
+    "start" : 1715357425324,
+    "stop" : 1715357426420,
+    "duration" : 1096
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "7537af7c7cdfd1e2",
+  "name" : "destroyed unfinished statements should throw",
+  "time" : {
+    "start" : 1715357425328,
+    "stop" : 1715357446672,
+    "duration" : 21344
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "534013ece63c6ad5",
+  "name" : "support new auth connection options",
+  "time" : {
+    "start" : 1715357484505,
+    "stop" : 1715357484974,
+    "duration" : 469
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "5a82983314eb082b",
+  "name" : "failed test connection",
+  "time" : {
+    "start" : 1715357425328,
+    "stop" : 1715357450735,
+    "duration" : 25407
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "a6d517eeabc1cced",
+  "name" : "retrieves a database by its name",
+  "time" : {
+    "start" : 1715357473982,
+    "stop" : 1715357475867,
+    "duration" : 1885
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "f7738b65d52a37dd",
+  "name" : "use separate firebolt resource client",
+  "time" : {
+    "start" : 1715357425309,
+    "stop" : 1715357467416,
+    "duration" : 42107
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "e2ca47a093282dfd",
+  "name" : "resolve default engine endpoint if not provided",
+  "time" : {
+    "start" : 1715357425308,
+    "stop" : 1715357443152,
+    "duration" : 17844
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "b4db88a46b7ec785",
+  "name" : "async query",
+  "time" : {
+    "start" : 1715357425327,
+    "stop" : 1715357441193,
+    "duration" : 15866
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "1a6c3a7878b2d66",
+  "name" : "resolve engine endpoint",
+  "time" : {
+    "start" : 1715357425368,
+    "stop" : 1715357433285,
+    "duration" : 7917
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "3b24ca5c2e2abf7f",
+  "name" : "works on user engine with DB",
+  "time" : {
+    "start" : 1715357425326,
+    "stop" : 1715357432332,
+    "duration" : 7006
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "a9093d5ba402627d",
+  "name" : "connects",
+  "time" : {
+    "start" : 1715357452572,
+    "stop" : 1715357465596,
+    "duration" : 13024
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "feec43728626c013",
+  "name" : "handles bytea insert and then select",
+  "time" : {
+    "start" : 1715357460983,
+    "stop" : 1715357469321,
+    "duration" : 8338
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "ec20c1360a646cba",
+  "name" : "show helpful error message on account not found",
+  "time" : {
+    "start" : 1715357425329,
+    "stop" : 1715357455231,
+    "duration" : 29902
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "37656cdde4f8b888",
+  "name" : "works on user engine with no DB specified",
+  "time" : {
+    "start" : 1715357425325,
+    "stop" : 1715357429912,
+    "duration" : 4587
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "cd481b50675afbd1",
+  "name" : "use separate firebolt resource client",
+  "time" : {
+    "start" : 1715357425310,
+    "stop" : 1715357495741,
+    "duration" : 70431
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "6d7f9fd5186f6aed",
+  "name" : "supports use engine",
+  "time" : {
+    "start" : 1715357452572,
+    "stop" : 1715357466629,
+    "duration" : 14057
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "4bc94cfbc166de56",
+  "name" : "retrieves all engines",
+  "time" : {
+    "start" : 1715357425309,
+    "stop" : 1715357483836,
+    "duration" : 58527
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "dc7e82585953d53e",
+  "name" : "stops engine",
+  "time" : {
+    "start" : 1715357425307,
+    "stop" : 1715357442676,
+    "duration" : 17369
+  },
+  "status" : "skipped",
+  "severity" : "normal"
+}, {
+  "uid" : "c41b7da2837cdd82",
+  "name" : "start/stop engine",
+  "time" : {
+    "start" : 1715357425369,
+    "stop" : 1715357439605,
+    "duration" : 14236
+  },
+  "status" : "skipped",
+  "severity" : "normal"
+}, {
+  "uid" : "22036ab56b16f9d",
+  "name" : "stream transformters",
+  "time" : {
+    "start" : 1715357473363,
+    "stop" : 1715357475519,
+    "duration" : 2156
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "9f48377f6a5ed6b9",
+  "name" : "retrieves all engines",
+  "time" : {
+    "start" : 1715357425309,
+    "stop" : 1715357463601,
+    "duration" : 38292
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "401f86f80e5d326a",
+  "name" : "starts engine and waits for it to be ready",
+  "time" : {
+    "start" : 1715357425307,
+    "stop" : 1715357442676,
+    "duration" : 17369
+  },
+  "status" : "skipped",
+  "severity" : "normal"
+}, {
+  "uid" : "9b4d943ff07ba2f3",
+  "name" : "starts engine and waits for it to be ready",
+  "time" : {
+    "start" : 1715357425306,
+    "stop" : 1715357425311,
+    "duration" : 5
+  },
+  "status" : "skipped",
+  "severity" : "normal"
+}, {
+  "uid" : "31501cc0bb9f7201",
+  "name" : "works",
+  "time" : {
+    "start" : 1715357469522,
+    "stop" : 1715357471625,
+    "duration" : 2103
+  },
+  "status" : "passed",
+  "severity" : "normal"
+}, {
+  "uid" : "c3c0ea90ff1eaed2",
+  "name" : "works",
+  "time" : {
+    "start" : 1715357455437,
+    "stop" : 1715357458308,
+    "duration" : 2871
   },
   "status" : "passed",
   "severity" : "normal"
