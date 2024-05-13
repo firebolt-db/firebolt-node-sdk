@@ -22,6 +22,10 @@ export class EngineService {
     auto_stop: "AUTO_STOP"
   };
 
+  private INTERNAL_OPTIONS: Record<string, string> = {
+    FIREBOLT_INTERNAL_VERSION: "VERSION"
+  };
+
   constructor(context: ResourceManagerContext) {
     this.context = context;
   }
@@ -128,6 +132,17 @@ export class EngineService {
     }
   }
 
+  private getInternalOptions() {
+    const internalOptions: Record<string, string> = {};
+    for (const [env, optionName] of Object.entries(this.INTERNAL_OPTIONS)) {
+      const optionValue = process.env[env];
+      if (optionValue) {
+        internalOptions[optionName] = optionValue;
+      }
+    }
+    return internalOptions;
+  }
+
   async create(
     name: string,
     options: CreateEngineOptions = {}
@@ -149,20 +164,32 @@ export class EngineService {
         ? this.CREATE_PARAMETER_NAMES_V2
         : this.CREATE_PARAMETER_NAMES;
 
-    if (Object.values(createOptions).some(v => v !== undefined)) {
+    const internalOptions = this.getInternalOptions();
+
+    if (
+      Object.values(createOptions).some(v => v !== undefined) ||
+      internalOptions
+    ) {
       query += " WITH ";
-      for (const [key, value] of Object.entries(createOptions)) {
-        if (key in createParameterNames) {
-          if (key == "spec" && accountVersion >= 2) {
-            // spec value is provided raw without quotes for accounts v2
-            query += `${createParameterNames[key]} = ${value} `;
-          } else {
-            query += `${createParameterNames[key]} = ?`;
-            queryParameters.push(value);
-          }
+    }
+
+    for (const [key, value] of Object.entries(createOptions)) {
+      if (key in createParameterNames) {
+        if (key == "spec" && accountVersion >= 2) {
+          // spec value is provided raw without quotes for accounts v2
+          query += `${createParameterNames[key]} = ${value} `;
+        } else {
+          query += `${createParameterNames[key]} = ?`;
+          queryParameters.push(value);
         }
       }
     }
+
+    // Add internal options to the query
+    query += `${Object.entries(internalOptions)
+      .map(([key, value]) => `${key} = '${value}'`)
+      .join(", ")}`;
+
     await this.context.connection.execute(query, {
       parameters: queryParameters
     });

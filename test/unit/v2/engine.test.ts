@@ -367,9 +367,40 @@ describe("engine service", () => {
     try {
       await engine.delete();
       expect(false).toBeTruthy();
-    }
-    catch (e) {
+    } catch (e) {
       expect(true).toBeTruthy();
     }
+  });
+  it("create engine with environment variable", async () => {
+    const engine_version = "20.1.1";
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          const requestBody = await req.text();
+          if (requestBody.includes("CREATE ENGINE")) {
+            expect(requestBody).toContain(`VERSION = '${engine_version}'`);
+          }
+          return res(ctx.json(selectEngineResponse));
+        }
+      )
+    );
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+
+    process.env.FIREBOLT_INTERNAL_VERSION = engine_version;
+
+    const engine = await resourceManager.engine.create("some_engine");
+    expect(engine).toBeTruthy();
+    expect(engine.endpoint).toEqual("https://some_engine.com");
+
+    delete process.env.ENGINE_NAME;
   });
 });
