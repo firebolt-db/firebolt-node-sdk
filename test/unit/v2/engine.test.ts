@@ -395,7 +395,7 @@ describe("engine service", () => {
     });
     const resourceManager = firebolt.resourceManager;
 
-    process.env.FIREBOLT_INTERNAL_VERSION = engine_version;
+    process.env.FB_INTERNAL_OPTIONS_ENGINE_VERSION = engine_version;
 
     const engine = await resourceManager.engine.create("some_engine");
     expect(engine).toBeTruthy();

@@ -23,7 +23,7 @@ export class EngineService {
   };
 
   private INTERNAL_OPTIONS: Record<string, string> = {
-    FIREBOLT_INTERNAL_VERSION: "VERSION"
+    FB_INTERNAL_OPTIONS_ENGINE_VERSION: "VERSION"
   };
 
   constructor(context: ResourceManagerContext) {
