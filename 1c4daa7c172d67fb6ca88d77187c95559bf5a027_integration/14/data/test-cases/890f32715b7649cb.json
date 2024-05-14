@@ -1,0 +1,46 @@
+{
+  "uid" : "890f32715b7649cb",
+  "name" : "create attach delete engine and database",
+  "fullName" : "engine integration.create attach delete engine and database",
+  "historyId" : "878753db41473d2e4ead39fa4192be95",
+  "time" : {
+    "start" : 1715702416814,
+    "stop" : 1715702432912,
+    "duration" : 16098
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "engine integration"
+  }, {
+    "name" : "testClass",
+    "value" : "engine integration"
+  }, {
+    "name" : "testMethod",
+    "value" : "create attach delete engine and database"
+  }, {
+    "name" : "package",
+    "value" : "engine integration"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "890f32715b7649cb.json",
+  "parameterValues" : [ ]
+}

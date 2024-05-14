@@ -1,0 +1,46 @@
+{
+  "uid" : "a025e75a9f7755c7",
+  "name" : "able to list engines",
+  "fullName" : "system engine.able to list engines",
+  "historyId" : "db8b02b567faabfecae361dab781f764",
+  "time" : {
+    "start" : 1715702425912,
+    "stop" : 1715702431155,
+    "duration" : 5243
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "system engine"
+  }, {
+    "name" : "testClass",
+    "value" : "system engine"
+  }, {
+    "name" : "testMethod",
+    "value" : "able to list engines"
+  }, {
+    "name" : "package",
+    "value" : "system engine"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "a025e75a9f7755c7.json",
+  "parameterValues" : [ ]
+}

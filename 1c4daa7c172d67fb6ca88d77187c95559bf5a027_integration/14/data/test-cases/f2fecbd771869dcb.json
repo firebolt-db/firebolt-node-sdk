@@ -1,0 +1,46 @@
+{
+  "uid" : "f2fecbd771869dcb",
+  "name" : "use separate firebolt resource client",
+  "fullName" : "engine resource manager.use separate firebolt resource client",
+  "historyId" : "2ff201fedfc62cbc2844d200a279b649",
+  "time" : {
+    "start" : 1715702434576,
+    "stop" : 1715702435898,
+    "duration" : 1322
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "engine resource manager"
+  }, {
+    "name" : "testClass",
+    "value" : "engine resource manager"
+  }, {
+    "name" : "testMethod",
+    "value" : "use separate firebolt resource client"
+  }, {
+    "name" : "package",
+    "value" : "engine resource manager"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "f2fecbd771869dcb.json",
+  "parameterValues" : [ ]
+}

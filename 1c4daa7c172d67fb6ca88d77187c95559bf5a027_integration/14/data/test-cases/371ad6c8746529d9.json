@@ -1,0 +1,46 @@
+{
+  "uid" : "371ad6c8746529d9",
+  "name" : "failed test connection",
+  "fullName" : "integration test.failed test connection",
+  "historyId" : "97ac40f2287a967e8f2430087ede08a1",
+  "time" : {
+    "start" : 1715702448547,
+    "stop" : 1715702450365,
+    "duration" : 1818
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "failed test connection"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "371ad6c8746529d9.json",
+  "parameterValues" : [ ]
+}

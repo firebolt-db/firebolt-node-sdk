@@ -1,0 +1,44 @@
+{
+  "uid" : "cda4213fe751460d",
+  "name" : "works",
+  "fullName" : "integration test.works",
+  "historyId" : "df4cad0ce3b43c687bc899f43841c5a9",
+  "time" : {
+    "start" : 1715702429838,
+    "stop" : 1715702433828,
+    "duration" : 3990
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "works"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : true,
+  "retry" : true,
+  "extra" : {
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "cda4213fe751460d.json",
+  "parameterValues" : [ ]
+}

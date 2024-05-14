@@ -1,0 +1,46 @@
+{
+  "uid" : "f224fe4f911d1a19",
+  "name" : "retrieves all databases",
+  "fullName" : "database resource manager.retrieves all databases",
+  "historyId" : "81fb993979ea930056168628a95f3e9d",
+  "time" : {
+    "start" : 1715702462193,
+    "stop" : 1715702463768,
+    "duration" : 1575
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "database resource manager"
+  }, {
+    "name" : "testClass",
+    "value" : "database resource manager"
+  }, {
+    "name" : "testMethod",
+    "value" : "retrieves all databases"
+  }, {
+    "name" : "package",
+    "value" : "database resource manager"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "f224fe4f911d1a19.json",
+  "parameterValues" : [ ]
+}

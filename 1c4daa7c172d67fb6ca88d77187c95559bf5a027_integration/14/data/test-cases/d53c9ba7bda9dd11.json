@@ -1,0 +1,46 @@
+{
+  "uid" : "d53c9ba7bda9dd11",
+  "name" : "custom parser",
+  "fullName" : "integration test.custom parser",
+  "historyId" : "311596fd63bd86b22152ae91f94d0134",
+  "time" : {
+    "start" : 1715702453661,
+    "stop" : 1715702456126,
+    "duration" : 2465
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "custom parser"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "d53c9ba7bda9dd11.json",
+  "parameterValues" : [ ]
+}

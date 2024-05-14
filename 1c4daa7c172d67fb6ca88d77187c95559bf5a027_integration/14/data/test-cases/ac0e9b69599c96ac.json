@@ -1,0 +1,46 @@
+{
+  "uid" : "ac0e9b69599c96ac",
+  "name" : "retrieves all engines",
+  "fullName" : "engine resource manager.retrieves all engines",
+  "historyId" : "255dd33a9cd1c380f7c54caab486bcd7",
+  "time" : {
+    "start" : 1715702432917,
+    "stop" : 1715702434576,
+    "duration" : 1659
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "engine resource manager"
+  }, {
+    "name" : "testClass",
+    "value" : "engine resource manager"
+  }, {
+    "name" : "testMethod",
+    "value" : "retrieves all engines"
+  }, {
+    "name" : "package",
+    "value" : "engine resource manager"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "ac0e9b69599c96ac.json",
+  "parameterValues" : [ ]
+}

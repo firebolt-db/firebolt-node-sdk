@@ -1,0 +1,48 @@
+{
+  "uid" : "c8d20022262fb8e4",
+  "name" : "starts engine and waits for it to be ready",
+  "fullName" : "engine integration.starts engine and waits for it to be ready",
+  "historyId" : "a7deef4065ee7223f5c4f22d85b51219",
+  "time" : {
+    "start" : 1715702415867,
+    "stop" : 1715702415867,
+    "duration" : 0
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "skipped",
+  "statusMessage" : "Temporarily disabled with xit",
+  "statusTrace" : "undefined",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "engine integration"
+  }, {
+    "name" : "testClass",
+    "value" : "engine integration"
+  }, {
+    "name" : "testMethod",
+    "value" : "starts engine and waits for it to be ready"
+  }, {
+    "name" : "package",
+    "value" : "engine integration"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "c8d20022262fb8e4.json",
+  "parameterValues" : [ ]
+}

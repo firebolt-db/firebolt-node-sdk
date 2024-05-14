@@ -1,0 +1,48 @@
+{
+  "uid" : "bced8117d972057a",
+  "name" : "start/stop engine",
+  "fullName" : "system engine.start/stop engine",
+  "historyId" : "620c687430aa0769cbb8cdfbed0d38f3",
+  "time" : {
+    "start" : 1715702436337,
+    "stop" : 1715702436337,
+    "duration" : 0
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "skipped",
+  "statusMessage" : "Temporarily disabled with xit",
+  "statusTrace" : "undefined",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "system engine"
+  }, {
+    "name" : "testClass",
+    "value" : "system engine"
+  }, {
+    "name" : "testMethod",
+    "value" : "start/stop engine"
+  }, {
+    "name" : "package",
+    "value" : "system engine"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "bced8117d972057a.json",
+  "parameterValues" : [ ]
+}

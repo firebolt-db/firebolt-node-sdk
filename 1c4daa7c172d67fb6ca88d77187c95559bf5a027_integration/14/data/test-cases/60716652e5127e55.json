@@ -1,0 +1,48 @@
+{
+  "uid" : "60716652e5127e55",
+  "name" : "stops engine",
+  "fullName" : "engine integration.stops engine",
+  "historyId" : "35b7e243b6963dce583eb7321022aad1",
+  "time" : {
+    "start" : 1715702415866,
+    "stop" : 1715702415866,
+    "duration" : 0
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "skipped",
+  "statusMessage" : "Temporarily disabled with xit",
+  "statusTrace" : "undefined",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "engine integration"
+  }, {
+    "name" : "testClass",
+    "value" : "engine integration"
+  }, {
+    "name" : "testMethod",
+    "value" : "stops engine"
+  }, {
+    "name" : "package",
+    "value" : "engine integration"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "60716652e5127e55.json",
+  "parameterValues" : [ ]
+}

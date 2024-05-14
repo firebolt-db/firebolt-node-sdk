@@ -1,0 +1,46 @@
+{
+  "uid" : "14cee109f8ab40d2",
+  "name" : "retrieves default url",
+  "fullName" : "account integration.retrieves default url",
+  "historyId" : "b4a80c403a28a249f5a79674b525962a",
+  "time" : {
+    "start" : 1715702468284,
+    "stop" : 1715702470353,
+    "duration" : 2069
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "account integration"
+  }, {
+    "name" : "testClass",
+    "value" : "account integration"
+  }, {
+    "name" : "testMethod",
+    "value" : "retrieves default url"
+  }, {
+    "name" : "package",
+    "value" : "account integration"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "14cee109f8ab40d2.json",
+  "parameterValues" : [ ]
+}

@@ -1,0 +1,46 @@
+{
+  "uid" : "82aa02398a96c146",
+  "name" : "set statements are executed correctly",
+  "fullName" : "set statements execution.set statements are executed correctly",
+  "historyId" : "e77d98ea9242a56e539fe4b54eacfae7",
+  "time" : {
+    "start" : 1715702463062,
+    "stop" : 1715702465792,
+    "duration" : 2730
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "set statements execution"
+  }, {
+    "name" : "testClass",
+    "value" : "set statements execution"
+  }, {
+    "name" : "testMethod",
+    "value" : "set statements are executed correctly"
+  }, {
+    "name" : "package",
+    "value" : "set statements execution"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "82aa02398a96c146.json",
+  "parameterValues" : [ ]
+}

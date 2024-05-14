@@ -1,0 +1,46 @@
+{
+  "uid" : "92d7b0be8f0f9189",
+  "name" : "hydrates arrays",
+  "fullName" : "integration test.hydrates arrays",
+  "historyId" : "a5cc06d5927b20ac9eaa43a6dded2399",
+  "time" : {
+    "start" : 1715702459811,
+    "stop" : 1715702462833,
+    "duration" : 3022
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "hydrates arrays"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "92d7b0be8f0f9189.json",
+  "parameterValues" : [ ]
+}

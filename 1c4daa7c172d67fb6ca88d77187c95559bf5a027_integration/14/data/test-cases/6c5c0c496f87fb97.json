@@ -1,0 +1,46 @@
+{
+  "uid" : "6c5c0c496f87fb97",
+  "name" : "show helpful error message on account not found",
+  "fullName" : "integration test.show helpful error message on account not found",
+  "historyId" : "8b9bbad3db2433e22747dd104ca8b205",
+  "time" : {
+    "start" : 1715702456126,
+    "stop" : 1715702456493,
+    "duration" : 367
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "show helpful error message on account not found"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "6c5c0c496f87fb97.json",
+  "parameterValues" : [ ]
+}

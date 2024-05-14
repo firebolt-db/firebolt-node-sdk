@@ -1,0 +1,46 @@
+{
+  "uid" : "a9bc92695c5f4022",
+  "name" : "works",
+  "fullName" : "new date data format.works",
+  "historyId" : "c692dfc10ca8111c9ff0afee42e6e538",
+  "time" : {
+    "start" : 1715702452606,
+    "stop" : 1715702455788,
+    "duration" : 3182
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "new date data format"
+  }, {
+    "name" : "testClass",
+    "value" : "new date data format"
+  }, {
+    "name" : "testMethod",
+    "value" : "works"
+  }, {
+    "name" : "package",
+    "value" : "new date data format"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "a9bc92695c5f4022.json",
+  "parameterValues" : [ ]
+}

@@ -1,0 +1,46 @@
+{
+  "uid" : "90c9867f1a4f1552",
+  "name" : "resolve default engine endpoint if not provided",
+  "fullName" : "engine integration.resolve default engine endpoint if not provided",
+  "historyId" : "a88e044dd4b86e63ab6570f7caab9891",
+  "time" : {
+    "start" : 1715702415867,
+    "stop" : 1715702416814,
+    "duration" : 947
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "engine integration"
+  }, {
+    "name" : "testClass",
+    "value" : "engine integration"
+  }, {
+    "name" : "testMethod",
+    "value" : "resolve default engine endpoint if not provided"
+  }, {
+    "name" : "package",
+    "value" : "engine integration"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "90c9867f1a4f1552.json",
+  "parameterValues" : [ ]
+}

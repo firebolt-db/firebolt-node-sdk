@@ -1,0 +1,46 @@
+{
+  "uid" : "d3afcee5803f0a29",
+  "name" : "fails on no engine found",
+  "fullName" : "integration test.fails on no engine found",
+  "historyId" : "fa37acd961677f8c2f3c6ab7150a07e6",
+  "time" : {
+    "start" : 1715702441595,
+    "stop" : 1715702443432,
+    "duration" : 1837
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "fails on no engine found"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "d3afcee5803f0a29.json",
+  "parameterValues" : [ ]
+}

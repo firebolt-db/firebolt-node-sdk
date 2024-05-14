@@ -1,0 +1,46 @@
+{
+  "uid" : "66752b1a76591ddc",
+  "name" : "connects",
+  "fullName" : "infra v2 integration test.connects",
+  "historyId" : "860c8143a4b8f00be7c2cb04c313f5fc",
+  "time" : {
+    "start" : 1715702447302,
+    "stop" : 1715702448710,
+    "duration" : 1408
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "infra v2 integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "infra v2 integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "connects"
+  }, {
+    "name" : "package",
+    "value" : "infra v2 integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "66752b1a76591ddc.json",
+  "parameterValues" : [ ]
+}

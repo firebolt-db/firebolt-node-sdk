@@ -1,0 +1,46 @@
+{
+  "uid" : "e337d997536c1396",
+  "name" : "stream transformters",
+  "fullName" : "streams.stream transformters",
+  "historyId" : "ab41ed9945387762a7ef67c3333c0844",
+  "time" : {
+    "start" : 1715702458683,
+    "stop" : 1715702461978,
+    "duration" : 3295
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "streams"
+  }, {
+    "name" : "testClass",
+    "value" : "streams"
+  }, {
+    "name" : "testMethod",
+    "value" : "stream transformters"
+  }, {
+    "name" : "package",
+    "value" : "streams"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "e337d997536c1396.json",
+  "parameterValues" : [ ]
+}

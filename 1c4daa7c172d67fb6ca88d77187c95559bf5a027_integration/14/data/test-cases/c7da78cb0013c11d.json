@@ -1,0 +1,46 @@
+{
+  "uid" : "c7da78cb0013c11d",
+  "name" : "handles long request",
+  "fullName" : "long running request.handles long request",
+  "historyId" : "6fee83b7fc42356f116d601192767630",
+  "time" : {
+    "start" : 1715702465422,
+    "stop" : 1715702927299,
+    "duration" : 461877
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "long running request"
+  }, {
+    "name" : "testClass",
+    "value" : "long running request"
+  }, {
+    "name" : "testMethod",
+    "value" : "handles long request"
+  }, {
+    "name" : "package",
+    "value" : "long running request"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "c7da78cb0013c11d.json",
+  "parameterValues" : [ ]
+}

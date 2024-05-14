@@ -1,0 +1,46 @@
+{
+  "uid" : "a390237b7797c66a",
+  "name" : "stream",
+  "fullName" : "integration test.stream",
+  "historyId" : "362ab7d7d549a0ef0320516565559032",
+  "time" : {
+    "start" : 1715702446105,
+    "stop" : 1715702448547,
+    "duration" : 2442
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "stream"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "a390237b7797c66a.json",
+  "parameterValues" : [ ]
+}

@@ -1,0 +1,46 @@
+{
+  "uid" : "694d0a64d4df83dd",
+  "name" : "resolve engine endpoint",
+  "fullName" : "system engine.resolve engine endpoint",
+  "historyId" : "f821e91f7b9350868f6e31e624e000f7",
+  "time" : {
+    "start" : 1715702422637,
+    "stop" : 1715702425912,
+    "duration" : 3275
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "system engine"
+  }, {
+    "name" : "testClass",
+    "value" : "system engine"
+  }, {
+    "name" : "testMethod",
+    "value" : "resolve engine endpoint"
+  }, {
+    "name" : "package",
+    "value" : "system engine"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "694d0a64d4df83dd.json",
+  "parameterValues" : [ ]
+}

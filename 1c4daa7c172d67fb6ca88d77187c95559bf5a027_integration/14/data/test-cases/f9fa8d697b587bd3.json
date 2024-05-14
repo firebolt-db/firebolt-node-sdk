@@ -1,0 +1,46 @@
+{
+  "uid" : "f9fa8d697b587bd3",
+  "name" : "inf and nan values are parsed correctly",
+  "fullName" : "inf and nan values parsing.inf and nan values are parsed correctly",
+  "historyId" : "63baf7a77f79b46b7a1e0b4a2b2f6fa0",
+  "time" : {
+    "start" : 1715702465605,
+    "stop" : 1715702468075,
+    "duration" : 2470
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "inf and nan values parsing"
+  }, {
+    "name" : "testClass",
+    "value" : "inf and nan values parsing"
+  }, {
+    "name" : "testMethod",
+    "value" : "inf and nan values are parsed correctly"
+  }, {
+    "name" : "package",
+    "value" : "inf and nan values parsing"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "f9fa8d697b587bd3.json",
+  "parameterValues" : [ ]
+}

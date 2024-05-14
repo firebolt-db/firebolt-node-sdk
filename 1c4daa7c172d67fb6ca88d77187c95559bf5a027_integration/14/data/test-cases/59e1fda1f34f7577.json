@@ -1,0 +1,46 @@
+{
+  "uid" : "59e1fda1f34f7577",
+  "name" : "async query",
+  "fullName" : "integration test.async query",
+  "historyId" : "e1dca9b6debf5bfd6575b25e988637e5",
+  "time" : {
+    "start" : 1715702436933,
+    "stop" : 1715702439246,
+    "duration" : 2313
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "async query"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "59e1fda1f34f7577.json",
+  "parameterValues" : [ ]
+}

@@ -1,0 +1,46 @@
+{
+  "uid" : "47cafa09894dc33d",
+  "name" : "supports use database and use engine",
+  "fullName" : "infra v2 integration test.supports use database and use engine",
+  "historyId" : "1350d1b876fc09d2300b65ca1f0d675",
+  "time" : {
+    "start" : 1715702449887,
+    "stop" : 1715702452264,
+    "duration" : 2377
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "infra v2 integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "infra v2 integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "supports use database and use engine"
+  }, {
+    "name" : "package",
+    "value" : "infra v2 integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "47cafa09894dc33d.json",
+  "parameterValues" : [ ]
+}

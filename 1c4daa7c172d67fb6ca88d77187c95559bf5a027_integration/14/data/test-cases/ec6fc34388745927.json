@@ -1,0 +1,46 @@
+{
+  "uid" : "ec6fc34388745927",
+  "name" : "destroyed unfinished statements should throw",
+  "fullName" : "integration test.destroyed unfinished statements should throw",
+  "historyId" : "4b9df5319862b6c3f3117c0387b2fbc4",
+  "time" : {
+    "start" : 1715702443432,
+    "stop" : 1715702446105,
+    "duration" : 2673
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "destroyed unfinished statements should throw"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "ec6fc34388745927.json",
+  "parameterValues" : [ ]
+}

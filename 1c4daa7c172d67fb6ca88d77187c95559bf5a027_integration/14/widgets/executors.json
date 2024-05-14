@@ -1,0 +1,10 @@
+[ {
+  "name" : "GitHub Actions",
+  "type" : "github",
+  "url" : "https://firebolt-db.github.io/firebolt-node-sdk/1c4daa7c172d67fb6ca88d77187c95559bf5a027_integration",
+  "buildOrder" : 14,
+  "buildName" : "GitHub Actions Run #9082439661",
+  "buildUrl" : "https://github.com/firebolt-db/firebolt-node-sdk/actions/runs/9082439661",
+  "reportName" : "Allure Report with history",
+  "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/1c4daa7c172d67fb6ca88d77187c95559bf5a027_integration/14/"
+} ]

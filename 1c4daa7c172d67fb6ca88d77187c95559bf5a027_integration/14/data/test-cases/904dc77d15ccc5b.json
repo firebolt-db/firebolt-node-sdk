@@ -1,0 +1,46 @@
+{
+  "uid" : "904dc77d15ccc5b",
+  "name" : "works on user engine with DB",
+  "fullName" : "new identity integration test.works on user engine with DB",
+  "historyId" : "82b54c43c99289a3da338a7a86a5e605",
+  "time" : {
+    "start" : 1715702422172,
+    "stop" : 1715702424838,
+    "duration" : 2666
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "new identity integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "new identity integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "works on user engine with DB"
+  }, {
+    "name" : "package",
+    "value" : "new identity integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "904dc77d15ccc5b.json",
+  "parameterValues" : [ ]
+}

@@ -1,0 +1,46 @@
+{
+  "uid" : "20e221cde5f0360a",
+  "name" : "handles select boolean",
+  "fullName" : "boolean.handles select boolean",
+  "historyId" : "6dae72592b83e1abbdf7d7135d2bbe3",
+  "time" : {
+    "start" : 1715702465998,
+    "stop" : 1715702468929,
+    "duration" : 2931
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "boolean"
+  }, {
+    "name" : "testClass",
+    "value" : "boolean"
+  }, {
+    "name" : "testMethod",
+    "value" : "handles select boolean"
+  }, {
+    "name" : "package",
+    "value" : "boolean"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "20e221cde5f0360a.json",
+  "parameterValues" : [ ]
+}

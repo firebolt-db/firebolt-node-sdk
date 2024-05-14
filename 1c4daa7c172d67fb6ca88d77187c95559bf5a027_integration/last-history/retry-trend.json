@@ -1,0 +1,9 @@
+[ {
+  "buildOrder" : 14,
+  "reportUrl" : "https://firebolt-db.github.io/firebolt-node-sdk/1c4daa7c172d67fb6ca88d77187c95559bf5a027_integration/14/",
+  "reportName" : "Allure Report with history",
+  "data" : {
+    "run" : 43,
+    "retry" : 1
+  }
+} ]

@@ -1,0 +1,46 @@
+{
+  "uid" : "27c789ea99b99b4a",
+  "name" : "test connection",
+  "fullName" : "integration test.test connection",
+  "historyId" : "64f24c7c9518c891a58ff0706c27b9ee",
+  "time" : {
+    "start" : 1715702450365,
+    "stop" : 1715702453661,
+    "duration" : 3296
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "integration test"
+  }, {
+    "name" : "testClass",
+    "value" : "integration test"
+  }, {
+    "name" : "testMethod",
+    "value" : "test connection"
+  }, {
+    "name" : "package",
+    "value" : "integration test"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "27c789ea99b99b4a.json",
+  "parameterValues" : [ ]
+}

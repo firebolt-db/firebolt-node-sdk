@@ -1,0 +1,46 @@
+{
+  "uid" : "44fca583677525c5",
+  "name" : "handles select null bytea",
+  "fullName" : "bytea.handles select null bytea",
+  "historyId" : "81c30877c745fe02794f43f3d55e1877",
+  "time" : {
+    "start" : 1715702458451,
+    "stop" : 1715702461514,
+    "duration" : 3063
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "bytea"
+  }, {
+    "name" : "testClass",
+    "value" : "bytea"
+  }, {
+    "name" : "testMethod",
+    "value" : "handles select null bytea"
+  }, {
+    "name" : "package",
+    "value" : "bytea"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "44fca583677525c5.json",
+  "parameterValues" : [ ]
+}

@@ -1,0 +1,46 @@
+{
+  "uid" : "b0f2e11b5c8120b4",
+  "name" : "support new auth connection options",
+  "fullName" : "auth.support new auth connection options",
+  "historyId" : "a06501d583978ff3818d39ba91503c7b",
+  "time" : {
+    "start" : 1715702469120,
+    "stop" : 1715702469685,
+    "duration" : 565
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "auth"
+  }, {
+    "name" : "testClass",
+    "value" : "auth"
+  }, {
+    "name" : "testMethod",
+    "value" : "support new auth connection options"
+  }, {
+    "name" : "package",
+    "value" : "auth"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "b0f2e11b5c8120b4.json",
+  "parameterValues" : [ ]
+}

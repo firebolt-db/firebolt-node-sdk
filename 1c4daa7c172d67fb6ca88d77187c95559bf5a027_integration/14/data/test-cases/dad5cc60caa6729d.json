@@ -1,0 +1,46 @@
+{
+  "uid" : "dad5cc60caa6729d",
+  "name" : "able to list databases",
+  "fullName" : "system engine.able to list databases",
+  "historyId" : "d580a16eb147e941d90fc8dcd30d4837",
+  "time" : {
+    "start" : 1715702431155,
+    "stop" : 1715702436337,
+    "duration" : 5182
+  },
+  "description" : "",
+  "descriptionHtml" : "",
+  "status" : "passed",
+  "flaky" : false,
+  "newFailed" : false,
+  "beforeStages" : [ ],
+  "afterStages" : [ ],
+  "labels" : [ {
+    "name" : "suite",
+    "value" : "system engine"
+  }, {
+    "name" : "testClass",
+    "value" : "system engine"
+  }, {
+    "name" : "testMethod",
+    "value" : "able to list databases"
+  }, {
+    "name" : "package",
+    "value" : "system engine"
+  }, {
+    "name" : "resultFormat",
+    "value" : "allure1"
+  } ],
+  "parameters" : [ ],
+  "links" : [ ],
+  "hidden" : false,
+  "retry" : false,
+  "extra" : {
+    "severity" : "normal",
+    "retries" : [ ],
+    "categories" : [ ],
+    "tags" : [ ]
+  },
+  "source" : "dad5cc60caa6729d.json",
+  "parameterValues" : [ ]
+}
