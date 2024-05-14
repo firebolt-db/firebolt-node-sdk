@@ -133,11 +133,13 @@ export class EngineService {
   }
 
   private getInternalOptions() {
+    console.log("Getting internal options");
     const internalOptions: Record<string, string> = {};
     for (const [env, optionName] of Object.entries(this.INTERNAL_OPTIONS)) {
       const optionValue = process.env[env];
       if (optionValue) {
         internalOptions[optionName] = optionValue;
+        console.log(`Setting internal option ${optionName} to ${optionValue}`);
       }
     }
     return internalOptions;
