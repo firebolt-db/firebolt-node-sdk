@@ -181,16 +181,18 @@ export class EngineService {
           // spec value is provided raw without quotes for accounts v2
           query += `${createParameterNames[key]} = ${value} `;
         } else {
-          query += `${createParameterNames[key]} = ?`;
+          query += `${createParameterNames[key]} = ? `;
           queryParameters.push(value);
         }
       }
     }
 
     // Add internal options to the query
-    query += `${Object.entries(internalOptions)
-      .map(([key, value]) => `${key} = '${value}'`)
-      .join(", ")}`;
+    query +=
+      " " +
+      `${Object.entries(internalOptions)
+        .map(([key, value]) => `${key} = '${value}'`)
+        .join(", ")}`;
 
     await this.context.connection.execute(query, {
       parameters: queryParameters
