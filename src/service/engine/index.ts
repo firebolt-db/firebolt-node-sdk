@@ -133,7 +133,6 @@ export class EngineService {
   }
 
   private getInternalOptions() {
-    console.log("Getting internal options");
     const internalOptions: Record<string, string> = {};
     for (const [env, optionName] of Object.entries(this.INTERNAL_OPTIONS)) {
       const optionValue = process.env[env];
@@ -168,10 +167,11 @@ export class EngineService {
 
     const internalOptions = this.getInternalOptions();
 
-    if (
-      Object.values(createOptions).some(v => v !== undefined) ||
-      internalOptions
-    ) {
+    const filteredCreateOptions = Object.entries(createOptions).filter(
+      ([, value]) => value !== undefined
+    );
+
+    if (filteredCreateOptions.length > 0 || internalOptions) {
       query += " WITH ";
     }
 
