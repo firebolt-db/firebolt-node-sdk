@@ -167,15 +167,15 @@ export class EngineService {
 
     const internalOptions = this.getInternalOptions();
 
-    const filteredCreateOptions = Object.entries(createOptions).filter(
-      ([, value]) => value !== undefined
+    const filteredCreateOptions = Object.fromEntries(
+      Object.entries(createOptions).filter(([, value]) => value !== undefined)
     );
 
-    if (filteredCreateOptions.length > 0 || internalOptions) {
+    if (Object.keys(filteredCreateOptions).length > 0 || internalOptions) {
       query += " WITH ";
     }
 
-    for (const [key, value] of Object.entries(createOptions)) {
+    for (const [key, value] of Object.entries(filteredCreateOptions)) {
       if (key in createParameterNames) {
         if (key == "spec" && accountVersion >= 2) {
           // spec value is provided raw without quotes for accounts v2
