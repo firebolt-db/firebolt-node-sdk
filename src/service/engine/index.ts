@@ -22,6 +22,10 @@ export class EngineService {
     auto_stop: "AUTO_STOP"
   };
 
+  private INTERNAL_OPTIONS: Record<string, string> = {
+    FB_INTERNAL_OPTIONS_ENGINE_VERSION: "VERSION"
+  };
+
   constructor(context: ResourceManagerContext) {
     this.context = context;
   }
@@ -128,6 +132,18 @@ export class EngineService {
     }
   }
 
+  private getInternalOptions() {
+    const internalOptions: Record<string, string> = {};
+    for (const [env, optionName] of Object.entries(this.INTERNAL_OPTIONS)) {
+      const optionValue = process.env[env];
+      if (optionValue) {
+        internalOptions[optionName] = optionValue;
+        console.log(`Setting internal option ${optionName} to ${optionValue}`);
+      }
+    }
+    return internalOptions;
+  }
+
   async create(
     name: string,
     options: CreateEngineOptions = {}
@@ -149,20 +165,34 @@ export class EngineService {
         ? this.CREATE_PARAMETER_NAMES_V2
         : this.CREATE_PARAMETER_NAMES;
 
-    if (Object.values(createOptions).some(v => v !== undefined)) {
+    const internalOptions = this.getInternalOptions();
+
+    // Exlude options that are not set or not allowed for the account version
+    const filteredCreateOptions = Object.fromEntries(
+      Object.entries(createOptions).filter(
+        ([key, value]) => value !== undefined && key in createParameterNames
+      )
+    );
+
+    if (Object.keys(filteredCreateOptions).length > 0 || internalOptions) {
       query += " WITH ";
-      for (const [key, value] of Object.entries(createOptions)) {
-        if (key in createParameterNames) {
-          if (key == "spec" && accountVersion >= 2) {
-            // spec value is provided raw without quotes for accounts v2
-            query += `${createParameterNames[key]} = ${value} `;
-          } else {
-            query += `${createParameterNames[key]} = ?`;
-            queryParameters.push(value);
-          }
-        }
+    }
+
+    for (const [key, value] of Object.entries(filteredCreateOptions)) {
+      if (key == "spec" && accountVersion >= 2) {
+        // spec value is provided raw without quotes for accounts v2
+        query += `${createParameterNames[key]} = ${value} `;
+      } else {
+        query += `${createParameterNames[key]} = ? `;
+        queryParameters.push(value);
       }
     }
+
+    for (const [key, value] of Object.entries(internalOptions)) {
+      query += `${key} = ? `;
+      queryParameters.push(value);
+    }
+
     await this.context.connection.execute(query, {
       parameters: queryParameters
     });
