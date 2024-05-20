@@ -167,32 +167,29 @@ export class EngineService {
 
     const internalOptions = this.getInternalOptions();
 
+    // Exlude options that are not set or not allowed for the account version
     const filteredCreateOptions = Object.fromEntries(
-      Object.entries(createOptions).filter(([, value]) => value !== undefined)
+      Object.entries(createOptions).filter(
+        ([, value]) => value !== undefined && value in createParameterNames
+      )
     );
 
     if (Object.keys(filteredCreateOptions).length > 0 || internalOptions) {
       query += " WITH ";
     }
 
-    for (const [key, value] of Object.entries(filteredCreateOptions)) {
-      if (key in createParameterNames) {
-        if (key == "spec" && accountVersion >= 2) {
-          // spec value is provided raw without quotes for accounts v2
-          query += `${createParameterNames[key]} = ${value} `;
-        } else {
-          query += `${createParameterNames[key]} = ? `;
-          queryParameters.push(value);
-        }
+    const allOptions = Object.entries(filteredCreateOptions).concat(
+      Object.entries(internalOptions)
+    );
+    for (const [key, value] of allOptions) {
+      if (key == "spec" && accountVersion >= 2) {
+        // spec value is provided raw without quotes for accounts v2
+        query += `${createParameterNames[key]} = ${value} `;
+      } else {
+        query += `${createParameterNames[key]} = ? `;
+        queryParameters.push(value);
       }
     }
-
-    // Add internal options to the query
-    query +=
-      " " +
-      `${Object.entries(internalOptions)
-        .map(([key, value]) => `${key} = '${value}'`)
-        .join(", ")}`;
 
     await this.context.connection.execute(query, {
       parameters: queryParameters
