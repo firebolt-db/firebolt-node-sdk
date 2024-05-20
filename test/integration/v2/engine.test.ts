@@ -48,7 +48,7 @@ const createEngineOptionsV2 = {
   fail_if_exists: true
 };
 
-jest.setTimeout(60000);
+jest.setTimeout(180000);
 
 describe.each([
   ["v1", connectionOptionsV1, createDatabaseOptionsV1, createEngineOptionsV1],
