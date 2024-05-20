@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.3.2...v1.4.0) (2024-05-20)
+
+
+### Features
+
+* Add internal options to engine create ([#89](https://github.com/firebolt-db/firebolt-node-sdk/issues/89)) ([8e91465](https://github.com/firebolt-db/firebolt-node-sdk/commit/8e91465021ce9f3a62a0e0398e7f178bb471e7f1))
+
 ### [1.3.2](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.3.1...v1.3.2) (2024-04-30)
 
 ### [1.3.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.3.0...v1.3.1) (2024-04-22)
