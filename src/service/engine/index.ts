@@ -170,7 +170,7 @@ export class EngineService {
     // Exlude options that are not set or not allowed for the account version
     const filteredCreateOptions = Object.fromEntries(
       Object.entries(createOptions).filter(
-        ([, value]) => value !== undefined && value in createParameterNames
+        ([key, value]) => value !== undefined && key in createParameterNames
       )
     );
 
@@ -178,10 +178,7 @@ export class EngineService {
       query += " WITH ";
     }
 
-    const allOptions = Object.entries(filteredCreateOptions).concat(
-      Object.entries(internalOptions)
-    );
-    for (const [key, value] of allOptions) {
+    for (const [key, value] of Object.entries(filteredCreateOptions)) {
       if (key == "spec" && accountVersion >= 2) {
         // spec value is provided raw without quotes for accounts v2
         query += `${createParameterNames[key]} = ${value} `;
@@ -189,6 +186,11 @@ export class EngineService {
         query += `${createParameterNames[key]} = ? `;
         queryParameters.push(value);
       }
+    }
+
+    for (const [key, value] of Object.entries(internalOptions)) {
+      query += `${key} = ? `;
+      queryParameters.push(value);
     }
 
     await this.context.connection.execute(query, {

@@ -6,7 +6,7 @@ import { Firebolt, QueryFormatter } from "../../../src";
 import { ResourceManager } from "../../../src/service";
 import { ConnectionError, DeprecationError } from "../../../src/common/errors";
 import { NodeHttpClient } from "../../../src/http/node";
-import { Authenticator} from "../../../src/auth";
+import { Authenticator } from "../../../src/auth";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -225,7 +225,7 @@ describe("engine service", () => {
         client_id: "id",
         client_secret: "secret"
       }
-    }
+    };
     const firebolt = Firebolt({ apiEndpoint });
     const connection = await firebolt.connect(connectionOptions);
     // Also test diffrent way of instantiating a resource manager
@@ -370,6 +370,36 @@ describe("engine service", () => {
     } catch (e) {
       expect(true).toBeTruthy();
     }
+  });
+  it("create engine with options", async () => {
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          const requestBody = await req.text();
+          if (requestBody.includes("CREATE ENGINE")) {
+            expect(requestBody).toContain(`ENGINE_TYPE = 'GENERAL_PURPOSE'`);
+            expect(requestBody).not.toContain(`REGION`);
+          }
+          return res(ctx.json(selectEngineResponse));
+        }
+      )
+    );
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const engine = await resourceManager.engine.create("some_engine", {
+      region: undefined,
+      engine_type: "GENERAL_PURPOSE"
+    });
+    expect(engine).toBeTruthy();
+    expect(engine.endpoint).toEqual("https://some_engine.com");
   });
   it("create engine with environment variable", async () => {
     const engine_version = "20.1.1";
