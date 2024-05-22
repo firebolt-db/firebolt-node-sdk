@@ -205,15 +205,13 @@ export class EngineService {
   ) {
     const accountVersion = (await this.context.connection.resolveAccountInfo())
       .infraVersion;
-    if (accountVersion >= 2) {
-      throw new DeprecationError({
-        message: "Attach engine is not supported for this account."
-      });
-    }
     const engine_name = engine instanceof EngineModel ? engine.name : engine;
     const database_name =
       database instanceof DatabaseModel ? database.name : database;
-    const query = `ATTACH ENGINE "${engine_name}" TO "${database_name}"`;
+    const query =
+      accountVersion == 1
+        ? `ATTACH ENGINE "${engine_name}" TO "${database_name}"`
+        : `ALTER ENGINE "${engine_name}" SET DEFAULT_DATABASE="${database_name}"`;
     await this.context.connection.execute(query);
   }
 }
