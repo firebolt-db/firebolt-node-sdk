@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.4.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.4.0...v1.4.1) (2024-05-22)
+
+
+### Bug Fixes
+
+* reenable attach to database ([#90](https://github.com/firebolt-db/firebolt-node-sdk/issues/90)) ([92c96ea](https://github.com/firebolt-db/firebolt-node-sdk/commit/92c96eab879f6d0d08a09cb060e1a8c02d444397))
+* Skip empty engine parameters ([#91](https://github.com/firebolt-db/firebolt-node-sdk/issues/91)) ([038a572](https://github.com/firebolt-db/firebolt-node-sdk/commit/038a5722e1a24258a749eb205d087ab251f5059c))
+
 ## [1.4.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.3.2...v1.4.0) (2024-05-20)
 
 
