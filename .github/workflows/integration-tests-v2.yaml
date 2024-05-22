@@ -7,6 +7,13 @@ on:
         required: true
       FIREBOLT_CLIENT_SECRET_STG_NEW_IDN:
         required: true
+    inputs:
+      engine-version:
+        description: 'Engine version to use for integration tests'
+        required: false
+        type: string
+        default: ''
+
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -33,6 +40,7 @@ jobs:
           account: ${{ vars.FIREBOLT_ACCOUNT_V1 }}
           api-endpoint: "api.staging.firebolt.io"
           region: "us-east-1"
+          engine-version: ${{ inputs.engine-version }}
 
       - name: Run integration tests
         env:
