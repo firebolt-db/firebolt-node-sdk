@@ -170,7 +170,8 @@ export class EngineService {
     // Exlude options that are not set or not allowed for the account version
     const filteredCreateOptions = Object.fromEntries(
       Object.entries(createOptions).filter(
-        ([key, value]) => value !== undefined && key in createParameterNames
+        ([key, value]) =>
+          value !== undefined && value !== "" && key in createParameterNames
       )
     );
 
