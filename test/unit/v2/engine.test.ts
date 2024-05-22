@@ -380,6 +380,7 @@ describe("engine service", () => {
           if (requestBody.includes("CREATE ENGINE")) {
             expect(requestBody).toContain(`ENGINE_TYPE = 'GENERAL_PURPOSE'`);
             expect(requestBody).not.toContain(`REGION`);
+            expect(requestBody).not.toContain(`SPEC`);
           }
           return res(ctx.json(selectEngineResponse));
         }
@@ -396,7 +397,8 @@ describe("engine service", () => {
     const resourceManager = firebolt.resourceManager;
     const engine = await resourceManager.engine.create("some_engine", {
       region: undefined,
-      engine_type: "GENERAL_PURPOSE"
+      engine_type: "GENERAL_PURPOSE",
+      spec: ""
     });
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
