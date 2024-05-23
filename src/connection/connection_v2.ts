@@ -84,7 +84,7 @@ export class ConnectionV2 extends BaseConnection {
       );
     }
     const [engineUrl, , status] = filteredRows[0] as string[];
-    if (status != "Running") {
+    if (status.toLowerCase() != "running") {
       throw new ConnectionError({
         message: `Engine ${engineName} is not running`
       });

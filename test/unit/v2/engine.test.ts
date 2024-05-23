@@ -7,6 +7,10 @@ import { ResourceManager } from "../../../src/service";
 import { ConnectionError, DeprecationError } from "../../../src/common/errors";
 import { NodeHttpClient } from "../../../src/http/node";
 import { Authenticator } from "../../../src/auth";
+import {
+  processEngineStatus,
+  EngineStatusSummary
+} from "../../../src/service/engine/types";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -434,5 +438,11 @@ describe("engine service", () => {
     expect(engine.endpoint).toEqual("https://some_engine.com");
 
     delete process.env.ENGINE_NAME;
+  });
+  it("Parses different engine statuses correctly", async () => {
+    const statuses = ["RUNNING", "Running", "running"];
+    for (const status of statuses) {
+      expect(processEngineStatus(status)).toEqual(EngineStatusSummary.RUNNING);
+    }
   });
 });

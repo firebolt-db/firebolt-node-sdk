@@ -12,7 +12,9 @@ export function processEngineStatus(
   // Translate status from db to an EngineStatusSummary object
   const enumKey = Object.keys(EngineStatusSummary).find(
     key =>
-      EngineStatusSummary[key as keyof typeof EngineStatusSummary] === value
+      EngineStatusSummary[
+        key as keyof typeof EngineStatusSummary
+      ].toLowerCase() === value.toLowerCase()
   );
   if (enumKey !== undefined) {
     return EngineStatusSummary[enumKey as keyof typeof EngineStatusSummary];
