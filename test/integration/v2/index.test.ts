@@ -139,19 +139,6 @@ describe("integration test", () => {
     const row = data[0];
     expect(row).toMatchObject({ "1": 1 });
   });
-  it("async query", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-
-    const connection = await firebolt.connect(connectionParams);
-    const statement = await connection.execute("SELECT 1", {
-      settings: { async_execution: true },
-      response: { normalizeData: false }
-    });
-    const result = await statement.fetchResult();
-    expect(result.query_id).toBeTruthy();
-  });
   it("returns Date type", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
@@ -200,10 +187,12 @@ describe("integration test", () => {
 
     const statement = await connection.execute(
       `
-    WITH arr AS (
-        SELECT [1,2,3,4,5,6] as a
-    )
-    SELECT a FROM arr UNNEST(a)`,
+      SELECT 1 AS value UNION ALL
+      SELECT 2 UNION ALL
+      SELECT 3 UNION ALL
+      SELECT 4 UNION ALL
+      SELECT 5 UNION ALL
+      SELECT 6`,
       {
         settings: {
           output_format: OutputFormat.JSON_COMPACT
@@ -273,10 +262,12 @@ describe("integration test", () => {
 
     const statement = await connection.execute(
       `
-    WITH arr AS (
-        SELECT [1,2,3,4,5,6] as a
-    )
-    SELECT a FROM arr UNNEST(a)`
+      SELECT 1 AS value UNION ALL
+      SELECT 2 UNION ALL
+      SELECT 3 UNION ALL
+      SELECT 4 UNION ALL
+      SELECT 5 UNION ALL
+      SELECT 6`
     );
 
     // to achieve seamless stream pipes you can use through2

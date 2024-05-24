@@ -54,7 +54,9 @@ describe("bytea", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    await connection.execute("CREATE TABLE bytea_test (id int, data bytea)");
+    await connection.execute(
+      "CREATE TABLE bytea_test (id int, data bytea not null)"
+    );
     const bytea_value = Buffer.from("hello_world_123ツ\n\u0048");
 
     await connection.execute("INSERT INTO bytea_test VALUES (1, ?::bytea)", {
