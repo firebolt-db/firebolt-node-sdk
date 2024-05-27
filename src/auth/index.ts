@@ -6,6 +6,7 @@ import {
   ServiceAccountAuth,
   UsernamePasswordAuth
 } from "../types";
+import { inMemoryCache, noneCache } from "../common/tokenCache";
 
 type Login = {
   access_token: string;
@@ -26,6 +27,48 @@ export class Authenticator {
     context.httpClient.authenticator = this;
     this.context = context;
     this.options = options;
+  }
+
+  private getCacheKeys() {
+    let clientId, secret;
+    if (this.isUsernamePassword()) {
+      const auth = this.options.auth as UsernamePasswordAuth;
+      [clientId, secret] = [auth.username, auth.password];
+    } else if (this.isServiceAccount()) {
+      const auth = this.options.auth as ServiceAccountAuth;
+      [clientId, secret] = [auth.client_id, auth.client_secret];
+    }
+    return { clientId, secret };
+  }
+
+  private getCache() {
+    return this.options.useCache ?? true ? inMemoryCache : noneCache;
+  }
+
+  clearCache() {
+    const { clientId, secret } = this.getCacheKeys();
+    if (!clientId || !secret) {
+      return;
+    }
+    this.getCache().clearCachedToken(clientId, secret);
+  }
+
+  private setToken(token: string, expiresIn: number) {
+    this.accessToken = token;
+
+    const { clientId, secret } = this.getCacheKeys();
+    if (!clientId || !secret) {
+      return;
+    }
+    this.getCache().cacheToken(clientId, secret, token, expiresIn);
+  }
+
+  private getCachedToken() {
+    const { clientId, secret } = this.getCacheKeys();
+    if (!clientId || !secret) {
+      return;
+    }
+    return this.getCache().getCachedToken(clientId, secret)?.token;
   }
 
   getHeaders() {
@@ -61,14 +104,14 @@ export class Authenticator {
 
     this.accessToken = undefined;
 
-    const { access_token } = await httpClient
+    const { access_token, expires_in } = await httpClient
       .request<Login>("POST", url, {
         body,
         retry: false
       })
       .ready();
 
-    this.accessToken = access_token;
+    this.setToken(access_token, expires_in);
   }
 
   private async authenticateServiceAccount(auth: ServiceAccountAuth) {
@@ -86,7 +129,7 @@ export class Authenticator {
 
     this.accessToken = undefined;
 
-    const { access_token } = await httpClient
+    const { access_token, expires_in } = await httpClient
       .request<Login>("POST", url, {
         retry: false,
         headers: {
@@ -96,7 +139,7 @@ export class Authenticator {
       })
       .ready();
 
-    this.accessToken = access_token;
+    this.setToken(access_token, expires_in);
   }
 
   isUsernamePassword() {
@@ -117,6 +160,12 @@ export class Authenticator {
 
   async authenticate() {
     const options = this.options.auth || this.options;
+    const cachedToken = this.getCachedToken();
+    if (cachedToken) {
+      this.accessToken = cachedToken;
+      return;
+    }
+
     if (this.isUsernamePassword()) {
       await this.authenticateUsernamePassword(options as UsernamePasswordAuth);
       return;

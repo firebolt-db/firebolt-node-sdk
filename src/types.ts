@@ -88,6 +88,7 @@ export type ConnectionOptions = {
   additionalParameters?: AdditionalConnectionParameters;
   account?: string;
   auth: AuthOptions;
+  useCache?: boolean;
 };
 
 export type FireboltClientOptions = {

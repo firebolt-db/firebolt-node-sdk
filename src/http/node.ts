@@ -107,6 +107,7 @@ export class NodeHttpClient {
 
       if (response.status === 401 && retry) {
         try {
+          this.authenticator.clearCache();
           await this.authenticator.authenticate();
         } catch (error) {
           throw new AuthenticationError({
