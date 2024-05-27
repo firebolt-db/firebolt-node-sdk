@@ -115,7 +115,14 @@ export class NodeHttpClient {
           });
         }
 
-        const request = this.request<T>(method, url, options);
+        // Manually unpack options because of typing issues
+        // Force set retry to false to avoid infinite loop
+        const request = this.request<T>(method, url, {
+          headers: options?.headers ?? {},
+          body: options?.body,
+          raw: options?.raw,
+          retry: false
+        });
         return request.ready();
       }
 

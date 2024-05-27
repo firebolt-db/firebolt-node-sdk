@@ -49,8 +49,8 @@ export class InMemoryCache implements TokenCache {
     const record = this.storage[key];
     if (this.isExpired(record)) {
       this.clearCachedToken(clientId, secret);
+      return null;
     }
-    console.log(`Returning cached token ${record}`);
     return record;
   }
 
@@ -62,7 +62,6 @@ export class InMemoryCache implements TokenCache {
   ): void {
     const key = this.makeKey(clientId, secret);
     const expiration = Date.now() + expiresIn;
-    console.log(`Caching token ${token} for key ${key}`);
     this.storage[key] = {
       token,
       expiration
