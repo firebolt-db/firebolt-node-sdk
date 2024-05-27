@@ -41,7 +41,7 @@ export class InMemoryCache implements TokenCache {
   }
 
   private isExpired(record: TokenRecord): boolean {
-    return record && Date.now() > record.expiration * 1000;
+    return record && Date.now() > record.expiration;
   }
 
   getCachedToken(clientId: string, secret: string): TokenRecord | null {
@@ -61,7 +61,7 @@ export class InMemoryCache implements TokenCache {
     expiresIn: number
   ): void {
     const key = this.makeKey(clientId, secret);
-    const expiration = Date.now() + expiresIn;
+    const expiration = Date.now() + expiresIn * 1000;
     this.storage[key] = {
       token,
       expiration
