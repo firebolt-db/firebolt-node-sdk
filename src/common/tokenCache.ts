@@ -41,7 +41,7 @@ export class InMemoryCache implements TokenCache {
   }
 
   private isExpired(record: TokenRecord): boolean {
-    return record && Date.now() > record.expiration;
+    return record && Date.now() > record.expiration * 1000;
   }
 
   getCachedToken(clientId: string, secret: string): TokenRecord | null {
