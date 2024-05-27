@@ -3,32 +3,28 @@ export type TokenRecord = {
   expiration: number;
 };
 
+export type CacheKey = {
+  clientId: string;
+  secret: string;
+  apiEndpoint: string;
+};
+
 export interface TokenCache {
-  getCachedToken(clientId: string, secret: string): TokenRecord | null;
-  cacheToken(
-    clientId: string,
-    secret: string,
-    token: string,
-    expiresIn: number
-  ): void;
-  clearCachedToken(clientId: string, secret: string): void;
+  getCachedToken(key: CacheKey): TokenRecord | null;
+  cacheToken(key: CacheKey, token: string, expiresIn: number): void;
+  clearCachedToken(key: CacheKey): void;
 }
 
 export class NoneCache implements TokenCache {
-  getCachedToken(clientId: string, secret: string): TokenRecord | null {
+  getCachedToken(key: CacheKey): TokenRecord | null {
     return null;
   }
 
-  cacheToken(
-    clientId: string,
-    secret: string,
-    token: string,
-    expiresIn: number
-  ): void {
+  cacheToken(key: CacheKey, token: string, expiresIn: number): void {
     // Do nothing
   }
 
-  clearCachedToken(): void {
+  clearCachedToken(key: CacheKey): void {
     // Do nothing
   }
 }
@@ -36,41 +32,36 @@ export class NoneCache implements TokenCache {
 export class InMemoryCache implements TokenCache {
   private storage: Record<string, TokenRecord> = {};
 
-  private makeKey(clientId: string, secret: string): string {
-    return `${clientId}:${secret}`;
+  private makeLookupString(key: CacheKey): string {
+    return `${key.clientId}:${key.secret}:${key.apiEndpoint}`;
   }
 
   private isExpired(record: TokenRecord): boolean {
     return record && Date.now() > record.expiration;
   }
 
-  getCachedToken(clientId: string, secret: string): TokenRecord | null {
-    const key = this.makeKey(clientId, secret);
-    const record = this.storage[key];
+  getCachedToken(key: CacheKey): TokenRecord | null {
+    const lookup = this.makeLookupString(key);
+    const record = this.storage[lookup];
     if (this.isExpired(record)) {
-      this.clearCachedToken(clientId, secret);
+      this.clearCachedToken(key);
       return null;
     }
     return record;
   }
 
-  cacheToken(
-    clientId: string,
-    secret: string,
-    token: string,
-    expiresIn: number
-  ): void {
-    const key = this.makeKey(clientId, secret);
+  cacheToken(key: CacheKey, token: string, expiresIn: number): void {
+    const lookup = this.makeLookupString(key);
     const expiration = Date.now() + expiresIn * 1000;
-    this.storage[key] = {
+    this.storage[lookup] = {
       token,
       expiration
     };
   }
 
-  clearCachedToken(clientId: string, secret: string): void {
-    const key = this.makeKey(clientId, secret);
-    delete this.storage[key];
+  clearCachedToken(key: CacheKey): void {
+    const lookup = this.makeLookupString(key);
+    delete this.storage[lookup];
   }
 }
 

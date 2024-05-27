@@ -6,7 +6,7 @@ import {
   ServiceAccountAuth,
   UsernamePasswordAuth
 } from "../types";
-import { inMemoryCache, noneCache } from "../common/tokenCache";
+import { CacheKey, inMemoryCache, noneCache } from "../common/tokenCache";
 
 type Login = {
   access_token: string;
@@ -29,16 +29,23 @@ export class Authenticator {
     this.options = options;
   }
 
-  private getCacheKeys() {
-    let clientId, secret;
+  private getCacheKey(): CacheKey | undefined {
     if (this.isUsernamePassword()) {
       const auth = this.options.auth as UsernamePasswordAuth;
-      [clientId, secret] = [auth.username, auth.password];
+      return {
+        clientId: auth.username,
+        secret: auth.password,
+        apiEndpoint: this.context.apiEndpoint
+      };
     } else if (this.isServiceAccount()) {
       const auth = this.options.auth as ServiceAccountAuth;
-      [clientId, secret] = [auth.client_id, auth.client_secret];
+      return {
+        clientId: auth.client_id,
+        secret: auth.client_secret,
+        apiEndpoint: this.context.apiEndpoint
+      };
     }
-    return { clientId, secret };
+    return undefined;
   }
 
   private getCache() {
@@ -46,29 +53,19 @@ export class Authenticator {
   }
 
   clearCache() {
-    const { clientId, secret } = this.getCacheKeys();
-    if (!clientId || !secret) {
-      return;
-    }
-    this.getCache().clearCachedToken(clientId, secret);
+    const key = this.getCacheKey();
+    key && this.getCache().clearCachedToken(key);
   }
 
   private setToken(token: string, expiresIn: number) {
     this.accessToken = token;
-
-    const { clientId, secret } = this.getCacheKeys();
-    if (!clientId || !secret) {
-      return;
-    }
-    this.getCache().cacheToken(clientId, secret, token, expiresIn);
+    const key = this.getCacheKey();
+    key && this.getCache().cacheToken(key, token, expiresIn);
   }
 
-  private getCachedToken() {
-    const { clientId, secret } = this.getCacheKeys();
-    if (!clientId || !secret) {
-      return;
-    }
-    return this.getCache().getCachedToken(clientId, secret)?.token;
+  private getCachedToken(): string | undefined {
+    const key = this.getCacheKey();
+    return key ? this.getCache().getCachedToken(key)?.token : undefined;
   }
 
   getHeaders() {
