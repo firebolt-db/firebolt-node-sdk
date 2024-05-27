@@ -260,4 +260,93 @@ describe.each([
 
     expect(calls).toEqual(2);
   });
+
+  it("doesn't cache token if useCache is false", async () => {
+    const authenticator = new Authenticator(
+      { queryFormatter, httpClient, apiEndpoint, logger },
+      {
+        auth,
+        account: "my_account",
+        useCache: false
+      }
+    );
+
+    let calls = 0;
+
+    server.use(
+      rest.post(authUrl, (req, res, ctx) => {
+        calls++;
+        return res(
+          ctx.json({
+            access_token: "fake_access_token",
+            expires_in: 2 ^ 30
+          })
+        );
+      })
+    );
+
+    await authenticator.authenticate();
+    expect(authenticator.accessToken).toEqual("fake_access_token");
+    await authenticator.authenticate();
+    expect(authenticator.accessToken).toEqual("fake_access_token");
+    expect(calls).toEqual(2);
+  });
+
+  it("caches different token for different apiEndpoints", async () => {
+    const authenticator = new Authenticator(
+      { queryFormatter, httpClient, apiEndpoint, logger },
+      {
+        auth,
+        account: "my_account",
+        useCache: true
+      }
+    );
+
+    const authenticator2 = new Authenticator(
+      {
+        queryFormatter,
+        httpClient,
+        apiEndpoint: "api.fake2.firebolt.io",
+        logger
+      },
+      {
+        auth,
+        account: "my_account",
+        useCache: true
+      }
+    );
+
+    let calls = 0;
+    const authUrl2 = authUrl.replace("fake", "fake2");
+
+    server.use(
+      rest.post(authUrl, (req, res, ctx) => {
+        calls++;
+        return res(
+          ctx.json({
+            access_token: "fake_access_token",
+            expires_in: 2 ^ 30
+          })
+        );
+      }),
+      rest.post(authUrl2, (req, res, ctx) => {
+        calls++;
+        return res(
+          ctx.json({
+            access_token: "fake_access_token",
+            expires_in: 2 ^ 30
+          })
+        );
+      })
+    );
+
+    authenticator.clearCache();
+    authenticator2.clearCache();
+
+    await authenticator.authenticate();
+    expect(authenticator.accessToken).toEqual("fake_access_token");
+    await authenticator2.authenticate();
+    expect(authenticator2.accessToken).toEqual("fake_access_token");
+    expect(calls).toEqual(2);
+  });
 });
