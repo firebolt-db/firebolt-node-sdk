@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.5.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.4.1...v1.5.0) (2024-05-27)
+
+
+### Features
+
+* In memory token caching ([#94](https://github.com/firebolt-db/firebolt-node-sdk/issues/94)) ([974c9f3](https://github.com/firebolt-db/firebolt-node-sdk/commit/974c9f3b37dea3838ba6948d5ab5656a481d02d0))
+
+
+### Bug Fixes
+
+* add support for engine v2 statuses ([#92](https://github.com/firebolt-db/firebolt-node-sdk/issues/92)) ([9a0aab0](https://github.com/firebolt-db/firebolt-node-sdk/commit/9a0aab0ae4e4e66379683d1dc153f223c78e5389))
+
 ### [1.4.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.4.0...v1.4.1) (2024-05-22)
 
 
