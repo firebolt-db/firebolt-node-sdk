@@ -19,7 +19,8 @@ export class EngineService {
   private CREATE_PARAMETER_NAMES_V2: Record<string, string> = {
     spec: "TYPE",
     scale: "NODES",
-    auto_stop: "AUTO_STOP"
+    auto_stop: "AUTO_STOP",
+    initially_stopped: "INITIALLY_STOPPED"
   };
 
   private INTERNAL_OPTIONS: Record<string, string> = {
@@ -115,6 +116,13 @@ export class EngineService {
           message: `The following engine options are not supported for this account: ${disallowedOptions.join(
             ", "
           )}`
+        });
+      }
+    }
+    if (accountVersion == 1) {
+      if (options.initially_stopped !== undefined) {
+        throw new DeprecationError({
+          message: "initially_stopped is not supported for this account"
         });
       }
     }
