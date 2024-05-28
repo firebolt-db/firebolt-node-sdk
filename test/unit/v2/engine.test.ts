@@ -375,7 +375,7 @@ describe("engine service", () => {
       expect(true).toBeTruthy();
     }
   });
-  it("create engine with options", async () => {
+  it("create engine v2 with options", async () => {
     server.use(
       rest.get(
         `https://api.fake.firebolt.io/web/v3/account/my_account/resolve`,
@@ -419,7 +419,7 @@ describe("engine service", () => {
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
   });
-  it("create engine v2 with options", async () => {
+  it("create engine with options", async () => {
     server.use(
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
