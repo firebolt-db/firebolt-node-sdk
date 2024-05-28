@@ -377,6 +377,50 @@ describe("engine service", () => {
   });
   it("create engine with options", async () => {
     server.use(
+      rest.get(
+        `https://api.fake.firebolt.io/web/v3/account/my_account/resolve`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              id: "1111",
+              region: "us-east-1",
+              infraVersion: 2
+            })
+          );
+        }
+      ),
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          const requestBody = await req.text();
+          if (requestBody.includes("CREATE ENGINE")) {
+            expect(requestBody).toContain(`INITIALLY_STOPPED = true`);
+            expect(requestBody).toContain(`NODES = 2`);
+            expect(requestBody).not.toContain(`SPEC`);
+          }
+          return res(ctx.json(selectEngineResponse));
+        }
+      )
+    );
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const engine = await resourceManager.engine.create("some_engine", {
+      scale: 2,
+      spec: undefined,
+      initially_stopped: true
+    });
+    expect(engine).toBeTruthy();
+    expect(engine.endpoint).toEqual("https://some_engine.com");
+  });
+  it("create engine v2 with options", async () => {
+    server.use(
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         async (req, res, ctx) => {

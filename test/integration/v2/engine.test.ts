@@ -183,7 +183,8 @@ describe.each([
     const engine_name = (process.env.FIREBOLT_ENGINE_NAME as string) + "_list";
     try {
       await firebolt.resourceManager.engine.create(engine_name, {
-        fail_if_exists: false
+        fail_if_exists: false,
+        initially_stopped: true
       });
 
       const engines = await firebolt.resourceManager.engine.getAll();
