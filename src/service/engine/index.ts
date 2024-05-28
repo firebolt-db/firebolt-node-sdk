@@ -2,7 +2,12 @@ import { ConnectionError, DeprecationError } from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
 import { DatabaseModel } from "../database/model";
 import { EngineModel } from "./model";
-import { EngineStatusSummary, CreateEngineOptions, EngineType } from "./types";
+import {
+  EngineStatusSummary,
+  CreateEngineOptions,
+  EngineType,
+  processEngineStatus
+} from "./types";
 
 export class EngineService {
   context: ResourceManagerContext;
@@ -52,7 +57,7 @@ export class EngineService {
     return new EngineModel(this.context.connection, {
       name,
       endpoint,
-      current_status_summary: status as EngineStatusSummary
+      current_status_summary: processEngineStatus(status, name)
     });
   }
 
@@ -71,7 +76,7 @@ export class EngineService {
         new EngineModel(this.context.connection, {
           name,
           endpoint,
-          current_status_summary: summary as EngineStatusSummary
+          current_status_summary: processEngineStatus(summary, name)
         })
       );
     }
@@ -93,7 +98,7 @@ export class EngineService {
         new EngineModel(this.context.connection, {
           name,
           endpoint,
-          current_status_summary: summary as EngineStatusSummary
+          current_status_summary: processEngineStatus(summary, name)
         })
       );
     }

@@ -7,8 +7,9 @@ export type Engine = {
 };
 
 export function processEngineStatus(
-  value: string
-): EngineStatusSummary | undefined {
+  value: string,
+  engineName: string
+): EngineStatusSummary {
   // Translate status from db to an EngineStatusSummary object
   const enumKey = Object.keys(EngineStatusSummary).find(
     key =>
@@ -19,7 +20,7 @@ export function processEngineStatus(
   if (enumKey !== undefined) {
     return EngineStatusSummary[enumKey as keyof typeof EngineStatusSummary];
   }
-  return undefined;
+  throw new Error(`Engine ${engineName} has an unexpected status ${value}`);
 }
 
 export enum EngineStatusSummary {
