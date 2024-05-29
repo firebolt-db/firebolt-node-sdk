@@ -124,7 +124,7 @@ describe("infra v2 integration test", () => {
 
     const connection = await firebolt.connect(systemEngineConnectionParams);
 
-    await connection.execute(`CREATE DATABSE "${mixedCaseDBName}"`);
+    await connection.execute(`CREATE DATABASE "${mixedCaseDBName}"`);
     await connection.execute(`CREATE ENGINE "${mixedCaseEngineName}"`);
 
     const mixedCaseConnectionParams = {
