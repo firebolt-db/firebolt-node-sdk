@@ -71,9 +71,12 @@ export class EngineModel {
       });
     }
     const firstRow = data[0] as unknown[];
-    this.current_status_summary = processEngineStatus(
-      firstRow[0] as string,
-      this.name
-    );
+    const status = processEngineStatus(firstRow[0] as string);
+    if (status === undefined) {
+      throw new Error(
+        `Engine ${this.name} has an unexpected status ${firstRow[0]}`
+      );
+    }
+    this.current_status_summary = status;
   }
 }

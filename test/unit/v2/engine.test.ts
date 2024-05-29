@@ -14,7 +14,7 @@ import {
 
 const apiEndpoint = "api.fake.firebolt.io";
 
-const selectEngineResponse = {
+export const selectEngineResponse = {
   meta: [
     {
       name: "engine_name",
@@ -33,7 +33,7 @@ const selectEngineResponse = {
   rows: 1
 };
 
-const selectEnginesResponse = {
+export const selectEnginesResponse = {
   meta: [
     {
       name: "engine_name",
@@ -583,10 +583,8 @@ describe("engine service", () => {
   it("Parses different engine statuses correctly", async () => {
     const statuses = ["RUNNING", "Running", "running"];
     for (const status of statuses) {
-      expect(processEngineStatus(status, "engine")).toEqual(
-        EngineStatusSummary.RUNNING
-      );
+      expect(processEngineStatus(status)).toEqual(EngineStatusSummary.RUNNING);
     }
-    expect(() => processEngineStatus("unexisting", "engine")).toThrow();
+    expect(() => processEngineStatus("unexisting")).not.toBeTruthy();
   });
 });
