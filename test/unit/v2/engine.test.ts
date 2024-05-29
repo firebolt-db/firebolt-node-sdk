@@ -421,6 +421,18 @@ describe("engine service", () => {
   });
   it("create engine with options", async () => {
     server.use(
+      rest.get(
+        `https://api.fake.firebolt.io/web/v3/account/my_account/resolve`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              id: "1111",
+              region: "us-east-1",
+              infraVersion: 1
+            })
+          );
+        }
+      ),
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         async (req, res, ctx) => {
