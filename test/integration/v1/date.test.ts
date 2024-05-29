@@ -12,7 +12,7 @@ const connectionParams = {
 jest.setTimeout(100000);
 
 const dml = `
-CREATE FACT TABLE IF NOT EXISTS t1
+CREATE FACT TABLE IF NOT EXISTS "t1"
 (
 id INT NOT NULL,
 description TEXT NULL,
@@ -25,7 +25,7 @@ PRIMARY INDEX id;
 `;
 
 const insertValues = `
-INSERT INTO t1 VALUES
+INSERT INTO "t1" VALUES
 (1, 'fitst value', '0001-01-01', '0001-01-01 00:00:00.000000 UTC', '0001-01-01 00:00:00.000000', TRUE),
 (2, 'second value', '0301-05-08', '0342-01-12 15:16:00.000000 UTC', '0343-12-01 12:14:00.000000', TRUE),
 (3, 'thirds value', '1500-12-10', '1479-01-01 00:00:00.000000 UTC', '1562-01-11 00:00:22.000000', TRUE),
@@ -45,7 +45,7 @@ describe("new date data format", () => {
         apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
       });
       const connection = await firebolt.connect(connectionParams);
-      await connection.execute(`drop table if exists t1`);
+      await connection.execute(`drop table if exists "t1"`);
     } catch (e) {
       console.log(e);
     }
@@ -60,7 +60,7 @@ describe("new date data format", () => {
 
     await connection.execute(dml);
     await connection.execute(insertValues);
-    const statement = await connection.execute(`select * from t1 limit 10`);
+    const statement = await connection.execute(`select * from "t1" limit 10`);
     const { data, meta } = await statement.fetchResult();
     expect(meta[2].type).toEqual("date");
     expect(meta[3].type).toEqual("timestamptz");

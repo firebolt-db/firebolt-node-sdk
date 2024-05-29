@@ -152,10 +152,10 @@ export class ConnectionV2 extends BaseConnection {
 
     if (this.accountInfo.infraVersion >= 2) {
       if (database) {
-        await this.execute(`USE DATABASE ${database}`);
+        await this.execute(`USE DATABASE "${database}"`);
       }
       if (engineName) {
-        await this.execute(`USE ENGINE ${engineName}`);
+        await this.execute(`USE ENGINE "${engineName}"`);
       }
     } else {
       if (engineName && database) {

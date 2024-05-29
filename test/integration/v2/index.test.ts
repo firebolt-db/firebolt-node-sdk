@@ -80,10 +80,10 @@ describe("new identity integration test", () => {
     });
 
     await connection.execute(
-      "CREATE TABLE IF NOT EXISTS dummy_connectivity_test (id INT)"
+      'CREATE TABLE IF NOT EXISTS "dummy_connectivity_test" (id INT)'
     );
     const statement = await connection.execute(
-      "SELECT * FROM dummy_connectivity_test"
+      'SELECT * FROM "dummy_connectivity_test"'
     );
     const { data, meta } = await statement.fetchResult();
     expect(data.length).toEqual(0);
@@ -101,10 +101,10 @@ describe("new identity integration test", () => {
     });
 
     await connection.execute(
-      "CREATE TABLE IF NOT EXISTS dummy_connectivity_test (id INT)"
+      'CREATE TABLE IF NOT EXISTS "dummy_connectivity_test" (id INT)'
     );
     const statement = await connection.execute(
-      "SELECT * FROM dummy_connectivity_test"
+      'SELECT * FROM "dummy_connectivity_test"'
     );
     const { data, meta } = await statement.fetchResult();
     expect(data.length).toEqual(0);
