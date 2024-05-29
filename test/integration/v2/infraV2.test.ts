@@ -14,6 +14,9 @@ const connectionParams = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
+const mixedCaseDBName = process.env.FIREBOLT_DATABASE + "MiXeDcAsE";
+const mixedCaseEngineName = process.env.FIREBOLT_ENGINE_NAME + "MiXeDcAsE";
+
 jest.setTimeout(500000);
 
 describe("infra v2 integration test", () => {
@@ -42,6 +45,13 @@ describe("infra v2 integration test", () => {
     await connection.execute(
       `DROP DATABASE IF EXISTS "${connectionParams.database}"`
     );
+    try {
+      await connection.execute(`STOP ENGINE "${mixedCaseEngineName}"`);
+    } catch (error) {
+      // Ignore the error if the engine does not exist
+    }
+    await connection.execute(`DROP ENGINE IF EXISTS "${mixedCaseEngineName}"`);
+    await connection.execute(`DROP DATABASE IF EXISTS "${mixedCaseDBName}"`);
   });
 
   it("connects", async () => {
@@ -101,5 +111,32 @@ describe("infra v2 integration test", () => {
     await connection.execute(`use engine "system"`);
 
     await expect(connection.execute(insert_sql)).rejects.toThrow();
+  });
+
+  it("can handle mixed case engines and db", async () => {
+    const table_name = "test_mixed_case_database";
+    const create_table_sql = `create table if not exists "${table_name}" (id text)`;
+    const insert_sql = `insert into "${table_name}" values ('1')`;
+
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(systemEngineConnectionParams);
+
+    await connection.execute(`CREATE DATABSE "${mixedCaseDBName}"`);
+    await connection.execute(`CREATE ENGINE "${mixedCaseEngineName}"`);
+
+    const mixedCaseConnectionParams = {
+      ...systemEngineConnectionParams,
+      database: mixedCaseDBName,
+      engineName: mixedCaseEngineName
+    };
+
+    const mixedCaseConnection = await firebolt.connect(
+      mixedCaseConnectionParams
+    );
+    await mixedCaseConnection.execute(create_table_sql);
+    await mixedCaseConnection.execute(insert_sql);
   });
 });
