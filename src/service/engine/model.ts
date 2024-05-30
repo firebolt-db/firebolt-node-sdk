@@ -72,7 +72,7 @@ export class EngineModel {
     }
     const firstRow = data[0] as unknown[];
     const status = processEngineStatus(firstRow[0] as string);
-    if (!status) {
+    if (status === undefined) {
       throw new Error(
         `Engine ${this.name} has an unexpected status ${firstRow[0]}`
       );

@@ -14,7 +14,7 @@ import {
 
 const apiEndpoint = "api.fake.firebolt.io";
 
-const selectEngineResponse = {
+export const selectEngineResponse = {
   meta: [
     {
       name: "engine_name",
@@ -33,7 +33,7 @@ const selectEngineResponse = {
   rows: 1
 };
 
-const selectEnginesResponse = {
+export const selectEnginesResponse = {
   meta: [
     {
       name: "engine_name",
@@ -119,6 +119,36 @@ describe("engine service", () => {
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
   });
+
+  it("gets engine by name v2 status", async () => {
+    // Copy
+    const engineResponse = JSON.parse(JSON.stringify(selectEngineResponse));
+    engineResponse.data.forEach((row: string[]) => {
+      row[2] = "RUNNING";
+    });
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineResponse));
+        }
+      )
+    );
+
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const engine = await resourceManager.engine.getByName("some_engine");
+    expect(engine).toBeTruthy();
+    expect(engine.endpoint).toEqual("https://some_engine.com");
+  });
+
   it("starts engine", async () => {
     let startEngineCalled = false;
     const expectedEngine = "some_engine";
@@ -256,6 +286,58 @@ describe("engine service", () => {
     expect(engines[1].endpoint).toEqual("https://some_other_engine.com");
   });
 
+  it("gets all engines v2 status", async () => {
+    // Copy
+    const engineResponse = JSON.parse(JSON.stringify(selectEnginesResponse));
+    engineResponse.data.forEach((row: string[]) => {
+      row[2] = "RUNNING";
+    });
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineResponse));
+        }
+      )
+    );
+
+    const connectionOptions = {
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    };
+    const firebolt = Firebolt({ apiEndpoint });
+    const connection = await firebolt.connect(connectionOptions);
+    // Also test diffrent way of instantiating a resource manager
+    const logger = new Logger();
+    const httpClient = new NodeHttpClient();
+    new Authenticator(
+      {
+        httpClient,
+        logger,
+        apiEndpoint,
+        queryFormatter: new QueryFormatter()
+      },
+      connectionOptions
+    );
+    const resourceManager = new ResourceManager({
+      logger,
+      connection,
+      apiEndpoint,
+      httpClient
+    });
+    const engines = await resourceManager.engine.getAll();
+    expect(engines).toBeTruthy();
+    expect(engines[0].current_status_summary).toEqual(
+      EngineStatusSummary.RUNNING
+    );
+    expect(engines[1].current_status_summary).toEqual(
+      EngineStatusSummary.RUNNING
+    );
+  });
+
   it("does not start engine that errors out", async () => {
     let startEngineCalled = false;
     const expectedEngine = "some_engine";
@@ -298,6 +380,7 @@ describe("engine service", () => {
     const engine = await resourceManager.engine.getByName(expectedEngine);
     expect(engine.start()).rejects.toThrowError(ConnectionError);
   });
+
   it("does not start engine that has unexpected status", async () => {
     let startEngineCalled = false;
     const expectedEngine = "some_engine";
@@ -463,6 +546,7 @@ describe("engine service", () => {
     expect(engine).toBeTruthy();
     expect(engine.endpoint).toEqual("https://some_engine.com");
   });
+
   it("create engine with environment variable", async () => {
     const engine_version = "20.1.1";
     server.use(
@@ -495,10 +579,13 @@ describe("engine service", () => {
 
     delete process.env.ENGINE_NAME;
   });
+
   it("Parses different engine statuses correctly", async () => {
     const statuses = ["RUNNING", "Running", "running"];
     for (const status of statuses) {
       expect(processEngineStatus(status)).toEqual(EngineStatusSummary.RUNNING);
     }
+    expect(processEngineStatus(undefined)).toBe(undefined);
+    expect(processEngineStatus("unexisting")).not.toBeTruthy();
   });
 });

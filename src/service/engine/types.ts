@@ -7,9 +7,12 @@ export type Engine = {
 };
 
 export function processEngineStatus(
-  value: string
+  value: string | undefined
 ): EngineStatusSummary | undefined {
   // Translate status from db to an EngineStatusSummary object
+  if (value === undefined) {
+    return undefined;
+  }
   const enumKey = Object.keys(EngineStatusSummary).find(
     key =>
       EngineStatusSummary[

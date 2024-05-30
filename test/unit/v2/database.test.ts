@@ -4,6 +4,7 @@ import { QUERY_URL } from "../../../src/common/api";
 import { Firebolt } from "../../../src";
 import { ConnectionError, DeprecationError } from "../../../src/common/errors";
 import { CreateDatabaseOptions } from "../../../src/service/database/types";
+import { selectEngineResponse, selectEnginesResponse } from "./engine.test";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -38,6 +39,25 @@ const selectDbsResponse = {
     ["some_other_db", "My description"]
   ],
   rows: 2
+};
+
+const selectOtherEngineResponse = {
+  meta: [
+    {
+      name: "engine_name",
+      type: "text"
+    },
+    {
+      name: "url",
+      type: "text"
+    },
+    {
+      name: "status",
+      type: "text"
+    }
+  ],
+  data: [["some_other_engine", "https://some_other_engine.com", "Running"]],
+  rows: 1
 };
 
 describe("database service", () => {
@@ -186,6 +206,31 @@ describe("database service", () => {
   });
 
   it("create and delete database", async () => {
+    server.use(
+      // Query against system engine
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          const body = (String(req.body) ?? "").toLowerCase();
+          if (
+            body.includes("information_schema.engines") &&
+            body.includes("some_engine")
+          ) {
+            return res(ctx.json(selectEngineResponse));
+          } else if (
+            body.includes("information_schema.engines") &&
+            body.includes("some_other_engine")
+          ) {
+            return res(ctx.json(selectOtherEngineResponse));
+          } else if (body.includes("information_schema.engines")) {
+            return res(ctx.json(selectEnginesResponse));
+          } else {
+            return res(ctx.json(selectDbResponse));
+          }
+        }
+      )
+    );
+
     const firebolt = Firebolt({ apiEndpoint });
     await firebolt.connect({
       account: "my_account",

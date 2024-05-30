@@ -2,7 +2,12 @@ import { ConnectionError, DeprecationError } from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
 import { DatabaseModel } from "../database/model";
 import { EngineModel } from "./model";
-import { EngineStatusSummary, CreateEngineOptions, EngineType } from "./types";
+import {
+  EngineStatusSummary,
+  CreateEngineOptions,
+  EngineType,
+  processEngineStatus
+} from "./types";
 
 export class EngineService {
   context: ResourceManagerContext;
@@ -31,6 +36,17 @@ export class EngineService {
     this.context = context;
   }
 
+  private parseStatusForEngine(
+    value: string,
+    name: string
+  ): EngineStatusSummary {
+    const status = processEngineStatus(value);
+    if (status === undefined) {
+      throw new Error(`Engine ${name} has an unexpected status ${value}`);
+    }
+    return status;
+  }
+
   async getById(engineId: string) {
     throw new DeprecationError({
       message: "Can't call getById as engine IDs are deprecated"
@@ -52,7 +68,7 @@ export class EngineService {
     return new EngineModel(this.context.connection, {
       name,
       endpoint,
-      current_status_summary: status as EngineStatusSummary
+      current_status_summary: this.parseStatusForEngine(status, name)
     });
   }
 
@@ -71,7 +87,7 @@ export class EngineService {
         new EngineModel(this.context.connection, {
           name,
           endpoint,
-          current_status_summary: summary as EngineStatusSummary
+          current_status_summary: this.parseStatusForEngine(summary, name)
         })
       );
     }
@@ -93,7 +109,7 @@ export class EngineService {
         new EngineModel(this.context.connection, {
           name,
           endpoint,
-          current_status_summary: summary as EngineStatusSummary
+          current_status_summary: this.parseStatusForEngine(summary, name)
         })
       );
     }
