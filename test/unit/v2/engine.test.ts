@@ -585,6 +585,7 @@ describe("engine service", () => {
     for (const status of statuses) {
       expect(processEngineStatus(status)).toEqual(EngineStatusSummary.RUNNING);
     }
+    expect(processEngineStatus(undefined)).toBe(undefined);
     expect(processEngineStatus("unexisting")).not.toBeTruthy();
   });
 });
