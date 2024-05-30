@@ -186,7 +186,7 @@ const connection = await firebolt.connect({
 });
 ```
 
-```typescript
+
 <a id="test-connection"></a>
 ### Test connection
 Connection can be tested using:
