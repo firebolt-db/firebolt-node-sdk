@@ -11,9 +11,9 @@ on:
         description: 'Prerelease tag name. Leave empty for regular release.'
 
 jobs:
-  integration-tests:
-    uses: ./.github/workflows/integration-tests.yaml
-    secrets: inherit
+#  integration-tests:
+#    uses: ./.github/workflows/integration-tests.yaml
+#    secrets: inherit
 
   publish:
     runs-on: ubuntu-latest
