@@ -3,7 +3,11 @@ import {
   Firebolt,
   FireboltResourceManager
 } from "../../../src/index";
-import { EngineType, WarmupMethod } from "../../../src/service/engine/types";
+import {
+  CreateEngineOptions,
+  EngineType,
+  WarmupMethod
+} from "../../../src/service/engine/types";
 
 const authOptions = {
   client_id: process.env.FIREBOLT_CLIENT_ID as string,
@@ -172,7 +176,7 @@ describe.each([
 describe.each([
   ["v1", connectionOptionsV1],
   ["v2", connectionOptionsV2]
-])("engine resource manager (account %s)", (_, connectionOptions) => {
+])("engine resource manager (account %s)", (account, connectionOptions) => {
   it("retrieves all engines", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
@@ -182,9 +186,13 @@ describe.each([
 
     const engine_name = (process.env.FIREBOLT_ENGINE_NAME as string) + "_list";
     try {
-      await firebolt.resourceManager.engine.create(engine_name, {
+      const options: CreateEngineOptions = {
         fail_if_exists: false
-      });
+      };
+      if (account === "v2") {
+        options.initially_stopped = true;
+      }
+      await firebolt.resourceManager.engine.create(engine_name, options);
 
       const engines = await firebolt.resourceManager.engine.getAll();
 
