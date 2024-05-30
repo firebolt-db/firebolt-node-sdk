@@ -17,7 +17,7 @@ export class EngineModel {
   }
 
   async start() {
-    const query = `START ENGINE ${this.name}`;
+    const query = `START ENGINE "${this.name}"`;
     await this.connection.execute(query);
     await this.refreshStatus();
     const res: Engine = {
@@ -34,7 +34,7 @@ export class EngineModel {
   }
 
   async stop() {
-    const query = `STOP ENGINE ${this.name}`;
+    const query = `STOP ENGINE "${this.name}"`;
     await this.connection.execute(query);
     await this.refreshStatus();
     const res: Engine = {

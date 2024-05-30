@@ -167,7 +167,9 @@ describe("engine service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          if (String(req.body)?.startsWith("START ENGINE " + expectedEngine)) {
+          if (
+            String(req.body)?.startsWith(`START ENGINE "${expectedEngine}"`)
+          ) {
             startEngineCalled = true;
           }
           if (String(req.body)?.startsWith("SELECT status")) {
@@ -214,7 +216,7 @@ describe("engine service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          if (String(req.body)?.startsWith("STOP ENGINE " + expectedEngine)) {
+          if (String(req.body)?.startsWith(`STOP ENGINE "${expectedEngine}`)) {
             stopEngineCalled = true;
           }
           if (String(req.body)?.startsWith("SELECT status")) {

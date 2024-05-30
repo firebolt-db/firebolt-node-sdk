@@ -53,19 +53,19 @@ describe("bytea", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    await connection.execute("CREATE TABLE bytea_test (id int, data bytea)");
+    await connection.execute('CREATE TABLE "bytea_test" (id int, data bytea)');
     const bytea_value = Buffer.from("hello_world_123ツ\n\u0048");
 
-    await connection.execute("INSERT INTO bytea_test VALUES (1, ?::bytea)", {
+    await connection.execute('INSERT INTO "bytea_test" VALUES (1, ?::bytea)', {
       parameters: [bytea_value]
     });
 
-    const statement = await connection.execute("SELECT data FROM bytea_test");
+    const statement = await connection.execute('SELECT data FROM "bytea_test"');
 
     const { data, meta } = await statement.fetchResult();
     expect(meta[0].type).toEqual("bytea");
     const row = data[0];
     expect((row as unknown[])[0]).toEqual(bytea_value);
-    await connection.execute("DROP TABLE IF EXISTS bytea_test");
+    await connection.execute('DROP TABLE IF EXISTS "bytea_test"');
   });
 });
