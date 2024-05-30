@@ -160,23 +160,41 @@ Default way of authenticating is with the client credentials
 ```typescript
 const connection = await firebolt.connect({
   auth: {
-    client_id: 'b1c4918c-e07e-4ab2-868b-9ae84f208d26';
-    client_secret: 'secret';
+    client_id: 'b1c4918c-e07e-4ab2-868b-9ae84f208d26',
+    client_secret: 'secret',
   },
   engineName: 'engine_name',
   account: 'account_name',
   database: 'database',
 });
 ```
+
+<a id="token-caching"></a>
+#### Token caching
+Driver implements a caching mechanism for access tokens. If you are using the same client id/secret for multiple connections, the driver will cache the access token and reuse it for subsequent connections.
+This behavior can be disabled by setting `useCache` to `false` in the connection options.
+```typescript
+const connection = await firebolt.connect({
+  auth: {
+    client_id: 'b1c4918c-e07e-4ab2-868b-9ae84f208d26',
+    client_secret: 'secret',
+  },
+  engineName: 'engine_name',
+  account: 'account_name',
+  database: 'database',
+  useCache: false
+});
+```
+
+
 <a id="test-connection"></a>
 ### Test connection
-TODO: write motivation
-connection can be tested using:
+Connection can be tested using:
 ```typescript
 const firebolt = Firebolt();
 await firebolt.testConnection(connectionOptions)
 ```
-which will perform authentication and simple `select 1` query
+which will perform authentication and a simple `select 1` query
 
 <a id="engine-url"></a>
 ### Engine URL
