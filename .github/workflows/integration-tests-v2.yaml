@@ -74,4 +74,4 @@ jobs:
             test-type: integration
             allure-dir: allure-results
             pages-branch: gh-pages
-            repository_name: firebolt-node-sdk
+            repository-name: firebolt-node-sdk
