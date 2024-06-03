@@ -3,20 +3,11 @@ import {
   Firebolt,
   FireboltResourceManager
 } from "../../../src/index";
-import {
-  CreateEngineOptions,
-  EngineType,
-  WarmupMethod
-} from "../../../src/service/engine/types";
+import { CreateEngineOptions } from "../../../src/service/engine/types";
 
 const authOptions = {
   client_id: process.env.FIREBOLT_CLIENT_ID as string,
   client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
-};
-
-const connectionOptionsV1 = {
-  auth: authOptions,
-  account: process.env.FIREBOLT_ACCOUNT_V1 as string
 };
 
 const connectionOptionsV2 = {
@@ -24,25 +15,9 @@ const connectionOptionsV2 = {
   account: process.env.FIREBOLT_ACCOUNT_V2 as string
 };
 
-const createDatabaseOptionsV1 = {
-  description: "test description",
-  fail_if_exists: false,
-  region: "us-east-1"
-};
-
 const createDatabaseOptionsV2 = {
   description: "test description",
   failIfExists: false
-};
-
-const createEngineOptionsV1 = {
-  region: "us-east-1",
-  engine_type: EngineType.GENERAL_PURPOSE,
-  spec: "B2",
-  scale: 1,
-  auto_stop: 20 * 60,
-  warmup: WarmupMethod.MINIMAL,
-  fail_if_exists: true
 };
 
 const createEngineOptionsV2 = {
@@ -55,7 +30,6 @@ const createEngineOptionsV2 = {
 jest.setTimeout(60000);
 
 describe.each([
-  ["v1", connectionOptionsV1, createDatabaseOptionsV1, createEngineOptionsV1],
   ["v2", connectionOptionsV2, createDatabaseOptionsV2, createEngineOptionsV2]
 ])(
   "engine integration for account %s",
@@ -173,67 +147,70 @@ describe.each([
   }
 );
 
-describe.each([
-  ["v1", connectionOptionsV1],
-  ["v2", connectionOptionsV2]
-])("engine resource manager (account %s)", (account, connectionOptions) => {
-  it("retrieves all engines", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-
-    await firebolt.connect(connectionOptions);
-
-    const engine_name = (process.env.FIREBOLT_ENGINE_NAME as string) + "_list";
-    try {
-      const options: CreateEngineOptions = {
-        fail_if_exists: false
-      };
-      if (account === "v2") {
-        options.initially_stopped = true;
-      }
-      await firebolt.resourceManager.engine.create(engine_name, options);
-
-      const engines = await firebolt.resourceManager.engine.getAll();
-
-      expect(engines.find(engine => engine_name === engine.name)).toBeTruthy();
-    } finally {
-      try {
-        const engine = await firebolt.resourceManager.engine.getByName(
-          engine_name
-        );
-        await engine?.stop();
-        await engine?.delete();
-      } catch {
-        //ignore
-      }
-    }
-  });
-
-  it("use separate firebolt resource client", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-    const connection = await firebolt.connect(connectionOptions);
-    const resourceManager = FireboltResourceManager({
-      connection
-    });
-    const engine_name =
-      (process.env.FIREBOLT_ENGINE_NAME as string) + "_getByName";
-    try {
-      await resourceManager.engine.create(engine_name, {
-        fail_if_exists: false
+describe.each([["v2", connectionOptionsV2]])(
+  "engine resource manager (account %s)",
+  (account, connectionOptions) => {
+    it("retrieves all engines", async () => {
+      const firebolt = Firebolt({
+        apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
       });
-      const engine = await resourceManager.engine.getByName(engine_name);
-      expect(engine.name).toEqual(engine_name);
-    } finally {
+
+      await firebolt.connect(connectionOptions);
+
+      const engine_name =
+        (process.env.FIREBOLT_ENGINE_NAME as string) + "_list";
       try {
-        const engine = await resourceManager.engine.getByName(engine_name);
-        await engine?.stop();
-        await engine?.delete();
-      } catch {
-        //ignore
+        const options: CreateEngineOptions = {
+          fail_if_exists: false
+        };
+        if (account === "v2") {
+          options.initially_stopped = true;
+        }
+        await firebolt.resourceManager.engine.create(engine_name, options);
+
+        const engines = await firebolt.resourceManager.engine.getAll();
+
+        expect(
+          engines.find(engine => engine_name === engine.name)
+        ).toBeTruthy();
+      } finally {
+        try {
+          const engine = await firebolt.resourceManager.engine.getByName(
+            engine_name
+          );
+          await engine?.stop();
+          await engine?.delete();
+        } catch {
+          //ignore
+        }
       }
-    }
-  });
-});
+    });
+
+    it("use separate firebolt resource client", async () => {
+      const firebolt = Firebolt({
+        apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+      });
+      const connection = await firebolt.connect(connectionOptions);
+      const resourceManager = FireboltResourceManager({
+        connection
+      });
+      const engine_name =
+        (process.env.FIREBOLT_ENGINE_NAME as string) + "_getByName";
+      try {
+        await resourceManager.engine.create(engine_name, {
+          fail_if_exists: false
+        });
+        const engine = await resourceManager.engine.getByName(engine_name);
+        expect(engine.name).toEqual(engine_name);
+      } finally {
+        try {
+          const engine = await resourceManager.engine.getByName(engine_name);
+          await engine?.stop();
+          await engine?.delete();
+        } catch {
+          //ignore
+        }
+      }
+    });
+  }
+);
