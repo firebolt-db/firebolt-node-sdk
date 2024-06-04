@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.5.0...v1.6.0) (2024-06-04)
+
+
+### Features
+
+* Engine intially stopped option ([#96](https://github.com/firebolt-db/firebolt-node-sdk/issues/96)) ([4111703](https://github.com/firebolt-db/firebolt-node-sdk/commit/4111703cfca200c6833505e101607b6e815627e5))
+
+
+### Bug Fixes
+
+* Fix engine status parsing for engine get metods ([#95](https://github.com/firebolt-db/firebolt-node-sdk/issues/95)) ([2db5627](https://github.com/firebolt-db/firebolt-node-sdk/commit/2db5627125786b825d2e873f14885468c356ca30))
+
 ## [1.5.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.4.1...v1.5.0) (2024-05-27)
 
 
