@@ -1,68 +1,111 @@
-export type TokenRecord = {
-  token: string;
-  expiration: number;
-};
-
-export type CacheKey = {
+export type TokenKey = {
   clientId: string;
   secret: string;
   apiEndpoint: string;
 };
 
-export interface TokenCache {
-  getCachedToken(key: CacheKey): TokenRecord | null;
-  cacheToken(key: CacheKey, token: string, expiresIn: number): void;
-  clearCachedToken(key: CacheKey): void;
+export type TokenRecord = {
+  token: string;
+  expiration: number;
+};
+
+export type AccountInfoRecord = {
+  accountId: string;
+  infraVersion: string;
+};
+
+export type EngineUrlRecord = {
+  engineUrl: string;
+};
+
+export interface CacheStorage<KeyType, RecordType> {
+  get(ket: KeyType): RecordType | null;
+  set(key: KeyType, record: RecordType): void;
+  clear(key: KeyType): void;
 }
 
-export class NoneCache implements TokenCache {
-  getCachedToken(key: CacheKey): TokenRecord | null {
+export class NoneCacheStorage<KeyType, RecordType>
+  implements CacheStorage<KeyType, RecordType>
+{
+  get(key: KeyType): RecordType | null {
     return null;
   }
 
-  cacheToken(key: CacheKey, token: string, expiresIn: number): void {
+  set(key: KeyType, record: RecordType): void {
     // Do nothing
   }
 
-  clearCachedToken(key: CacheKey): void {
+  clear(key: KeyType): void {
     // Do nothing
   }
 }
 
-export class InMemoryCache implements TokenCache {
-  private storage: Record<string, TokenRecord> = {};
+export class InMemoryCacheStorage<KeyType, RecordType> {
+  private storage: Record<string, RecordType> = {};
 
-  private makeLookupString(key: CacheKey): string {
-    return `${key.clientId}:${key.secret}:${key.apiEndpoint}`;
+  private makeLookupString(key: KeyType): string {
+    return JSON.stringify(key);
   }
 
-  private isExpired(record: TokenRecord): boolean {
-    return record && Date.now() > record.expiration;
+  protected isValidRecord(record: RecordType | undefined): boolean {
+    return true;
   }
 
-  getCachedToken(key: CacheKey): TokenRecord | null {
+  protected modifyRecord(record: RecordType): RecordType {
+    return record;
+  }
+
+  get(key: KeyType): RecordType | null {
     const lookup = this.makeLookupString(key);
     const record = this.storage[lookup];
-    if (this.isExpired(record)) {
-      this.clearCachedToken(key);
+    if (!this.isValidRecord(record)) {
+      this.clear(key);
       return null;
     }
     return record;
   }
 
-  cacheToken(key: CacheKey, token: string, expiresIn: number): void {
+  set(key: KeyType, record: RecordType): void {
     const lookup = this.makeLookupString(key);
-    const expiration = Date.now() + expiresIn * 1000;
-    this.storage[lookup] = {
-      token,
-      expiration
-    };
+    this.storage[lookup] = this.modifyRecord(record);
   }
 
-  clearCachedToken(key: CacheKey): void {
+  clear(key: KeyType): void {
     const lookup = this.makeLookupString(key);
     delete this.storage[lookup];
   }
+}
+
+export class InMemoryTokenCacheStorage extends InMemoryCacheStorage<
+  TokenKey,
+  TokenRecord
+> {
+  protected isValidRecord(record: TokenRecord | undefined): boolean {
+    return typeof record != "undefined" && Date.now() < record.expiration;
+  }
+
+  protected modifyRecord(record: TokenRecord): TokenRecord {
+    record.expiration = Date.now() + record.expiration;
+    return record;
+  }
+}
+
+export interface Cache {
+  tokenStorage: CacheStorage<TokenKey, TokenRecord>;
+  accountInfoStorage: CacheStorage<string, AccountInfoRecord>;
+  engineUrlStorage: CacheStorage<string, EngineUrlRecord>;
+}
+
+export class NoneCache implements Cache {
+  tokenStorage = new NoneCacheStorage<TokenKey, TokenRecord>();
+  accountInfoStorage = new NoneCacheStorage<string, AccountInfoRecord>();
+  engineUrlStorage = new NoneCacheStorage<string, EngineUrlRecord>();
+}
+
+export class InMemoryCache implements Cache {
+  tokenStorage = new InMemoryTokenCacheStorage();
+  accountInfoStorage = new InMemoryCacheStorage<string, AccountInfoRecord>();
+  engineUrlStorage = new InMemoryCacheStorage<string, EngineUrlRecord>();
 }
 
 export const inMemoryCache = new InMemoryCache();
