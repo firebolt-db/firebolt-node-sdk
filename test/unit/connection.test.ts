@@ -7,6 +7,7 @@ import { ConnectionV2 } from "../../src/connection/connection_v2";
 import { Authenticator } from "../../src/auth";
 import { Logger } from "../../src/logger/node";
 import { NodeHttpClient } from "../../src/http/node";
+import { inMemoryCache } from "../../src/common/tokenCache";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -109,6 +110,16 @@ describe("Connection", () => {
   });
   afterAll(() => {
     server.close();
+  });
+  afterEach(() => {
+    inMemoryCache.accountInfoStorage.clear({
+      account: "my_account",
+      apiEndpoint
+    });
+    inMemoryCache.engineUrlStorage.clear({
+      account: "my_account",
+      apiEndpoint
+    });
   });
 
   it("database and engine", async () => {
