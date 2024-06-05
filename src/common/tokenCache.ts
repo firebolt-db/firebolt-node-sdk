@@ -1,3 +1,5 @@
+import { AccountInfo } from "../connection/base";
+
 export type TokenKey = {
   clientId: string;
   secret: string;
@@ -9,17 +11,18 @@ export type TokenRecord = {
   expiration: number;
 };
 
-export type AccountInfoRecord = {
-  accountId: string;
-  infraVersion: string;
+export type AccountKey = {
+  account: string;
+  apiEndpoint: string;
 };
 
-export type EngineUrlRecord = {
+export type AccountEngineRecord = {
   engineUrl: string;
+  params: Record<string, string>;
 };
 
 export interface CacheStorage<KeyType, RecordType> {
-  get(ket: KeyType): RecordType | null;
+  get(key: KeyType): RecordType | null;
   set(key: KeyType, record: RecordType): void;
   clear(key: KeyType): void;
 }
@@ -92,20 +95,23 @@ export class InMemoryTokenCacheStorage extends InMemoryCacheStorage<
 
 export interface Cache {
   tokenStorage: CacheStorage<TokenKey, TokenRecord>;
-  accountInfoStorage: CacheStorage<string, AccountInfoRecord>;
-  engineUrlStorage: CacheStorage<string, EngineUrlRecord>;
+  accountInfoStorage: CacheStorage<AccountKey, AccountInfo>;
+  engineUrlStorage: CacheStorage<AccountKey, AccountEngineRecord>;
 }
 
 export class NoneCache implements Cache {
   tokenStorage = new NoneCacheStorage<TokenKey, TokenRecord>();
-  accountInfoStorage = new NoneCacheStorage<string, AccountInfoRecord>();
-  engineUrlStorage = new NoneCacheStorage<string, EngineUrlRecord>();
+  accountInfoStorage = new NoneCacheStorage<AccountKey, AccountInfo>();
+  engineUrlStorage = new NoneCacheStorage<AccountKey, AccountEngineRecord>();
 }
 
 export class InMemoryCache implements Cache {
   tokenStorage = new InMemoryTokenCacheStorage();
-  accountInfoStorage = new InMemoryCacheStorage<string, AccountInfoRecord>();
-  engineUrlStorage = new InMemoryCacheStorage<string, EngineUrlRecord>();
+  accountInfoStorage = new InMemoryCacheStorage<AccountKey, AccountInfo>();
+  engineUrlStorage = new InMemoryCacheStorage<
+    AccountKey,
+    AccountEngineRecord
+  >();
 }
 
 export const inMemoryCache = new InMemoryCache();
