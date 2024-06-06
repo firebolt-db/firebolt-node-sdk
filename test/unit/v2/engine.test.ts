@@ -11,6 +11,7 @@ import {
   processEngineStatus,
   EngineStatusSummary
 } from "../../../src/service/engine/types";
+import { inMemoryCache } from "../../../src/common/tokenCache";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -103,6 +104,16 @@ describe("engine service", () => {
   });
   afterAll(() => {
     server.close();
+  });
+  afterEach(() => {
+    inMemoryCache.accountInfoStorage.clear({
+      account: "my_account",
+      apiEndpoint
+    });
+    inMemoryCache.engineUrlStorage.clear({
+      account: "my_account",
+      apiEndpoint
+    });
   });
 
   it("gets engine by name", async () => {

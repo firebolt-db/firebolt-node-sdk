@@ -6,7 +6,7 @@ import {
   ServiceAccountAuth,
   UsernamePasswordAuth
 } from "../types";
-import { CacheKey, inMemoryCache, noneCache } from "../common/tokenCache";
+import { TokenKey, inMemoryCache, noneCache } from "../common/tokenCache";
 
 type Login = {
   access_token: string;
@@ -29,7 +29,7 @@ export class Authenticator {
     this.options = options;
   }
 
-  private getCacheKey(): CacheKey | undefined {
+  private getCacheKey(): TokenKey | undefined {
     if (this.isUsernamePassword()) {
       const auth = this.options.auth as UsernamePasswordAuth;
       return {
@@ -49,23 +49,25 @@ export class Authenticator {
   }
 
   private getCache() {
-    return this.options.useCache ?? true ? inMemoryCache : noneCache;
+    return this.options.useCache ?? true
+      ? inMemoryCache.tokenStorage
+      : noneCache.tokenStorage;
   }
 
   clearCache() {
     const key = this.getCacheKey();
-    key && this.getCache().clearCachedToken(key);
+    key && this.getCache().clear(key);
   }
 
   private setToken(token: string, expiresIn: number) {
     this.accessToken = token;
     const key = this.getCacheKey();
-    key && this.getCache().cacheToken(key, token, expiresIn);
+    key && this.getCache().set(key, { token, expiration: expiresIn });
   }
 
   private getCachedToken(): string | undefined {
     const key = this.getCacheKey();
-    return key ? this.getCache().getCachedToken(key)?.token : undefined;
+    return key ? this.getCache().get(key)?.token : undefined;
   }
 
   getHeaders() {
