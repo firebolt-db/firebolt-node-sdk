@@ -256,7 +256,6 @@ describe("database service", () => {
     );
     await resourceManager.engine.attachToDatabase(other_engine, db);
     const engines = await db.getAttachedEngines();
-    console.log(engine.endpoint);
     expect(engines[0].endpoint).toEqual(engine.endpoint);
     expect(engines[1].endpoint).toEqual(other_engine.endpoint);
     try {

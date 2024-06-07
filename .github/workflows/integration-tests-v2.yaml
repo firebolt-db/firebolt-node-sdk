@@ -43,3 +43,21 @@ jobs:
           FIREBOLT_CLIENT_SECRET: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
         run: |
           npm run test:ci integration/v2
+
+      # Need to pull the pages branch in order to fetch the previous runs
+      - name: Get Allure history
+        uses: actions/checkout@v2
+        if: always()
+        continue-on-error: true
+        with:
+            ref: gh-pages
+            path: gh-pages
+
+      - name: Allure Report
+        uses: firebolt-db/action-allure-report@main
+        if: always()
+        with:
+            github-key: ${{ secrets.GITHUB_TOKEN }}
+            test-type: integration
+            allure-dir: allure-results
+            paged-branch: gh-pages
