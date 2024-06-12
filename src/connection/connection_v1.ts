@@ -45,7 +45,7 @@ export class ConnectionV1 extends BaseConnection {
         } = await httpClient
           .request<{ account: { id: string } }>("GET", url)
           .ready();
-        this.accountInfo = { id, infraVersion: 1 };
+        this.accountInfo = { id, infraVersion: INFRA_VERSION };
       }
     }
     return this.accountInfo;

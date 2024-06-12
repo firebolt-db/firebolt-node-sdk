@@ -244,7 +244,6 @@ describe("database service", () => {
     const engine = await resourceManager.engine.create("some_engine");
     const options: CreateDatabaseOptions = {
       description: "description",
-      region: "region",
       attached_engines: [engine]
     };
 
@@ -263,6 +262,55 @@ describe("database service", () => {
       expect(false).toBeTruthy();
     } catch (e) {
       expect(true).toBeTruthy();
+    }
+  });
+
+  it("deprecated option throws error", async () => {
+    server.use(
+      // Query against system engine
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          const body = (String(req.body) ?? "").toLowerCase();
+          if (
+            body.includes("information_schema.engines") &&
+            body.includes("some_engine")
+          ) {
+            return res(ctx.json(selectEngineResponse));
+          } else if (
+            body.includes("information_schema.engines") &&
+            body.includes("some_other_engine")
+          ) {
+            return res(ctx.json(selectOtherEngineResponse));
+          } else if (body.includes("information_schema.engines")) {
+            return res(ctx.json(selectEnginesResponse));
+          } else {
+            return res(ctx.json(selectDbResponse));
+          }
+        }
+      )
+    );
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+
+    const engine = await resourceManager.engine.create("some_engine");
+    const options: CreateDatabaseOptions = {
+      description: "description",
+      region: "us-east-1",
+      attached_engines: [engine]
+    };
+    try {
+      await resourceManager.database.create("some_db", options);
+      expect(false).toBeTruthy(); // This line should not be reached
+    } catch (e) {
+      expect(e).toBeInstanceOf(DeprecationError);
     }
   });
 });
