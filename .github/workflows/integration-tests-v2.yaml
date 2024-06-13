@@ -60,4 +60,4 @@ jobs:
             github-key: ${{ secrets.GITHUB_TOKEN }}
             test-type: integration
             allure-dir: allure-results
-            paged-branch: gh-pages
+            pages-branch: gh-pages
