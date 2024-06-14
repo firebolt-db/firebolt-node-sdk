@@ -226,7 +226,9 @@ export abstract class Connection {
   }
 
   private async throwErrorIfErrorBody(response: Response) {
-    // Hack, there's probably a better way to do this
+    // Hack, but looks like this is a limitation of the fetch API
+    // In order to read the body here and elesewhere, we need to clone the response
+    // since body can only be read once
     const clonedResponse = response.clone();
     const json = await clonedResponse.json();
     if (json.errors) throw new CompositeError(json.errors);
