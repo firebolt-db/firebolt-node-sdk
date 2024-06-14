@@ -6,7 +6,7 @@ import {
 } from "../types";
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
-import { ConnectionError } from "../common/errors";
+import { ConnectionError, CompositeError } from "../common/errors";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.COMPACT
@@ -207,6 +207,7 @@ export abstract class Connection {
     try {
       const response = await request.ready();
       await this.processHeaders(response.headers);
+      await this.throwErrorIfErrorBody(response);
       const statement = new Statement(this.context, {
         query: formattedQuery,
         request,
@@ -222,6 +223,13 @@ export abstract class Connection {
     } finally {
       this.activeRequests.delete(request);
     }
+  }
+
+  private async throwErrorIfErrorBody(response: Response) {
+    // Hack, there's probably a better way to do this
+    const clonedResponse = response.clone();
+    const json = await clonedResponse.json();
+    if (json.errors) throw new CompositeError(json.errors);
   }
 
   async destroy() {
