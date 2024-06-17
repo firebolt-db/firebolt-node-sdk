@@ -75,13 +75,17 @@ export class CompositeError extends Error {
       const severity = error.severity ? `${error.severity}: ` : "";
       const name = error.name ? `${error.name} ` : "";
       const code = error.code ? `(${error.code}) ` : "";
+      const source = error.source ? `${error.source} ` : "";
       const description = error.description ? `- ${error.description}` : "";
+      const resolution = error.resolution
+        ? `, resolution: ${error.resolution}`
+        : "";
       const helpLink = error.helpLink ? `, see ${error.helpLink}` : "";
       const location = error.location
         ? ` at ${JSON.stringify(error.location)}`
         : "";
-      // "{severity}: {name} ({code}) - {description} at {location} see {helpLink}"
-      return `${severity}${name}${code}${description}${location}${helpLink}`;
+      // "{severity}: {name} ({code}) - {source}, {description}, resolution: {resolution} at {location} see {helpLink}"
+      return `${severity}${name}${code}${source}${description}${resolution}${location}${helpLink}`;
     });
     const formattedMessage = `${parsedErrors.join(",\n")}`;
     super(formattedMessage);
