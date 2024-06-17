@@ -239,12 +239,12 @@ export abstract class Connection {
         console.info("Failed to parse JSON response:", error);
       }
     }
-    if (json && json.errors) throw new CompositeError(json.errors);
+    if (json?.errors) throw new CompositeError(json.errors);
   }
 
   private hasJsonContent(res: Response): boolean {
     const contentType = res.headers.get("Content-Type");
-    return !!(contentType && contentType.includes("application/json"));
+    return !!contentType?.includes("application/json");
   }
 
   async destroy() {
