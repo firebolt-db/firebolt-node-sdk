@@ -68,7 +68,7 @@ type ErrorBody = {
 
 export class CompositeError extends Error {
   message: string;
-  errorsArray: Array<ErrorBody>;
+  errors: Array<ErrorBody>;
 
   constructor(errors: Array<ErrorBody>) {
     const parsedErrors = errors.map(error => {
@@ -90,7 +90,7 @@ export class CompositeError extends Error {
     const formattedMessage = `${parsedErrors.join(",\n")}`;
     super(formattedMessage);
     this.message = formattedMessage;
-    this.errorsArray = errors;
+    this.errors = errors;
   }
 }
 
