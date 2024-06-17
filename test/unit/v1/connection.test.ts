@@ -3,6 +3,7 @@ import { rest } from "msw";
 import { ConnectionOptions, Firebolt } from "../../../src";
 
 const apiEndpoint = "fake.api.com";
+const accountName = "my_account";
 
 const engineObject = {
   id: {
@@ -51,6 +52,8 @@ function resetServerHandlers(server: SetupServerApi) {
     rest.get(
       `https://${apiEndpoint}/iam/v2/accounts:getIdByName`,
       (req, res, ctx) => {
+        const queryParam = req.url.searchParams.get("account_name");
+        expect(queryParam).toBe(accountName);
         return res(
           ctx.json({
             account_id: "some_account"
@@ -119,7 +122,7 @@ describe("Connection v1", () => {
       },
       database: "dummy",
       engineName: "dummy",
-      account: "my_account"
+      account: accountName
     };
 
     const connection = await firebolt.connect(connectionParams);
@@ -149,7 +152,7 @@ describe("Connection v1", () => {
       },
       database: "dummy",
       engineName: "dummy",
-      account: "my_account"
+      account: accountName
     };
 
     const connection = await firebolt.connect(connectionParams);
@@ -188,7 +191,7 @@ describe("Connection v1", () => {
       },
       database: "dummy",
       engineName: "dummy",
-      account: "my_account"
+      account: accountName
     };
 
     const connection = await firebolt.connect(connectionParams);
