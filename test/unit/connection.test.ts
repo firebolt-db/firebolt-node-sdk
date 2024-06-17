@@ -175,6 +175,96 @@ describe("Connection", () => {
 INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120,"endOffset":135}`
     );
   });
+  it("throws an error when error body is present", async () => {
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("SELECT 'blue'::int")) {
+          return res(
+            ctx.status(200),
+            ctx.json({
+              errors: [
+                {
+                  code: "CMP0001",
+                  name: "CAST_ERROR",
+                  severity: "ERROR",
+                  source: "User Error",
+                  description: "Can't cast string to int"
+                },
+                {
+                  name: "SYNTAX_ERROR",
+                  severity: "INFO",
+                  description: "Unexpected character",
+                  location: {
+                    failingLine: 42,
+                    startOffset: 120,
+                    endOffset: 135
+                  }
+                }
+              ]
+            })
+          );
+        }
+        return res(ctx.json(selectOneResponse));
+      })
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(connection.execute("SELECT 'blue'::int,k")).rejects.toThrow(
+      `ERROR: CAST_ERROR (CMP0001) - Can't cast string to int,
+INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120,"endOffset":135}`
+    );
+  });
+  it("Doesn't break if parsing is impossible", async () => {
+    const headers = {
+      "Content-Type": "application/json",
+      dummy: "header"
+    };
+    for (const [k, v] of Object.entries(headers)) {
+      server.use(
+        rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+          const body = await req.text();
+          if (body.startsWith("SELECT 'blue'::int")) {
+            return res(
+              ctx.status(200),
+              ctx.text("{invalid json}"),
+              ctx.set(k, v)
+            );
+          }
+          return res(ctx.json(selectOneResponse));
+        })
+      );
+
+      const connectionParams: ConnectionOptions = {
+        auth: {
+          client_id: "dummy",
+          client_secret: "dummy"
+        },
+        database: "dummy",
+        engineName: "dummy",
+        account: "my_account"
+      };
+      const firebolt = Firebolt({
+        apiEndpoint
+      });
+
+      const connection = await firebolt.connect(connectionParams);
+      await expect(connection.execute("SELECT 1")).resolves.not.toThrow();
+    }
+  });
   it("database and engine", async () => {
     const connectionParams: ConnectionOptions = {
       auth: {
