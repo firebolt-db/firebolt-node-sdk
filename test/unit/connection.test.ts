@@ -135,7 +135,6 @@ describe("Connection", () => {
                   code: "CMP0001",
                   name: "CAST_ERROR",
                   severity: "ERROR",
-                  source: "User Error",
                   description: "Can't cast string to int"
                 },
                 {
@@ -188,7 +187,6 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
                   code: "CMP0001",
                   name: "CAST_ERROR",
                   severity: "ERROR",
-                  source: "User Error",
                   description: "Can't cast string to int"
                 },
                 {
