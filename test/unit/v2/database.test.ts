@@ -271,22 +271,7 @@ describe("database service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          const body = (String(req.body) ?? "").toLowerCase();
-          if (
-            body.includes("information_schema.engines") &&
-            body.includes("some_engine")
-          ) {
-            return res(ctx.json(selectEngineResponse));
-          } else if (
-            body.includes("information_schema.engines") &&
-            body.includes("some_other_engine")
-          ) {
-            return res(ctx.json(selectOtherEngineResponse));
-          } else if (body.includes("information_schema.engines")) {
-            return res(ctx.json(selectEnginesResponse));
-          } else {
-            return res(ctx.json(selectDbResponse));
-          }
+          return res(ctx.json(selectEnginesResponse));
         }
       )
     );
