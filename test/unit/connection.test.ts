@@ -240,7 +240,7 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
           if (body.startsWith("SELECT 'blue'::int")) {
             return res(
               ctx.status(200),
-              ctx.text("{invalid json}"),
+              ctx.body("{invalid json}"),
               ctx.set(k, v)
             );
           }
@@ -262,7 +262,9 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
       });
 
       const connection = await firebolt.connect(connectionParams);
-      await expect(connection.execute("SELECT 1")).resolves.not.toThrow();
+      await expect(
+        connection.execute("SELECT 'blue'::int")
+      ).resolves.not.toThrow();
     }
   });
   it("database and engine", async () => {
