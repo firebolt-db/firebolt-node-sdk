@@ -230,8 +230,21 @@ export abstract class Connection {
     // In order to read the body here and elesewhere, we need to clone the response
     // since body can only be read once
     const clonedResponse = response.clone();
-    const json = await clonedResponse.json();
-    if (json.errors) throw new CompositeError(json.errors);
+    let json;
+    try {
+      json = await clonedResponse.json();
+    } catch (error) {
+      // If we can't parse the JSON, we'll have to ignore it
+      if (this.hasJsonContent(response)) {
+        console.info("Failed to parse JSON response:", error);
+      }
+    }
+    if (json && json.errors) throw new CompositeError(json.errors);
+  }
+
+  private hasJsonContent(res: Response): boolean {
+    const contentType = res.headers.get("Content-Type");
+    return !!(contentType && contentType.includes("application/json"));
   }
 
   async destroy() {
