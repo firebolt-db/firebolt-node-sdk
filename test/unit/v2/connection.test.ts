@@ -173,7 +173,7 @@ describe("Connection V2", () => {
     const accountInfo = await (connection as ConnectionV2).resolveAccountInfo();
     expect(accountInfo.infraVersion).toBe(2);
   });
-  it("defaults account version to 1 if not provided", async () => {
+  it("defaults account version to 2 if not provided", async () => {
     const firebolt = Firebolt({
       apiEndpoint
     });
@@ -201,9 +201,15 @@ describe("Connection V2", () => {
         (req, res, ctx) => {
           return res(
             ctx.json({
-              engineUrl: "https://some_system_engine.com"
+              engineUrl: "https://some_system_engine.com?param=value"
             })
           );
+        }
+      ),
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(engineUrlResponse));
         }
       )
     );
@@ -219,7 +225,7 @@ describe("Connection V2", () => {
 
     const connection = await firebolt.connect(connectionParams);
     const accountInfo = await (connection as ConnectionV2).resolveAccountInfo();
-    expect(accountInfo.infraVersion).toBe(1);
+    expect(accountInfo.infraVersion).toBe(2);
   });
   it("respects system engine query parameters for account version 2", async () => {
     let systemEngineParamsUsed = {};

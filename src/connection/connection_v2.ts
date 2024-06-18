@@ -1,10 +1,4 @@
-import { ExecuteQueryOptions } from "../types";
-import {
-  AccessError,
-  AccountNotFoundError,
-  ApiError,
-  ConnectionError
-} from "../common/errors";
+import { AccountNotFoundError, ApiError } from "../common/errors";
 import {
   ACCOUNT_ID_BY_NAME,
   ACCOUNT_SYSTEM_ENGINE,
@@ -62,91 +56,6 @@ export class ConnectionV2 extends BaseConnection {
     }
   }
 
-  private async isDatabaseAccessible(databaseName: string): Promise<boolean> {
-    const query =
-      "SELECT database_name FROM information_schema.databases " +
-      `WHERE database_name='${databaseName}'`;
-
-    const statement = await this.execute(query);
-    const { data } = await statement.fetchResult();
-    return data.length == 1;
-  }
-
-  private async getEngineUrl(
-    engineName: string,
-    databaseName: string
-  ): Promise<string> {
-    const query =
-      "SELECT engs.url, dbs.database_name, engs.status " +
-      "FROM information_schema.engines as engs " +
-      "LEFT JOIN information_schema.databases as dbs " +
-      "ON engs.attached_to = dbs.database_name " +
-      `WHERE engs.engine_name = '${engineName}'`;
-    const statement = await this.execute(query);
-    const { data } = await statement.fetchResult();
-    if (data.length == 0) {
-      throw new ConnectionError({ message: `Engine ${engineName} not found.` });
-    }
-    const filteredRows = [];
-    for (const row of data) {
-      const [, engintDbName, ,] = row as string[];
-      if (engintDbName == databaseName) {
-        filteredRows.push(row);
-      }
-    }
-    if (filteredRows.length == 0) {
-      throw new ConnectionError({
-        message: `Engine ${engineName} is not attached to ${databaseName}.`
-      });
-    }
-    if (filteredRows.length > 1) {
-      throw new Error(
-        `Unexpected duplicate entries found for ${engineName} and database ${databaseName}`
-      );
-    }
-    const [engineUrl, , status] = filteredRows[0] as string[];
-    if (status.toLowerCase() != "running") {
-      throw new ConnectionError({
-        message: `Engine ${engineName} is not running`
-      });
-    }
-    return engineUrl;
-  }
-
-  private async getEngineByNameAndDb(
-    engineName: string,
-    database: string
-  ): Promise<string> {
-    // Verify user has access to the db
-    // Probably migrate it to database module
-    const haveAccess = await this.isDatabaseAccessible(database);
-    if (!haveAccess) {
-      throw new AccessError({
-        message: `Database ${database} does not exist or current user has no access to it.`
-      });
-    }
-    // Fetch engine url
-    const engineUrl = await this.getEngineUrl(engineName, database);
-    return engineUrl;
-  }
-
-  private async getEngineDatabase(engineName: string): Promise<string> {
-    const query =
-      "SELECT attached_to FROM information_schema.engines " +
-      `WHERE engine_name='${engineName}'`;
-
-    const statement = await this.execute(query);
-    const { data } = await statement.fetchResult();
-    if (data.length == 0) {
-      return "";
-    }
-    const res = data[0] as string[];
-    if (res.length == 0) {
-      return "";
-    }
-    return res[0];
-  }
-
   async resolveAccountInfo(): Promise<AccountInfo> {
     if (this.accountInfo === undefined) {
       const cachedValue = this.cache.accountInfoStorage.get({
@@ -164,7 +73,7 @@ export class ConnectionV2 extends BaseConnection {
             url
           )
           .ready();
-        this.accountInfo = { id, infraVersion: parseInt(infraVersion ?? "1") };
+        this.accountInfo = { id, infraVersion: parseInt(infraVersion ?? "2") };
         this.cache.accountInfoStorage.set(
           {
             account: this.account,
@@ -186,55 +95,13 @@ export class ConnectionV2 extends BaseConnection {
     this.parameters = { ...this.parameters, ...systemParameters };
     this.accountInfo = await this.resolveAccountInfo();
 
-    if (this.accountInfo.infraVersion >= 2) {
-      if (database) {
-        await this.execute(`USE DATABASE "${database}"`);
-      }
-      if (engineName) {
-        await this.execute(`USE ENGINE "${engineName}"`);
-      }
-    } else {
-      if (engineName && database) {
-        const engineEndpoint = await this.getEngineByNameAndDb(
-          engineName,
-          database
-        );
-        this.engineEndpoint = engineEndpoint;
-        // Account id is no longer needed
-        this.accountInfo = undefined;
-        return this.engineEndpoint;
-      }
-      if (engineName) {
-        const database = await this.getEngineDatabase(engineName);
-        if (!database) {
-          throw new AccessError({
-            message: `Engine ${engineName} is attached to a database that current user can not access.`
-          });
-        }
-        const engineEndpoint = await this.getEngineByNameAndDb(
-          engineName,
-          database
-        );
-        this.parameters["database"] = database;
-        this.engineEndpoint = engineEndpoint;
-        // Account id is no longer needed
-        this.accountInfo = undefined;
-        return this.engineEndpoint;
-      }
-      // If nothing specified connect to generic system engine
+    if (database) {
+      await this.execute(`USE DATABASE "${database}"`);
     }
-    return this.engineEndpoint;
-  }
+    if (engineName) {
+      await this.execute(`USE ENGINE "${engineName}"`);
+    }
 
-  protected getBaseParameters(
-    executeQueryOptions: ExecuteQueryOptions
-  ): Record<string, string | undefined> {
-    if (this.accountInfo?.infraVersion == 1) {
-      return {
-        account_id: this.accountInfo?.id,
-        ...super.getBaseParameters(executeQueryOptions)
-      };
-    }
-    return super.getBaseParameters(executeQueryOptions);
+    return this.engineEndpoint;
   }
 }

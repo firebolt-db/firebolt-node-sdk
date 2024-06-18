@@ -244,7 +244,6 @@ describe("database service", () => {
     const engine = await resourceManager.engine.create("some_engine");
     const options: CreateDatabaseOptions = {
       description: "description",
-      region: "region",
       attached_engines: [engine]
     };
 
@@ -263,6 +262,40 @@ describe("database service", () => {
       expect(false).toBeTruthy();
     } catch (e) {
       expect(true).toBeTruthy();
+    }
+  });
+
+  it("deprecated option throws error", async () => {
+    server.use(
+      // Query against system engine
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(selectEnginesResponse));
+        }
+      )
+    );
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+
+    const engine = await resourceManager.engine.create("some_engine");
+    const options: CreateDatabaseOptions = {
+      description: "description",
+      region: "us-east-1",
+      attached_engines: [engine]
+    };
+    try {
+      await resourceManager.database.create("some_db", options);
+      expect(false).toBeTruthy(); // This line should not be reached
+    } catch (e) {
+      expect(e).toBeInstanceOf(DeprecationError);
     }
   });
 });

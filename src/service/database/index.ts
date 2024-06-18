@@ -1,6 +1,5 @@
 import { ConnectionError, DeprecationError } from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
-import { EngineModel } from "../engine/model";
 import { DatabaseModel } from "./model";
 import { CreateDatabaseOptions } from "./types";
 
@@ -54,11 +53,8 @@ export class DatabaseService {
     return databases;
   }
 
-  private validateCreateOptions(
-    accountVersion: number,
-    options: CreateDatabaseOptions
-  ) {
-    if (accountVersion >= 2 && options.region) {
+  private validateCreateOptions(options: CreateDatabaseOptions) {
+    if (options.region) {
       throw new DeprecationError({
         message: "Region parameter is not supported for this account"
       });
@@ -75,9 +71,7 @@ export class DatabaseService {
     name: string,
     options: CreateDatabaseOptions = {}
   ): Promise<DatabaseModel> {
-    const accountVersion = (await this.context.connection.resolveAccountInfo())
-      .infraVersion;
-    this.validateCreateOptions(accountVersion, options);
+    this.validateCreateOptions(options);
     this.setDefaultCreateOptions(options);
 
     let query = `CREATE DATABASE ${
@@ -85,30 +79,12 @@ export class DatabaseService {
     } "${name}"`;
 
     const queryParameters = [];
-    let attachedEnginesSql = "";
-    if (
-      Array.isArray(options.attached_engines) &&
-      options.attached_engines.length > 0
-    ) {
-      const attachedEngines = options.attached_engines
-        .map(engine =>
-          engine instanceof EngineModel ? `"${engine.name}"` : `"${engine}"`
-        )
-        .join(" ");
-      attachedEnginesSql = ` ATTACHED_ENGINES = (${attachedEngines})`;
+
+    if (options.description) {
+      query += " WITH DESCRIPTION = ?";
+      queryParameters.push(options.description);
     }
-    if (options.region || options.description || attachedEnginesSql) {
-      query += " WITH";
-      if (options.region) {
-        query += " REGION = ?";
-        queryParameters.push(options.region);
-      }
-      if (options.description) {
-        query += " DESCRIPTION = ?";
-        queryParameters.push(options.description);
-      }
-      query += attachedEnginesSql;
-    }
+
     await this.context.connection.execute(query, {
       parameters: queryParameters
     });

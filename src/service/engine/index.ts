@@ -5,7 +5,6 @@ import { EngineModel } from "./model";
 import {
   EngineStatusSummary,
   CreateEngineOptions,
-  EngineType,
   processEngineStatus
 } from "./types";
 
@@ -13,15 +12,6 @@ export class EngineService {
   context: ResourceManagerContext;
 
   private CREATE_PARAMETER_NAMES: Record<string, string> = {
-    region: "REGION",
-    engine_type: "ENGINE_TYPE",
-    spec: "SPEC",
-    scale: "SCALE",
-    auto_stop: "AUTO_STOP",
-    warmup: "WARMUP"
-  };
-
-  private CREATE_PARAMETER_NAMES_V2: Record<string, string> = {
     spec: "TYPE",
     scale: "NODES",
     auto_stop: "AUTO_STOP",
@@ -117,40 +107,22 @@ export class EngineService {
     return engines;
   }
 
-  private validateCreateOptions(
-    accountVersion: number,
-    options: CreateEngineOptions
-  ) {
-    const disallowedV2Options = ["region", "engine_type", "warmup"];
-    if (accountVersion >= 2) {
-      // find a list of disallowed options that are set and report them in an exception
-      const disallowedOptions = disallowedV2Options.filter(
-        option => (options as Record<string, string>)[option] !== undefined
-      );
-      if (disallowedOptions.length > 0) {
-        throw new DeprecationError({
-          message: `The following engine options are not supported for this account: ${disallowedOptions.join(
-            ", "
-          )}`
-        });
-      }
-    }
-    if (accountVersion == 1) {
-      if (options.initially_stopped !== undefined) {
-        throw new DeprecationError({
-          message: "initially_stopped is not supported for this account"
-        });
-      }
+  private validateCreateOptions(options: CreateEngineOptions) {
+    const disallowedOptions = ["region", "engine_type", "warmup"];
+    // find a list of disallowed options that are set and report them in an exception
+    const filteredOptions = disallowedOptions.filter(
+      option => (options as Record<string, string>)[option] !== undefined
+    );
+    if (filteredOptions.length > 0) {
+      throw new DeprecationError({
+        message: `The following engine options are not supported for this account: ${filteredOptions.join(
+          ", "
+        )}`
+      });
     }
   }
 
-  private setDefaultCreateOptions(
-    accountVersion: number,
-    options: CreateEngineOptions
-  ) {
-    if (accountVersion == 1 && options.engine_type == undefined) {
-      options.engine_type = EngineType.GENERAL_PURPOSE;
-    }
+  private setDefaultCreateOptions(options: CreateEngineOptions) {
     if (options.fail_if_exists == undefined) {
       options.fail_if_exists = true;
     }
@@ -172,10 +144,8 @@ export class EngineService {
     name: string,
     options: CreateEngineOptions = {}
   ): Promise<EngineModel> {
-    const accountVersion = (await this.context.connection.resolveAccountInfo())
-      .infraVersion;
-    this.validateCreateOptions(accountVersion, options);
-    this.setDefaultCreateOptions(accountVersion, options);
+    this.validateCreateOptions(options);
+    this.setDefaultCreateOptions(options);
 
     const { fail_if_exists, ...createOptions } = options;
 
@@ -183,19 +153,17 @@ export class EngineService {
       fail_if_exists ? "" : "IF NOT EXISTS "
     } "${name}"`;
 
-    const queryParameters: (string | number)[] = [];
-    const createParameterNames =
-      accountVersion >= 2
-        ? this.CREATE_PARAMETER_NAMES_V2
-        : this.CREATE_PARAMETER_NAMES;
+    const queryParameters: (string | number | boolean)[] = [];
 
     const internalOptions = this.getInternalOptions();
 
-    // Exlude options that are not set or not allowed for the account version
+    // Exlude options that are not set or not allowed
     const filteredCreateOptions = Object.fromEntries(
       Object.entries(createOptions).filter(
         ([key, value]) =>
-          value !== undefined && value !== "" && key in createParameterNames
+          value !== undefined &&
+          value !== "" &&
+          key in this.CREATE_PARAMETER_NAMES
       )
     );
 
@@ -204,11 +172,11 @@ export class EngineService {
     }
 
     for (const [key, value] of Object.entries(filteredCreateOptions)) {
-      if (key == "spec" && accountVersion >= 2) {
-        // spec value is provided raw without quotes for accounts v2
-        query += `${createParameterNames[key]} = ${value} `;
+      if (key == "spec") {
+        // spec value is provided raw without quotes
+        query += `${this.CREATE_PARAMETER_NAMES[key]} = ${value} `;
       } else {
-        query += `${createParameterNames[key]} = ? `;
+        query += `${this.CREATE_PARAMETER_NAMES[key]} = ? `;
         queryParameters.push(value);
       }
     }
@@ -228,15 +196,10 @@ export class EngineService {
     engine: EngineModel | string,
     database: DatabaseModel | string
   ) {
-    const accountVersion = (await this.context.connection.resolveAccountInfo())
-      .infraVersion;
     const engine_name = engine instanceof EngineModel ? engine.name : engine;
     const database_name =
       database instanceof DatabaseModel ? database.name : database;
-    const query =
-      accountVersion == 1
-        ? `ATTACH ENGINE "${engine_name}" TO "${database_name}"`
-        : `ALTER ENGINE "${engine_name}" SET DEFAULT_DATABASE="${database_name}"`;
+    const query = `ALTER ENGINE "${engine_name}" SET DEFAULT_DATABASE="${database_name}"`;
     await this.context.connection.execute(query);
   }
 }
