@@ -391,7 +391,7 @@ describe("engine service", () => {
     });
     const resourceManager = firebolt.resourceManager;
     const engine = await resourceManager.engine.getByName(expectedEngine);
-    expect(engine.start()).rejects.toThrowError(ConnectionError);
+    await expect(engine.start()).rejects.toThrow(ConnectionError);
   });
 
   it("does not start engine that has unexpected status", async () => {

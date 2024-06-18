@@ -51,6 +51,49 @@ ${raw ? `Response: ${JSON.stringify(raw, null, 2)}` : ""}
   }
 }
 
+type ErrorBody = {
+  code?: string;
+  name?: string;
+  severity?: string;
+  source?: string;
+  description?: string;
+  resolution?: string;
+  helpLink?: string;
+  location?: {
+    failingLine?: number;
+    startOffset?: number;
+    endOffset?: number;
+  };
+};
+
+export class CompositeError extends Error {
+  message: string;
+  errors: Array<ErrorBody>;
+
+  constructor(errors: Array<ErrorBody>) {
+    const parsedErrors = errors.map(error => {
+      const severity = error.severity ? `${error.severity}: ` : "";
+      const name = error.name ? `${error.name} ` : "";
+      const code = error.code ? `(${error.code}) ` : "";
+      const source = error.source ? `${error.source} ` : "";
+      const description = error.description ? `- ${error.description}` : "";
+      const resolution = error.resolution
+        ? `, resolution: ${error.resolution}`
+        : "";
+      const helpLink = error.helpLink ? `, see ${error.helpLink}` : "";
+      const location = error.location
+        ? ` at ${JSON.stringify(error.location)}`
+        : "";
+      // "{severity}: {name} ({code}) - {source}, {description}, resolution: {resolution} at {location} see {helpLink}"
+      return `${severity}${name}${code}${source}${description}${resolution}${location}${helpLink}`;
+    });
+    const formattedMessage = `${parsedErrors.join(",\n")}`;
+    super(formattedMessage);
+    this.message = formattedMessage;
+    this.errors = errors;
+  }
+}
+
 export class ArgumentError extends Error {
   message: string;
   code: number;

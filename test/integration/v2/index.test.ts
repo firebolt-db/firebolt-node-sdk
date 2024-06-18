@@ -110,6 +110,21 @@ describe("new identity integration test", () => {
     expect(data.length).toEqual(0);
     expect(meta.length).toEqual(1);
   });
+  it("Correctly handles error in json body", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...bareConnectionParams
+    });
+
+    await connection.execute("SET advanced_mode=1");
+    await connection.execute("SET enable_json_error_output_format=true");
+    await expect(connection.execute("select 'dummy'::int")).rejects.toThrow(
+      /Cannot parse string/
+    );
+  });
 });
 
 describe("integration test", () => {
