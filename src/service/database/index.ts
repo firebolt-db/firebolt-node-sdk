@@ -5,9 +5,11 @@ import { CreateDatabaseOptions } from "./types";
 
 export class DatabaseService {
   context: ResourceManagerContext;
+  _catalogName: string | undefined;
 
   constructor(context: ResourceManagerContext) {
     this.context = context;
+    this._catalogName = undefined;
   }
 
   async getDefaultEndpointByName(name: string): Promise<string> {
@@ -22,10 +24,24 @@ export class DatabaseService {
     });
   }
 
+  public async catalogName(): Promise<string> {
+    if (!this._catalogName) {
+      const query =
+        "SELECT count(*) FROM information_schema.tables WHERE " +
+        "table_name='catalogs' AND table_schema='information_schema'";
+
+      const statement = await this.context.connection.execute(query);
+      const { data } = await statement.fetchResult();
+      this._catalogName = data[0][0] == 0 ? "database" : "catalog";
+    }
+    return this._catalogName;
+  }
+
   async getByName(databaseName: string): Promise<DatabaseModel> {
+    const catalogName = await this.catalogName();
     const query =
-      "SELECT database_name, description FROM information_schema.databases " +
-      `WHERE database_name='${databaseName}'`;
+      `SELECT ${catalogName}_name, description FROM information_schema.${catalogName}s ` +
+      `WHERE ${catalogName}_name='${databaseName}'`;
 
     const statement = await this.context.connection.execute(query);
     const { data } = await statement.fetchResult();
@@ -40,8 +56,8 @@ export class DatabaseService {
 
   async getAll(): Promise<DatabaseModel[]> {
     const databases: DatabaseModel[] = [];
-    const query =
-      "SELECT database_name, description FROM information_schema.databases";
+    const catalogName = await this.catalogName();
+    const query = `SELECT ${catalogName}_name, description FROM information_schema.${catalogName}s`;
     const statement = await this.context.connection.execute(query);
     const { data } = await statement.fetchResult();
 

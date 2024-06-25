@@ -4,6 +4,7 @@ import {
   FireboltResourceManager
 } from "../../../src/index";
 import { CreateEngineOptions } from "../../../src/service/engine/types";
+import { DatabaseService } from "../../../src/service/database";
 
 const authOptions = {
   client_id: process.env.FIREBOLT_CLIENT_ID as string,
@@ -138,8 +139,12 @@ describe.each([
       const { data: engine_data } = await statement.fetchResult();
       expect(engine_data.length == 0);
 
+      const catalogName = (
+        firebolt.resourceManager.database as DatabaseService
+      ).catalogName();
+
       await database.delete();
-      query = `SELECT database_name, description FROM information_schema.databases WHERE database_name='${name}'`;
+      query = `SELECT ${catalogName}_name, description FROM information_schema.${catalogName}s WHERE database_name='${name}'`;
       statement = await connection.execute(query);
       const { data: database_data } = await statement.fetchResult();
       expect(database_data.length == 0);
