@@ -1,4 +1,9 @@
-import { ConnectionError, DeprecationError } from "../../common/errors";
+import {
+  ApiError,
+  CompositeError,
+  ConnectionError,
+  DeprecationError
+} from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
 import { DatabaseModel } from "./model";
 import { CreateDatabaseOptions } from "./types";
@@ -26,13 +31,17 @@ export class DatabaseService {
 
   public async catalogName(): Promise<string> {
     if (!this._catalogName) {
-      const query =
-        "SELECT count(*) FROM information_schema.tables WHERE " +
-        "table_name='catalogs' AND table_schema='information_schema'";
-
-      const statement = await this.context.connection.execute(query);
-      const { data } = await statement.fetchResult();
-      this._catalogName = data[0][0] == 0 ? "database" : "catalog";
+      const query = "SELECT count(*) FROM information_schema.catalogs";
+      try {
+        const statement = await this.context.connection.execute(query);
+      } catch (error) {
+        if (error instanceof ApiError || error instanceof CompositeError) {
+          this._catalogName = "database";
+          return this._catalogName;
+        }
+        throw error;
+      }
+      this._catalogName = "catalog";
     }
     return this._catalogName;
   }

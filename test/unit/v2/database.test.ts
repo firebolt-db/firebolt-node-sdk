@@ -315,17 +315,6 @@ describe("database service", () => {
   });
 
   it("uses databases table if catalogs are not available in getByName", async () => {
-    const testCatalogsEmptyResponse = {
-      meta: [
-        {
-          name: "count(*)",
-          type: "int"
-        }
-      ],
-      data: [[0]],
-      rows: 1
-    };
-
     let databasesTableUsed = false;
 
     server.use(
@@ -334,8 +323,8 @@ describe("database service", () => {
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           const body = (String(req.body) ?? "").toLowerCase();
-          if (body.includes("information_schema.tables")) {
-            return res(ctx.json(testCatalogsEmptyResponse));
+          if (body.includes("information_schema.catalogs")) {
+            return res(ctx.status(500));
           } else if (body.includes("information_schema.databases")) {
             databasesTableUsed = true;
             return res(ctx.json(selectDbResponse));
@@ -360,17 +349,6 @@ describe("database service", () => {
   });
 
   it("uses databases table if catalogs are not available in getAll", async () => {
-    const testCatalogsEmptyResponse = {
-      meta: [
-        {
-          name: "count(*)",
-          type: "int"
-        }
-      ],
-      data: [[0]],
-      rows: 1
-    };
-
     let databasesTableUsed = false;
 
     server.use(
@@ -379,8 +357,8 @@ describe("database service", () => {
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           const body = (String(req.body) ?? "").toLowerCase();
-          if (body.includes("information_schema.tables")) {
-            return res(ctx.json(testCatalogsEmptyResponse));
+          if (body.includes("information_schema.catalogs")) {
+            return res(ctx.status(500));
           } else if (body.includes("information_schema.databases")) {
             databasesTableUsed = true;
             return res(ctx.json(selectDbsResponse));
