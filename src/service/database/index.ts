@@ -10,7 +10,7 @@ import { CreateDatabaseOptions } from "./types";
 
 export class DatabaseService {
   context: ResourceManagerContext;
-  _catalogName: string | undefined;
+  private _catalogName: string | undefined;
 
   constructor(context: ResourceManagerContext) {
     this.context = context;
