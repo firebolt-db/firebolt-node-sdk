@@ -160,6 +160,10 @@ describe("database service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
+          const body = (String(req.body) ?? "").toLowerCase();
+          if (body.includes("information_schema.tables")) {
+            return res(ctx.json(testCatalogResponse));
+          }
           return res(ctx.json(selectNoResponse));
         }
       )

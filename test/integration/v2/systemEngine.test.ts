@@ -120,7 +120,7 @@ describe("system engine", () => {
       ...connectionOptions
     });
 
-    const catalogName = (
+    const catalogName = await (
       firebolt.resourceManager.database as DatabaseService
     ).catalogName();
 

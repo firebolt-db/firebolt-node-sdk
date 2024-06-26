@@ -139,7 +139,7 @@ describe.each([
       const { data: engine_data } = await statement.fetchResult();
       expect(engine_data.length == 0);
 
-      const catalogName = (
+      const catalogName = await (
         firebolt.resourceManager.database as DatabaseService
       ).catalogName();
 
