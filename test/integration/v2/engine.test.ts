@@ -144,7 +144,7 @@ describe.each([
       ).catalogName();
 
       await database.delete();
-      query = `SELECT ${catalogName}_name, description FROM information_schema.${catalogName}s WHERE database_name='${name}'`;
+      query = `SELECT ${catalogName}_name, description FROM information_schema.${catalogName}s WHERE ${catalogName}_name='${name}'`;
       statement = await connection.execute(query);
       const { data: database_data } = await statement.fetchResult();
       expect(database_data.length == 0);
