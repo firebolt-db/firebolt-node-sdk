@@ -161,7 +161,9 @@ describe("database service", () => {
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
           const body = (String(req.body) ?? "").toLowerCase();
-          if (body.includes("information_schema.tables")) {
+          if (
+            body.includes("select count(*) from information_schema.catalogs")
+          ) {
             return res(ctx.json(testCatalogResponse));
           }
           return res(ctx.json(selectNoResponse));
@@ -177,9 +179,9 @@ describe("database service", () => {
       }
     });
     const resourceManager = firebolt.resourceManager;
-    expect(resourceManager.database.getByName("some_db")).rejects.toThrowError(
-      ConnectionError
-    );
+    await expect(
+      resourceManager.database.getByName("some_db")
+    ).rejects.toThrowError(ConnectionError);
   });
 
   it("gets all dbs", async () => {
