@@ -1,13 +1,20 @@
-import { ConnectionError, DeprecationError } from "../../common/errors";
+import {
+  ApiError,
+  CompositeError,
+  ConnectionError,
+  DeprecationError
+} from "../../common/errors";
 import { ResourceManagerContext } from "../../types";
 import { DatabaseModel } from "./model";
 import { CreateDatabaseOptions } from "./types";
 
 export class DatabaseService {
   context: ResourceManagerContext;
+  private _catalogName: string | undefined;
 
   constructor(context: ResourceManagerContext) {
     this.context = context;
+    this._catalogName = undefined;
   }
 
   async getDefaultEndpointByName(name: string): Promise<string> {
@@ -22,10 +29,28 @@ export class DatabaseService {
     });
   }
 
+  public async catalogName(): Promise<string> {
+    if (!this._catalogName) {
+      const query = "SELECT count(*) FROM information_schema.catalogs";
+      try {
+        const statement = await this.context.connection.execute(query);
+      } catch (error) {
+        if (error instanceof ApiError || error instanceof CompositeError) {
+          this._catalogName = "database";
+          return this._catalogName;
+        }
+        throw error;
+      }
+      this._catalogName = "catalog";
+    }
+    return this._catalogName;
+  }
+
   async getByName(databaseName: string): Promise<DatabaseModel> {
+    const catalogName = await this.catalogName();
     const query =
-      "SELECT database_name, description FROM information_schema.databases " +
-      `WHERE database_name='${databaseName}'`;
+      `SELECT ${catalogName}_name, description FROM information_schema.${catalogName}s ` +
+      `WHERE ${catalogName}_name='${databaseName}'`;
 
     const statement = await this.context.connection.execute(query);
     const { data } = await statement.fetchResult();
@@ -40,8 +65,8 @@ export class DatabaseService {
 
   async getAll(): Promise<DatabaseModel[]> {
     const databases: DatabaseModel[] = [];
-    const query =
-      "SELECT database_name, description FROM information_schema.databases";
+    const catalogName = await this.catalogName();
+    const query = `SELECT ${catalogName}_name, description FROM information_schema.${catalogName}s`;
     const statement = await this.context.connection.execute(query);
     const { data } = await statement.fetchResult();
 

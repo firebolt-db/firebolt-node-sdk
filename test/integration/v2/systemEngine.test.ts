@@ -1,4 +1,5 @@
 import { Firebolt } from "../../../src/index";
+import { DatabaseService } from "../../../src/service/database";
 
 const connectionOptions = {
   auth: {
@@ -119,9 +120,13 @@ describe("system engine", () => {
       ...connectionOptions
     });
 
+    const catalogName = await (
+      firebolt.resourceManager.database as DatabaseService
+    ).catalogName();
+
     try {
       const statement = await connection.execute(
-        "SELECT * FROM information_schema.databases"
+        `SELECT * FROM information_schema.${catalogName}s`
       );
       const { data } = await statement.fetchResult();
       const database = (data as unknown[][]).find(

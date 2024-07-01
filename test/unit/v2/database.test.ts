@@ -60,6 +60,17 @@ const selectOtherEngineResponse = {
   rows: 1
 };
 
+export const testCatalogResponse = {
+  meta: [
+    {
+      name: "count(*)",
+      type: "int"
+    }
+  ],
+  data: [[1]],
+  rows: 1
+};
+
 describe("database service", () => {
   const server = setupServer();
 
@@ -99,6 +110,10 @@ describe("database service", () => {
     rest.post(
       `https://some_system_engine.com/${QUERY_URL}`,
       (req, res, ctx) => {
+        const body = (String(req.body) ?? "").toLowerCase();
+        if (body.includes("information_schema.tables")) {
+          return res(ctx.json(testCatalogResponse));
+        }
         return res(ctx.json(selectDbResponse));
       }
     )
@@ -145,6 +160,12 @@ describe("database service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
+          const body = (String(req.body) ?? "").toLowerCase();
+          if (
+            body.includes("select count(*) from information_schema.catalogs")
+          ) {
+            return res(ctx.json(testCatalogResponse));
+          }
           return res(ctx.json(selectNoResponse));
         }
       )
@@ -158,9 +179,9 @@ describe("database service", () => {
       }
     });
     const resourceManager = firebolt.resourceManager;
-    expect(resourceManager.database.getByName("some_db")).rejects.toThrowError(
-      ConnectionError
-    );
+    await expect(
+      resourceManager.database.getByName("some_db")
+    ).rejects.toThrowError(ConnectionError);
   });
 
   it("gets all dbs", async () => {
@@ -297,5 +318,73 @@ describe("database service", () => {
     } catch (e) {
       expect(e).toBeInstanceOf(DeprecationError);
     }
+  });
+
+  it("uses databases table if catalogs are not available in getByName", async () => {
+    let databasesTableUsed = false;
+
+    server.use(
+      // Query against system engine
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          const body = (String(req.body) ?? "").toLowerCase();
+          if (body.includes("information_schema.catalogs")) {
+            return res(ctx.status(500));
+          } else if (body.includes("information_schema.databases")) {
+            databasesTableUsed = true;
+            return res(ctx.json(selectDbResponse));
+          }
+          return res(ctx.json(selectDbResponse));
+        }
+      )
+    );
+
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const dbs = await resourceManager.database.getByName("name");
+
+    expect(databasesTableUsed).toBeTruthy();
+  });
+
+  it("uses databases table if catalogs are not available in getAll", async () => {
+    let databasesTableUsed = false;
+
+    server.use(
+      // Query against system engine
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          const body = (String(req.body) ?? "").toLowerCase();
+          if (body.includes("information_schema.catalogs")) {
+            return res(ctx.status(500));
+          } else if (body.includes("information_schema.databases")) {
+            databasesTableUsed = true;
+            return res(ctx.json(selectDbsResponse));
+          }
+          return res(ctx.json(selectDbsResponse));
+        }
+      )
+    );
+
+    const firebolt = Firebolt({ apiEndpoint });
+    await firebolt.connect({
+      account: "my_account",
+      auth: {
+        client_id: "id",
+        client_secret: "secret"
+      }
+    });
+    const resourceManager = firebolt.resourceManager;
+    const dbs = await resourceManager.database.getAll();
+
+    expect(databasesTableUsed).toBeTruthy();
   });
 });
