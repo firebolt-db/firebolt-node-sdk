@@ -13,7 +13,7 @@ const authOptions = {
 
 const connectionOptionsV2 = {
   auth: authOptions,
-  account: process.env.FIREBOLT_ACCOUNT_V2 as string
+  account: process.env.FIREBOLT_ACCOUNT as string
 };
 
 const createDatabaseOptionsV2 = {
@@ -95,7 +95,7 @@ describe.each([
           client_id: process.env.FIREBOLT_CLIENT_ID as string,
           client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
         },
-        account: process.env.FIREBOLT_ACCOUNT_V1 as string,
+        account: process.env.FIREBOLT_ACCOUNT as string,
         database: process.env.FIREBOLT_DATABASE as string
       });
 

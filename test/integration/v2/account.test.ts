@@ -7,7 +7,7 @@ const connectionOptions = {
   },
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string,
-  account: process.env.FIREBOLT_ACCOUNT_V1 as string
+  account: process.env.FIREBOLT_ACCOUNT as string
 };
 
 jest.setTimeout(20000);
