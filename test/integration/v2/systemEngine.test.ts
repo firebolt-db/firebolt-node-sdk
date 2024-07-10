@@ -13,8 +13,9 @@ const connectionOptions = {
 jest.setTimeout(1000000);
 
 describe("system engine", () => {
-  const engineName = connectionOptions.engineName + "_system_test";
-  const databaseName = process.env.FIREBOLT_DATABASE + "_system_test";
+  const engineNameForSystemTest = connectionOptions.engineName + "_system_test";
+  const databaseNameForSystemTest =
+    process.env.FIREBOLT_DATABASE + "_system_test";
 
   beforeAll(async () => {
     const firebolt = Firebolt({
@@ -26,33 +27,33 @@ describe("system engine", () => {
     });
 
     await connection
-      .execute(`drop engine if exists "${engineName}"`)
+      .execute(`drop engine if exists "${engineNameForSystemTest}"`)
       .catch(error => {
         console.log(error);
       });
 
     await connection
-      .execute(`drop database if exists "${databaseName}"`)
+      .execute(`drop database if exists "${databaseNameForSystemTest}"`)
       .catch(error => {
         console.log(error);
       });
     try {
       await connection.execute(
-        `create database if not exists "${databaseName}"`
+        `create database if not exists "${databaseNameForSystemTest}"`
       );
 
       const acc_version = (await connection.resolveAccountInfo()).infraVersion;
 
       if (acc_version === 1) {
         await connection.execute(
-          `create engine if not exists "${engineName}" with SPEC = 'B1' SCALE = 1`
+          `create engine if not exists "${engineNameForSystemTest}" with SPEC = 'B1' SCALE = 1`
         );
         await connection.execute(
-          `attach engine "${engineName}" to "${databaseName}"`
+          `attach engine "${engineNameForSystemTest}" to "${databaseNameForSystemTest}"`
         );
       } else {
         await connection.execute(
-          `create engine if not exists "${engineName}" with TYPE=S NODES=1`
+          `create engine if not exists "${engineNameForSystemTest}" with TYPE=S NODES=1`
         );
       }
     } catch (error) {
@@ -71,9 +72,13 @@ describe("system engine", () => {
     });
 
     try {
-      await connection.execute(`stop engine "${engineName}"`);
-      await connection.execute(`drop engine if exists "${engineName}"`);
-      await connection.execute(`drop database if exists "${databaseName}"`);
+      await connection.execute(`stop engine "${engineNameForSystemTest}"`);
+      await connection.execute(
+        `drop engine if exists "${engineNameForSystemTest}"`
+      );
+      await connection.execute(
+        `drop database if exists "${databaseNameForSystemTest}"`
+      );
     } catch (error) {
       console.log(error);
       expect(true).toEqual(false);
@@ -104,7 +109,9 @@ describe("system engine", () => {
         "SELECT * FROM information_schema.engines"
       );
       const { data } = await statement.fetchResult();
-      const engine = (data as unknown[][]).find(row => row[0] === engineName);
+      const engine = (data as unknown[][]).find(
+        row => row[0] === engineNameForSystemTest
+      );
       expect(engine).toBeTruthy();
     } catch (error) {
       console.log(error);
@@ -130,7 +137,7 @@ describe("system engine", () => {
       );
       const { data } = await statement.fetchResult();
       const database = (data as unknown[][]).find(
-        row => row[0] === databaseName
+        row => row[0] === databaseNameForSystemTest
       );
       expect(database).toBeTruthy();
     } catch (error) {
@@ -148,8 +155,8 @@ describe("system engine", () => {
     });
 
     try {
-      await connection.execute(`start engine "${engineName}"`);
-      await connection.execute(`stop engine "${engineName}"`);
+      await connection.execute(`start engine "${engineNameForSystemTest}"`);
+      await connection.execute(`stop engine "${engineNameForSystemTest}"`);
     } catch (error) {
       console.log(error);
       expect(true).toEqual(false);
