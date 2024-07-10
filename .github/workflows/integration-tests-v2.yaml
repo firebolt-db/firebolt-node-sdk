@@ -30,7 +30,6 @@ jobs:
           firebolt-client-secret: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
           account: ${{ vars.FIREBOLT_ACCOUNT }}
           api-endpoint: "api.staging.firebolt.io"
-          region: "us-east-1"
 
       - name: Run integration tests
         env:
