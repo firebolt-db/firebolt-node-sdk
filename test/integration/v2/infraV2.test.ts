@@ -20,31 +20,11 @@ const mixedCaseEngineName = process.env.FIREBOLT_ENGINE_NAME + "MiXeDcAsE";
 jest.setTimeout(500000);
 
 describe("infra v2 integration test", () => {
-  beforeAll(async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-    const connection = await firebolt.connect(systemEngineConnectionParams);
-    await connection.execute(
-      `CREATE ENGINE IF NOT EXISTS "${connectionParams.engineName}"`
-    );
-    await connection.execute(
-      `CREATE DATABASE IF NOT EXISTS "${connectionParams.database}"`
-    );
-  });
-
   afterAll(async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
     const connection = await firebolt.connect(systemEngineConnectionParams);
-    await connection.execute(`STOP ENGINE "${connectionParams.engineName}"`);
-    await connection.execute(
-      `DROP ENGINE IF EXISTS "${connectionParams.engineName}"`
-    );
-    await connection.execute(
-      `DROP DATABASE IF EXISTS "${connectionParams.database}"`
-    );
     try {
       await connection.execute(`STOP ENGINE "${mixedCaseEngineName}"`);
     } catch (error) {
