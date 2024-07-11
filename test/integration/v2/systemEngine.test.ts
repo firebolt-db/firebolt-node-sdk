@@ -14,8 +14,7 @@ jest.setTimeout(1000000);
 
 describe("system engine", () => {
   const engineName = connectionOptions.engineName + "_system_test";
-  const databaseNameForSystemTest =
-    process.env.FIREBOLT_DATABASE + "_system_test";
+  const databaseName = process.env.FIREBOLT_DATABASE + "_system_test";
 
   beforeAll(async () => {
     const firebolt = Firebolt({
@@ -33,13 +32,13 @@ describe("system engine", () => {
       });
 
     await connection
-      .execute(`drop database if exists "${databaseNameForSystemTest}"`)
+      .execute(`drop database if exists "${databaseName}"`)
       .catch(error => {
         console.log(error);
       });
     try {
       await connection.execute(
-        `create database if not exists "${databaseNameForSystemTest}"`
+        `create database if not exists "${databaseName}"`
       );
 
       const acc_version = (await connection.resolveAccountInfo()).infraVersion;
@@ -49,7 +48,7 @@ describe("system engine", () => {
           `create engine if not exists "${engineName}" with SPEC = 'B1' SCALE = 1`
         );
         await connection.execute(
-          `attach engine "${engineName}" to "${databaseNameForSystemTest}"`
+          `attach engine "${engineName}" to "${databaseName}"`
         );
       } else {
         await connection.execute(
@@ -74,9 +73,7 @@ describe("system engine", () => {
     try {
       await connection.execute(`stop engine "${engineName}"`);
       await connection.execute(`drop engine if exists "${engineName}"`);
-      await connection.execute(
-        `drop database if exists "${databaseNameForSystemTest}"`
-      );
+      await connection.execute(`drop database if exists "${databaseName}"`);
     } catch (error) {
       console.log(error);
       expect(true).toEqual(false);
@@ -133,7 +130,7 @@ describe("system engine", () => {
       );
       const { data } = await statement.fetchResult();
       const database = (data as unknown[][]).find(
-        row => row[0] === databaseNameForSystemTest
+        row => row[0] === databaseName
       );
       expect(database).toBeTruthy();
     } catch (error) {
