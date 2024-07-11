@@ -4,8 +4,6 @@ on:
   schedule:
     - cron: '0 6 * * *' # 6 am UTC every day
 jobs:
-  code-check:
-    uses: ./.github/workflows/code-check.yml
   tests:
     runs-on: ${{ matrix.os }}
     strategy:
