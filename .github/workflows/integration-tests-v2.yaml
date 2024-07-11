@@ -1,25 +1,23 @@
-name: Nightly code check
+name: Run integration tests for 2.0
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 6 * * *' # 6 am UTC every day
+  workflow_call:
+    secrets:
+      FIREBOLT_CLIENT_ID_STG_NEW_IDN:
+        required: true
+      FIREBOLT_CLIENT_SECRET_STG_NEW_IDN:
+        required: true
 jobs:
   tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false # finish all jobs even if one fails
-      max-parallel: 2
-      matrix:
-        os: ['macos-latest', 'windows-latest', 'ubuntu-latest']
-        node-version: ['16', '18', '20', '22']
+    runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
       - name: Set up node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '16'
 
       - name: Install dependencies
         run: npm install
@@ -30,13 +28,14 @@ jobs:
         with:
           firebolt-client-id: ${{ secrets.FIREBOLT_CLIENT_ID_STG_NEW_IDN }}
           firebolt-client-secret: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
-          account: ${{ vars.FIREBOLT_ACCOUNT }}
+          account: ${{ vars.FIREBOLT_ACCOUNT_V1 }}
           api-endpoint: "api.staging.firebolt.io"
-          db_suffix: ${{ format('{0}_{1}', matrix.os, matrix.node-version) }}
+          region: "us-east-1"
 
       - name: Run integration tests
         env:
-          FIREBOLT_ACCOUNT: ${{ vars.FIREBOLT_ACCOUNT }}
+          FIREBOLT_ACCOUNT_V1: ${{ vars.FIREBOLT_ACCOUNT_V1 }}
+          FIREBOLT_ACCOUNT_V2: ${{ vars.FIREBOLT_ACCOUNT_V2 }}
           FIREBOLT_DATABASE: ${{ steps.setup.outputs.database_name }}
           FIREBOLT_ENGINE_NAME: ${{ steps.setup.outputs.engine_name }}
           FIREBOLT_API_ENDPOINT: "api.staging.firebolt.io"
@@ -45,13 +44,20 @@ jobs:
         run: |
           npm run test:ci integration/v2
 
-      - name: Slack Notify of failure
-        if: failure()
-        id: slack
-        uses: firebolt-db/action-slack-nightly-notify@v1
+      # Need to pull the pages branch in order to fetch the previous runs
+      - name: Get Allure history
+        uses: actions/checkout@v2
+        if: always()
+        continue-on-error: true
         with:
-          os: ${{ matrix.os }}
-          programming-language: Node
-          language-version: ${{ matrix.node-version }}
-          notifications-channel: 'ecosystem-ci-notifications'
-          slack-api-key: ${{ secrets.SLACK_BOT_TOKEN }}
+            ref: gh-pages
+            path: gh-pages
+
+      - name: Allure Report
+        uses: firebolt-db/action-allure-report@main
+        if: always()
+        with:
+            github-key: ${{ secrets.GITHUB_TOKEN }}
+            test-type: integration
+            allure-dir: allure-results
+            pages-branch: gh-pages
