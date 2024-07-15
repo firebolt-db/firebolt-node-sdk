@@ -298,6 +298,17 @@ describe("parse values", () => {
     expect(isNaN(res["pnan"])).toBe(true);
     expect(isNaN(res["nnan"])).toBe(true);
   });
+  it("parses bigint", () => {
+    const row = {
+      big: "1000000000000000000000000000000000000"
+    };
+    const meta = [{ name: "big", type: "long" }];
+    const res: Record<string, BigNumber> = hydrateRow(row, meta, {});
+    expect(res["big"] instanceof BigNumber).toBe(true);
+    expect(res["big"]).toEqual(
+      new BigNumber(1000000000000000000000000000000000000)
+    );
+  });
 });
 
 describe("set statements", () => {
