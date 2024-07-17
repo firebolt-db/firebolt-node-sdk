@@ -7,8 +7,9 @@ import {
   Tuple
 } from "../../src/formatter";
 import { hydrateRow } from "../../src/statement/hydrateResponse";
+import "allure-jest";
 
-describe("format query", () => {
+describe("query formatting", () => {
   it("format", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
@@ -298,7 +299,10 @@ describe("parse values", () => {
     expect(isNaN(res["pnan"])).toBe(true);
     expect(isNaN(res["nnan"])).toBe(true);
   });
-  it("parses bigint", () => {
+  it("parses bigint into BigNumber container", () => {
+    allure.description(
+      "JS natively doesn't support bigint so we use BigNumber container"
+    );
     const row = {
       big: "1000000000000000000000000000000000000"
     };

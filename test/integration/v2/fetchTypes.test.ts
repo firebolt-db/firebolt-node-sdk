@@ -12,8 +12,8 @@ const connectionParams = {
 
 jest.setTimeout(100000);
 
-describe("types", () => {
-  it("handles select boolean", async () => {
+describe("test type casting on fetch", () => {
+  it("select boolean", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
@@ -27,7 +27,7 @@ describe("types", () => {
     const row = data[0];
     expect((row as unknown[])[0]).toEqual(true);
   });
-  it("handles select bigint", async () => {
+  it("select bigint", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
@@ -42,7 +42,7 @@ describe("types", () => {
     const row = data[0];
     expect((row as unknown[])[0]).toEqual(new BigNumber("9223372036854775807"));
   });
-  it("handles select negative bigint", async () => {
+  it("select negative bigint", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
