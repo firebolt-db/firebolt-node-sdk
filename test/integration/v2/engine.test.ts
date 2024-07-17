@@ -109,7 +109,7 @@ describe.each([
       });
 
       const connection = await firebolt.connect(connectionOptions);
-      const name = `${process.env.FIREBOLT_DATABASE}_create_delete`;
+      const name = `${process.env.FIREBOLT_DATABASE}_create_del`;
 
       const database = await firebolt.resourceManager.database.create(
         name,
