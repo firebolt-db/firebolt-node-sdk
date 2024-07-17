@@ -5,7 +5,7 @@ const connectionParams = {
     client_id: process.env.FIREBOLT_CLIENT_ID as string,
     client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
   },
-  account: process.env.FIREBOLT_ACCOUNT_V1 as string,
+  account: process.env.FIREBOLT_ACCOUNT as string,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
