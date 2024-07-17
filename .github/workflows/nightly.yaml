@@ -1,0 +1,57 @@
+name: Nightly code check
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * *' # 6 am UTC every day
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false # finish all jobs even if one fails
+      max-parallel: 2
+      matrix:
+        os: ['macos-latest', 'windows-latest', 'ubuntu-latest']
+        node-version: ['18', '20', '22']
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Setup database and engine
+        id: setup
+        uses: firebolt-db/integration-testing-setup@v2
+        with:
+          firebolt-client-id: ${{ secrets.FIREBOLT_CLIENT_ID_STG_NEW_IDN }}
+          firebolt-client-secret: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
+          account: ${{ vars.FIREBOLT_ACCOUNT }}
+          api-endpoint: "api.staging.firebolt.io"
+          db_suffix: ${{ format('{0}_{1}', matrix.os, matrix.node-version) }}
+
+      - name: Run integration tests
+        env:
+          FIREBOLT_ACCOUNT: ${{ vars.FIREBOLT_ACCOUNT }}
+          FIREBOLT_DATABASE: ${{ steps.setup.outputs.database_name }}
+          FIREBOLT_ENGINE_NAME: ${{ steps.setup.outputs.engine_name }}
+          FIREBOLT_API_ENDPOINT: "api.staging.firebolt.io"
+          FIREBOLT_CLIENT_ID: ${{ secrets.FIREBOLT_CLIENT_ID_STG_NEW_IDN }}
+          FIREBOLT_CLIENT_SECRET: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
+        run: |
+          npm run test:ci integration/v2
+
+      - name: Slack Notify of failure
+        if: failure()
+        id: slack
+        uses: firebolt-db/action-slack-nightly-notify@v1
+        with:
+          os: ${{ matrix.os }}
+          programming-language: Node
+          language-version: ${{ matrix.node-version }}
+          notifications-channel: 'ecosystem-ci-notifications'
+          slack-api-key: ${{ secrets.SLACK_BOT_TOKEN }}
