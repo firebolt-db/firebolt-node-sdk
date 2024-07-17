@@ -11,7 +11,7 @@ jobs:
       max-parallel: 2
       matrix:
         os: ['macos-latest', 'windows-latest', 'ubuntu-latest']
-        node-version: ['16', '18', '20', '22']
+        node-version: ['18', '20', '22']
     steps:
       - name: Check out code
         uses: actions/checkout@v4
