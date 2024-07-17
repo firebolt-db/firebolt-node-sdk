@@ -46,6 +46,9 @@ const getHydratedValue = (
     ) {
       return value.toString();
     }
+    if (typeof value === "string" && type === "long") {
+      return new BigNumber(value);
+    }
     return value;
   }
   if (isByteAType(type) && value != null) {
