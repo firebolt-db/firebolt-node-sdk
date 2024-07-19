@@ -95,7 +95,7 @@ console.log(rows)
 ## About
 The Firebolt client for Node.js. firebolt-sdk provides common methods for quering Firebolt databases, fetching and streaming results, and engine management.
 
-firebolt-sdk supports  Node.js `> v14`.
+firebolt-sdk supports  Node.js `> v16`.
 
 <a id="documentation"></a>
 ## Documentation

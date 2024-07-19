@@ -20,13 +20,13 @@ jobs:
     needs: integration-tests
     steps:    
     - name: Check out code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         token: ${{ secrets.RELEASE_PAT }}
     
     - name: Set up node.js
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
         node-version: '16'
     

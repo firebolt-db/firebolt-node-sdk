@@ -5,7 +5,7 @@
   "main": "./build/src/index.js",
   "types": "./build/src/index.d.ts",
   "engines": {
-    "node": ">=12.0"
+    "node": ">=16.0"
   },
   "scripts": {
     "build": "rm -fr ./build && tsc -p tsconfig.lib.json",
