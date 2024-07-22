@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.6.0...v1.7.0) (2024-07-22)
+
+
+### Features
+
+* Fir 33388 cache account id and system engine url in node sdk ([#102](https://github.com/firebolt-db/firebolt-node-sdk/issues/102)) ([5bf24b1](https://github.com/firebolt-db/firebolt-node-sdk/commit/5bf24b1a6a2fa5199e7320de08892b3a1657b812))
+* Fir 33645 replace i s databases with i s catalogs in drivers for node sdk ([#108](https://github.com/firebolt-db/firebolt-node-sdk/issues/108)) ([e84787a](https://github.com/firebolt-db/firebolt-node-sdk/commit/e84787a95a25af9a1a90a0df47abe0a94ac67c57))
+* **FIR-33628:** Parsing composite error from response body ([#105](https://github.com/firebolt-db/firebolt-node-sdk/issues/105)) ([47eb762](https://github.com/firebolt-db/firebolt-node-sdk/commit/47eb762f5eb12f8644f357f7ba3af4f039604600))
+
+
+### Bug Fixes
+
+* **FIR-34534:** Properly parsing bigint ([#111](https://github.com/firebolt-db/firebolt-node-sdk/issues/111)) ([4ffd909](https://github.com/firebolt-db/firebolt-node-sdk/commit/4ffd9094d79fb310778e7e0d3abf624f18f52ab6))
+
 ## [1.6.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.5.0...v1.6.0) (2024-06-04)
 
 
