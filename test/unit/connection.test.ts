@@ -114,7 +114,7 @@ describe("Connection", () => {
     resetServerHandlers(server);
   });
 
-  it("throws an error when error body is present", async () => {
+  it("throws an error when error json is present", async () => {
     server.use(
       rest.post(`https://some_engine.com`, async (req, res, ctx) => {
         const body = await req.text();
@@ -166,7 +166,8 @@ describe("Connection", () => {
 INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120,"endOffset":135}`
     );
   });
-  it("throws an error when error body is present", async () => {
+
+  it("throws an error when error json 2 is present", async () => {
     server.use(
       rest.post(`https://some_engine.com`, async (req, res, ctx) => {
         const body = await req.text();
