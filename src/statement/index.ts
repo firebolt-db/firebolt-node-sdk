@@ -80,7 +80,9 @@ export class Statement {
 
     const { data, meta, statistics } = normalized;
 
-    this.rowStream.write(data);
+    for (const row of data) {
+      this.rowStream.push(row);
+    }
 
     return {
       data: this.rowStream,
