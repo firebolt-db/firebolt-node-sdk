@@ -91,7 +91,11 @@ export class Statement {
     };
   }
 
-  async fetchResult() {
+  async fetchResult(): Promise<{
+    data: any;
+    meta: Meta[];
+    statistics: Statistics | null;
+  }> {
     const parsed = this.handleParseResponse(this.text);
     const normalized = normalizeResponse(parsed, this.executeQueryOptions);
 
