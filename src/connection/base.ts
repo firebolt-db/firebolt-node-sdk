@@ -7,6 +7,7 @@ import {
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
 import { ConnectionError, CompositeError } from "../common/errors";
+import JSONbig from "json-bigint";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.COMPACT
@@ -206,14 +207,14 @@ export abstract class Connection {
 
     try {
       const response = await request.ready();
+      const text = await response.text();
       await this.processHeaders(response.headers);
-      await this.throwErrorIfErrorBody(response);
-      const statement = new Statement(this.context, {
+      await this.throwErrorIfErrorBody(text, response);
+      return new Statement(this.context, {
         query: formattedQuery,
-        request,
+        text,
         executeQueryOptions
       });
-      return statement;
     } catch (error) {
       // In case it was a set query, remove set parameter if query fails
       if (setKey.length > 0) {
@@ -225,14 +226,13 @@ export abstract class Connection {
     }
   }
 
-  private async throwErrorIfErrorBody(response: Response) {
+  private async throwErrorIfErrorBody(text: string, response: Response) {
     // Hack, but looks like this is a limitation of the fetch API
     // In order to read the body here and elesewhere, we need to clone the response
     // since body can only be read once
-    const clonedResponse = response.clone();
     let json;
     try {
-      json = await clonedResponse.json();
+      json = JSONbig.parse(text);
     } catch (error) {
       // If we can't parse the JSON, we'll have to ignore it
       if (this.hasJsonContent(response)) {

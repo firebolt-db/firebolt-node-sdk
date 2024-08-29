@@ -114,7 +114,7 @@ describe("Connection", () => {
     resetServerHandlers(server);
   });
 
-  it("throws an error when error body is present", async () => {
+  it("throws an error when error json is present", async () => {
     server.use(
       rest.post(`https://some_engine.com`, async (req, res, ctx) => {
         const body = await req.text();
@@ -166,7 +166,8 @@ describe("Connection", () => {
 INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120,"endOffset":135}`
     );
   });
-  it("throws an error when error body is present", async () => {
+
+  it("throws an error when error json 2 is present", async () => {
     server.use(
       rest.post(`https://some_engine.com`, async (req, res, ctx) => {
         const body = await req.text();
@@ -524,4 +525,33 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
     expect(searchParamsUsed.get("param")).toEqual("value");
     expect(searchParamsUsed2.get("param")).toEqual(null);
   });
+
+  it("handles large response bodies correctly", async () => {
+    const largeResponse = {
+      data: Array(1000).fill({ one: 1, two: 2, three: 3 })
+    };
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        return res(ctx.json(largeResponse));
+      })
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    const statement = await connection.execute("SELECT 1");
+    const { data } = await statement.fetchResult();
+    expect(data.length).toEqual(1000);
+  }, 10000);
 });
