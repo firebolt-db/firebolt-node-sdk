@@ -166,7 +166,8 @@ describe("integration test", () => {
     await firebolt.testConnection(connectionParams);
     expect(true).toBeTruthy();
   });
-  it("custom parser", async () => {
+  // Since streaming is currently disabled, custom parser is not supported
+  it.skip("custom parser", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
