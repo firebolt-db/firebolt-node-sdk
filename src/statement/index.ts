@@ -83,6 +83,8 @@ export class Statement {
     for (const row of data) {
       this.rowStream.push(row);
     }
+    this.rowStream.push(null);
+    this.rowStream.end();
 
     return {
       data: this.rowStream,
