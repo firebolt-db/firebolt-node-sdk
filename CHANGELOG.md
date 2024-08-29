@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.7.0...v1.7.1) (2024-08-29)
+
+
+### Bug Fixes
+
+* FIR-36189 nest js script stuck when running a query with limit 58 and above ([#115](https://github.com/firebolt-db/firebolt-node-sdk/issues/115)) ([54ccc50](https://github.com/firebolt-db/firebolt-node-sdk/commit/54ccc50d2a8e5bfdc5e3b6b716abd0f20485a617))
+
 ## [1.7.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.6.0...v1.7.0) (2024-07-22)
 
 
