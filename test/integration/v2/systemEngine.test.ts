@@ -41,20 +41,9 @@ describe("system engine", () => {
         `create database if not exists "${databaseName}"`
       );
 
-      const acc_version = (await connection.resolveAccountInfo()).infraVersion;
-
-      if (acc_version === 1) {
-        await connection.execute(
-          `create engine if not exists "${engineName}" with SPEC = 'B1' SCALE = 1`
-        );
-        await connection.execute(
-          `attach engine "${engineName}" to "${databaseName}"`
-        );
-      } else {
-        await connection.execute(
-          `create engine if not exists "${engineName}" with TYPE=S NODES=1`
-        );
-      }
+      await connection.execute(
+        `create engine if not exists "${engineName}" with TYPE=S NODES=1`
+      );
     } catch (error) {
       console.log(error);
       expect(true).toEqual(false);
