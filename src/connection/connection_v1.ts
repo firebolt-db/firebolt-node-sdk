@@ -1,10 +1,17 @@
 import { ACCOUNT, ACCOUNT_BY_NAME } from "../common/api";
-import { AccountInfo, Connection as BaseConnection } from "./base";
+import { Connection as BaseConnection } from "./base";
 import { ResourceManager } from "../service";
 
 const INFRA_VERSION = 1;
 
+export interface AccountInfo {
+  id: string;
+  infraVersion: number;
+}
+
 export class ConnectionV1 extends BaseConnection {
+  protected accountInfo: AccountInfo | undefined;
+
   async resolveEngineEndpoint() {
     const resourceManager = new ResourceManager({
       connection: this,
@@ -25,6 +32,11 @@ export class ConnectionV1 extends BaseConnection {
     );
     this.engineEndpoint = defaultUrl;
     return this.engineEndpoint;
+  }
+
+  async resolveAccountId() {
+    const accInfo = await this.resolveAccountInfo();
+    return accInfo.id;
   }
 
   async resolveAccountInfo(): Promise<AccountInfo> {

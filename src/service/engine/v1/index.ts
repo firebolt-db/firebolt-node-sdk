@@ -6,7 +6,7 @@ import {
   ENGINES_BY_IDS_URL,
   ResultsPage
 } from "../../../common/api";
-import { ResourceManagerContext } from "../../../types";
+import { ResourceManagerContextV1 } from "../../../types";
 import { EngineModel } from "./model";
 import { Engine, ID } from "./types";
 import { CreateEngineOptions } from "../types";
@@ -19,9 +19,9 @@ import {
 import { DatabaseService } from "../../database/v1";
 
 export class EngineService {
-  private readonly context: ResourceManagerContext;
+  private readonly context: ResourceManagerContextV1;
 
-  constructor(context: ResourceManagerContext) {
+  constructor(context: ResourceManagerContextV1) {
     this.context = context;
   }
 

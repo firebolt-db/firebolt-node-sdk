@@ -2,17 +2,17 @@ import {
   ACCOUNT_ENGINE_URL_BY_DATABASE_NAME,
   ACCOUNT_DATABASE
 } from "../../../common/api";
-import { ResourceManagerContext } from "../../../types";
+import { ResourceManagerContextV1 } from "../../../types";
 import { ID, Database } from "./types";
 import { ResourceManager } from "../../index";
 
 export class DatabaseModel {
-  private readonly context: ResourceManagerContext;
+  private readonly context: ResourceManagerContextV1;
   id: ID;
   name: string;
   description: string;
 
-  constructor(context: ResourceManagerContext, database: Database) {
+  constructor(context: ResourceManagerContextV1, database: Database) {
     const { id, name, description } = database;
     this.id = id;
     this.name = name;

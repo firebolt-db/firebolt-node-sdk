@@ -5,6 +5,7 @@ import { LoggerInterface, LoggerOptions } from "./logger";
 import { Meta } from "./meta";
 import { QueryFormatter } from "./formatter";
 import { Connection } from "./connection";
+import { ConnectionV1 } from "./connection/connection_v1";
 
 export type Statistics = {
   duration: number | BigNumber;
@@ -116,5 +117,12 @@ export type ResourceManagerContext = {
   logger: LoggerInterface;
   httpClient: HttpClientInterface;
   connection: Connection;
+  apiEndpoint: string;
+};
+
+export type ResourceManagerContextV1 = {
+  logger: LoggerInterface;
+  httpClient: HttpClientInterface;
+  connection: ConnectionV1;
   apiEndpoint: string;
 };

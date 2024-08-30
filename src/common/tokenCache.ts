@@ -1,4 +1,4 @@
-import { AccountInfo } from "../connection/base";
+import { AccountInfo } from "../connection/connection_v1";
 
 export type TokenKey = {
   clientId: string;
