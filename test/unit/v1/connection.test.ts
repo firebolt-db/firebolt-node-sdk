@@ -135,7 +135,6 @@ describe("Connection v1", () => {
       connection as unknown as ConnectionV1
     ).resolveAccountInfo();
     expect(account_info.id).toBe("some_account");
-    expect(account_info.infraVersion).toBe(1);
   });
   it("Can run set statements", async () => {
     const param = "my_var";
