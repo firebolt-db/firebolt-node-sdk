@@ -120,9 +120,6 @@ export type ResourceManagerContext = {
   apiEndpoint: string;
 };
 
-export type ResourceManagerContextV1 = {
-  logger: LoggerInterface;
-  httpClient: HttpClientInterface;
+export type ResourceManagerContextV1 = ResourceManagerContext & {
   connection: ConnectionV1;
-  apiEndpoint: string;
 };
