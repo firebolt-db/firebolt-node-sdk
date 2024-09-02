@@ -4,18 +4,18 @@ import {
   ACCOUNT_ENGINE_STOP,
   ACCOUNT_ENGINE_RESTART
 } from "../../../common/api";
-import { ResourceManagerContext } from "../../../types";
+import { ResourceManagerContextV1 } from "../../../types";
 import { ID, Engine, EngineStatusSummary } from "./types";
 
 export class EngineModel {
-  private readonly context: ResourceManagerContext;
+  private readonly context: ResourceManagerContextV1;
   id: ID;
   name: string;
   description: string;
   endpoint: string;
   current_status_summary: EngineStatusSummary;
 
-  constructor(context: ResourceManagerContext, engine: Engine) {
+  constructor(context: ResourceManagerContextV1, engine: Engine) {
     const { id, name, description, endpoint, current_status_summary } = engine;
     this.id = id;
     this.name = name;

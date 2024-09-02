@@ -4,17 +4,16 @@ import {
   ACCOUNT_ENGINE_URL_BY_DATABASE_NAME,
   ResultsPage
 } from "../../../common/api";
-import { ResourceManagerContext } from "../../../types";
+import { ResourceManagerContextV1 } from "../../../types";
 import { DatabaseModel } from "./model";
 import { ID, Database } from "./types";
 import { CreateDatabaseOptions } from "../types";
 import { resolveRegionKey } from "../../utils";
 import { ResourceManager } from "../../index";
-
 export class DatabaseService {
-  private readonly context: ResourceManagerContext;
+  private readonly context: ResourceManagerContextV1;
 
-  constructor(context: ResourceManagerContext) {
+  constructor(context: ResourceManagerContextV1) {
     this.context = context;
   }
 

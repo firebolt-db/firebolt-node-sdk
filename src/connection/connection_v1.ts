@@ -1,10 +1,14 @@
 import { ACCOUNT, ACCOUNT_BY_NAME } from "../common/api";
-import { AccountInfo, Connection as BaseConnection } from "./base";
+import { Connection as BaseConnection } from "./base";
 import { ResourceManager } from "../service";
 
-const INFRA_VERSION = 1;
+export interface AccountInfo {
+  id: string;
+}
 
 export class ConnectionV1 extends BaseConnection {
+  protected accountInfo: AccountInfo | undefined;
+
   async resolveEngineEndpoint() {
     const resourceManager = new ResourceManager({
       connection: this,
@@ -27,6 +31,11 @@ export class ConnectionV1 extends BaseConnection {
     return this.engineEndpoint;
   }
 
+  async resolveAccountId() {
+    const accInfo = await this.resolveAccountInfo();
+    return accInfo.id;
+  }
+
   async resolveAccountInfo(): Promise<AccountInfo> {
     if (this.accountInfo === undefined) {
       const { httpClient, apiEndpoint } = this.context;
@@ -37,7 +46,7 @@ export class ConnectionV1 extends BaseConnection {
         const { account_id } = await httpClient
           .request<{ account_id: string }>("GET", url)
           .ready();
-        this.accountInfo = { id: account_id, infraVersion: INFRA_VERSION };
+        this.accountInfo = { id: account_id };
       } else {
         const url = `${apiEndpoint}/${ACCOUNT}`;
         const {
@@ -45,7 +54,7 @@ export class ConnectionV1 extends BaseConnection {
         } = await httpClient
           .request<{ account: { id: string } }>("GET", url)
           .ready();
-        this.accountInfo = { id, infraVersion: INFRA_VERSION };
+        this.accountInfo = { id };
       }
     }
     return this.accountInfo;

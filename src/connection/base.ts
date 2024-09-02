@@ -6,7 +6,7 @@ import {
 } from "../types";
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
-import { ConnectionError, CompositeError } from "../common/errors";
+import { CompositeError } from "../common/errors";
 import JSONbig from "json-bigint";
 
 const defaultQuerySettings = {
@@ -16,11 +16,6 @@ const defaultQuerySettings = {
 const defaultResponseSettings = {
   normalizeData: false
 };
-
-export interface AccountInfo {
-  id: string;
-  infraVersion: number;
-}
 
 const updateParametersHeader = "Firebolt-Update-Parameters";
 const allowedUpdateParameters = ["database"];
@@ -34,7 +29,6 @@ export abstract class Connection {
   protected options: ConnectionOptions;
   protected userAgent: string;
   protected parameters: Record<string, string>;
-  protected accountInfo: AccountInfo | undefined;
   engineEndpoint!: string;
   activeRequests = new Set<{ abort: () => void }>();
 
@@ -52,13 +46,6 @@ export abstract class Connection {
   }
 
   abstract resolveEngineEndpoint(): Promise<string>;
-
-  abstract resolveAccountInfo(): Promise<AccountInfo>;
-
-  async resolveAccountId() {
-    const accInfo = await this.resolveAccountInfo();
-    return accInfo.id;
-  }
 
   protected getRequestUrl(executeQueryOptions: ExecuteQueryOptions): string {
     const params = this.getBaseParameters(executeQueryOptions);
@@ -132,16 +119,6 @@ export abstract class Connection {
 
   private async handleUpdateEndpointHeader(headerValue: string): Promise<void> {
     const [endpoint, newParams] = this.splitEndpoint(headerValue);
-
-    // Validate account_id if present
-    const currentAccountId =
-      this.accountInfo?.id ?? (await this.resolveAccountId());
-    if (newParams.account_id && currentAccountId !== newParams.account_id) {
-      throw new ConnectionError({
-        message: `Failed to execute USE ENGINE command. Account parameter mismatch. Contact support.`
-      });
-    }
-
     // Remove url parameters and update engineEndpoint
     this.engineEndpoint = endpoint;
     this.parameters = {

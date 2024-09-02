@@ -1,6 +1,8 @@
 import { setupServer, SetupServerApi } from "msw/node";
 import { rest } from "msw";
 import { ConnectionOptions, Firebolt } from "../../../src";
+import { ConnectionV1 } from "../../../src/connection/connection_v1";
+
 
 const apiEndpoint = "fake.api.com";
 const accountName = "my_account";
@@ -126,11 +128,13 @@ describe("Connection v1", () => {
     };
 
     const connection = await firebolt.connect(connectionParams);
+    expect(connection).toBeInstanceOf(ConnectionV1);
     await connection.execute("SELECT 1");
     expect(connection.engineEndpoint).toBe(engineObject.endpoint);
-    const account_info = await connection.resolveAccountInfo();
+    const account_info = await (
+      connection as unknown as ConnectionV1
+    ).resolveAccountInfo();
     expect(account_info.id).toBe("some_account");
-    expect(account_info.infraVersion).toBe(1);
   });
   it("Can run set statements", async () => {
     const param = "my_var";
