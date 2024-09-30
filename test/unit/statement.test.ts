@@ -39,20 +39,18 @@ describe("query formatting", () => {
     const formattedQuery = queryFormatter.formatQuery(query, ["foo?"]);
     expect(formattedQuery).toMatchInlineSnapshot(`"select 'foo?' from table"`);
   });
-  it("format \n", () => {
+  it("format new line", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo\nbar"]);
-    expect(formattedQuery).toMatchInlineSnapshot(
-      `"select 'foo\\nbar' from table"`
-    );
+    expect(formattedQuery).toBe(`select 'foo\nbar' from table`);
   });
   it("format '", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo'bar"]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select 'foo\\'bar' from table"`
+      `"select 'foo''bar' from table"`
     );
   });
 
@@ -67,19 +65,21 @@ describe("query formatting", () => {
   it("format array", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
-    const formattedQuery = queryFormatter.formatQuery(query, [["foo", 'bar"']]);
+    const formattedQuery = queryFormatter.formatQuery(query, [
+      ["foo'", 'bar"']
+    ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select ['foo', 'bar\\"'] from table"`
+      `"select ['foo''', 'bar"'] from table"`
     );
   });
   it("format nested array", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, [
-      ["foo", ["foo", 'bar"']]
+      ["foo", ["foo'", 'bar"']]
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select ['foo', ['foo', 'bar\\"']] from table"`
+      `"select ['foo', ['foo''', 'bar"']] from table"`
     );
   });
   it("escape bignumber", () => {
@@ -145,10 +145,10 @@ describe("query formatting", () => {
   it("format with comments in strings", () => {
     const queryFormatter = new QueryFormatter();
     const query =
-      "SELECT 'str \\' ? -- not comment', /* comment? */ ? -- comment?";
+      "SELECT 'str '' ? -- not comment', /* comment? */ ? -- comment?";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo"]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"SELECT 'str \\' ? -- not comment', /* comment? */ 'foo' -- comment?"`
+      `"SELECT 'str '' ? -- not comment', /* comment? */ 'foo' -- comment?"`
     );
   });
   it("format tuple", () => {

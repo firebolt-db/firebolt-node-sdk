@@ -2,18 +2,10 @@ import BigNumber from "bignumber.js";
 import { checkArgumentValid, zeroPad } from "../common/util";
 import { INVALID_PARAMETERS } from "../common/errors";
 
-const CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a"'\\]/g; // eslint-disable-line no-control-regex
+const CHARS_GLOBAL_REGEXP = /'/g;
 
 const CHARS_ESCAPE_MAP: Record<string, string> = {
-  "\0": "\\0",
-  "\b": "\\b",
-  "\t": "\\t",
-  "\n": "\\n",
-  "\r": "\\r",
-  "\x1a": "\\Z",
-  '"': '\\"',
-  "'": "\\'",
-  "\\": "\\\\"
+  "'": "''"
 };
 const SET_PREFIX = "set ";
 
@@ -47,15 +39,14 @@ export class QueryFormatter {
     params = [...params];
 
     // Matches:
-    // - ' strings with \ escapes
-    // - " strings with \ escapes
+    // - ' strings without escapes, 'foo''bar' matches as two strings and it's alright
+    // - " strings without escapes, "foo""bar" matches as two strings and it's alright
     // - /* */ comments
     // - -- comments
     // - ? parameters
     // - :: operator
     // - :named parameters
-    const tokenizer =
-      /'(?:[^'\\]+|\\.)*'|"(?:[^"\\]+|\\.)*"|\/\*[\s\S]*\*\/|--.*|(\?)|::|:(\w+)/g;
+    const tokenizer = /'[^']*'|"[^"]*"|\/\*[\s\S]*?\*\/|--.*|(\?)|::|:(\w+)/g;
 
     query = query.replace(
       tokenizer,
