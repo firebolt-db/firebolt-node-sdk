@@ -1,11 +1,7 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { NodeHttpClient } from "../../../src/http/node";
 import { Logger } from "../../../src/logger/node";
-import { ResourceManager } from "../../../src/service";
-import { QueryFormatter } from "../../../src/formatter";
 import { Firebolt, FireboltResourceManager } from "../../../src";
-import { Authenticator } from "../../../src/auth";
 import {
   ACCOUNT_BINDINGS_URL,
   ACCOUNT_DATABASE,

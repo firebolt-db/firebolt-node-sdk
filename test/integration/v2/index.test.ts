@@ -333,41 +333,4 @@ describe("integration test", () => {
       });
     }).rejects.toThrow(AccountNotFoundError);
   });
-  // it("similarweb issue", async () => {
-  //   const firebolt = Firebolt({
-  //     apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-  //   });
-
-  //   const connection = await firebolt.connect(connectionParams);
-
-  //   const statement = await connection.execute(
-  //     `
-  //   SELECT
-  //       "date",
-  //       asin AS asin,
-  //       "views" AS total_views,
-  //       units_sold AS units_sold,
-  //       revenue AS revenue,
-  //       average_price AS price,
-  //       rating AS rating,
-  //       new_reviews AS reviews,
-  //       brand,
-  //       name,
-  //       leaf_category_id_whitelist AS category_id,
-  //       leaf_category_name_whitelist AS category_name
-  //   FROM
-  //       monthly_product_est
-  //   WHERE
-  //       domain = 'amazon.com'
-  //       AND asin IN ('B07MH1KHJ2','B07MHJFRBJ','B07MGT6412','B07MFMWFYL','B08QY6HT97','B07MFN8FRT','B08QXJ31WR','B08QVFHB8Y','B07MJ7N6VW','B08QVLH26Q','B08QXFTVLG','B07MK6C1JM','B07MG7M2BM','B08R7QZDY9','B08R6MVJRK','B07MFW7RW7')
-  //       AND "date" BETWEEN '2024-02-01' AND '2024-07-01'
-  //       AND category_id = '-1'
-  //   ORDER BY asin, "date";
-  //     `
-  //   );
-
-  //   const { data, meta } = await statement.fetchResult();
-  //   console.log(meta);
-  //   expect(data.length).toEqual(104);
-  // });
 });
