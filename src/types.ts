@@ -3,7 +3,6 @@ import { HttpClientInterface, HttpClientOptions } from "./http";
 
 import { LoggerInterface, LoggerOptions } from "./logger";
 import { Meta } from "./meta";
-import { QueryFormatter } from "./formatter";
 import { Connection } from "./connection";
 import { ConnectionV1 } from "./connection/connection_v1";
 
@@ -109,7 +108,6 @@ export type ResourceManagerOptions = FireboltClientOptions & {
 export type Context = {
   logger: LoggerInterface;
   httpClient: HttpClientInterface;
-  queryFormatter: QueryFormatter;
   apiEndpoint: string;
 };
 

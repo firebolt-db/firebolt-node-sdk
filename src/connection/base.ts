@@ -8,6 +8,7 @@ import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
 import { CompositeError } from "../common/errors";
 import JSONbig from "json-bigint";
+import { QueryFormatter } from "../formatter/base";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.COMPACT
@@ -26,15 +27,21 @@ const testConnectionQuery = "SELECT 1";
 
 export abstract class Connection {
   protected context: Context;
+  protected queryFormatter: QueryFormatter;
   protected options: ConnectionOptions;
   protected userAgent: string;
   protected parameters: Record<string, string>;
   engineEndpoint!: string;
   activeRequests = new Set<{ abort: () => void }>();
 
-  constructor(context: Context, options: ConnectionOptions) {
+  constructor(
+    queryFormatter: QueryFormatter,
+    context: Context,
+    options: ConnectionOptions
+  ) {
     this.context = context;
     this.options = options;
+    this.queryFormatter = queryFormatter;
     this.parameters = {
       ...(options.database ? { database: options.database } : {}),
       ...defaultQuerySettings
@@ -147,7 +154,7 @@ export abstract class Connection {
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<Statement> {
-    const { httpClient, queryFormatter } = this.context;
+    const { httpClient } = this.context;
 
     executeQueryOptions.response = {
       ...defaultResponseSettings,
@@ -159,12 +166,12 @@ export abstract class Connection {
     let setKey = "",
       setValue = "",
       formattedQuery: string;
-    if (queryFormatter.isSetStatement(query)) {
-      [setKey, setValue] = queryFormatter.splitSetStatement(query);
+    if (this.queryFormatter.isSetStatement(query)) {
+      [setKey, setValue] = this.queryFormatter.splitSetStatement(query);
       this.parameters[setKey] = setValue;
       formattedQuery = testConnectionQuery;
     } else {
-      formattedQuery = queryFormatter.formatQuery(
+      formattedQuery = this.queryFormatter.formatQuery(
         query,
         parameters,
         namedParameters

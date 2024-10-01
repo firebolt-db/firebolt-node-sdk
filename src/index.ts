@@ -36,7 +36,7 @@ export {
   TimestampTZ,
   TimestampNTZ,
   QueryFormatter
-} from "./formatter";
+} from "./formatter/base";
 
 export { JSONParser } from "./statement/stream/parser";
 
