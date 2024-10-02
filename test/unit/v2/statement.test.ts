@@ -1,15 +1,15 @@
 import BigNumber from "bignumber.js";
 import {
   PGDate,
-  QueryFormatter,
   TimestampTZ,
   TimestampNTZ,
   Tuple
-} from "../../src/formatter";
-import { hydrateRow } from "../../src/statement/hydrateResponse";
+} from "../../../src/formatter/base";
+import { QueryFormatterV2 as QueryFormatter } from "../../../src/formatter/formatter_v2";
+import { hydrateRow } from "../../../src/statement/hydrateResponse";
 import "allure-jest";
 
-describe("query formatting", () => {
+describe("query formatting v2", () => {
   it("format", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
@@ -39,20 +39,18 @@ describe("query formatting", () => {
     const formattedQuery = queryFormatter.formatQuery(query, ["foo?"]);
     expect(formattedQuery).toMatchInlineSnapshot(`"select 'foo?' from table"`);
   });
-  it("format \n", () => {
+  it("format newline", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo\nbar"]);
-    expect(formattedQuery).toMatchInlineSnapshot(
-      `"select 'foo\\nbar' from table"`
-    );
+    expect(formattedQuery).toBe(`select 'foo\nbar' from table`);
   });
   it("format '", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo'bar"]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select 'foo\\'bar' from table"`
+      `"select 'foo''bar' from table"`
     );
   });
 
@@ -67,9 +65,11 @@ describe("query formatting", () => {
   it("format array", () => {
     const queryFormatter = new QueryFormatter();
     const query = "select ? from table";
-    const formattedQuery = queryFormatter.formatQuery(query, [["foo", 'bar"']]);
+    const formattedQuery = queryFormatter.formatQuery(query, [
+      ["foo'", 'bar"']
+    ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select ['foo', 'bar\\"'] from table"`
+      `"select ['foo''', 'bar"'] from table"`
     );
   });
   it("format nested array", () => {
@@ -79,7 +79,7 @@ describe("query formatting", () => {
       ["foo", ["foo", 'bar"']]
     ]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"select ['foo', ['foo', 'bar\\"']] from table"`
+      `"select ['foo', ['foo', 'bar"']] from table"`
     );
   });
   it("escape bignumber", () => {
@@ -145,10 +145,10 @@ describe("query formatting", () => {
   it("format with comments in strings", () => {
     const queryFormatter = new QueryFormatter();
     const query =
-      "SELECT 'str \\' ? -- not comment', /* comment? */ ? -- comment?";
+      "SELECT 'str '' ? -- not comment', /* comment? */ ? -- comment?";
     const formattedQuery = queryFormatter.formatQuery(query, ["foo"]);
     expect(formattedQuery).toMatchInlineSnapshot(
-      `"SELECT 'str \\' ? -- not comment', /* comment? */ 'foo' -- comment?"`
+      `"SELECT 'str '' ? -- not comment', /* comment? */ 'foo' -- comment?"`
     );
   });
   it("format tuple", () => {

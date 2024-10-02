@@ -1,6 +1,7 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Firebolt, QueryFormatter } from "../../src";
+import { Firebolt } from "../../src";
+import { QueryFormatterV2 as QueryFormatter } from "../../src/formatter/formatter_v2";
 import { ConnectionOptions } from "../../src/types";
 import { QUERY_URL } from "../../src/common/api";
 import { ConnectionV2 } from "../../src/connection/connection_v2";
@@ -433,12 +434,15 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
       const context = {
         logger: new Logger(),
         httpClient: new NodeHttpClient(),
-        apiEndpoint,
-        queryFormatter: new QueryFormatter()
+        apiEndpoint
       };
-
+      const queryFormatter = new QueryFormatter();
       const auth = new Authenticator(context, connectionOptions);
-      const connection = new MockConnection(context, connectionOptions);
+      const connection = new MockConnection(
+        queryFormatter,
+        context,
+        connectionOptions
+      );
       await auth.authenticate();
       await connection.resolveEngineEndpoint();
       return connection;

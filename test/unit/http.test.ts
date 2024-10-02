@@ -3,7 +3,6 @@ import { rest } from "msw";
 import { Authenticator } from "../../src/auth";
 import { NodeHttpClient } from "../../src/http/node";
 import { Logger } from "../../src/logger/node";
-import { QueryFormatter } from "../../src/formatter";
 import { AuthOptions } from "../../src/types";
 
 const apiEndpoint = "api.fake.firebolt.io";
@@ -49,10 +48,9 @@ describe.each([
 
   it("stores access token", async () => {
     const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
 
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger },
+      { httpClient, apiEndpoint, logger },
       {
         auth,
         account: "my_account"
@@ -64,9 +62,8 @@ describe.each([
   });
   it("sends access token in headers", async () => {
     const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger },
+      { httpClient, apiEndpoint, logger },
       {
         auth,
         account: "my_account"
@@ -85,9 +82,8 @@ describe.each([
   });
   it("throw error if status > 300", async () => {
     const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger },
+      { httpClient, apiEndpoint, logger },
       {
         auth,
         account: "my_account"
@@ -109,9 +105,8 @@ describe.each([
 
   it("sends protocol version in headers", async () => {
     const httpClient = new NodeHttpClient();
-    const queryFormatter = new QueryFormatter();
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger },
+      { httpClient, apiEndpoint, logger },
       {
         auth,
         account: "my_account"
@@ -142,7 +137,6 @@ describe.each([
 ])("token caching %s", (_, authUrl: string, auth: AuthOptions) => {
   const server = setupServer();
   const httpClient = new NodeHttpClient();
-  const queryFormatter = new QueryFormatter();
 
   beforeAll(() => {
     server.listen();
@@ -153,7 +147,7 @@ describe.each([
 
   it("caches and reuses access token", async () => {
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger },
+      { httpClient, apiEndpoint, logger },
       {
         auth,
         account: "my_account",
@@ -186,7 +180,7 @@ describe.each([
 
   it("refreshes token if expired", async () => {
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger },
+      { httpClient, apiEndpoint, logger },
       {
         auth,
         account: "my_account",
@@ -220,7 +214,7 @@ describe.each([
 
   it("disregards cache on 401 error", async () => {
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger },
+      { httpClient, apiEndpoint, logger },
       {
         auth,
         account: "my_account",
@@ -263,7 +257,7 @@ describe.each([
 
   it("doesn't cache token if useCache is false", async () => {
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger },
+      { httpClient, apiEndpoint, logger },
       {
         auth,
         account: "my_account",
@@ -294,7 +288,7 @@ describe.each([
 
   it("caches different token for different apiEndpoints", async () => {
     const authenticator = new Authenticator(
-      { queryFormatter, httpClient, apiEndpoint, logger },
+      { httpClient, apiEndpoint, logger },
       {
         auth,
         account: "my_account",
@@ -304,7 +298,6 @@ describe.each([
 
     const authenticator2 = new Authenticator(
       {
-        queryFormatter,
         httpClient,
         apiEndpoint: "api.fake2.firebolt.io",
         logger

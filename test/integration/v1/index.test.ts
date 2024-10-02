@@ -53,6 +53,29 @@ describe("integration test", () => {
       expect(value).toBeInstanceOf(Date);
     }
   });
+  it("string quoting", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    const statement = await connection.execute("select ? as json", {
+      response: { normalizeData: true },
+      parameters: [`{"key":"val"}`]
+    });
+    const { data } = await statement.fetchResult();
+    const row_parameterised = data[0];
+    const statement2 = await connection.execute(
+      `select '{"key":"val"}' as json`,
+      {
+        response: { normalizeData: true }
+      }
+    );
+    const { data: data2 } = await statement2.fetchResult();
+    const row_literal = data2[0];
+    expect(row_parameterised).toMatchObject(row_literal);
+    expect(row_parameterised).toMatchObject({ json: `{"key":"val"}` });
+  });
   it("fails on no engine found", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string

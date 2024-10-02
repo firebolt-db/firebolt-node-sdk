@@ -2,19 +2,6 @@ import BigNumber from "bignumber.js";
 import { checkArgumentValid, zeroPad } from "../common/util";
 import { INVALID_PARAMETERS } from "../common/errors";
 
-const CHARS_GLOBAL_REGEXP = /[\0\b\t\n\r\x1a"'\\]/g; // eslint-disable-line no-control-regex
-
-const CHARS_ESCAPE_MAP: Record<string, string> = {
-  "\0": "\\0",
-  "\b": "\\b",
-  "\t": "\\t",
-  "\n": "\\n",
-  "\r": "\\r",
-  "\x1a": "\\Z",
-  '"': '\\"',
-  "'": "\\'",
-  "\\": "\\\\"
-};
 const SET_PREFIX = "set ";
 
 export class Tuple {
@@ -38,7 +25,11 @@ export class TimestampTZ extends Date {
 
 export class TimestampNTZ extends Date {}
 
-export class QueryFormatter {
+export abstract class QueryFormatter {
+  abstract get CHARS_GLOBAL_REGEXP(): RegExp;
+  abstract get CHARS_ESCAPE_MAP(): Record<string, string>;
+  abstract get tokenizer(): RegExp;
+
   private format(
     query: string,
     params: unknown[],
@@ -46,19 +37,8 @@ export class QueryFormatter {
   ) {
     params = [...params];
 
-    // Matches:
-    // - ' strings with \ escapes
-    // - " strings with \ escapes
-    // - /* */ comments
-    // - -- comments
-    // - ? parameters
-    // - :: operator
-    // - :named parameters
-    const tokenizer =
-      /'(?:[^'\\]+|\\.)*'|"(?:[^"\\]+|\\.)*"|\/\*[\s\S]*\*\/|--.*|(\?)|::|:(\w+)/g;
-
     query = query.replace(
-      tokenizer,
+      this.tokenizer,
       (str, param: string | undefined, paramName: string | undefined) => {
         if (param) {
           if (params.length == 0) {
@@ -113,15 +93,15 @@ export class QueryFormatter {
   }
 
   private escapeString(param: string) {
-    let chunkIndex = (CHARS_GLOBAL_REGEXP.lastIndex = 0);
+    let chunkIndex = (this.CHARS_GLOBAL_REGEXP.lastIndex = 0);
     let escapedValue = "";
     let match;
 
-    while ((match = CHARS_GLOBAL_REGEXP.exec(param))) {
+    while ((match = this.CHARS_GLOBAL_REGEXP.exec(param))) {
       const key = match[0];
       escapedValue +=
-        param.slice(chunkIndex, match.index) + CHARS_ESCAPE_MAP[key];
-      chunkIndex = CHARS_GLOBAL_REGEXP.lastIndex;
+        param.slice(chunkIndex, match.index) + this.CHARS_ESCAPE_MAP[key];
+      chunkIndex = this.CHARS_GLOBAL_REGEXP.lastIndex;
     }
 
     if (chunkIndex === 0) {
