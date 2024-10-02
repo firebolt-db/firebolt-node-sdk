@@ -13,6 +13,8 @@ const CHARS_ESCAPE_MAP: Record<string, string> = {
 // - ? parameters
 // - :: operator
 // - :named parameters
+// Captures the ? and :named parameters that are not inside strings or quotes
+// and quotes that need escaping
 const tokenizer = /'[^']*'|"[^"]*"|\/\*[\s\S]*\*\/|--.*|(\?)|::|:(\w+)/g;
 
 export class QueryFormatterV2 extends QueryFormatter {

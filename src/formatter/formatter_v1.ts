@@ -21,6 +21,8 @@ const CHARS_ESCAPE_MAP: Record<string, string> = {
 // - ? parameters
 // - :: operator
 // - :named parameters
+// Captures the ? and :named parameters that are not inside strings or quotes
+// and special characters
 const tokenizer =
   /'(?:[^'\\]+|\\.)*'|"(?:[^"\\]+|\\.)*"|\/\*[\s\S]*\*\/|--.*|(\?)|::|:(\w+)/g;
 
