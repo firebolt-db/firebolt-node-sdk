@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.7.3](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.7.2...v1.7.3) (2024-10-02)
+
+
+### Bug Fixes
+
+* **FIR-37001:** fix parameter formatting for new FB version ([#119](https://github.com/firebolt-db/firebolt-node-sdk/issues/119)) ([9e383ae](https://github.com/firebolt-db/firebolt-node-sdk/commit/9e383aeced86286d9104b3c9a8a1e161e28827d6))
+
 ### [1.7.2](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.7.1...v1.7.2) (2024-09-02)
 
 ### [1.7.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.7.0...v1.7.1) (2024-08-29)
