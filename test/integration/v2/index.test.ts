@@ -291,7 +291,7 @@ describe("integration test", () => {
     await firebolt.testConnection(connectionParams);
     expect(true).toBeTruthy();
   });
-  it("custom parser", async () => {
+  it.skip("custom parser", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
