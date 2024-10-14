@@ -36,8 +36,10 @@ export class FireboltCore {
     const connection = makeConnection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
-    await connection.execute("select 1", {
-      settings: { auto_start_stop_control: SettingValues.IGNORE }
-    });
+    // auto_start_stop_control is only available for v2
+    const settings = auth.isServiceAccount()
+      ? { auto_start_stop_control: SettingValues.IGNORE }
+      : {};
+    await connection.execute("select 1", { settings });
   }
 }
