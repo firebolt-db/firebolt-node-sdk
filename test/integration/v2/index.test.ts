@@ -110,7 +110,8 @@ describe("new identity integration test", () => {
     expect(data.length).toEqual(0);
     expect(meta.length).toEqual(1);
   });
-  it("Correctly handles error in json body", async () => {
+  // skipped before FIR-37197 can be implemented
+  it.skip("Correctly handles error in json body", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
