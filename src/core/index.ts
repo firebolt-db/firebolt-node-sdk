@@ -1,6 +1,11 @@
 import { makeConnection } from "../connection";
 import { Authenticator } from "../auth";
-import { Context, ConnectionOptions, FireboltClientOptions } from "../types";
+import {
+  Context,
+  ConnectionOptions,
+  FireboltClientOptions,
+  SettingValues
+} from "../types";
 import { ResourceManager } from "../service";
 
 export class FireboltCore {
@@ -31,6 +36,8 @@ export class FireboltCore {
     const connection = makeConnection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
-    await connection.execute("select 1");
+    await connection.execute("select 1", {
+      settings: { auto_start_stop_control: SettingValues.IGNORE }
+    });
   }
 }
