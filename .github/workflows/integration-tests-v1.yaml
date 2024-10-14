@@ -28,7 +28,7 @@ jobs:
 
       - name: Setup database and engine
         id: setup
-        uses: firebolt-db/integration-testing-setup@v1-error
+        uses: firebolt-db/integration-testing-setup@v1
         with:
           firebolt-username: ${{ secrets.FIREBOLT_STG_USERNAME }}
           firebolt-password: ${{ secrets.FIREBOLT_STG_PASSWORD }}
