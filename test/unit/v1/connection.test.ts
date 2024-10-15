@@ -159,6 +159,8 @@ describe("Connection v1", () => {
 
     const connection = await firebolt.connect(connectionParams);
     await connection.testConnection();
+    // also test the method from core
+    await firebolt.testConnection(connectionParams);
   });
   it("Can run set statements", async () => {
     const param = "my_var";

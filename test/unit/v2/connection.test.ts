@@ -205,6 +205,8 @@ describe("Connection V2", () => {
 
     const connection = await firebolt.connect(connectionParams);
     await connection.testConnection();
+    // also test the method from core
+    await firebolt.testConnection(connectionParams);
   });
   it("respects useCache option", async () => {
     const firebolt = Firebolt({
