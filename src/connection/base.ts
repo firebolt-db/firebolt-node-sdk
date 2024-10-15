@@ -81,7 +81,15 @@ export abstract class Connection {
     const strSettings = Object.entries(settings ?? {}).reduce<
       Record<string, string>
     >((acc, [key, value]) => {
-      if (value !== undefined) {
+      if (key === "internal") {
+        // Unwrap internal settings from array
+        const internalSettings = value as Record<string, string | number>[];
+        internalSettings.forEach(setting => {
+          Object.entries(setting).forEach(([internalKey, internalValue]) => {
+            acc[internalKey] = internalValue.toString();
+          });
+        });
+      } else if (value !== undefined) {
         acc[key] = value.toString();
       }
       return acc;

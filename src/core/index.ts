@@ -1,11 +1,6 @@
 import { makeConnection } from "../connection";
 import { Authenticator } from "../auth";
-import {
-  Context,
-  ConnectionOptions,
-  FireboltClientOptions,
-  SettingValues
-} from "../types";
+import { Context, ConnectionOptions, FireboltClientOptions } from "../types";
 import { ResourceManager } from "../service";
 
 export class FireboltCore {
@@ -38,7 +33,7 @@ export class FireboltCore {
     await connection.resolveEngineEndpoint();
     // auto_start_stop_control is only available for v2
     const settings = auth.isServiceAccount()
-      ? { auto_start_stop_control: SettingValues.IGNORE }
+      ? { internal: [{ auto_start_stop_control: "ignore" }] }
       : {};
     await connection.execute("select 1", { settings });
   }

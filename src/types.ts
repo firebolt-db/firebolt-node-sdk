@@ -29,16 +29,12 @@ export enum OutputFormat {
   JSON = "JSON"
 }
 
-export enum SettingValues {
-  IGNORE = "ignore"
-}
-
 export type QuerySettings = Record<
   string,
-  string | number | boolean | undefined
+  string | number | boolean | undefined | Record<string, string | number>[]
 > & {
   output_format?: OutputFormat;
-  auto_start_stop_control?: SettingValues;
+  internal?: Record<string, string | number>[];
 };
 
 export type RowParser = (row: string, isLastRow: boolean) => any;
