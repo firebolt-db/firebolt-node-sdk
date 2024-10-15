@@ -493,6 +493,36 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
     expect(searchParamsUsed.get("param")).toEqual("value");
   });
 
+  it("handles settings in execute", async () => {
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        const urlParams = Object.fromEntries(req.url.searchParams.entries());
+        expect(urlParams).toHaveProperty("param");
+        if (body.startsWith("SELECT 1")) {
+          return res(ctx.json(emptyResponse));
+        }
+      })
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.execute("SELECT 1", { settings: { param: "value" } });
+  });
+
+
   it("handles invalid set statements correctly", async () => {
     let searchParamsUsed = new URLSearchParams();
     let searchParamsUsed2 = new URLSearchParams();

@@ -31,6 +31,6 @@ export class FireboltCore {
     const connection = makeConnection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
-    await connection.execute("select 1");
+    await connection.testConnection();
   }
 }

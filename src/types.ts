@@ -31,9 +31,10 @@ export enum OutputFormat {
 
 export type QuerySettings = Record<
   string,
-  string | number | boolean | undefined
+  string | number | boolean | undefined | Record<string, string | number>[]
 > & {
   output_format?: OutputFormat;
+  internal?: Record<string, string | number>[];
 };
 
 export type RowParser = (row: string, isLastRow: boolean) => any;

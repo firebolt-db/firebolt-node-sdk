@@ -162,6 +162,52 @@ describe("Connection V2", () => {
 
     expect(engineUrlCalls).toBe(1);
   });
+  it("testConnection works", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    server.use(
+      rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
+        return res(
+          ctx.json({
+            access_token: "fake_access_token"
+          })
+        );
+      }),
+      rest.get(
+        `https://api.fake.firebolt.io/web/v3/account/my_account/engineUrl`,
+        (req, res, ctx) => {
+          return res(
+            ctx.json({
+              engineUrl: "https://some_system_engine.com"
+            })
+          );
+        }
+      ),
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          const urlParams = Object.fromEntries(req.url.searchParams.entries());
+          expect(urlParams).toHaveProperty("auto_start_stop_control");
+          return res(ctx.json(engineUrlResponse));
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.testConnection();
+    // also test the method from core
+    await firebolt.testConnection(connectionParams);
+  });
   it("respects useCache option", async () => {
     const firebolt = Firebolt({
       apiEndpoint

@@ -3,7 +3,6 @@ import { rest } from "msw";
 import { ConnectionOptions, Firebolt } from "../../../src";
 import { ConnectionV1 } from "../../../src/connection/connection_v1";
 
-
 const apiEndpoint = "fake.api.com";
 const accountName = "my_account";
 
@@ -135,6 +134,33 @@ describe("Connection v1", () => {
       connection as unknown as ConnectionV1
     ).resolveAccountInfo();
     expect(account_info.id).toBe("some_account");
+  });
+  it("testConnection works", async () => {
+    // override select 1 response and check within it that query parameter is not set
+    server.use(
+      rest.post(`https://some_engine.com/`, (req, res, ctx) => {
+        const urlParams = Object.fromEntries(req.url.searchParams.entries());
+        expect(urlParams).not.toContain("auto_start_stop_control");
+        return res(ctx.json(selectOneResponse));
+      })
+    );
+
+    const firebolt = Firebolt({ apiEndpoint });
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        username: "user",
+        password: "pass"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: accountName
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.testConnection();
+    // also test the method from core
+    await firebolt.testConnection(connectionParams);
   });
   it("Can run set statements", async () => {
     const param = "my_var";
