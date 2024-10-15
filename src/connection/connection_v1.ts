@@ -59,4 +59,8 @@ export class ConnectionV1 extends BaseConnection {
     }
     return this.accountInfo;
   }
+
+  async testConnection() {
+    await this.execute("select 1");
+  }
 }

@@ -54,6 +54,8 @@ export abstract class Connection {
 
   abstract resolveEngineEndpoint(): Promise<string>;
 
+  abstract testConnection(): Promise<void>;
+
   protected getRequestUrl(executeQueryOptions: ExecuteQueryOptions): string {
     const params = this.getBaseParameters(executeQueryOptions);
 

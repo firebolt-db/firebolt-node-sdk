@@ -31,10 +31,6 @@ export class FireboltCore {
     const connection = makeConnection(this.context, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
-    // auto_start_stop_control is only available for v2
-    const settings = auth.isServiceAccount()
-      ? { internal: [{ auto_start_stop_control: "ignore" }] }
-      : {};
-    await connection.execute("select 1", { settings });
+    await connection.testConnection();
   }
 }

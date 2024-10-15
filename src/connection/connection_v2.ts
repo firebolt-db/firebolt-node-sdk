@@ -69,4 +69,9 @@ export class ConnectionV2 extends BaseConnection {
 
     return this.engineEndpoint;
   }
+
+  async testConnection() {
+    const settings = { internal: [{ auto_start_stop_control: "ignore" }] };
+    await this.execute("select 1", { settings });
+  }
 }
