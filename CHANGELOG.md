@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.7.3...v1.8.0) (2024-10-15)
+
+
+### Features
+
+* **FIR-37168:** testConnection doesn't reset autostop timer ([#122](https://github.com/firebolt-db/firebolt-node-sdk/issues/122)) ([879a805](https://github.com/firebolt-db/firebolt-node-sdk/commit/879a805eff4418fa462f78ea21cc8c5914e31ed0))
+
 ### [1.7.3](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.7.2...v1.7.3) (2024-10-02)
 
 
