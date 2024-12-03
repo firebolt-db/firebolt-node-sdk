@@ -20,7 +20,7 @@ description TEXT NULL,
 pg_date pgdate NOT NULL ,
 time_wtz timestamptz NOT NULL ,
 time_ntz timestampntz NOT NULL ,
-done boolean NOT NULL default 1
+done boolean NOT NULL default true
 )
 PRIMARY INDEX id;
 `;
