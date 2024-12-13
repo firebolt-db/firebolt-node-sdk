@@ -121,7 +121,7 @@ describe("Connection", () => {
         const body = await req.text();
         if (body.startsWith("SELECT 'blue'::int")) {
           return res(
-            ctx.status(200),
+            ctx.status(400),
             ctx.json({
               errors: [
                 {
