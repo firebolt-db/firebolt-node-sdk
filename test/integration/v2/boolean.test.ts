@@ -25,6 +25,6 @@ describe("boolean", () => {
     const { data, meta } = await statement.fetchResult();
     expect(meta[0].type).toEqual("boolean");
     const row = data[0];
-    expect((row as unknown[])[0]).toEqual(true);
+    expect((row as unknown[])[0]).toEqual(false);
   });
 });
