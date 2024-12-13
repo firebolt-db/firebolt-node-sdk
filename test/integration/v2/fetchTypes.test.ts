@@ -104,6 +104,10 @@ describe("test type casting on fetch", () => {
       await connection.execute(
         "INSERT INTO test_struct_helper(a, b) VALUES ([1, 2], '2019-07-31 01:01:01')"
       );
+      // Test null values too
+      await connection.execute(
+        "INSERT INTO test_struct_helper(a, b) VALUES ([3, null], null)"
+      );
       await connection.execute(
         "INSERT INTO test_struct(id, s) SELECT 1, test_struct_helper FROM test_struct_helper"
       );
@@ -118,6 +122,12 @@ describe("test type casting on fetch", () => {
       );
       const row = data[0];
       expect((row as unknown[])[0]).toEqual({
+        id: 1,
+        s: { a: [3, null], b: null }
+      });
+
+      const row2 = data[1];
+      expect((row2 as unknown[])[0]).toEqual({
         id: 1,
         s: { a: [1, 2], b: "2019-07-31 01:01:01" }
       });
