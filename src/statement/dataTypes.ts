@@ -117,7 +117,7 @@ export const getStructTypes = (type: string): Record<string, string> => {
   // Get a map of top level struct fields and their types, no recursion here
   // Example: "struct(a int, b struct(c text))" => { a: "int", b: "struct(c text)" }
   // const key = type.toLowerCase();
-  const match = type.match(STRUCT_TYPE);
+  const match = STRUCT_TYPE.exec(type);
   if (match) {
     // extract types within struct
     const [_, _outerType, innerType] = match;
