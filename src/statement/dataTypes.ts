@@ -47,7 +47,8 @@ const getMappedType = (innerType: string) => {
   }
 };
 
-const COMPLEX_TYPE = /(nullable|array)\((.+)\)/;
+const COMPLEX_TYPE = /^(nullable|array)\((.+)\)/;
+const STRUCT_TYPE = /^(struct)\((.+)\)/;
 
 const DATE_TYPES = withNullableTypes([
   "pg_date",
@@ -95,6 +96,41 @@ export const getFireboltType = (type: string): string => {
   }
   const mappedType = getMappedType(key);
   return mappedType || key;
+};
+
+const trimElement = (element: string) =>
+  // Remove leading and trailing spaces and backticks
+  element.trim().replace(/\s*(^`)\s*|\s*(`$)\s*/g, "");
+
+const decomposeSingleStructType = (type: string): [string, string] => {
+  // Given a single struct element like "a int", extract the field and type
+  let index = type.indexOf("`", 1);
+  if (index === -1) {
+    index = type.indexOf(" ");
+  }
+  const key = trimElement(type.substring(0, index));
+  const value = trimElement(type.substring(index));
+  return [key, value];
+};
+
+export const getStructTypes = (type: string): Record<string, string> => {
+  // Get a map of top level struct fields and their types, no recursion here
+  // Example: "struct(a int, b struct(c text))" => { a: "int", b: "struct(c text)" }
+  // const key = type.toLowerCase();
+  const match = type.match(STRUCT_TYPE);
+  if (match) {
+    // extract types within struct
+    const [_, _outerType, innerType] = match;
+    // split types by comma (taking into account nested structs)
+    const innerTypes = innerType.split(/,(?![^()]*\))/);
+    const structTypes: Record<string, string> = {};
+    for (const innerType of innerTypes) {
+      const [field, type] = decomposeSingleStructType(innerType.trim());
+      structTypes[field] = type;
+    }
+    return structTypes;
+  }
+  return {};
 };
 
 export const getInnerType = (type: string): string => {

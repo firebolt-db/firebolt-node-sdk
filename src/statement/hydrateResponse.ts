@@ -5,7 +5,8 @@ import {
   isByteAType,
   isDateType,
   isNumberType,
-  getInnerType
+  getInnerType,
+  getStructTypes
 } from "./dataTypes";
 import { hydrateDate } from "./hydrateDate";
 
@@ -26,6 +27,22 @@ const getHydratedValue = (
   type: string,
   executeQueryOptions: ExecuteQueryOptions
 ): any => {
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    const hydratedStruct: Record<string, unknown> = {};
+    const innerTypes = getStructTypes(type);
+    // if number of keys does not match, return value as is
+    if (Object.keys(innerTypes).length !== Object.keys(value).length) {
+      return value;
+    }
+    for (const [key, innerType] of Object.entries(innerTypes)) {
+      hydratedStruct[key] = getHydratedValue(
+        (value as Record<string, unknown>)[key],
+        innerType,
+        executeQueryOptions
+      );
+    }
+    return hydratedStruct;
+  }
   if (Array.isArray(value)) {
     const innerType = getInnerType(type);
     return value.map(element =>

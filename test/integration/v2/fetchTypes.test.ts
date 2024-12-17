@@ -96,13 +96,15 @@ describe("test type casting on fetch", () => {
     await connection.execute("DROP TABLE IF EXISTS test_struct_helper");
     try {
       await connection.execute(
-        "CREATE TABLE IF NOT EXISTS test_struct(id int not null, s struct(a array(int) not null, b datetime null) not null)"
+        "CREATE TABLE IF NOT EXISTS test_struct(id int not null, s struct(a array(int) not null, b bytea null) not null)"
       );
       await connection.execute(
-        "CREATE TABLE IF NOT EXISTS test_struct_helper(a array(int) not null, b datetime null)"
+        "CREATE TABLE IF NOT EXISTS test_struct_helper(a array(int) not null, b bytea null)"
       );
+      const bytea_value = Buffer.from("hello_world_123ツ\n\u0048");
       await connection.execute(
-        "INSERT INTO test_struct_helper(a, b) VALUES ([1, 2], '2019-07-31 01:01:01')"
+        "INSERT INTO test_struct_helper(a, b) VALUES ([1, 2], ?::bytea)",
+        { parameters: [bytea_value] }
       );
       // Test null values too
       await connection.execute(
@@ -118,18 +120,18 @@ describe("test type casting on fetch", () => {
 
       const { data, meta } = await statement.fetchResult();
       expect(meta[0].type).toEqual(
-        "struct(id int, s struct(a array(int null), b timestamp null))"
+        "struct(id int, s struct(a array(int null), b bytea null))"
       );
       const row = data[0];
       expect((row as unknown[])[0]).toEqual({
         id: 1,
-        s: { a: [3, null], b: null }
+        s: { a: [1, 2], b: bytea_value }
       });
 
       const row2 = data[1];
       expect((row2 as unknown[])[0]).toEqual({
         id: 1,
-        s: { a: [1, 2], b: "2019-07-31 01:01:01" }
+        s: { a: [3, null], b: null }
       });
     } finally {
       // Make sure to always clean up
