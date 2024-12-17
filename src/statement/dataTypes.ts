@@ -163,3 +163,7 @@ export const isFloatType = (type: string) => {
 export const isNumberType = (type: string) => {
   return INTEGER_TYPES.includes(type) || isFloatType(type);
 };
+
+export const isStructType = (type: string) => {
+  return STRUCT_TYPE.test(type);
+};

@@ -6,7 +6,8 @@ import {
   isDateType,
   isNumberType,
   getInnerType,
-  getStructTypes
+  getStructTypes,
+  isStructType
 } from "./dataTypes";
 import { hydrateDate } from "./hydrateDate";
 
@@ -22,26 +23,38 @@ const hydrateInfNan = (value: string) => {
   return NaN;
 };
 
+const hydrateStruct = (
+  value: Record<string, unknown>,
+  type: string,
+  executeQueryOptions: ExecuteQueryOptions
+): Record<string, unknown> => {
+  const hydratedStruct: Record<string, unknown> = {};
+  const innerTypes = getStructTypes(type);
+  // if number of keys does not match, return value as is
+  if (Object.keys(innerTypes).length !== Object.keys(value).length) {
+    return value;
+  }
+  for (const [key, innerType] of Object.entries(innerTypes)) {
+    hydratedStruct[key] = getHydratedValue(
+      value[key],
+      innerType,
+      executeQueryOptions
+    );
+  }
+  return hydratedStruct;
+};
+
 const getHydratedValue = (
   value: unknown,
   type: string,
   executeQueryOptions: ExecuteQueryOptions
 ): any => {
-  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-    const hydratedStruct: Record<string, unknown> = {};
-    const innerTypes = getStructTypes(type);
-    // if number of keys does not match, return value as is
-    if (Object.keys(innerTypes).length !== Object.keys(value).length) {
-      return value;
-    }
-    for (const [key, innerType] of Object.entries(innerTypes)) {
-      hydratedStruct[key] = getHydratedValue(
-        (value as Record<string, unknown>)[key],
-        innerType,
-        executeQueryOptions
-      );
-    }
-    return hydratedStruct;
+  if (isStructType(type)) {
+    return hydrateStruct(
+      value as Record<string, unknown>,
+      type,
+      executeQueryOptions
+    );
   }
   if (Array.isArray(value)) {
     const innerType = getInnerType(type);
