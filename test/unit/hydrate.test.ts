@@ -83,4 +83,13 @@ describe("getStructTypes function", () => {
     const result = getStructTypes(type);
     expect(result).toEqual({ "column name": "int", "column name 2": "text" });
   });
+
+  it("should respect spaces within backticks", () => {
+    const type = "struct(` column name ` int, ` column name 2 ` text)";
+    const result = getStructTypes(type);
+    expect(result).toEqual({
+      " column name ": "int",
+      " column name 2 ": "text"
+    });
+  });
 });
