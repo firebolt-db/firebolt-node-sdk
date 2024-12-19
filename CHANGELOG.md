@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.9.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.8.0...v1.9.0) (2024-12-19)
+
+
+### Features
+
+* **FIR-38127:** Add struct support ([#125](https://github.com/firebolt-db/firebolt-node-sdk/issues/125)) ([b405435](https://github.com/firebolt-db/firebolt-node-sdk/commit/b405435187169822b4028f3e3ada2fbc3a35ca51))
+
 ## [1.8.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.7.3...v1.8.0) (2024-10-15)
 
 
