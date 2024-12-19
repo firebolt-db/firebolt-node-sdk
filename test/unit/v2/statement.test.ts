@@ -313,6 +313,53 @@ describe("parse values", () => {
       new BigNumber(1000000000000000000000000000000000000)
     );
   });
+  it("parses bytea into Buffer", () => {
+    const row = {
+      bytea: "\\x68656c6c6f5f776f726c64"
+    };
+    const meta = [{ name: "bytea", type: "bytea" }];
+    const res: Record<string, Buffer> = hydrateRow(row, meta, {});
+    expect(res["bytea"]).toEqual(Buffer.from("hello_world"));
+  });
+  it("parses struct into object", () => {
+    const row = {
+      s: { a: [1, 2], b: "\\x68656c6c6f5f776f726c64" }
+    };
+    const meta = [
+      { name: "s", type: "struct(a array(int null), b bytea null)" }
+    ];
+    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    expect(res["s"]).toEqual({ a: [1, 2], b: Buffer.from("hello_world") });
+  });
+  it("parses nested struct into object", () => {
+    const row = {
+      s: { a: [1, 2], b: { c: "hello" } }
+    };
+    const meta = [
+      { name: "s", type: "struct(a array(int null), b struct(c text))" }
+    ];
+    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    expect(res["s"]).toEqual({ a: [1, 2], b: { c: "hello" } });
+  });
+  it("parses nested struct with nulls correctly", () => {
+    const row = {
+      s: { a: [1, null], b: { c: null } }
+    };
+    const meta = [
+      { name: "s", type: "struct(a array(int null), b struct(c text null))" }
+    ];
+    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    expect(res["s"]).toEqual({ a: [1, null], b: { c: null } });
+  });
+  it("does not break on malformed struct", () => {
+    const row = {
+      s: { a: [1, 2], b: "hello" }
+    };
+    // Missing closing parenthesis
+    const meta = [{ name: "s", type: "struct(a array(int), b text" }];
+    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    expect(res["s"]).toEqual({ a: [1, 2], b: "hello" });
+  });
 });
 
 describe("set statements", () => {
