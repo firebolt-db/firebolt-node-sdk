@@ -351,6 +351,24 @@ describe("parse values", () => {
     const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
     expect(res["s"]).toEqual({ a: [1, null], b: { c: null } });
   });
+  it("parses nested struct with single struct correctly", () => {
+    const row = {
+      s: { a: { "c d": null } }
+    };
+    const meta = [{ name: "s", type: "struct(a struct(`c d` text null))" }];
+    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    expect(res["s"]).toEqual({ a: { "c d": null } });
+  });
+  it("parses nested struct with single struct mixed quoting", () => {
+    const row = {
+      s: { a: { e: "test", "c d": null } }
+    };
+    const meta = [
+      { name: "s", type: "struct(a struct(e text,`c d` text null))" }
+    ];
+    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    expect(res["s"]).toEqual({ a: { e: "test", "c d": null } });
+  });
   it("does not break on malformed struct", () => {
     const row = {
       s: { a: [1, 2], b: "hello" }

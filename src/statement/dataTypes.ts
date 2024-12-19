@@ -105,7 +105,8 @@ const trimElement = (element: string) =>
 const decomposeSingleStructType = (type: string): [string, string] => {
   // Given a single struct element like "a int", extract the field and type
   // Finds the second backtick if any or the first space to separate field and type
-  let index = type.indexOf("`", 1);
+  let index = type.startsWith("`") ? type.indexOf("`", 1) : -1;
+  // If current type is not a quoted field, find the first space
   if (index === -1) {
     index = type.indexOf(" ");
   }
