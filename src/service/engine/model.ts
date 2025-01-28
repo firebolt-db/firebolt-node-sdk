@@ -52,7 +52,7 @@ export class EngineModel {
   }
 
   async delete() {
-    if (this.current_status_summary == EngineStatusSummary.DELETING) {
+    if (this.current_status_summary == EngineStatusSummary.DRAINING) {
       return;
     }
     const query = `DROP ENGINE "${this.name}"`;

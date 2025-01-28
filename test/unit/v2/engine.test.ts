@@ -589,6 +589,23 @@ describe("engine service", () => {
     delete process.env.ENGINE_NAME;
   });
 
+  it("Parse engine statuses", async () => {
+    // Taken from https://docs.firebolt.io/Overview/engine-fundamentals.html#viewing-and-understanding-engine-status
+    const statuses = [
+      ["STARTING", EngineStatusSummary.STARTING],
+      ["RUNNING", EngineStatusSummary.RUNNING],
+      ["RESIZING", EngineStatusSummary.RESIZING],
+      ["DRAINING", EngineStatusSummary.DRAINING],
+      ["STOPPING", EngineStatusSummary.STOPPING],
+      ["STOPPED", EngineStatusSummary.STOPPED]
+    ];
+    for (const [rawStatus, status] of statuses) {
+      expect(processEngineStatus(rawStatus)).toEqual(status);
+    }
+    expect(processEngineStatus(undefined)).toBe(undefined);
+    expect(processEngineStatus("unexisting")).not.toBeTruthy();
+  });
+
   it("Parses different engine statuses correctly", async () => {
     const statuses = ["RUNNING", "Running", "running"];
     for (const status of statuses) {

@@ -26,11 +26,10 @@ export function processEngineStatus(
 }
 
 export enum EngineStatusSummary {
-  DELETING = "Dropping",
-  REPAIRING = "Repairing",
-  RUNNING = "Running",
   STARTING = "Starting",
-  STARTING_INITIALIZING = "Started",
+  RUNNING = "Running",
+  RESIZING = "Resizing",
+  DRAINING = "Draining",
   STOPPED = "Stopped",
   STOPPING = "Stopping",
   // Specific for V1, here are just for typing match
@@ -39,7 +38,9 @@ export enum EngineStatusSummary {
   RESTARTING = "ENGINE_STATUS_SUMMARY_RESTARTING",
   RESTARTING_INITIALIZING = "ENGINE_STATUS_SUMMARY_RESTARTING_INITIALIZING",
   UNSPECIFIED = "ENGINE_STATUS_SUMMARY_UNSPECIFIED",
-  UPGRADING = "ENGINE_STATUS_SUMMARY_UPGRADING"
+  UPGRADING = "ENGINE_STATUS_SUMMARY_UPGRADING",
+  REPAIRING = "ENGINE_STATUS_SUMMARY_REPAIRING",
+  STARTING_INITIALIZING = "ENGINE_STATUS_SUMMARY_STARTING_INITIALIZING",
 }
 
 export enum EngineType {
