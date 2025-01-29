@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.10.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.9.1...v1.10.0) (2025-01-29)
+
+
+### Features
+
+* FIR-42655 firebolt node sdk draining engine status not recognized ([#129](https://github.com/firebolt-db/firebolt-node-sdk/issues/129)) ([9045ee2](https://github.com/firebolt-db/firebolt-node-sdk/commit/9045ee2d7b2b582481f432d1f98e9ba96c6de0f8))
+
 ### [1.9.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.9.0...v1.9.1) (2024-12-20)
 
 
