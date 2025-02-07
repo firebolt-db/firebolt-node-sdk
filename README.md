@@ -16,6 +16,30 @@ yarn add firebolt-sdk
 
 ## Using the library
 
+### Authentication
+
+Default way of authenticating is with the client credentials
+
+```typescript
+const connection = await firebolt.connect({
+  auth: {
+    client_id: 'b1c4918c-e07e-4ab2-868b-9ae84f208d26',
+    client_secret: 'secret',
+  },
+  engineName: 'engine_name',
+  account: 'account_name',
+  database: 'database',
+});
+```
+* `client_id` and `client_secret` are your service account credentials. Follow the Firebolt's [guide](https://docs.firebolt.io/Guides/managing-your-organization/service-accounts.html#create-a-service-account) on how to create one and get its id and secret.
+* `engineName` is the name of the engine which you want to execute your queries on.
+* `database` is where your tables exist or will be created.
+* `account` is the [account](https://docs.firebolt.io/Overview/organizations-accounts.html#accounts) within your organisation. Not to be confused with a username.
+
+### Full example
+
+In this example we set credentials as described above in environment variables. For bash and similar shells you can set it by running `export FIREBOLT_CLIENT_ID=<your_client_id>` where <your_client_id> is the id you want to set. This ensures no credentials are left in the code and it can be safely commited to a version control system (e.g. `git`). IDEs like IntelliJ IDEA would have the environemnt settings under run configurations.
+
 ```typescript
 import { Firebolt } from 'firebolt-sdk'
 
@@ -31,10 +55,40 @@ const connection = await firebolt.connect({
   engineName: process.env.FIREBOLT_ENGINE_NAME
 });
 
-const statement = await connection.execute("SELECT 1");
+// Create table
+await connection.execute(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INT,
+    name STRING,
+    age INT
+  )
+`);
+
+// Insert sample data
+await connection.execute(`
+  INSERT INTO users (id, name, age) VALUES
+  (1, 'Alice', 30),
+  (2, 'Bob', 25)
+`);
+
+// Update some rows
+await connection.execute(`
+  UPDATE users SET age = 31 WHERE id = 1
+`);
+
+// Fetch data
+const statement = await connection.execute("SELECT * FROM users");
 
 // fetch statement result
 const { data, meta } = await statement.fetchResult();
+
+console.log(meta)
+// Outputs:
+// [
+//   Meta { type: 'int null', name: 'id' },
+//   Meta { type: 'text null', name: 'name' },
+//   Meta { type: 'int null', name: 'age' }
+// ]
 
 // or stream result
 const { data } = await statement.streamResult();
@@ -54,6 +108,8 @@ for await (const row of data) {
 }
 
 console.log(rows)
+// Outputs:
+// [ [ 1, 'Alice', 31 ], [ 2, 'Bob', 25 ] ]
 
 
 ```
