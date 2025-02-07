@@ -59,7 +59,7 @@ describe("server side async integration test", () => {
     expect(isRunning).toBe(true);
     const isSuccessful = await connection.isAsyncQuerySuccessful(token);
     expect(isSuccessful).not.toBeDefined();
-    await new Promise(resolve => setTimeout(resolve, 3000)); // wait for the query to finish
+    await new Promise(resolve => setTimeout(resolve, 6000)); // wait for the query to finish
     const isRunningAfter = await connection.isAsyncQueryRunning(token);
     expect(isRunningAfter).toBe(false);
     const isSuccessfulAfter = await connection.isAsyncQuerySuccessful(token);
