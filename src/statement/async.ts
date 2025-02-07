@@ -36,7 +36,7 @@ export class AsyncStatement extends BaseStatement {
       monitorSql
     };
   }
-  get async_query_token(): string {
+  get asyncQueryToken(): string {
     return this.asyncToken;
   }
 

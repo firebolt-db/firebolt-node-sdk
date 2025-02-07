@@ -299,7 +299,7 @@ describe("Connection V2", () => {
     const connection = await firebolt.connect(connectionParams);
     const asyncStatement = await connection.executeAsync("INSERT 1");
     expect(asyncStatement).toBeDefined();
-    expect(asyncStatement.async_query_token).toBe("async_query_token");
+    expect(asyncStatement.asyncQueryToken).toBe("async_query_token");
   });
 
   it("throws error for async SET statement", async () => {
@@ -370,11 +370,11 @@ describe("Connection V2", () => {
     const connection = await firebolt.connect(connectionParams);
     const asyncStatement = await connection.executeAsync("INSERT 1");
     const isRunning = await connection.isAsyncQueryRunning(
-      asyncStatement.async_query_token
+      asyncStatement.asyncQueryToken
     );
     expect(isRunning).toBe(expectedRunning);
     const isSuccessful = await connection.isAsyncQuerySuccessful(
-      asyncStatement.async_query_token
+      asyncStatement.asyncQueryToken
     );
     expect(isSuccessful).toBe(expectedSuccessful);
   };
@@ -440,8 +440,8 @@ describe("Connection V2", () => {
 
     const connection = await firebolt.connect(connectionParams);
     const asyncStatement = await connection.executeAsync("INSERT 1");
-    expect(asyncStatement.async_query_token).not.toBe("");
-    await connection.cancelAsyncQuery(asyncStatement.async_query_token);
+    expect(asyncStatement.asyncQueryToken).not.toBe("");
+    await connection.cancelAsyncQuery(asyncStatement.asyncQueryToken);
     await new Promise(resolve => setTimeout(resolve, 100)); // somehow we need it to wait for the flag switch
     expect(cancelQueryExecuted).toBe(true);
   });

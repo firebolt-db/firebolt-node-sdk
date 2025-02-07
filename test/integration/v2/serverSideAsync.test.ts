@@ -36,8 +36,8 @@ describe("server side async integration test", () => {
       `INSERT INTO ${testTableName} VALUES (1)`
     );
     await expect(statement.fetchResult()).rejects.toThrow();
-    expect(statement.async_query_token).toBeDefined();
-    expect(statement.async_query_token).not.toBe("");
+    expect(statement.asyncQueryToken).toBeDefined();
+    expect(statement.asyncQueryToken).not.toBe("");
   });
 
   it("can check long-running query status", async () => {
@@ -52,7 +52,7 @@ describe("server side async integration test", () => {
     const statement = await connection.executeAsync(
       `INSERT INTO ${testTableName} ${longSelect}`
     );
-    const token = statement.async_query_token;
+    const token = statement.asyncQueryToken;
     expect(token).toBeDefined();
     expect(token).not.toBe("");
     const isRunning = await connection.isAsyncQueryRunning(token);
@@ -83,7 +83,7 @@ describe("server side async integration test", () => {
     const statement = await connection.executeAsync(
       `INSERT INTO ${testTableName} ${longSelect}`
     );
-    const token = statement.async_query_token;
+    const token = statement.asyncQueryToken;
     expect(token).toBeDefined();
     expect(token).not.toBe("");
     await connection.cancelAsyncQuery(token);
@@ -105,7 +105,7 @@ describe("server side async integration test", () => {
     const statement = await connection.executeAsync(
       `INSERT INTO ${testTableName} ${longSelect}`
     );
-    const token = statement.async_query_token;
+    const token = statement.asyncQueryToken;
     expect(token).toBeDefined();
     expect(token).not.toBe("");
     const connection2 = await firebolt.connect(connectionParams);
