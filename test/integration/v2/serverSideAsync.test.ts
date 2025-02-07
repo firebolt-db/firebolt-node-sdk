@@ -87,6 +87,7 @@ describe("server side async integration test", () => {
     expect(token).toBeDefined();
     expect(token).not.toBe("");
     await connection.cancelAsyncQuery(token);
+    await new Promise(resolve => setTimeout(resolve, 200)); // wait for the cancellation to take effect
     const isRunning = await connection.isAsyncQueryRunning(token);
     expect(isRunning).toBe(false);
     const isSuccessful = await connection.isAsyncQuerySuccessful(token);
