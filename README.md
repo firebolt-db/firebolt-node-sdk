@@ -78,6 +78,10 @@ console.log(rows)
   * <a href="#fetch-result">Fetch result</a>
   * <a href="#stream-result">Stream result</a>
   * <a href="#result-hydration">Result hydration</a>
+  * <a href="#server-side-async-query-execution">Server-side async queries</a>
+    * <a href="#execute-async-query">Execute Async Query</a>
+    * <a href="#check-async-query-status">Check Async Query Status</a>
+    * <a href="#cancel-async-query">Cancel Async Query</a>
   * <a href="#engine-management">Engine management</a>
     * <a href="#getbyname">getByName</a>
     * <a href="#engine">Engine</a>
@@ -340,6 +344,44 @@ firebolt-sdk maps SQL data types to their corresponding JavaScript equivalents. 
 |             | STRING   | String          |                                                                                                                                   |
 | Date & Time | DATE     | Date            |                                                                                                                                   |
 
+<a id="Server-side async queries"></a>
+## Server-side async query execution
+
+Firebolt supports server-side asynchronous query execution. This feature allows you to run
+queries in the background and fetch the results later. This is especially useful for long-running
+queries that you don't want to wait for or maintain a persistent connection to the server.
+
+<a id="Execute Async Query"></a>
+### Execute Async Query
+
+Executes a query asynchronously. This is useful for long-running queries that you don't want to block the main thread. The resulting statement does not contain data and should only be used to receive an async query token. Token can be saved elsewhere and reused, even on a new connection to check on this query.
+
+```typescript
+const statement = await connection.executeAsync(query, executeQueryOptions);
+const token = statement.asyncQueryToken; // used to check query status and cancel it
+// statement.fetchResult() -- not allowed as there's no result to fetch
+```
+
+<a id="Check Async Query Status"></a>
+### Check Async Query Status
+
+Checks the status of an asynchronous query. Use this to determine if the query is still running or has completed. `isAsyncQueryRunning` woudl return true or false if the query is running or has finished. `isAsyncQuerySuccessful` would return true if the query has completed successfully, false if it has failed and `undefined` if the query is still running.
+
+```typescript
+const token = statement.asyncQueryToken; // can only be fetched for async query
+const isRunning = await connection.isAsyncQueryRunning(token);
+const isSuccessful = await connection.isAsyncQuerySuccessful(token);
+```
+
+<a id="Cancel Async Query"></a>
+### Cancel Async Query
+
+Cancels a running asynchronous query. Use this if you need to stop a long-running query, if its execution is no longer needed.
+
+```typescript
+const token = statement.asyncQueryToken; // can only be fetched for async query
+await connection.cancelAsyncQuery(token);
+```
 
 <a id="engine-management"></a>
 ### Engine management
