@@ -8,19 +8,11 @@ import {
 import { Meta } from "../meta";
 import { isDataQuery } from "../common/util";
 import { RowStream } from "./stream/rowStream";
-import { JSONStream } from "./stream/jsonStream";
-import {
-  normalizeResponse,
-  getNormalizedStatistics
-} from "./normalizeResponse";
+import { normalizeResponse } from "./normalizeResponse";
 import { CompositeError } from "../common/errors";
+import { BaseStatement } from "./baseStatement";
 
-export class Statement {
-  private context: Context;
-  private query: string;
-  private executeQueryOptions: ExecuteQueryOptions;
-
-  private text;
+export class Statement extends BaseStatement {
   private rowStream: RowStream;
 
   constructor(
@@ -35,10 +27,7 @@ export class Statement {
       executeQueryOptions: ExecuteQueryOptions;
     }
   ) {
-    this.context = context;
-    this.text = text;
-    this.query = query;
-    this.executeQueryOptions = executeQueryOptions;
+    super(context, { query, text, executeQueryOptions });
     this.rowStream = new RowStream();
   }
 

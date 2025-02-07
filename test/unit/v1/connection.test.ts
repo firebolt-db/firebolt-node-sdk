@@ -266,4 +266,29 @@ describe("Connection v1", () => {
     expect(record.one).toBe(1);
     expect(other_account_used).toBe(true);
   });
+  it("verify async methods throw an error", async () => {
+    const firebolt = Firebolt({ apiEndpoint });
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        username: "user",
+        password: "pass"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: accountName
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(connection.executeAsync("SELECT 1")).rejects.toThrow();
+    await expect(
+      connection.isAsyncQueryRunning("fake_query_id")
+    ).rejects.toThrow(/.*not supported.*/);
+    await expect(
+      connection.isAsyncQuerySuccessful("fake_query_id")
+    ).rejects.toThrow(/.*not supported.*/);
+    await expect(connection.cancelAsyncQuery("fake_query_id")).rejects.toThrow(
+      /.*not supported.*/
+    );
+  });
 });

@@ -1,8 +1,10 @@
 import { AccountNotFoundError, ApiError } from "../common/errors";
 import { ACCOUNT_SYSTEM_ENGINE, QUERY_URL } from "../common/api";
 
-import { Connection as BaseConnection } from "./base";
+import { Connection as BaseConnection, defaultResponseSettings } from "./base";
 import { Cache, inMemoryCache, noneCache } from "../common/tokenCache";
+import { ExecuteQueryOptions } from "../types";
+import { AsyncStatement } from "../statement/async";
 
 export class ConnectionV2 extends BaseConnection {
   private get account(): string {
@@ -68,6 +70,93 @@ export class ConnectionV2 extends BaseConnection {
     }
 
     return this.engineEndpoint;
+  }
+
+  // Async methods
+  async executeAsync(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions = {}
+  ): Promise<AsyncStatement> {
+    const { httpClient } = this.context;
+
+    executeQueryOptions.response = {
+      ...defaultResponseSettings,
+      ...(executeQueryOptions.response ?? {})
+    };
+
+    const { parameters, namedParameters } = executeQueryOptions;
+
+    let formattedQuery: string;
+    if (this.queryFormatter.isSetStatement(query)) {
+      // can't have an async set query
+      throw new Error("SET statements cannot be executed asynchronously.");
+    } else {
+      formattedQuery = this.queryFormatter.formatQuery(
+        query,
+        parameters,
+        namedParameters
+      );
+    }
+
+    const body = formattedQuery;
+    const asyncExecuteQueryOptions = {
+      ...executeQueryOptions,
+      settings: {
+        ...executeQueryOptions.settings,
+        async: true
+      }
+    };
+    const url = this.getRequestUrl(asyncExecuteQueryOptions);
+
+    const request = httpClient.request<Response>("POST", url, {
+      headers: { "user-agent": this.userAgent },
+      body,
+      raw: true
+    });
+
+    const response = await request.ready();
+    const text = await response.text();
+    await this.throwErrorIfErrorBody(text, response);
+    return new AsyncStatement(this.context, {
+      query: formattedQuery,
+      text,
+      executeQueryOptions: asyncExecuteQueryOptions
+    });
+  }
+
+  private async getAsyncQueryInfo(token: string) {
+    const query = `CALL fb_GetAsyncStatus('${token}')`;
+
+    const statement = await this.execute(query);
+    const { data, meta } = await statement.fetchResult();
+    const result: Record<string, any> = {};
+    if (data.length > 0) {
+      meta.forEach((field, index) => {
+        result[field.name] = data[0][index];
+      });
+    } else {
+      throw new Error("No data returned from fb_GetAsyncStatus");
+    }
+    return result;
+  }
+
+  async isAsyncQueryRunning(token: string): Promise<boolean> {
+    const info = await this.getAsyncQueryInfo(token);
+    return info["status"] === "RUNNING";
+  }
+
+  async isAsyncQuerySuccessful(token: string): Promise<boolean | undefined> {
+    const info = await this.getAsyncQueryInfo(token);
+    if (info["status"] === "RUNNING") {
+      return undefined;
+    }
+    return info["status"] === "ENDED_SUCCESSFULLY";
+  }
+
+  async cancelAsyncQuery(token: string): Promise<void> {
+    const info = await this.getAsyncQueryInfo(token);
+    const async_query_id = info["query_id"];
+    this.execute(`CANCEL QUERY WHERE query_id='${async_query_id}'`);
   }
 
   async testConnection() {

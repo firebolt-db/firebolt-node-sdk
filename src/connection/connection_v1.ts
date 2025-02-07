@@ -1,6 +1,8 @@
 import { ACCOUNT, ACCOUNT_BY_NAME } from "../common/api";
 import { Connection as BaseConnection } from "./base";
 import { ResourceManager } from "../service";
+import { ExecuteQueryOptions } from "../types";
+import { AsyncStatement } from "../statement/async";
 
 export interface AccountInfo {
   id: string;
@@ -62,5 +64,33 @@ export class ConnectionV1 extends BaseConnection {
 
   async testConnection() {
     await this.execute("select 1");
+  }
+
+  // Async methods
+  async isAsyncQueryRunning(token: string): Promise<boolean> {
+    throw new Error(
+      "Asynchronous query running check is not supported in this Firebolt version."
+    );
+  }
+
+  async isAsyncQuerySuccessful(token: string): Promise<boolean | undefined> {
+    throw new Error(
+      "Asynchronous query success check is not supported in this Firebolt version."
+    );
+  }
+
+  async cancelAsyncQuery(token: string): Promise<void> {
+    throw new Error(
+      "Asynchronous query cancellation is not supported in this Firebolt version."
+    );
+  }
+
+  async executeAsync(
+    query: string,
+    executeQueryOptions?: ExecuteQueryOptions
+  ): Promise<AsyncStatement> {
+    throw new Error(
+      "Asynchronous execution is not supported in this Firebolt version."
+    );
   }
 }

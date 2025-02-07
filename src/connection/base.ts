@@ -9,12 +9,13 @@ import { generateUserAgent } from "../common/util";
 import { CompositeError } from "../common/errors";
 import JSONbig from "json-bigint";
 import { QueryFormatter } from "../formatter/base";
+import { AsyncStatement } from "../statement/async";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.COMPACT
 };
 
-const defaultResponseSettings = {
+export const defaultResponseSettings = {
   normalizeData: false
 };
 
@@ -160,6 +161,17 @@ export abstract class Connection {
     }
   }
 
+  abstract executeAsync(
+    query: string,
+    executeQueryOptions?: ExecuteQueryOptions
+  ): Promise<AsyncStatement>;
+
+  abstract isAsyncQueryRunning(token: string): Promise<boolean>;
+
+  abstract isAsyncQuerySuccessful(token: string): Promise<boolean | undefined>;
+
+  abstract cancelAsyncQuery(token: string): Promise<void>;
+
   async execute(
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
@@ -220,7 +232,7 @@ export abstract class Connection {
     }
   }
 
-  private async throwErrorIfErrorBody(text: string, response: Response) {
+  protected async throwErrorIfErrorBody(text: string, response: Response) {
     // Hack, but looks like this is a limitation of the fetch API
     // In order to read the body here and elesewhere, we need to clone the response
     // since body can only be read once
