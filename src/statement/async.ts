@@ -9,7 +9,7 @@ import { Meta } from "../meta";
 import { BaseStatement } from "./baseStatement";
 
 export class AsyncStatement extends BaseStatement {
-  private asyncToken: string;
+  private readonly asyncToken: string;
 
   constructor(
     context: Context,
