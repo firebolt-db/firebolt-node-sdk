@@ -36,11 +36,11 @@ export class EngineModel {
   async stop() {
     const query = `STOP ENGINE "${this.name}"`;
     await this.connection.execute(query);
-    await this.refreshStatus();
     const res: Engine = {
       name: this.name,
       endpoint: this.endpoint,
-      current_status_summary: this.current_status_summary
+      // Successful request means the engine is stopped
+      current_status_summary: EngineStatusSummary.STOPPED
     };
     return { engine: res };
   }
