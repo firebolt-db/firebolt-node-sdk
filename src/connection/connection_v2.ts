@@ -77,28 +77,6 @@ export class ConnectionV2 extends BaseConnection {
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<AsyncStatement> {
-    const { httpClient } = this.context;
-
-    executeQueryOptions.response = {
-      ...defaultResponseSettings,
-      ...(executeQueryOptions.response ?? {})
-    };
-
-    const { parameters, namedParameters } = executeQueryOptions;
-
-    let formattedQuery: string;
-    if (this.queryFormatter.isSetStatement(query)) {
-      // can't have an async set query
-      throw new Error("SET statements cannot be executed asynchronously.");
-    } else {
-      formattedQuery = this.queryFormatter.formatQuery(
-        query,
-        parameters,
-        namedParameters
-      );
-    }
-
-    const body = formattedQuery;
     const asyncExecuteQueryOptions = {
       ...executeQueryOptions,
       settings: {
@@ -106,15 +84,16 @@ export class ConnectionV2 extends BaseConnection {
         async: true
       }
     };
-    const url = this.getRequestUrl(asyncExecuteQueryOptions);
 
-    const request = httpClient.request<Response>("POST", url, {
-      headers: { "user-agent": this.userAgent },
-      body,
-      raw: true
-    });
+    if (this.queryFormatter.isSetStatement(query)) {
+      // can't have an async set query
+      throw new Error("SET statements cannot be executed asynchronously.");
+    }
+    const { formattedQuery, response } = await this.prepareAndExecuteQuery(
+      query,
+      asyncExecuteQueryOptions
+    );
 
-    const response = await request.ready();
     const text = await response.text();
     await this.throwErrorIfErrorBody(text, response);
     return new AsyncStatement(this.context, {

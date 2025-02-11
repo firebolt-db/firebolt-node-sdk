@@ -172,10 +172,10 @@ export abstract class Connection {
 
   abstract cancelAsyncQuery(token: string): Promise<void>;
 
-  async execute(
+  protected async prepareAndExecuteQuery(
     query: string,
-    executeQueryOptions: ExecuteQueryOptions = {}
-  ): Promise<Statement> {
+    executeQueryOptions: ExecuteQueryOptions
+  ): Promise<{ formattedQuery: string; response: Response }> {
     const { httpClient } = this.context;
 
     executeQueryOptions.response = {
@@ -213,14 +213,8 @@ export abstract class Connection {
 
     try {
       const response = await request.ready();
-      const text = await response.text();
       await this.processHeaders(response.headers);
-      await this.throwErrorIfErrorBody(text, response);
-      return new Statement(this.context, {
-        query: formattedQuery,
-        text,
-        executeQueryOptions
-      });
+      return { formattedQuery, response };
     } catch (error) {
       // In case it was a set query, remove set parameter if query fails
       if (setKey.length > 0) {
@@ -230,6 +224,24 @@ export abstract class Connection {
     } finally {
       this.activeRequests.delete(request);
     }
+  }
+
+  async execute(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions = {}
+  ): Promise<Statement> {
+    const { formattedQuery, response } = await this.prepareAndExecuteQuery(
+      query,
+      executeQueryOptions
+    );
+
+    const text = await response.text();
+    await this.throwErrorIfErrorBody(text, response);
+    return new Statement(this.context, {
+      query: formattedQuery,
+      text,
+      executeQueryOptions
+    });
   }
 
   protected async throwErrorIfErrorBody(text: string, response: Response) {
