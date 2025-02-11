@@ -6,10 +6,13 @@ import {
   Statistics
 } from "../types";
 import { Meta } from "../meta";
-import { BaseStatement } from "./baseStatement";
 
-export class AsyncStatement extends BaseStatement {
+export class AsyncStatement {
   private readonly asyncToken: string;
+  private context: Context;
+  private query: string;
+  private executeQueryOptions: ExecuteQueryOptions;
+  private text: string;
 
   constructor(
     context: Context,
@@ -23,7 +26,10 @@ export class AsyncStatement extends BaseStatement {
       executeQueryOptions: ExecuteQueryOptions;
     }
   ) {
-    super(context, { query, text, executeQueryOptions });
+    this.context = context;
+    this.text = text;
+    this.query = query;
+    this.executeQueryOptions = executeQueryOptions;
     this.asyncToken = this.parseResponse(this.text).token;
   }
 

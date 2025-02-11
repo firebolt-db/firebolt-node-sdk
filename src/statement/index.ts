@@ -10,10 +10,13 @@ import { isDataQuery } from "../common/util";
 import { RowStream } from "./stream/rowStream";
 import { normalizeResponse } from "./normalizeResponse";
 import { CompositeError } from "../common/errors";
-import { BaseStatement } from "./baseStatement";
 
-export class Statement extends BaseStatement {
+export class Statement {
   private rowStream: RowStream;
+  private context: Context;
+  private query: string;
+  private executeQueryOptions: ExecuteQueryOptions;
+  private text: string;
 
   constructor(
     context: Context,
@@ -27,7 +30,10 @@ export class Statement extends BaseStatement {
       executeQueryOptions: ExecuteQueryOptions;
     }
   ) {
-    super(context, { query, text, executeQueryOptions });
+    this.context = context;
+    this.text = text;
+    this.query = query;
+    this.executeQueryOptions = executeQueryOptions;
     this.rowStream = new RowStream();
   }
 
