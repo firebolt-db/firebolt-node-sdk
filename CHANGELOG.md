@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.11.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.10.0...v1.11.0) (2025-02-12)
+
+
+### Features
+
+* **FIR-42859:** async query execution ([#130](https://github.com/firebolt-db/firebolt-node-sdk/issues/130)) ([9cc6583](https://github.com/firebolt-db/firebolt-node-sdk/commit/9cc658337f264269defd7e0123bf72d5a92fae6b))
+
+
+### Bug Fixes
+
+* **FIR-43473:** stop engine without starting it again ([#132](https://github.com/firebolt-db/firebolt-node-sdk/issues/132)) ([a4b05de](https://github.com/firebolt-db/firebolt-node-sdk/commit/a4b05de12f48ffa49c41ce616b186f19847b52aa))
+
 ## [1.10.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.9.1...v1.10.0) (2025-01-29)
 
 
