@@ -16,7 +16,7 @@ export class Statement {
   private context: Context;
   private query: string;
   private executeQueryOptions: ExecuteQueryOptions;
-  private text: string;
+  private readonly text: string;
 
   constructor(
     context: Context,
