@@ -9,12 +9,13 @@ import { generateUserAgent } from "../common/util";
 import { CompositeError } from "../common/errors";
 import JSONbig from "json-bigint";
 import { QueryFormatter } from "../formatter/base";
+import { AsyncStatement } from "../statement/async";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.COMPACT
 };
 
-const defaultResponseSettings = {
+export const defaultResponseSettings = {
   normalizeData: false
 };
 
@@ -160,10 +161,21 @@ export abstract class Connection {
     }
   }
 
-  async execute(
+  abstract executeAsync(
     query: string,
-    executeQueryOptions: ExecuteQueryOptions = {}
-  ): Promise<Statement> {
+    executeQueryOptions?: ExecuteQueryOptions
+  ): Promise<AsyncStatement>;
+
+  abstract isAsyncQueryRunning(token: string): Promise<boolean>;
+
+  abstract isAsyncQuerySuccessful(token: string): Promise<boolean | undefined>;
+
+  abstract cancelAsyncQuery(token: string): Promise<void>;
+
+  protected async prepareAndExecuteQuery(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions
+  ): Promise<{ formattedQuery: string; response: Response }> {
     const { httpClient } = this.context;
 
     executeQueryOptions.response = {
@@ -201,14 +213,8 @@ export abstract class Connection {
 
     try {
       const response = await request.ready();
-      const text = await response.text();
       await this.processHeaders(response.headers);
-      await this.throwErrorIfErrorBody(text, response);
-      return new Statement(this.context, {
-        query: formattedQuery,
-        text,
-        executeQueryOptions
-      });
+      return { formattedQuery, response };
     } catch (error) {
       // In case it was a set query, remove set parameter if query fails
       if (setKey.length > 0) {
@@ -220,7 +226,25 @@ export abstract class Connection {
     }
   }
 
-  private async throwErrorIfErrorBody(text: string, response: Response) {
+  async execute(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions = {}
+  ): Promise<Statement> {
+    const { formattedQuery, response } = await this.prepareAndExecuteQuery(
+      query,
+      executeQueryOptions
+    );
+
+    const text = await response.text();
+    await this.throwErrorIfErrorBody(text, response);
+    return new Statement(this.context, {
+      query: formattedQuery,
+      text,
+      executeQueryOptions
+    });
+  }
+
+  protected async throwErrorIfErrorBody(text: string, response: Response) {
     // Hack, but looks like this is a limitation of the fetch API
     // In order to read the body here and elesewhere, we need to clone the response
     // since body can only be read once

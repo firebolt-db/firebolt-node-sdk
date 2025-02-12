@@ -35,6 +35,7 @@ export type QuerySettings = Record<
 > & {
   output_format?: OutputFormat;
   internal?: Record<string, string | number>[];
+  async?: boolean;
 };
 
 export type RowParser = (row: string, isLastRow: boolean) => any;

@@ -8,20 +8,15 @@ import {
 import { Meta } from "../meta";
 import { isDataQuery } from "../common/util";
 import { RowStream } from "./stream/rowStream";
-import { JSONStream } from "./stream/jsonStream";
-import {
-  normalizeResponse,
-  getNormalizedStatistics
-} from "./normalizeResponse";
+import { normalizeResponse } from "./normalizeResponse";
 import { CompositeError } from "../common/errors";
 
 export class Statement {
+  private rowStream: RowStream;
   private context: Context;
   private query: string;
   private executeQueryOptions: ExecuteQueryOptions;
-
-  private text;
-  private rowStream: RowStream;
+  private readonly text: string;
 
   constructor(
     context: Context,

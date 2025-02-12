@@ -1,4 +1,4 @@
-import { setupServer } from "msw/node";
+import { setupServer, SetupServerApi } from "msw/node";
 import { rest } from "msw";
 import { Firebolt } from "../../../src";
 import { ConnectionOptions } from "../../../src/types";
@@ -24,6 +24,35 @@ const engineUrlResponse = {
   ],
   data: [["https://some_engine.com", "dummy", "Running"]],
   rows: 1
+};
+
+const asyncQueryResponse = {
+  message: "the query was accepted for async processing",
+  monitorSql: "CALL fb_GetAsyncStatus('async_query_token');",
+  token: "async_query_token"
+};
+
+// Helper function to setup mock server with auth
+const setupMockServer = (server: SetupServerApi) => {
+  server.use(
+    rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
+      return res(
+        ctx.json({
+          access_token: "fake_access_token"
+        })
+      );
+    }),
+    rest.get(
+      `https://api.fake.firebolt.io/web/v3/account/my_account/engineUrl`,
+      (req, res, ctx) => {
+        return res(
+          ctx.json({
+            engineUrl: "https://some_system_engine.com"
+          })
+        );
+      }
+    )
+  );
 };
 
 describe("Connection V2", () => {
@@ -167,24 +196,8 @@ describe("Connection V2", () => {
       apiEndpoint
     });
 
+    setupMockServer(server);
     server.use(
-      rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
-        return res(
-          ctx.json({
-            access_token: "fake_access_token"
-          })
-        );
-      }),
-      rest.get(
-        `https://api.fake.firebolt.io/web/v3/account/my_account/engineUrl`,
-        (req, res, ctx) => {
-          return res(
-            ctx.json({
-              engineUrl: "https://some_system_engine.com"
-            })
-          );
-        }
-      ),
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
@@ -257,5 +270,179 @@ describe("Connection V2", () => {
     await firebolt.connect(connectionParams);
 
     expect(engineUrlCalls).toBe(2);
+  });
+
+  it("executes async query successfully", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        (req, res, ctx) => {
+          return res(ctx.json(asyncQueryResponse));
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    const asyncStatement = await connection.executeAsync("INSERT 1");
+    expect(asyncStatement).toBeDefined();
+    expect(asyncStatement.asyncQueryToken).toBe("async_query_token");
+  });
+
+  it("throws error for async SET statement", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+    setupMockServer(server);
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(
+      connection.executeAsync("SET some_setting = 1")
+    ).rejects.toThrow("SET statements cannot be executed asynchronously.");
+  });
+
+  const asyncQueryStatusTest = async (
+    status: string,
+    expectedRunning: boolean,
+    expectedSuccessful: boolean | undefined
+  ) => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          let result;
+          const body = await req.text();
+          if (
+            body.includes("fb_GetAsyncStatus") &&
+            body.includes("async_query_token")
+          ) {
+            result = ctx.json({
+              meta: [
+                { name: "status", type: "Text" },
+                { name: "query_id", type: "Text" }
+              ],
+              data: [[status, "query_id_123"]],
+              rows: 1
+            });
+          } else {
+            result = ctx.json(asyncQueryResponse);
+          }
+          return res(result);
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    const asyncStatement = await connection.executeAsync("INSERT 1");
+    const isRunning = await connection.isAsyncQueryRunning(
+      asyncStatement.asyncQueryToken
+    );
+    expect(isRunning).toBe(expectedRunning);
+    const isSuccessful = await connection.isAsyncQuerySuccessful(
+      asyncStatement.asyncQueryToken
+    );
+    expect(isSuccessful).toBe(expectedSuccessful);
+  };
+
+  it("checks status when async query is successful", async () => {
+    await asyncQueryStatusTest("ENDED_SUCCESSFULLY", false, true);
+  });
+
+  it("checks status when async query is running", async () => {
+    await asyncQueryStatusTest("RUNNING", true, undefined);
+  });
+
+  it("checks status when async query is failed", async () => {
+    await asyncQueryStatusTest("ENDED_WITH_ERROR", false, false);
+  });
+
+  it("cancels async query correctly", async () => {
+    let cancelQueryExecuted = false;
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}?output_format=JSON_Compact`,
+        async (req, res, ctx) => {
+          const body = await req.text();
+          if (
+            body.includes("fb_GetAsyncStatus") &&
+            body.includes("async_query_token")
+          ) {
+            return res(
+              ctx.json({
+                meta: [
+                  { name: "status", type: "Text" },
+                  { name: "query_id", type: "Text" }
+                ],
+                data: [["RUNNING", "query_id_123"]],
+                rows: 1
+              })
+            );
+          } else if (
+            body.includes("CANCEL QUERY") &&
+            body.includes("query_id_123")
+          ) {
+            cancelQueryExecuted = true;
+            return res(ctx.json({}));
+          } else {
+            return res(ctx.json(asyncQueryResponse));
+          }
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    const asyncStatement = await connection.executeAsync("INSERT 1");
+    expect(asyncStatement.asyncQueryToken).not.toBe("");
+    await connection.cancelAsyncQuery(asyncStatement.asyncQueryToken);
+    await new Promise(resolve => setTimeout(resolve, 100)); // somehow we need it to wait for the flag switch
+    expect(cancelQueryExecuted).toBe(true);
   });
 });
