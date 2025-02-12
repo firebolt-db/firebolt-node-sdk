@@ -9,10 +9,10 @@ import { Meta } from "../meta";
 
 export class AsyncStatement {
   private readonly asyncToken: string;
-  private context: Context;
-  private query: string;
-  private executeQueryOptions: ExecuteQueryOptions;
-  private text: string;
+  private readonly context: Context;
+  private readonly query: string;
+  private readonly executeQueryOptions: ExecuteQueryOptions;
+  private readonly text: string;
 
   constructor(
     context: Context,

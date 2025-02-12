@@ -1,7 +1,7 @@
 import { AccountNotFoundError, ApiError } from "../common/errors";
 import { ACCOUNT_SYSTEM_ENGINE, QUERY_URL } from "../common/api";
 
-import { Connection as BaseConnection, defaultResponseSettings } from "./base";
+import { Connection as BaseConnection } from "./base";
 import { Cache, inMemoryCache, noneCache } from "../common/tokenCache";
 import { ExecuteQueryOptions } from "../types";
 import { AsyncStatement } from "../statement/async";
