@@ -8,13 +8,13 @@ This guide explains how to install, configure, and use the Firebolt Node.js SDK 
 
 The Firebolt Node.js SDK is published on the [NPM registry](https://www.npmjs.com/package/@firebolt-js/sdk). Installing the SDK integrates Firebolt functionality into your application, allowing you to perform database operations and manage resources programmatically.
 
-To install using npm, use the following example script:
+To install using npm, run the following command:
 
 ```sh
 npm install firebolt-sdk --save
 ```
 
-To install using Yarn, use the following example script:
+To install using Yarn, run the following command:
 ```sh
 yarn add firebolt-sdk
 ```
