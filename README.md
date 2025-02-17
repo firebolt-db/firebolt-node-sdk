@@ -2,19 +2,48 @@
 
 <img width="1114" alt="Screen Shot 2022-01-10 at 10 56 30 AM" src="https://user-images.githubusercontent.com/7674553/148823093-5ff07a44-9954-4640-b322-a7e029e47450.png">
 
+This guide explains how to install, configure, and use the Firebolt Node.js SDK to connect to a Firebolt database from a Node.js application. You can use this SDK to programmatically connect to a Firebolt database, run queries, and manage database resources.
+
 ## Installation
 
-This library is published in the NPM registry and can be installed using any compatible package manager.
+The Firebolt Node.js SDK is published on the [NPM registry](https://www.npmjs.com/package/@firebolt-js/sdk). Installing the SDK integrates Firebolt functionality into your application, allowing you to perform database operations and manage resources programmatically.
+
+To install using npm, run the following command:
 
 ```sh
 npm install firebolt-sdk --save
+```
 
-# For Yarn, use the command below.
+To install using Yarn, run the following command:
+```sh
 yarn add firebolt-sdk
 ```
 
+### Authentication
 
-## Using the library
+After installation, you must authenticate before you can use the SDK to establish connections, run queries, and manage database resources. The following code example sets up a connection using your Firebolt service account credentials:
+
+```typescript
+const connection = await firebolt.connect({
+  auth: {
+    client_id: '12345678-90123-4567-8901-234567890123',
+    client_secret: 'secret',
+  },
+  engineName: 'engine_name',
+  account: 'account_name',
+  database: 'database',
+});
+```
+In the previous code example, the following apply:
+
+* `client_id` and `client_secret` are your service account credentials. Follow the Firebolt's [guide](https://docs.firebolt.io/Guides/managing-your-organization/service-accounts.html#create-a-service-account) on how to create one and get its id and secret.
+* `engineName` is the name of the engine which you want to run your queries on.
+* `database` is the target databaset to store your tables.
+* `account` is the [account](https://docs.firebolt.io/Overview/organizations-accounts.html#accounts) within your organisation. Your account is not the same as your user name.
+
+### Example
+
+In the following code example, credentials are stored in environment variables. For bash and similar shells you can set them by running `export FIREBOLT_CLIENT_ID=<your_client_id>` where <your_client_id> is the id you want to set. This method prevents hardcoding sensitive information in your code so it can be safely commited to a version control system such as Git. Many IDEs, including IntelliJ IDEA, allow the configuration of environment variables in their run configurations.
 
 ```typescript
 import { Firebolt } from 'firebolt-sdk'
@@ -31,10 +60,40 @@ const connection = await firebolt.connect({
   engineName: process.env.FIREBOLT_ENGINE_NAME
 });
 
-const statement = await connection.execute("SELECT 1");
+// Create table
+await connection.execute(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INT,
+    name STRING,
+    age INT
+  )
+`);
+
+// Insert sample data
+await connection.execute(`
+  INSERT INTO users (id, name, age) VALUES
+  (1, 'Alice', 30),
+  (2, 'Bob', 25)
+`);
+
+// Update some rows
+await connection.execute(`
+  UPDATE users SET age = 31 WHERE id = 1
+`);
+
+// Fetch data
+const statement = await connection.execute("SELECT * FROM users");
 
 // fetch statement result
 const { data, meta } = await statement.fetchResult();
+
+console.log(meta)
+// Outputs:
+// [
+//   Meta { type: 'int null', name: 'id' },
+//   Meta { type: 'text null', name: 'name' },
+//   Meta { type: 'int null', name: 'age' }
+// ]
 
 // or stream result
 const { data } = await statement.streamResult();
@@ -54,6 +113,8 @@ for await (const row of data) {
 }
 
 console.log(rows)
+// Outputs:
+// [ [ 1, 'Alice', 31 ], [ 2, 'Bob', 25 ] ]
 
 
 ```
@@ -103,7 +164,7 @@ firebolt-sdk supports  Node.js `> v16`.
 
 <a id="documentation"></a>
 ## Documentation
-
+[Firebolt's Node.js documentation](https://docs.firebolt.io/Guides/developing-with-firebolt/connecting-with-nodejs.html)
 <a id="usage"></a>
 ## Usage
 
@@ -159,7 +220,7 @@ const connection = await firebolt.connect({
 
 <a id="clientcredentials"></a>
 #### Client credentials
-Default way of authenticating is with the client credentials
+Use client credentials to authenticate as follows:
 
 ```typescript
 const connection = await firebolt.connect({
@@ -175,7 +236,7 @@ const connection = await firebolt.connect({
 
 <a id="token-caching"></a>
 #### Token caching
-Driver implements a caching mechanism for access tokens. If you are using the same client id/secret for multiple connections, the driver will cache the access token and reuse it for subsequent connections.
+Driver implements a caching mechanism for access tokens. If you are using the same client id or secret for multiple connections, the driver will cache the access token and reuse it for subsequent connections.
 This behavior can be disabled by setting `useCache` to `false` in the connection options.
 ```typescript
 const connection = await firebolt.connect({
@@ -193,7 +254,7 @@ const connection = await firebolt.connect({
 
 <a id="test-connection"></a>
 ### Test connection
-Connection can be tested using:
+Test the connection using the following example script:
 ```typescript
 const firebolt = Firebolt();
 await firebolt.testConnection(connectionOptions)
@@ -238,7 +299,7 @@ export type ExecuteQueryOptions = {
 
 <a id="parameters"></a>
 ### parameters
-`parameters` field is used to specify replacements for `?` symbol in the query.
+The `parameters` field is used to specify replacements for `?` symbol in the query as follows:
 
 For example: 
 ```typescript
@@ -247,7 +308,7 @@ const statement = await connection.execute("select ?, ?", {
 });
 ```
 
-will produce `select 'foo', 1` query
+The previous query produces: `select 'foo', 1` query
 
 Format `Tuple`:
 
@@ -264,7 +325,7 @@ const statement = await connection.execute("select ? where bar in ?", {
 
 <a id="named-parameters"></a>
 ### Named parameters
-`namedParameters` field is used to specify replacements for `:name` tokens in the query.
+The `namedParameters` field is used to specify replacements for `:name` tokens in the query.
 
 For example: 
 ```typescript
@@ -273,7 +334,7 @@ const statement = await connection.execute("select :foo, :bar", {
 });
 ```
 
-will produce `select 'foo', 123` query
+The previous query will produce: `select 'foo', 123` query
 
 <a id="querysettings"></a>
 ### QuerySettings
@@ -282,7 +343,7 @@ will produce `select 'foo', 123` query
 |---------------|----------|--------------|-----------------------------------|
 | output_format |          | JSON_COMPACT | Specifies format of selected data |
 
-You can also use QuerySettings to specify set flags.
+You can also use `QuerySettings` to specify set flags.
 For example: `{ query_id: 'hello' }`
 
 
