@@ -313,7 +313,7 @@ describe("parse values", () => {
       new BigNumber(1000000000000000000000000000000000000)
     );
   });
-  it("parses biging null into BigNumber container", () => {
+  it("parses bigint null into BigNumber container", () => {
     allure.description("Verify nullable bigint is parsed correctly");
     const row = {
       big: "1000000000000000000000000000000000000"
