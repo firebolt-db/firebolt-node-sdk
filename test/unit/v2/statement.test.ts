@@ -321,6 +321,18 @@ describe("parse values", () => {
     const res: Record<string, Buffer> = hydrateRow(row, meta, {});
     expect(res["bytea"]).toEqual(Buffer.from("hello_world"));
   });
+  it("parses bigint null into BigNumber container", () => {
+    allure.description("Verify nullable bigint is parsed correctly");
+    const row = {
+      big: "1000000000000000000000000000000000000"
+    };
+    const meta = [{ name: "big", type: "long null" }];
+    const res: Record<string, BigNumber> = hydrateRow(row, meta, {});
+    expect(res["big"] instanceof BigNumber).toBe(true);
+    expect(res["big"]).toEqual(
+      new BigNumber(1000000000000000000000000000000000000)
+    );
+  });
   it("parses struct into object", () => {
     const row = {
       s: { a: [1, 2], b: "\\x68656c6c6f5f776f726c64" }

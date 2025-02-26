@@ -49,6 +49,10 @@ const getHydratedValue = (
   type: string,
   executeQueryOptions: ExecuteQueryOptions
 ): any => {
+  // strip null to ensure correct type checking in the following steps
+  if (type.endsWith("null")) {
+    type = type.replace("null", "").trim();
+  }
   if (isStructType(type)) {
     return hydrateStruct(
       value as Record<string, unknown>,
