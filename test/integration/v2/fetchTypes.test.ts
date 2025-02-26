@@ -42,6 +42,26 @@ describe("test type casting on fetch", () => {
     const row = data[0];
     expect((row as unknown[])[0]).toEqual(new BigNumber("9223372036854775807"));
   });
+  it("select nullable bigint", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+    // Max value for a signed 64-bit integer (bigint)
+    const testQuery = `
+      WITH a AS (
+        SELECT 9223372036854775807::bigint UNION ALL SELECT null::bigint
+      )
+      SELECT * FROM a
+    `;
+    const connection = await firebolt.connect(connectionParams);
+
+    const statement = await connection.execute(testQuery);
+
+    const { data, meta } = await statement.fetchResult();
+    expect(meta[0].type).toEqual("long null");
+    const row = data[0];
+    expect((row as unknown[])[0]).toEqual(new BigNumber("9223372036854775807"));
+  });
   it("select negative bigint", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
