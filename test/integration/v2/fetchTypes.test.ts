@@ -116,7 +116,7 @@ describe("test type casting on fetch", () => {
     await connection.execute("DROP TABLE IF EXISTS test_struct_helper");
     try {
       await connection.execute(
-        "CREATE TABLE IF NOT EXISTS test_struct(id int not null, s struct(a array(int) not null, b bytea null) not null)"
+        "CREATE TABLE IF NOT EXISTS test_struct(id int not null, s struct(a array(int) null, b bytea null) not null)"
       );
       await connection.execute(
         "CREATE TABLE IF NOT EXISTS test_struct_helper(a array(int) not null, b bytea null)"
