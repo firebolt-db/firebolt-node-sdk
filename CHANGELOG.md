@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.11.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.11.0...v1.11.1) (2025-02-27)
+
+
+### Bug Fixes
+
+* **FIR-43901:** correct parsing of nullable bigint columns ([#133](https://github.com/firebolt-db/firebolt-node-sdk/issues/133)) ([16c9a50](https://github.com/firebolt-db/firebolt-node-sdk/commit/16c9a502365112c1b340a388049f54641fe427fd))
+
 ## [1.11.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.10.0...v1.11.0) (2025-02-12)
 
 
