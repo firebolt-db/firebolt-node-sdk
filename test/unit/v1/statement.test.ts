@@ -313,6 +313,18 @@ describe("parse values", () => {
       new BigNumber(1000000000000000000000000000000000000)
     );
   });
+  it("parses bigint null into BigNumber container", () => {
+    allure.description("Verify nullable bigint is parsed correctly");
+    const row = {
+      big: "1000000000000000000000000000000000000"
+    };
+    const meta = [{ name: "big", type: "long null" }];
+    const res: Record<string, BigNumber> = hydrateRow(row, meta, {});
+    expect(res["big"] instanceof BigNumber).toBe(true);
+    expect(res["big"]).toEqual(
+      new BigNumber(1000000000000000000000000000000000000)
+    );
+  });
 });
 
 describe("set statements", () => {
