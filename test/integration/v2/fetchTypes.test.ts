@@ -107,9 +107,8 @@ describe("test type casting on fetch", () => {
       engineName: process.env.FIREBOLT_ENGINE_NAME as string
     });
     await connection.execute("SET advanced_mode=1");
-    await connection.execute("SET enable_struct=1");
     await connection.execute("SET enable_create_table_v2=true");
-    await connection.execute("SET enable_row_selection=true");
+    await connection.execute("SET enable_struct_syntax=true");
     await connection.execute("SET prevent_create_on_information_schema=true");
     await connection.execute("SET enable_create_table_with_struct_type=true");
     await connection.execute("DROP TABLE IF EXISTS test_struct");
@@ -140,7 +139,7 @@ describe("test type casting on fetch", () => {
 
       const { data, meta } = await statement.fetchResult();
       expect(meta[0].type).toEqual(
-        "struct(id int, s struct(a array(int null), b bytea null))"
+        "struct(id int, s struct(a array(int null) null, b bytea null))"
       );
       const row = data[0];
       expect((row as unknown[])[0]).toEqual({
