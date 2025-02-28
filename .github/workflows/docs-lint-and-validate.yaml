@@ -36,7 +36,7 @@ jobs:
           input_file: README.md
           language: typescript
           output_file: temp/extracted-code.ts
-          block: 2 # Quickstart
+          block_number: 2 # Quickstart
 
       - name: Lint extracted examples
         run: npx eslint temp/*.ts
