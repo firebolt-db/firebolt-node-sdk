@@ -46,7 +46,7 @@ In the previous code example, the following apply:
 In the following code example, credentials are stored in environment variables. For bash and similar shells you can set them by running `export FIREBOLT_CLIENT_ID=<your_client_id>` where <your_client_id> is the id you want to set. This method prevents hardcoding sensitive information in your code so it can be safely commited to a version control system such as Git. Many IDEs, including IntelliJ IDEA, allow the configuration of environment variables in their run configurations.
 
 ```typescript
-import { Firebolt } from "firebolt-sdk"
+import { Firebolt } from "firebolt-sdk";
 
 const firebolt = Firebolt();
 
