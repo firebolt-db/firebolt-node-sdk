@@ -13,7 +13,7 @@ jobs:
           sparse-checkout: |
             README.md
             .github/settings/docs-lint-and-validate/
-          sparse-checkout-cone-mode: false
+          # sparse-checkout-cone-mode: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
