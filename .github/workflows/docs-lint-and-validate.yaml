@@ -38,6 +38,22 @@ jobs:
           output_file: temp/extracted-code.ts
           block_number: 2 # Quickstart
 
+      - name: Setup module resolution for the temp directory
+        run: |
+          # Create package.json in temp directory
+          cat > temp/package.json << EOF
+          {
+            "name": "temp",
+            "version": "1.0.0",
+            "description": "Temporary package for testing",
+            "main": "index.js"
+          }
+          EOF
+          
+          # Install firebolt-sdk in the temp directory
+          cd temp
+          npm install firebolt-sdk --no-save
+
       - name: Create temporary tsconfig.json
         run: |
           cat > temp/tsconfig.json << EOF
@@ -54,17 +70,18 @@ jobs:
               "noUnusedLocals": true,
               "noUnusedParameters": true,
               "noImplicitReturns": true,
-              "noFallthroughCasesInSwitch": true
+              "noFallthroughCasesInSwitch": true,
+              "moduleResolution": "node"
             },
             "include": ["*.ts"]
           }
           EOF
 
-      # - name: Check TypeScript compilation
-      #   run: npx tsc --noEmit --project temp/tsconfig.json
+      - name: Check TypeScript compilation
+        run: cd temp && npx tsc --noEmit --project tsconfig.json
 
       - name: Lint extracted examples
-        run: npx eslint temp/*.ts --config .eslintrc
+        run: cd temp && npx eslint *.ts --config ../.eslintrc
 
       - name: Clean up
         if: always()
