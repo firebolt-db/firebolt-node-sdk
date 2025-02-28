@@ -36,17 +36,9 @@ jobs:
           input_file: README.md
           language: typescript
           output_file: temp/extracted-code.ts
-          block_number: 2 # Quickstart
-
-      - name: Upload extracted code as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: extracted-code.ts
-          path: temp/extracted-code.ts
-          retention-days: 2
 
       - name: Lint extracted examples
-        run: npx eslint temp/extracted-code.ts
+        run: npx eslint temp/*.ts
 
       - name: Clean up
         if: always()
