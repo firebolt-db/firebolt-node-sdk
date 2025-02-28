@@ -39,7 +39,7 @@ jobs:
           block_number: 2 # Quickstart
 
       - name: Lint extracted examples
-        run: npx eslint temp/*.ts
+        run: npx eslint temp/*.ts --config .eslintrc
 
       - name: Clean up
         if: always()
