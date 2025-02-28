@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '16'
           cache: 'npm'
-          cache-dependency-path: '.github/settings/docs-lint-and-validate/package-lock.json'
+          cache-dependency-path: '.github/settings/doc-lint-and-validate/package-lock.json'
 
       - name: Install dependencies
         run: npm ci
@@ -29,7 +29,7 @@ jobs:
         run: mkdir -p temp
       
       - name: Move eslint settings files to temp directory
-        run: ls && mv .github/settings/docs-lint-and-validate/* temp/
+        run: mv .github/settings/doc-lint-and-validate/* temp/
 
       - name: Extract TypeScript examples from README
         uses: firebolt-db/action-extract-doc-code@demo
