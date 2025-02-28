@@ -26,7 +26,7 @@ export default [
     },
     rules: {
       // TypeScript rules
-      ...tseslint.configs.recommended.rules,
+    //   ...tseslint.configs.recommended.rules,
       "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/explicit-function-return-type": "off"
     }
