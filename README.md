@@ -84,6 +84,8 @@ await connection.execute(`
 // Fetch data
 const statement = await connection.execute("SELECT * FROM users");
 
+await statement.MyNonexistentfetchResult();
+
 // fetch statement result
 const { data, meta } = await statement.fetchResult();
 
