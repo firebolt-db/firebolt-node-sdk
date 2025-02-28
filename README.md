@@ -46,14 +46,14 @@ In the previous code example, the following apply:
 In the following code example, credentials are stored in environment variables. For bash and similar shells you can set them by running `export FIREBOLT_CLIENT_ID=<your_client_id>` where <your_client_id> is the id you want to set. This method prevents hardcoding sensitive information in your code so it can be safely commited to a version control system such as Git. Many IDEs, including IntelliJ IDEA, allow the configuration of environment variables in their run configurations.
 
 ```typescript
-import { Firebolt } from 'firebolt-sdk'
+import { Firebolt } from "firebolt-sdk"
 
 const firebolt = Firebolt();
 
 const connection = await firebolt.connect({
   auth: {
     client_id: process.env.FIREBOLT_CLIENT_ID,
-    client_secret: process.env.FIREBOLT_CLIENT_SECRET,
+    client_secret: process.env.FIREBOLT_CLIENT_SECRET
   },
   account: process.env.FIREBOLT_ACCOUNT,
   database: process.env.FIREBOLT_DATABASE,
@@ -87,7 +87,7 @@ const statement = await connection.execute("SELECT * FROM users");
 // fetch statement result
 const { data, meta } = await statement.fetchResult();
 
-console.log(meta)
+console.log(meta);
 // Outputs:
 // [
 //   Meta { type: 'int null', name: 'id' },
@@ -106,16 +106,15 @@ data.on("error", error => {
   console.log(error);
 });
 
-const rows = []
+const rows = [];
 
 for await (const row of data) {
   rows.push(row);
 }
 
-console.log(rows)
+console.log(rows);
 // Outputs:
 // [ [ 1, 'Alice', 31 ], [ 2, 'Bob', 25 ] ]
-
 
 ```
 
