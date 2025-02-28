@@ -5,12 +5,14 @@
     "eslint:recommended",
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
-    "plugin:@typescript-eslint/recommended"
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
   "ignorePatterns": ["node_modules"],
   "parserOptions": {
     "ecmaVersion": 2021,
-    "sourceType": "module"
+    "sourceType": "module",
+    "project": ["./temp/tsconfig.json"]
   },
   "env": {
     "node": true,
@@ -18,6 +20,8 @@
     "jest": true
   },
   "rules": {
-    "no-undef": "error"
+    "no-undef": "error",
+    "@typescript-eslint/no-unsafe-member-access": "error",
+    "@typescript-eslint/no-unsafe-call": "error"
   }
 }
