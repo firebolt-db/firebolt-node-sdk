@@ -30,12 +30,13 @@ jobs:
       - name: Create temp directory
         run: mkdir -p temp
 
-      - name: Extract JavaScript examples from README
+      - name: Extract TypeScript examples from README
         uses: firebolt-db/action-extract-doc-code@demo
         with:
           input_file: README.md
           language: typescript
           output_file: temp/extracted-code.ts
+          block: 2 # Quickstart
 
       - name: Lint extracted examples
         run: npx eslint temp/*.ts
