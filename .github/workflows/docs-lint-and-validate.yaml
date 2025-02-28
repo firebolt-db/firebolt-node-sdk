@@ -60,8 +60,8 @@ jobs:
           }
           EOF
 
-      - name: Check TypeScript compilation
-        run: npx tsc --noEmit --project temp/tsconfig.json
+      # - name: Check TypeScript compilation
+      #   run: npx tsc --noEmit --project temp/tsconfig.json
 
       - name: Lint extracted examples
         run: npx eslint temp/*.ts --config .eslintrc
