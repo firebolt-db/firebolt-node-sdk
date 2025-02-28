@@ -38,6 +38,31 @@ jobs:
           output_file: temp/extracted-code.ts
           block_number: 2 # Quickstart
 
+      - name: Create temporary tsconfig.json
+        run: |
+          cat > temp/tsconfig.json << EOF
+          {
+            "compilerOptions": {
+              "target": "ES2020",
+              "module": "commonjs",
+              "strict": true,
+              "esModuleInterop": true,
+              "skipLibCheck": true,
+              "forceConsistentCasingInFileNames": true,
+              "noImplicitAny": true,
+              "strictNullChecks": true,
+              "noUnusedLocals": true,
+              "noUnusedParameters": true,
+              "noImplicitReturns": true,
+              "noFallthroughCasesInSwitch": true
+            },
+            "include": ["*.ts"]
+          }
+          EOF
+
+      - name: Check TypeScript compilation
+        run: npx tsc --noEmit --project temp/tsconfig.json
+
       - name: Lint extracted examples
         run: npx eslint temp/*.ts --config .eslintrc
 
