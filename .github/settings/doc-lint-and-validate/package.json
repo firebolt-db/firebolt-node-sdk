@@ -1,0 +1,24 @@
+{
+  "name": "eslint_run",
+  "version": "1.0.0",
+  "description": "ESLint setup for TypeScript",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint extracted_connecting-with-nodejs_javascript_block_1.ts",
+    "lint:fix": "eslint --fix extracted_connecting-with-nodejs_javascript_block_1.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@typescript-eslint/eslint-plugin": "^8.25.0",
+    "@typescript-eslint/parser": "^8.25.0",
+    "eslint": "^9.21.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-prettier": "^5.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "firebolt-sdk": "^1.0.0"
+  }
+}

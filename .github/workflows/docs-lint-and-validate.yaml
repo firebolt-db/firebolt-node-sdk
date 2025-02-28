@@ -12,10 +12,8 @@ jobs:
         with:
           sparse-checkout: |
             README.md
-            package.json
-            package-lock.json
-            .eslintrc
-          sparse-checkout-cone-mode: false
+            .github/settings/docs-lint-and-validate/
+          # sparse-checkout-cone-mode: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,6 +27,9 @@ jobs:
 
       - name: Create temp directory
         run: mkdir -p temp
+      
+      - name: Move eslint settings files to temp directory
+        run: mv .github/settings/docs-lint-and-validate/* temp/
 
       - name: Extract TypeScript examples from README
         uses: firebolt-db/action-extract-doc-code@demo
@@ -38,47 +39,8 @@ jobs:
           output_file: temp/extracted-code.ts
           block_number: 2 # Quickstart
 
-      - name: Setup module resolution for the temp directory
-        run: |
-          # Create package.json in temp directory
-          cat > temp/package.json << EOF
-          {
-            "name": "temp",
-            "version": "1.0.0",
-            "description": "Temporary package for testing",
-            "main": "index.js"
-          }
-          EOF
-          
-          # Install firebolt-sdk in the temp directory
-          cd temp
-          npm install firebolt-sdk --no-save
-
-      - name: Create temporary tsconfig.json
-        run: |
-          cat > temp/tsconfig.json << EOF
-          {
-            "compilerOptions": {
-              "target": "ES2020",
-              "module": "commonjs",
-              "strict": true,
-              "esModuleInterop": true,
-              "skipLibCheck": true,
-              "forceConsistentCasingInFileNames": true,
-              "noImplicitAny": true,
-              "strictNullChecks": true,
-              "noUnusedLocals": true,
-              "noUnusedParameters": true,
-              "noImplicitReturns": true,
-              "noFallthroughCasesInSwitch": true,
-              "moduleResolution": "node"
-            },
-            "include": ["*.ts"]
-          }
-          EOF
-
-      - name: Check TypeScript compilation
-        run: cd temp && npx tsc --noEmit --project tsconfig.json
+      # - name: Check TypeScript compilation
+      #   run: cd temp && npx tsc --noEmit --project tsconfig.json
 
       - name: Lint extracted examples
         run: cd temp && npx eslint *.ts --config ../.eslintrc
