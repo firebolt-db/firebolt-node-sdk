@@ -43,7 +43,7 @@ jobs:
       #   run: cd temp && npx tsc --noEmit --project tsconfig.json
 
       - name: Lint extracted examples
-        run: cd temp && npx eslint *.ts --config ../.eslintrc
+        run: cd temp && npx eslint *.ts --config ../eslint.config.js
 
       - name: Clean up
         if: always()
