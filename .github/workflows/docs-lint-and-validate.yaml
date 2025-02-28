@@ -29,7 +29,7 @@ jobs:
         run: mkdir -p temp
       
       - name: Move eslint settings files to temp directory
-        run: mv .github/settings/docs-lint-and-validate/* temp/
+        run: ls && mv .github/settings/docs-lint-and-validate/* temp/
 
       - name: Extract TypeScript examples from README
         uses: firebolt-db/action-extract-doc-code@demo
