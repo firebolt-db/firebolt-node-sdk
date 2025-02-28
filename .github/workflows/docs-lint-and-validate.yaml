@@ -12,6 +12,9 @@ jobs:
         with:
           sparse-checkout: |
             README.md
+            package.json
+            package-lock.json
+            .eslintrc
           sparse-checkout-cone-mode: false
 
       - name: Setup Node.js
