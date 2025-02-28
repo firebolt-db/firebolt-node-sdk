@@ -42,6 +42,9 @@ jobs:
       # - name: Check TypeScript compilation
       #   run: cd temp && npx tsc --noEmit --project tsconfig.json
 
+      - name: install dependencies
+        run: cd temp && npm install
+
       - name: Lint extracted examples
         run: cd temp && npx eslint *.ts --config eslint.config.js
 
