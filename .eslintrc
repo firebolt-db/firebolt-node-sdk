@@ -16,5 +16,8 @@
     "node": true,
     "es6": true,
     "jest": true
+  },
+  "rules": {
+    "no-undef": "error"
   }
 }
