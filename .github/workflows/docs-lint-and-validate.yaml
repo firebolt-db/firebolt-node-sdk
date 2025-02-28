@@ -9,6 +9,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            README.md
+          sparse-checkout-cone-mode: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,6 +33,13 @@ jobs:
           language: typescript
           output_file: temp/extracted-code.ts
           block_number: 2 # Quickstart
+
+      - name: Upload extracted code as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: extracted-code.ts
+          path: temp/extracted-code.ts
+          retention-days: 2
 
       - name: Lint extracted examples
         run: npx eslint temp/extracted-code.ts
