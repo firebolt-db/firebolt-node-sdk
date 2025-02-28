@@ -12,7 +12,7 @@ jobs:
         with:
           sparse-checkout: |
             README.md
-            .github/settings/docs-lint-and-validate/
+            .github
           # sparse-checkout-cone-mode: false
 
       - name: Setup Node.js
