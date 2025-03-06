@@ -92,16 +92,18 @@ export class NodeHttpClient {
       const withProtocol = assignProtocol(url);
 
       const userAgent = headers["user-agent"] || DEFAULT_USER_AGENT;
+      const finalHeaders = {
+        "user-agent": userAgent,
+        "Content-Type": "application/json",
+        [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
+        ...headers
+      };
+
       const response = await fetch(withProtocol, {
         agent,
         signal: controller.signal as AbortSignal,
         method,
-        headers: {
-          "user-agent": userAgent,
-          "Content-Type": "application/json",
-          [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
-          ...headers
-        },
+        headers: finalHeaders,
         body
       });
 
@@ -147,7 +149,8 @@ export class NodeHttpClient {
             code,
             status: response.status,
             raw: json,
-            url
+            url,
+            headers: finalHeaders
           });
         } else {
           const text = await response.text();
@@ -156,7 +159,8 @@ export class NodeHttpClient {
             message,
             code: "",
             status: response.status,
-            url
+            url,
+            headers: finalHeaders
           });
         }
       }

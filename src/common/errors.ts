@@ -20,19 +20,22 @@ export class ApiError extends Error {
   code: string;
   raw?: any;
   url: string;
+  headers?: Record<string, string>;
 
   constructor({
     message,
     status,
     code,
     raw,
-    url
+    url,
+    headers
   }: {
     message: string;
     status: number;
     code: string;
     url: string;
     raw?: any;
+    headers?: Record<string, string>;
   }) {
     const formattedMessage = `
 Request failed
@@ -40,6 +43,7 @@ URL: ${url}
 Reason: ${message}
 Response status: ${status}
 ${code ? `Code: ${code}` : ""}
+${headers ? `Headers: ${JSON.stringify(headers, null, 2)}` : ""}
 ${raw ? `Response: ${JSON.stringify(raw, null, 2)}` : ""}
 `;
     super(formattedMessage);
@@ -48,6 +52,7 @@ ${raw ? `Response: ${JSON.stringify(raw, null, 2)}` : ""}
     this.code = code;
     this.raw = raw;
     this.url = url;
+    this.headers = headers;
   }
 }
 
