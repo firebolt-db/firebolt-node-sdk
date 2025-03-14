@@ -24,6 +24,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.12",
     "@types/node-fetch": "^2.5.12",
+    "@types/rwlock": "^5.0.6",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
     "allure-commandline": "^2.29.0",
@@ -46,6 +47,7 @@
     "abort-controller": "^3.0.0",
     "agentkeepalive": "^4.5.0",
     "json-bigint": "^1.0.0",
-    "node-fetch": "^2.6.6"
+    "node-fetch": "^2.6.6",
+    "rwlock": "^5.0.0"
   }
 }
