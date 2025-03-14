@@ -136,13 +136,16 @@ describe.each([
   ]
 ])("token caching %s", (_, authUrl: string, auth: AuthOptions) => {
   const server = setupServer();
-  const httpClient = new NodeHttpClient();
+  let httpClient = new NodeHttpClient();
 
   beforeAll(() => {
     server.listen();
   });
   afterAll(() => {
     server.close();
+  });
+  beforeEach(() => {
+    httpClient = new NodeHttpClient();
   });
 
   it("caches and reuses access token", async () => {
@@ -295,10 +298,11 @@ describe.each([
         useCache: true
       }
     );
-
+    // Different Authenticator has to have different httpClient
+    const httpClient2 = new NodeHttpClient();
     const authenticator2 = new Authenticator(
       {
-        httpClient,
+        httpClient: httpClient2,
         apiEndpoint: "api.fake2.firebolt.io",
         logger
       },
@@ -341,5 +345,38 @@ describe.each([
     await authenticator2.authenticate();
     expect(authenticator2.accessToken).toEqual("fake_access_token");
     expect(calls).toEqual(2);
+  });
+  it("does not overwrite token when run concurrently", async () => {
+    const authenticator = new Authenticator(
+      { httpClient, apiEndpoint, logger },
+      {
+        auth,
+        account: "my_account",
+        useCache: true
+      }
+    );
+
+    let calls = 0;
+
+    server.use(
+      rest.post(authUrl, (req, res, ctx) => {
+        calls++;
+        return res(
+          ctx.json({
+            access_token: "fake_access_token",
+            expires_in: 2 ^ 30
+          })
+        );
+      })
+    );
+
+    authenticator.clearCache();
+
+    const promises = Array(10)
+      .fill(null)
+      .map(() => authenticator.authenticate());
+
+    await Promise.all(promises);
+    expect(calls).toEqual(1);
   });
 });
