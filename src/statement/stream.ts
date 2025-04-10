@@ -18,9 +18,6 @@ export class StreamStatement {
   }
 
   async streamResult() {
-    if (!this.response.body) {
-      throw new Error("Response body is not readable");
-    }
     return {
       data: new ServerSideStream(this.response, this.executeQueryOptions)
     };
