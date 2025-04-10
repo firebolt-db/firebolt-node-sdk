@@ -1,5 +1,4 @@
-import stream, { TransformCallback } from "stream";
-import { Firebolt } from "../../../src/index";
+import { Firebolt } from "../../../src";
 
 const connectionParams = {
   auth: {
@@ -11,44 +10,68 @@ const connectionParams = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
-jest.setTimeout(40000);
+jest.setTimeout(250000);
 
 describe("streams", () => {
-  it("stream transformters", async () => {
-    class SerializeRowStream extends stream.Transform {
-      public constructor() {
-        super({
-          objectMode: true,
-          transform(
-            row: any,
-            encoding: BufferEncoding,
-            callback: TransformCallback
-          ) {
-            const transformed = JSON.stringify(row);
-            this.push(transformed);
-            this.push("\n");
-            callback();
-          }
-        });
-      }
-    }
-
+  it("check sum from stream result", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
-    const serializedStream = new SerializeRowStream();
-
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("select 1 union all select 2");
+    const statement = await connection.executeStream(
+      `select 1 from generate_series(1, 2500000)` //~1 GB response
+    );
 
     const { data } = await statement.streamResult();
+    let sum = 0;
 
-    data.pipe(serializedStream).pipe(process.stdout);
+    data
+      .on("meta", meta => {
+        console.log("Meta:", meta);
+      })
+      .on("data", row => {
+        sum += row[0];
+      });
 
     await new Promise(resolve => {
       data.on("end", () => {
+        expect(sum).toEqual(2500000);
+        resolve(null);
+      });
+    });
+  });
+  it("check normalized data", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+
+    const statement = await connection.executeStream(
+      `select 1 from generate_series(1, 250000)`, //~1 GB response
+      {
+        response: {
+          normalizeData: true
+        }
+      }
+    );
+
+    const { data } = await statement.streamResult();
+    let sum = 0;
+
+    data
+      .on("meta", meta => {
+        console.log("Meta:", meta);
+      })
+      .on("data", row => {
+        sum += row["?column?"];
+      });
+
+    await new Promise(resolve => {
+      data.on("end", () => {
+        expect(sum).toEqual(250000);
         resolve(null);
       });
     });

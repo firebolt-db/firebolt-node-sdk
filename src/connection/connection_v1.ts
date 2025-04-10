@@ -100,7 +100,7 @@ export class ConnectionV1 extends BaseConnection {
     executeQueryOptions?: ExecuteQueryOptions
   ): Promise<StreamStatement> {
     throw new Error(
-      "Asynchronous execution is not supported in this Firebolt version."
+      "Stream execution is not supported in this Firebolt version."
     );
   }
 }
