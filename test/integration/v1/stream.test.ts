@@ -1,53 +1,43 @@
-import stream, { TransformCallback } from "stream";
-import { Firebolt } from "../../../src/index";
+import { Firebolt } from "../../../src";
 
 const connectionParams = {
   auth: {
-    username: process.env.FIREBOLT_USERNAME as string,
-    password: process.env.FIREBOLT_PASSWORD as string
+    client_id: process.env.FIREBOLT_CLIENT_ID as string,
+    client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
   },
+  account: process.env.FIREBOLT_ACCOUNT as string,
   database: process.env.FIREBOLT_DATABASE as string,
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
-jest.setTimeout(20000);
+jest.setTimeout(250000);
 
 describe("streams", () => {
-  it("stream transformters", async () => {
-    class SerializeRowStream extends stream.Transform {
-      public constructor() {
-        super({
-          objectMode: true,
-          transform(
-            row: any,
-            encoding: BufferEncoding,
-            callback: TransformCallback
-          ) {
-            const transformed = JSON.stringify(row);
-            this.push(transformed);
-            this.push("\n");
-            callback();
-          }
-        });
-      }
-    }
-
+  it("stream transformers", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
 
-    const serializedStream = new SerializeRowStream();
-
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("select 1 union all select 2");
+    const statement = await connection.executeStream(
+      `select 1 from generate_series(1, 250000000)` //~1 GB response
+    );
 
     const { data } = await statement.streamResult();
+    let sum = 0;
 
-    data.pipe(serializedStream).pipe(process.stdout);
+    data
+      .on("meta", meta => {
+        console.log("Meta:", meta);
+      })
+      .on("data", row => {
+        sum += row[0];
+      });
 
     await new Promise(resolve => {
       data.on("end", () => {
+        expect(sum).toEqual(250000000);
         resolve(null);
       });
     });

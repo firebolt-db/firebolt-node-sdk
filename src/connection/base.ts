@@ -10,6 +10,8 @@ import { CompositeError } from "../common/errors";
 import JSONbig from "json-bigint";
 import { QueryFormatter } from "../formatter/base";
 import { AsyncStatement } from "../statement/async";
+import { StreamStatement } from "../statement/stream";
+import { Response, Headers } from "node-fetch";
 
 const defaultQuerySettings = {
   output_format: OutputFormat.COMPACT
@@ -165,6 +167,11 @@ export abstract class Connection {
     query: string,
     executeQueryOptions?: ExecuteQueryOptions
   ): Promise<AsyncStatement>;
+
+  abstract executeStream(
+    query: string,
+    executeQueryOptions?: ExecuteQueryOptions
+  ): Promise<StreamStatement>;
 
   abstract isAsyncQueryRunning(token: string): Promise<boolean>;
 
