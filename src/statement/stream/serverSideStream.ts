@@ -38,13 +38,18 @@ export class ServerSideStream extends Readable {
                 }
               }
             } else if (parsed.message_type === "START") {
-              const metaDataJson = JSONbig.parse(line);
-              this.meta = getNormalizedMeta(metaDataJson.result_columns);
+              this.meta = getNormalizedMeta(parsed.result_columns);
               this.emit("meta", this.meta);
             } else if (parsed.message_type === "FINISH_SUCCESSFULLY") {
               this.push(null);
-            } else if (parsed.message_type === "FINISH_WITH_ERROR") {
-              this.destroy(new Error(`Result encountered an error: ${line}`));
+            } else if (parsed.message_type === "FINISH_WITH_ERRORS") {
+              this.destroy(
+                new Error(
+                  `Result encountered an error: ${parsed.errors
+                    .map((error: { description: string }) => error.description)
+                    .join("\n")}`
+                )
+              );
             }
           } else {
             this.destroy(new Error(`Result row could not be parsed: ${line}`));

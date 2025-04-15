@@ -4,6 +4,7 @@ import { Firebolt } from "../../../src";
 import { ConnectionOptions } from "../../../src/types";
 import { QUERY_URL } from "../../../src/common/api";
 import { inMemoryCache } from "../../../src/common/tokenCache";
+import stream from "node:stream";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -614,7 +615,17 @@ describe("Connection V2", () => {
         ]
       }),
       JSON.stringify({
-        message_type: "FINISH_WITH_ERROR"
+        message_type: "FINISH_WITH_ERRORS",
+        errors: [
+          {
+            description:
+              "Line 1, Column 9: syntax error, unexpected identifier, expecting end of file select *1;",
+            location: {
+              failing_line: 1,
+              start_offset: 9
+            }
+          }
+        ]
       })
     ].join("\n");
 
@@ -626,8 +637,7 @@ describe("Connection V2", () => {
           const body = await req.text();
           const urlParams = Object.fromEntries(req.url.searchParams.entries());
           if (
-            body.includes("select") &&
-            body.includes("generate_series") &&
+            body.includes("select *1;") &&
             urlParams["output_format"] === "JSONLines_Compact"
           ) {
             return res(ctx.body(jsonLines));
@@ -645,9 +655,7 @@ describe("Connection V2", () => {
     };
 
     const connection = await firebolt.connect(connectionParams);
-    const streamStatement = await connection.executeStream(
-      "select 1 from generate_series(1, 2))"
-    );
+    const streamStatement = await connection.executeStream("select *1;");
     const { data } = await streamStatement.streamResult();
     data
       .on("meta", meta => {
@@ -658,15 +666,12 @@ describe("Connection V2", () => {
           }
         ]);
       })
-      .on("data", row => {
+      .on("data", () => {
         fail('"Data should not be emitted"');
-      })
-      .on("error", error => {
-        expect(error).toEqual(
-          new Error(
-            'Result encountered an error: {"message_type":"FINISH_WITH_ERROR"}'
-          )
-        );
       });
+    const [error] = await stream.once(data, "error");
+    expect(error.message).toEqual(
+      "Result encountered an error: Line 1, Column 9: syntax error, unexpected identifier, expecting end of file select *1;"
+    );
   });
 });
