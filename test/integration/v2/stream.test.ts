@@ -137,7 +137,6 @@ describe("streams", () => {
       "select 1/(i-100000) as a from generate_series(1,100000) as i"
     );
 
-    // let errorThrown = false;
     const { data } = await statement.streamResult();
     data.on("meta", meta => {
       expect(meta).toEqual([

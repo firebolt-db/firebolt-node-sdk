@@ -647,7 +647,24 @@ console.log(meta);
 console.log(rows)
 ```
 In case an errors occurs before streaming, or during the first packet, the error will be thrown by the executeStream method. If the error occurs during streaming, it will be emitted by the stream.
+```typescript
+try {
+  await connection.executeStream("select *1;");
+} catch (error) {
+  //error is thrown directly since this is a syntax error
+}
 
+const statement = await connection.executeStream(
+  "select 1/(i-100000) as a from generate_series(1,100000) as i"
+);
+const { data } = await statement.streamResult();
+
+data.on("error", error => {
+  //error is emitted by the stream after first chunk of results
+  console.log(error); 
+});
+
+```
 ```typescript
 
 <a id="custom-stream-transformers"></a>
