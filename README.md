@@ -617,8 +617,8 @@ await database.delete();
 <a id="streaming-results"></a>
 ### Streaming results
 
-Streaming can only be used with a v2 connection and only using the execute stream method.
-The streamResult method from normal the normal execute method returns an in-memory stream of result, rather than dynamically fetching them from the response.
+Streaming can only be used with a v2 connection and only using the `executeStream` method.
+The streamResult method for the normal `execute` method returns an in-memory stream of result, rather than dynamically fetching them from the response. This is further explained in the [in-memory stream](#in-memory-stream) section.
 
 The recommended way to consume query results is by using streams with standard events: 
 * `data.on('meta')`
@@ -665,7 +665,7 @@ data.on("error", error => {
 });
 
 ```
-```typescript
+
 
 <a id="custom-stream-transformers"></a>
 ### Custom stream transformers
@@ -708,7 +708,11 @@ data.pipe(serializedStream).pipe(process.stdout);
 <a id="in-memory-stream"></a>
 ### In-memory stream
 
-When using the streamResult method on the object returned from a simple execute method, the driver will return an in-memory stream of the result. This is useful for small result sets, but not recommended for large result sets.
+When using the streamResult method on the object returned from a simple execute method, the driver will return
+an in-memory stream of the result. This is useful for small result sets, but not recommended for large result sets.
+
+In this case the whole result will be first fetched in memory and then made available via streamResult. 
+This is done for compatibility reasons and has no performance benefits compared to using fetchResult
 
 ```typescript
 const firebolt = Firebolt();
