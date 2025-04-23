@@ -2,6 +2,7 @@ import { makeConnection } from "../connection";
 import { Authenticator } from "../auth";
 import { Context, ConnectionOptions, FireboltClientOptions } from "../types";
 import { ResourceManager } from "../service";
+import { NodeHttpClient } from "../http/node";
 
 export class FireboltCore {
   private options: FireboltClientOptions;
@@ -14,21 +15,39 @@ export class FireboltCore {
   }
 
   async connect(connectionOptions: ConnectionOptions) {
-    const auth = new Authenticator(this.context, connectionOptions);
-    const connection = makeConnection(this.context, connectionOptions);
+    // Create a new httpClient instance for each connection
+    const httpClient = new NodeHttpClient();
+
+    // Create a new context with the new httpClient
+    const connectionContext = {
+      ...this.context,
+      httpClient
+    };
+
+    const auth = new Authenticator(connectionContext, connectionOptions);
+    const connection = makeConnection(connectionContext, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
-    const context = {
+    const resourceContext = {
       connection,
-      ...this.context
+      ...connectionContext
     };
-    this.resourceManager = new ResourceManager(context);
+    this.resourceManager = new ResourceManager(resourceContext);
     return connection;
   }
 
   async testConnection(connectionOptions: ConnectionOptions) {
-    const auth = new Authenticator(this.context, connectionOptions);
-    const connection = makeConnection(this.context, connectionOptions);
+    // Create a new httpClient instance for test connection too
+    const httpClient = new NodeHttpClient();
+
+    // Create a new context with the new httpClient
+    const connectionContext = {
+      ...this.context,
+      httpClient
+    };
+
+    const auth = new Authenticator(connectionContext, connectionOptions);
+    const connection = makeConnection(connectionContext, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
     await connection.testConnection();
