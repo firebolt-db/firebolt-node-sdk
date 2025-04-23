@@ -1,5 +1,6 @@
-import { Firebolt } from "../../../src/index";
+import { Firebolt } from "../../../src";
 import BigNumber from "bignumber.js";
+import stream from "node:stream";
 
 const connectionParams = {
   auth: {
@@ -156,6 +157,155 @@ describe("test type casting on fetch", () => {
       // Make sure to always clean up
       await connection.execute("DROP TABLE IF EXISTS test_struct");
       await connection.execute("DROP TABLE IF EXISTS test_struct_helper");
+    }
+  });
+  //todo fix nullable types FIR-45354
+  it("select all types", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...connectionParams,
+      engineName: process.env.FIREBOLT_ENGINE_NAME as string
+    });
+    const statement = await connection.execute(
+      "select  1                                                         as col_int,\n" +
+        "        null::int                                                 as col_int_null,\n" +
+        "        30000000000                                               as col_long,\n" +
+        "        null::bigint                                              as col_long_null,\n" +
+        "        1.23::float4                                              as col_float,\n" +
+        "        null::float4                                              as col_float_null,\n" +
+        "        1.23456789012                                             as col_double,\n" +
+        "        null::double                                              as col_double_null,\n" +
+        "        'text'                                                    as col_text,\n" +
+        "        null::text                                                as col_text_null,\n" +
+        "        '2021-03-28'::date                                        as col_date,\n" +
+        "        null::date                                                as col_date_null,\n" +
+        "        '2019-07-31 01:01:01'::timestamp                          as col_timestamp,\n" +
+        "        null::timestamp                                           as col_timestamp_null,\n" +
+        "        '1111-01-05 17:04:42.123456'::timestamptz                 as col_timestamptz,\n" +
+        "        null::timestamptz                                         as col_timestamptz_null,\n" +
+        "        true                                                      as col_boolean,\n" +
+        "        null::bool                                                as col_boolean_null,\n" +
+        "        [1,2,3,4]                                                 as col_array,\n" +
+        // "        null::array(int)                                          as col_array_null,\n" +
+        "        '1231232.123459999990457054844258706536'::decimal(38, 30) as col_decimal,\n" +
+        // "        null::decimal(38, 30)                                     as col_decimal_null,\n" +
+        "        'abc123'::bytea                                           as col_bytea,\n" +
+        "        null::bytea                                               as col_bytea_null,\n" +
+        "        'point(1 2)'::geography                                   as col_geography,\n" +
+        "        null::geography                                           as col_geography_null,"
+    );
+    const { data, meta } = await statement.fetchResult();
+    const metaObjects = [
+      { name: "col_int", type: "int" },
+      { name: "col_int_null", type: "int null" },
+      { name: "col_long", type: "long" },
+      { name: "col_long_null", type: "long null" },
+      { name: "col_float", type: "float" },
+      { name: "col_float_null", type: "float null" },
+      { name: "col_double", type: "double" },
+      { name: "col_double_null", type: "double null" },
+      { name: "col_text", type: "text" },
+      { name: "col_text_null", type: "text null" },
+      { name: "col_date", type: "date" },
+      { name: "col_date_null", type: "date null" },
+      { name: "col_timestamp", type: "timestamp" },
+      { name: "col_timestamp_null", type: "timestamp null" },
+      { name: "col_timestamptz", type: "timestamptz" },
+      { name: "col_timestamptz_null", type: "timestamptz null" },
+      { name: "col_boolean", type: "boolean" },
+      { name: "col_boolean_null", type: "boolean null" },
+      { name: "col_array", type: "array(int)" },
+      // { name: "col_array_null", type: "array(int) null" },
+      // { name: "col_decimal", type: "decimal(38, 30)" },
+      { name: "col_decimal", type: "decimal" },
+      // { name: "col_decimal_null", type: "decimal(38, 30) null" },
+      { name: "col_bytea", type: "bytea" },
+      { name: "col_bytea_null", type: "bytea null" },
+      { name: "col_geography", type: "geography" },
+      { name: "col_geography_null", type: "geography null" }
+    ];
+    for (let i = 0; i < meta.length; i++) {
+      expect(meta[i]).toEqual(metaObjects[i]);
+    }
+  });
+  //todo fix nullable types FIR-45354
+  it("select all types in streaming", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect({
+      ...connectionParams,
+      engineName: process.env.FIREBOLT_ENGINE_NAME as string
+    });
+    const statement = await connection.executeStream(
+      "select  1                                                         as col_int,\n" +
+        "        null::int                                                 as col_int_null,\n" +
+        "        30000000000                                               as col_long,\n" +
+        "        null::bigint                                              as col_long_null,\n" +
+        "        1.23::float4                                              as col_float,\n" +
+        "        null::float4                                              as col_float_null,\n" +
+        "        1.23456789012                                             as col_double,\n" +
+        "        null::double                                              as col_double_null,\n" +
+        "        'text'                                                    as col_text,\n" +
+        "        null::text                                                as col_text_null,\n" +
+        "        '2021-03-28'::date                                        as col_date,\n" +
+        "        null::date                                                as col_date_null,\n" +
+        "        '2019-07-31 01:01:01'::timestamp                          as col_timestamp,\n" +
+        "        null::timestamp                                           as col_timestamp_null,\n" +
+        "        '1111-01-05 17:04:42.123456'::timestamptz                 as col_timestamptz,\n" +
+        "        null::timestamptz                                         as col_timestamptz_null,\n" +
+        "        true                                                      as col_boolean,\n" +
+        "        null::bool                                                as col_boolean_null,\n" +
+        "        [1,2,3,4]                                                 as col_array,\n" +
+        // "        null::array(int)                                          as col_array_null,\n" +
+        "        '1231232.123459999990457054844258706536'::decimal(38, 30) as col_decimal,\n" +
+        // "        null::decimal(38, 30)                                     as col_decimal_null,\n" +
+        "        'abc123'::bytea                                           as col_bytea,\n" +
+        "        null::bytea                                               as col_bytea_null,\n" +
+        "        'point(1 2)'::geography                                   as col_geography,\n" +
+        "        null::geography                                           as col_geography_null,"
+    );
+    const { data } = await statement.streamResult();
+    const [meta] = await stream.once(data, "meta");
+    const metaObjects = [
+      { name: "col_int", type: "int" },
+      // { name: "col_int_null", type: "int null" },
+      { name: "col_int_null", type: "integer null" },
+      { name: "col_long", type: "long" },
+      // { name: "col_long_null", type: "long null" },
+      { name: "col_long_null", type: "bigint null" },
+      { name: "col_float", type: "float" },
+      // { name: "col_float_null", type: "float null" },
+      { name: "col_float_null", type: "real null" },
+      { name: "col_double", type: "double" },
+      // { name: "col_double_null", type: "double null" },
+      { name: "col_double_null", type: "double precision null" },
+      { name: "col_text", type: "text" },
+      { name: "col_text_null", type: "text null" },
+      { name: "col_date", type: "date" },
+      { name: "col_date_null", type: "date null" },
+      { name: "col_timestamp", type: "timestamp" },
+      { name: "col_timestamp_null", type: "timestamp null" },
+      { name: "col_timestamptz", type: "timestamptz" },
+      { name: "col_timestamptz_null", type: "timestamptz null" },
+      { name: "col_boolean", type: "boolean" },
+      { name: "col_boolean_null", type: "boolean null" },
+      { name: "col_array", type: "array(int)" },
+      // { name: "col_array_null", type: "array(int) null" },
+      // { name: "col_decimal", type: "decimal(38, 30)" },
+      { name: "col_decimal", type: "decimal" },
+      // { name: "col_decimal_null", type: "decimal(38, 30) null" },
+      { name: "col_bytea", type: "bytea" },
+      { name: "col_bytea_null", type: "bytea null" },
+      { name: "col_geography", type: "geography" },
+      { name: "col_geography_null", type: "geography null" }
+    ];
+    for (let i = 0; i < meta.length; i++) {
+      expect(meta[i]).toEqual(metaObjects[i]);
     }
   });
 });
