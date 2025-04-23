@@ -509,7 +509,7 @@ describe("Connection V2", () => {
         expect(meta).toEqual([
           {
             name: "?column?",
-            type: "integer"
+            type: "int"
           }
         ]);
       })
@@ -587,7 +587,7 @@ describe("Connection V2", () => {
         expect(meta).toEqual([
           {
             name: "?column?",
-            type: "integer"
+            type: "int"
           }
         ]);
       })
@@ -662,7 +662,7 @@ describe("Connection V2", () => {
         expect(meta).toEqual([
           {
             name: "?column?",
-            type: "integer"
+            type: "int"
           }
         ]);
       })
