@@ -40,12 +40,15 @@ const getMappedType = (innerType: string) => {
     return type;
   }
   if (
-    innerType.match(/datetime64(.+)/i) ||
-    innerType.match(/timestamp_ext(.+)/i)
+    RegExp(/datetime64(.+)/i).exec(innerType) ||
+    RegExp(/timestamp_ext(.+)/i).exec(innerType)
   ) {
     return typeMapping.timestamp;
   }
-  if (innerType.match(/decimal(.+)/i) || innerType.match(/numeric(.+)/i)) {
+  if (
+    RegExp(/decimal(.+)/i).exec(innerType) ||
+    RegExp(/numeric(.+)/i).exec(innerType)
+  ) {
     return typeMapping.decimal;
   }
 };

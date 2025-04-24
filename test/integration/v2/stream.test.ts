@@ -142,7 +142,7 @@ describe("streams", () => {
       expect(meta).toEqual([
         {
           name: "a",
-          type: "integer"
+          type: "int"
         }
       ]);
     });

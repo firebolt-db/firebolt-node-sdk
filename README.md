@@ -617,7 +617,7 @@ await database.delete();
 <a id="streaming-results"></a>
 ### Streaming results
 
-Streaming can only be used with a v2 connection and only using the `executeStream` method.
+Streaming can only be used with the `executeStream` method.
 The streamResult method for the normal `execute` method returns an in-memory stream of result, rather than dynamically fetching them from the response. This is further explained in the [in-memory stream](#in-memory-stream) section.
 
 The recommended way to consume query results is by using streams with standard events: 

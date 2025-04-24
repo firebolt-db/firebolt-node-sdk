@@ -27,16 +27,7 @@ export class ServerSideStream extends Readable {
           const parsed = JSONbig.parse(line);
           if (parsed) {
             if (parsed.message_type === "DATA") {
-              if (parsed.data) {
-                const normalizedData = normalizeResponseRowStreaming(
-                  parsed.data,
-                  executeQueryOptions,
-                  this.meta
-                );
-                for (const data of normalizedData) {
-                  this.emit("data", data);
-                }
-              }
+              this.processData(parsed);
             } else if (parsed.message_type === "START") {
               this.meta = getNormalizedMeta(parsed.result_columns);
               this.emit("meta", this.meta);
@@ -66,5 +57,20 @@ export class ServerSideStream extends Readable {
     });
   }
 
-  _read() {}
+  private processData(parsed: { data: any[] }) {
+    if (parsed.data) {
+      const normalizedData = normalizeResponseRowStreaming(
+        parsed.data,
+        this.executeQueryOptions,
+        this.meta
+      );
+      for (const data of normalizedData) {
+        this.emit("data", data);
+      }
+    }
+  }
+
+  _read() {
+    /* _read method requires implementation, even if data comes from other sources */
+  }
 }
