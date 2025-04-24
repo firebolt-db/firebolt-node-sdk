@@ -26,7 +26,8 @@ export enum OutputFormat {
   // JSON_COMPACT_LIMITED = "FB_JSONCompactLimited",
   COMPACT = "JSON_Compact", // supported in v3 of packdb
   JSON_COMPACT = "JSONCompact", // to be as above, after ensure all clients has v3
-  JSON = "JSON"
+  JSON = "JSON",
+  JSON_LINES = "JSONLines_Compact"
 }
 
 export type QuerySettings = Record<

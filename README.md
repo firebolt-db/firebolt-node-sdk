@@ -617,37 +617,55 @@ await database.delete();
 <a id="streaming-results"></a>
 ### Streaming results
 
-The recommended way to consume query results is by using streams.
+Streaming can only be used with the `executeStream` method.
+The streamResult method for the normal `execute` method returns an in-memory stream of result, rather than dynamically fetching them from the response. This is further explained in the [in-memory stream](#in-memory-stream) section.
 
-For convenience, `statement.streamResult` also returns `meta: Promise<Meta[]>` and `statistics: Promise<Statistics>`, which are wrappers over `data.on('metadata')` and `data.on('statistics')`.
+The recommended way to consume query results is by using streams with standard events: 
+* `data.on('meta')`
+* `data.on('data')`
+* `data.on('end')`
+* `data.on('error')`
 
 ```typescript
 const firebolt = Firebolt();
 
 const connection = await firebolt.connect(connectionParams);
 
-const statement = await connection.execute("SELECT 1");
+const statement = await connection.executeStream("SELECT 1");
 
-const {
-  data,
-  meta: metaPromise,
-  statistics: statisticsPromise
-} = await statement.streamResult();
+const { data } = await statement.streamResult();
 
 const rows: unknown[] = [];
 
-const meta = await metaPromise;
+const meta = await stream.once(data, "meta");
 
-for await (const row of data) {
-  rows.push(row);
-}
-
-const statistics = await statisticsPromise
+data.on("data", data => {;
+  rows.push(data);
+});
 
 console.log(meta);
-console.log(statistics);
 console.log(rows)
 ```
+In case an errors occurs before streaming, or during the first packet, the error will be thrown by the executeStream method. If the error occurs during streaming, it will be emitted by the stream.
+```typescript
+try {
+  await connection.executeStream("select *1;");
+} catch (error) {
+  //error is thrown directly since this is a syntax error
+}
+
+const statement = await connection.executeStream(
+  "select 1/(i-100000) as a from generate_series(1,100000) as i"
+);
+const { data } = await statement.streamResult();
+
+data.on("error", error => {
+  //error is emitted by the stream after first chunk of results
+  console.log(error); 
+});
+
+```
+
 
 <a id="custom-stream-transformers"></a>
 ### Custom stream transformers
@@ -679,7 +697,7 @@ const serializedStream = new SerializeRowStream()
 
 const firebolt = Firebolt();
 const connection = await firebolt.connect(connectionParams);
-const statement = await connection.execute("select 1 union all select 2");
+const statement = await connection.executeStream("select * from generate_series(1, 1000)");
 
 const { data } = await statement.streamResult();
 
@@ -687,14 +705,41 @@ const { data } = await statement.streamResult();
 data.pipe(serializedStream).pipe(process.stdout);
 ```
 
-Or use `rowParser` that returns strings or Buffer:
+<a id="in-memory-stream"></a>
+### In-memory stream
+
+When using the streamResult method on the object returned from a simple execute method, the driver will return
+an in-memory stream of the result. This is useful for small result sets, but not recommended for large result sets.
+
+In this case the whole result will be first fetched in memory and then made available via streamResult. 
+This is done for compatibility reasons and has no performance benefits compared to using fetchResult
 
 ```typescript
-const { data } = await statement.streamResult({
-  rowParser: (row: string) => `${row}\n`
-});
+const firebolt = Firebolt();
 
-data.pipe(process.stdout);
+const connection = await firebolt.connect(connectionParams);
+
+const statement = await connection.execute("SELECT 1");
+
+const {
+  data,
+  meta: metaPromise,
+  statistics: statisticsPromise
+} = await statement.streamResult();
+
+const rows: unknown[] = [];
+
+const meta = await metaPromise;
+
+for await (const row of data) {
+  rows.push(row);
+}
+
+const statistics = await statisticsPromise
+
+console.log(meta);
+console.log(statistics);
+console.log(rows)
 ```
 
 ## Development process

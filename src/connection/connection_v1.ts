@@ -3,6 +3,7 @@ import { Connection as BaseConnection } from "./base";
 import { ResourceManager } from "../service";
 import { ExecuteQueryOptions } from "../types";
 import { AsyncStatement } from "../statement/async";
+import { StreamStatement } from "../statement/stream";
 
 export interface AccountInfo {
   id: string;
@@ -91,6 +92,15 @@ export class ConnectionV1 extends BaseConnection {
   ): Promise<AsyncStatement> {
     throw new Error(
       "Asynchronous execution is not supported in this Firebolt version."
+    );
+  }
+
+  async executeStream(
+    query: string,
+    executeQueryOptions?: ExecuteQueryOptions
+  ): Promise<StreamStatement> {
+    throw new Error(
+      "Stream execution is not supported in this Firebolt version."
     );
   }
 }

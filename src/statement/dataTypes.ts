@@ -11,13 +11,16 @@ const typeMapping = {
   decimal: "decimal",
   decimal_ext: "decimal",
   long: "long",
+  bigint: "long",
   float: "float",
+  real: "float",
   float32: "float",
   float64: "double",
   double: "double",
   double32: "double",
   double64: "double",
-  integer: "integer",
+  "double precision": "double",
+  integer: "int",
   int: "int",
   uint: "int",
   int8: "int",
@@ -37,12 +40,15 @@ const getMappedType = (innerType: string) => {
     return type;
   }
   if (
-    innerType.match(/datetime64(.+)/i) ||
-    innerType.match(/timestamp_ext(.+)/i)
+    RegExp(/datetime64(.+)/i).exec(innerType) ||
+    RegExp(/timestamp_ext(.+)/i).exec(innerType)
   ) {
     return typeMapping.timestamp;
   }
-  if (innerType.match(/decimal(.+)/i)) {
+  if (
+    RegExp(/decimal(.+)/i).exec(innerType) ||
+    RegExp(/numeric(.+)/i).exec(innerType)
+  ) {
     return typeMapping.decimal;
   }
 };
@@ -83,6 +89,7 @@ export const STRING_TYPES = withNullableTypes(["string", "text"]);
 
 export const BYTEA_TYPES = withNullableTypes(["bytea"]);
 
+//todo fix nullable types FIR-45354
 export const getFireboltType = (type: string): string => {
   const key = type.toLowerCase();
   const match = key.match(COMPLEX_TYPE);

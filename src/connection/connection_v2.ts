@@ -3,8 +3,9 @@ import { ACCOUNT_SYSTEM_ENGINE, QUERY_URL } from "../common/api";
 
 import { Connection as BaseConnection } from "./base";
 import { Cache, inMemoryCache, noneCache } from "../common/tokenCache";
-import { ExecuteQueryOptions } from "../types";
+import { ExecuteQueryOptions, OutputFormat } from "../types";
 import { AsyncStatement } from "../statement/async";
+import { StreamStatement } from "../statement/stream";
 
 export class ConnectionV2 extends BaseConnection {
   private get account(): string {
@@ -100,6 +101,24 @@ export class ConnectionV2 extends BaseConnection {
       query: formattedQuery,
       text,
       executeQueryOptions: asyncExecuteQueryOptions
+    });
+  }
+
+  async executeStream(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions = {}
+  ): Promise<StreamStatement> {
+    const { response } = await this.prepareAndExecuteQuery(query, {
+      ...executeQueryOptions,
+      settings: {
+        ...executeQueryOptions?.settings,
+        output_format: OutputFormat.JSON_LINES
+      }
+    });
+
+    return new StreamStatement({
+      response,
+      executeQueryOptions
     });
   }
 

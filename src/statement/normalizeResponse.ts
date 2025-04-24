@@ -1,7 +1,7 @@
 import {
-  QueryResponse,
-  OutputFormat,
   ExecuteQueryOptions,
+  OutputFormat,
+  QueryResponse,
   Row
 } from "../types";
 import { Meta } from "../meta";
@@ -35,11 +35,11 @@ export const normalizeColumn = (column: { name: string; type: string }) => {
   return new Meta(column);
 };
 
-const getNormalizedMeta = (response: ParsedResponse): Meta[] => {
-  if (!response.meta) {
+export const getNormalizedMeta = (meta: any[]): Meta[] => {
+  if (!meta) {
     return [];
   }
-  return response.meta.map(normalizeColumn);
+  return meta.map(normalizeColumn);
 };
 
 export const getNormalizedStatistics = (response: ParsedResponse) => {
@@ -71,7 +71,7 @@ export const normalizeResponse = (
 
   const hydrate = executeQueryOptions?.response?.hydrateRow || hydrateRow;
 
-  const meta = getNormalizedMeta(response);
+  const meta = getNormalizedMeta(response.meta);
 
   const statistics = getNormalizedStatistics(response);
 
@@ -95,4 +95,22 @@ export const normalizeResponse = (
     meta,
     statistics
   };
+};
+
+export const normalizeResponseRowStreaming = (
+  data: any[],
+  executeQueryOptions: ExecuteQueryOptions,
+  meta: Meta[]
+): Row[] => {
+  const { response: { normalizeData = false } = {} } = executeQueryOptions;
+
+  const hydrate = executeQueryOptions?.response?.hydrateRow || hydrateRow;
+
+  return data.map((row: Row) => {
+    const hydratedRow = hydrate(row, meta, executeQueryOptions);
+    if (normalizeData) {
+      return normalizeRow(hydratedRow, meta, executeQueryOptions);
+    }
+    return hydratedRow;
+  });
 };

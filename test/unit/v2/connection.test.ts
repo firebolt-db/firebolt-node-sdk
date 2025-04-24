@@ -4,6 +4,7 @@ import { Firebolt } from "../../../src";
 import { ConnectionOptions } from "../../../src/types";
 import { QUERY_URL } from "../../../src/common/api";
 import { inMemoryCache } from "../../../src/common/tokenCache";
+import stream from "node:stream";
 
 const apiEndpoint = "api.fake.firebolt.io";
 
@@ -400,12 +401,14 @@ describe("Connection V2", () => {
     setupMockServer(server);
     server.use(
       rest.post(
-        `https://some_system_engine.com/${QUERY_URL}?output_format=JSON_Compact`,
+        `https://some_system_engine.com/${QUERY_URL}`,
         async (req, res, ctx) => {
           const body = await req.text();
+          const urlParams = Object.fromEntries(req.url.searchParams.entries());
           if (
             body.includes("fb_GetAsyncStatus") &&
-            body.includes("async_query_token")
+            body.includes("async_query_token") &&
+            urlParams["output_format"] === "JSON_Compact"
           ) {
             return res(
               ctx.json({
@@ -444,5 +447,231 @@ describe("Connection V2", () => {
     await connection.cancelAsyncQuery(asyncStatement.asyncQueryToken);
     await new Promise(resolve => setTimeout(resolve, 100)); // somehow we need it to wait for the flag switch
     expect(cancelQueryExecuted).toBe(true);
+  });
+
+  it("streaming works as expected", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+    const jsonLines = [
+      JSON.stringify({
+        message_type: "START",
+        result_columns: [
+          {
+            name: "?column?",
+            type: "integer"
+          }
+        ]
+      }),
+      JSON.stringify({
+        message_type: "DATA",
+        data: [[1], [1]]
+      }),
+      JSON.stringify({
+        message_type: "FINISH_SUCCESSFULLY"
+      })
+    ].join("\n");
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          const body = await req.text();
+          const urlParams = Object.fromEntries(req.url.searchParams.entries());
+          if (
+            body.includes("select") &&
+            body.includes("generate_series") &&
+            urlParams["output_format"] === "JSONLines_Compact"
+          ) {
+            return res(ctx.body(jsonLines));
+          }
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    const streamStatement = await connection.executeStream(
+      "select 1 from generate_series(1, 2))"
+    );
+    let rowCount = 0;
+    const { data } = await streamStatement.streamResult();
+    data
+      .on("meta", meta => {
+        expect(meta).toEqual([
+          {
+            name: "?column?",
+            type: "int"
+          }
+        ]);
+      })
+      .on("data", row => {
+        expect(row).toEqual([1]);
+        rowCount++;
+      })
+      .on("end", () => {
+        expect(rowCount).toBe(2);
+      });
+  });
+
+  it("streaming with normalization works as expected", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+    const jsonLines = [
+      JSON.stringify({
+        message_type: "START",
+        result_columns: [
+          {
+            name: "?column?",
+            type: "integer"
+          }
+        ]
+      }),
+      JSON.stringify({
+        message_type: "DATA",
+        data: [[1], [1]]
+      }),
+      JSON.stringify({
+        message_type: "FINISH_SUCCESSFULLY"
+      })
+    ].join("\n");
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          const body = await req.text();
+          const urlParams = Object.fromEntries(req.url.searchParams.entries());
+          if (
+            body.includes("select") &&
+            body.includes("generate_series") &&
+            urlParams["output_format"] === "JSONLines_Compact"
+          ) {
+            return res(ctx.body(jsonLines));
+          }
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    const streamStatement = await connection.executeStream(
+      "select 1 from generate_series(1, 2))",
+      {
+        response: {
+          normalizeData: true
+        }
+      }
+    );
+    let rowCount = 0;
+    const { data } = await streamStatement.streamResult();
+    data
+      .on("meta", meta => {
+        expect(meta).toEqual([
+          {
+            name: "?column?",
+            type: "int"
+          }
+        ]);
+      })
+      .on("data", row => {
+        expect(row).toEqual({ "?column?": 1 });
+        rowCount++;
+      })
+      .on("end", () => {
+        expect(rowCount).toBe(2);
+      });
+  });
+
+  it("streaming fails with error", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+    const jsonLines = [
+      JSON.stringify({
+        message_type: "START",
+        result_columns: [
+          {
+            name: "?column?",
+            type: "integer"
+          }
+        ]
+      }),
+      JSON.stringify({
+        message_type: "FINISH_WITH_ERRORS",
+        errors: [
+          {
+            description:
+              "Line 1, Column 9: syntax error, unexpected identifier, expecting end of file select *1;",
+            location: {
+              failing_line: 1,
+              start_offset: 9
+            }
+          }
+        ]
+      })
+    ].join("\n");
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          const body = await req.text();
+          const urlParams = Object.fromEntries(req.url.searchParams.entries());
+          if (
+            body.includes("select *1;") &&
+            urlParams["output_format"] === "JSONLines_Compact"
+          ) {
+            return res(ctx.body(jsonLines));
+          }
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    const streamStatement = await connection.executeStream("select *1;");
+    const { data } = await streamStatement.streamResult();
+    data
+      .on("meta", meta => {
+        expect(meta).toEqual([
+          {
+            name: "?column?",
+            type: "int"
+          }
+        ]);
+      })
+      .on("data", () => {
+        fail('"Data should not be emitted"');
+      });
+    const [error] = await stream.once(data, "error");
+    expect(error.message).toEqual(
+      "Result encountered an error: Line 1, Column 9: syntax error, unexpected identifier, expecting end of file select *1;"
+    );
   });
 });
