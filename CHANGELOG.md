@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.12.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.11.1...v1.12.0) (2025-04-24)
+
+
+### Features
+
+* FIR-43724 implement streaming in node sdk ([#137](https://github.com/firebolt-db/firebolt-node-sdk/issues/137)) ([6efe9f1](https://github.com/firebolt-db/firebolt-node-sdk/commit/6efe9f1713e433f1b0e391e9de26c7ca57dc6f68))
+
 ### [1.11.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.11.0...v1.11.1) (2025-02-27)
 
 
