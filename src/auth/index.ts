@@ -23,7 +23,7 @@ export class Authenticator {
   options: ConnectionOptions;
 
   accessToken?: string;
-  private rwlock = new ReadWriteLock();
+  private readonly rwlock = new ReadWriteLock();
 
   constructor(context: Context, options: ConnectionOptions) {
     context.httpClient.authenticator = this;
@@ -179,8 +179,9 @@ export class Authenticator {
           releaseReadLock();
           resolve(cachedToken);
         } catch (error) {
+          // Make sure to avoid deadlocks in case of errors
           releaseReadLock();
-          reject(error);
+          reject(error instanceof Error ? error : new Error(String(error)));
         }
       });
     });
@@ -203,8 +204,9 @@ export class Authenticator {
           releaseWriteLock();
           resolve();
         } catch (error) {
+          // Make sure to avoid deadlocks in case of errors
           releaseWriteLock();
-          reject(error);
+          reject(error instanceof Error ? error : new Error(String(error)));
         }
       });
     });
