@@ -154,7 +154,7 @@ console.log(rows)
 * <a href="#recipes">Recipes</a>
   * <a href="#streaming-results">Streaming results</a>
   * <a href="#custom-stream-transformers">Custom stream transformers</a>
-
+* <a href="#special-considerations">Special Considerations</a>
 
 <a id="About"></a>
 ## About
@@ -741,6 +741,15 @@ console.log(meta);
 console.log(statistics);
 console.log(rows)
 ```
+
+<a id="special-considerations"></a>
+## Special Considerations
+
+When using the Firebolt Node.js SDK, keep the following considerations in mind:
+
+- **Avoid blocking the event loop**: Node.js runs JavaScript code on a single-threaded event loop. Blocking operations can degrade performance and responsiveness and may lead to networking errors. For more details, see [Don't Block the Event Loop](https://nodejs.org/en/learn/asynchronous-work/dont-block-the-event-loop).
+- **Streaming large result sets**: Use the `streamResult` method instead of `fetchResult` for large datasets to avoid memory issues.
+- **Environment variables**: Always store sensitive credentials (like `client_id` and `client_secret`) in environment variables rather than hardcoding them in your source code.
 
 ## Development process
 ### Actions before
