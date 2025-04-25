@@ -16,7 +16,8 @@ export class FireboltCore {
 
   async connect(connectionOptions: ConnectionOptions) {
     // Create a new httpClient instance for each connection
-    const httpClient = new NodeHttpClient();
+    const httpClient =
+      this.options.dependencies?.httpClient || new NodeHttpClient();
 
     // Create a new context with the new httpClient
     const connectionContext = {
@@ -38,7 +39,8 @@ export class FireboltCore {
 
   async testConnection(connectionOptions: ConnectionOptions) {
     // Create a new httpClient instance for test connection too
-    const httpClient = new NodeHttpClient();
+    const httpClient =
+      this.options.dependencies?.httpClient || new NodeHttpClient();
 
     // Create a new context with the new httpClient
     const connectionContext = {

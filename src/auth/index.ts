@@ -26,13 +26,9 @@ export class Authenticator {
   private rwlock = new ReadWriteLock();
 
   constructor(context: Context, options: ConnectionOptions) {
+    context.httpClient.authenticator = this;
     this.context = context;
     this.options = options;
-    if (context.httpClient.authenticator) {
-      return context.httpClient.authenticator;
-    } else {
-      context.httpClient.authenticator = this;
-    }
   }
 
   private getCacheKey(): TokenKey | undefined {
