@@ -194,7 +194,6 @@ export class Authenticator {
           const cachedToken = this.getCachedToken();
           if (cachedToken) {
             this.accessToken = cachedToken;
-            releaseWriteLock();
             return resolve();
           }
 
