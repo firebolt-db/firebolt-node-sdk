@@ -14,7 +14,7 @@ export class FireboltCore {
     this.options = options;
   }
 
-  async connect(connectionOptions: ConnectionOptions) {
+  private async prepareConnection(connectionOptions: ConnectionOptions) {
     // Create a new httpClient instance for each connection
     const httpClient =
       this.options.dependencies?.httpClient || new NodeHttpClient();
@@ -29,6 +29,14 @@ export class FireboltCore {
     const connection = makeConnection(connectionContext, connectionOptions);
     await auth.authenticate();
     await connection.resolveEngineEndpoint();
+
+    return { connection, connectionContext };
+  }
+
+  async connect(connectionOptions: ConnectionOptions) {
+    const { connection, connectionContext } = await this.prepareConnection(
+      connectionOptions
+    );
     const resourceContext = {
       connection,
       ...connectionContext
@@ -38,20 +46,7 @@ export class FireboltCore {
   }
 
   async testConnection(connectionOptions: ConnectionOptions) {
-    // Create a new httpClient instance for test connection too
-    const httpClient =
-      this.options.dependencies?.httpClient || new NodeHttpClient();
-
-    // Create a new context with the new httpClient
-    const connectionContext = {
-      ...this.context,
-      httpClient
-    };
-
-    const auth = new Authenticator(connectionContext, connectionOptions);
-    const connection = makeConnection(connectionContext, connectionOptions);
-    await auth.authenticate();
-    await connection.resolveEngineEndpoint();
+    const { connection } = await this.prepareConnection(connectionOptions);
     await connection.testConnection();
   }
 }
