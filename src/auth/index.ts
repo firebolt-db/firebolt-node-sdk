@@ -176,12 +176,11 @@ export class Authenticator {
       this.rwlock.readLock(releaseReadLock => {
         try {
           const cachedToken = this.getCachedToken();
-          releaseReadLock();
           resolve(cachedToken);
         } catch (error) {
-          // Make sure to avoid deadlocks in case of errors
-          releaseReadLock();
           reject(error instanceof Error ? error : new Error(String(error)));
+        } finally {
+          releaseReadLock();
         }
       });
     });
@@ -201,12 +200,11 @@ export class Authenticator {
 
           await this.performAuthentication();
 
-          releaseWriteLock();
           resolve();
         } catch (error) {
-          // Make sure to avoid deadlocks in case of errors
-          releaseWriteLock();
           reject(error instanceof Error ? error : new Error(String(error)));
+        } finally {
+          releaseWriteLock();
         }
       });
     });
