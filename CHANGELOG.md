@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.12.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.12.0...v1.12.1) (2025-04-29)
+
+
+### Bug Fixes
+
+* **FIR-44193:** auth concurrency ([#139](https://github.com/firebolt-db/firebolt-node-sdk/issues/139)) ([acd58bd](https://github.com/firebolt-db/firebolt-node-sdk/commit/acd58bd3d12c382fe9aa5c843600969a2323470d))
+
 ## [1.12.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.11.1...v1.12.0) (2025-04-24)
 
 
