@@ -166,7 +166,7 @@ describe.each([
         return res(
           ctx.json({
             access_token: "fake_access_token",
-            expires_in: 2 ^ 30
+            expires_in: 2 ** 30
           })
         );
       })
@@ -233,7 +233,7 @@ describe.each([
         return res(
           ctx.json({
             access_token: "fake_access_token",
-            expires_in: 2 ^ 30
+            expires_in: 2 ** 30
           })
         );
       }),
@@ -276,7 +276,7 @@ describe.each([
         return res(
           ctx.json({
             access_token: "fake_access_token",
-            expires_in: 2 ^ 30
+            expires_in: 2 ** 30
           })
         );
       })
@@ -322,7 +322,7 @@ describe.each([
         return res(
           ctx.json({
             access_token: "fake_access_token",
-            expires_in: 2 ^ 30
+            expires_in: 2 ** 30
           })
         );
       }),
@@ -331,7 +331,7 @@ describe.each([
         return res(
           ctx.json({
             access_token: "fake_access_token",
-            expires_in: 2 ^ 30
+            expires_in: 2 ** 30
           })
         );
       })
@@ -364,7 +364,7 @@ describe.each([
         return res(
           ctx.json({
             access_token: "fake_access_token",
-            expires_in: 2 ^ 30
+            expires_in: 2 ** 30
           })
         );
       })
