@@ -7,6 +7,7 @@ import {
   UsernamePasswordAuth
 } from "../types";
 import { TokenKey, inMemoryCache, noneCache } from "../common/tokenCache";
+import ReadWriteLock from "rwlock";
 
 type Login = {
   access_token: string;
@@ -22,6 +23,7 @@ export class Authenticator {
   options: ConnectionOptions;
 
   accessToken?: string;
+  private readonly rwlock = new ReadWriteLock();
 
   constructor(context: Context, options: ConnectionOptions) {
     context.httpClient.authenticator = this;
@@ -157,21 +159,65 @@ export class Authenticator {
     );
   }
 
-  async authenticate() {
-    const options = this.options.auth || this.options;
-    const cachedToken = this.getCachedToken();
+  async authenticate(): Promise<void> {
+    // Try to get token from cache using read lock
+    const cachedToken = await this.tryGetCachedToken();
     if (cachedToken) {
       this.accessToken = cachedToken;
       return;
     }
 
+    // No cached token, acquire write lock and authenticate
+    await this.acquireWriteLockAndAuthenticate();
+  }
+
+  private async tryGetCachedToken(): Promise<string | undefined> {
+    return new Promise((resolve, reject) => {
+      this.rwlock.readLock(releaseReadLock => {
+        try {
+          const cachedToken = this.getCachedToken();
+          resolve(cachedToken);
+        } catch (error) {
+          reject(error instanceof Error ? error : new Error(String(error)));
+        } finally {
+          releaseReadLock();
+        }
+      });
+    });
+  }
+
+  private async acquireWriteLockAndAuthenticate(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.rwlock.writeLock(async releaseWriteLock => {
+        try {
+          // Double-check cache in case another thread authenticated while waiting
+          const cachedToken = this.getCachedToken();
+          if (cachedToken) {
+            this.accessToken = cachedToken;
+            return resolve();
+          }
+
+          await this.performAuthentication();
+
+          resolve();
+        } catch (error) {
+          reject(error instanceof Error ? error : new Error(String(error)));
+        } finally {
+          releaseWriteLock();
+        }
+      });
+    });
+  }
+
+  private async performAuthentication(): Promise<void> {
+    const options = this.options.auth || this.options;
+
     if (this.isUsernamePassword()) {
-      await this.authenticateUsernamePassword(options as UsernamePasswordAuth);
-      return;
+      return this.authenticateUsernamePassword(options as UsernamePasswordAuth);
     }
+
     if (this.isServiceAccount()) {
-      await this.authenticateServiceAccount(options as ServiceAccountAuth);
-      return;
+      return this.authenticateServiceAccount(options as ServiceAccountAuth);
     }
 
     throw new Error("Please provide valid auth credentials");
