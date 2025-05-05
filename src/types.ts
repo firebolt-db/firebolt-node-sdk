@@ -92,6 +92,7 @@ export type ConnectionOptions = {
   account?: string;
   auth: AuthOptions;
   useCache?: boolean;
+  useServerSidePreparedStatement?: boolean;
 };
 
 export type FireboltClientOptions = {

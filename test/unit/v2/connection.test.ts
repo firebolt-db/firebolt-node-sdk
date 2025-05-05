@@ -1,4 +1,5 @@
 import { setupServer, SetupServerApi } from "msw/node";
+import BigNumber from "bignumber.js";
 import { rest } from "msw";
 import { Firebolt } from "../../../src";
 import { ConnectionOptions } from "../../../src/types";
@@ -673,5 +674,150 @@ describe("Connection V2", () => {
     expect(error.message).toEqual(
       "Result encountered an error: Line 1, Column 9: syntax error, unexpected identifier, expecting end of file select *1;"
     );
+  });
+
+  it("prepared statement with correct parameters", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          return res(
+            ctx.json({
+              meta: [
+                {
+                  name: "?column?",
+                  type: "int"
+                },
+                {
+                  name: "?column?",
+                  type: "long"
+                }
+              ],
+              data: [[1, "2"]],
+              rows: 1
+            })
+          );
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account",
+      useServerSidePreparedStatement: true
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    const streamStatement = await connection.execute(
+      "SELECT $1::int, $2::long",
+      {
+        namedParameters: {
+          $1: 1,
+          $2: 2
+        }
+      }
+    );
+    const { data, meta } = await streamStatement.fetchResult();
+    expect(data[0]).toEqual([1, new BigNumber(2)]);
+    expect(meta).toEqual([
+      {
+        name: "?column?",
+        type: "int"
+      },
+      {
+        name: "?column?",
+        type: "long"
+      }
+    ]);
+  });
+  it("prepared statement with less parameters provided", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account",
+      useServerSidePreparedStatement: true
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(
+      connection.execute("SELECT $1::int, $2::long", {
+        namedParameters: {
+          $1: 1
+        }
+      })
+    ).rejects.toThrow(
+      "Number of parameters in the query (2) does not match the number of named parameters provided (1)."
+    );
+  });
+  it("prepared statement with more parameters provided", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account",
+      useServerSidePreparedStatement: true
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(
+      connection.execute("SELECT $1::int, $2::long", {
+        namedParameters: {
+          $1: 1,
+          $2: 1,
+          $3: 1
+        }
+      })
+    ).rejects.toThrow(
+      "Number of parameters in the query (2) does not match the number of named parameters provided (3)."
+    );
+  });
+  it("prepared statement with correct number of parameters provided, but wrong name", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account",
+      useServerSidePreparedStatement: true
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(
+      connection.execute("SELECT $1::int, $2::long", {
+        namedParameters: {
+          $1: 1,
+          $4: 1
+        }
+      })
+    ).rejects.toThrow('Parameter "$2" is missing from the named parameters.');
   });
 });

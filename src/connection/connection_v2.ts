@@ -6,6 +6,7 @@ import { Cache, inMemoryCache, noneCache } from "../common/tokenCache";
 import { ExecuteQueryOptions, OutputFormat } from "../types";
 import { AsyncStatement } from "../statement/async";
 import { StreamStatement } from "../statement/stream";
+import { Statement } from "../statement";
 
 export class ConnectionV2 extends BaseConnection {
   private get account(): string {
@@ -120,6 +121,72 @@ export class ConnectionV2 extends BaseConnection {
       response,
       executeQueryOptions
     });
+  }
+
+  async execute(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions = {}
+  ): Promise<Statement> {
+    if (this.options.useServerSidePreparedStatement) {
+      return this.executePreparedStatement(query, executeQueryOptions);
+    }
+    return super.execute(query, executeQueryOptions);
+  }
+
+  private async executePreparedStatement(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions
+  ): Promise<Statement> {
+    this.checkParameters(query, executeQueryOptions.namedParameters);
+    const { response } = await this.executeQuery(
+      query,
+      this.getExecuteQueryOptionsForPreparedStatement(executeQueryOptions)
+    );
+
+    const text = await response.text();
+    await this.throwErrorIfErrorBody(text, response);
+    return new Statement(this.context, {
+      query: query,
+      text,
+      executeQueryOptions
+    });
+  }
+
+  private checkParameters(
+    query: string,
+    namedParameters: Record<string, unknown> | undefined
+  ) {
+    const fireboltNumericParameters =
+      this.queryFormatter.getFireboltNumericParameters(query);
+    const providedParameters = Object.keys(namedParameters || {});
+    if (fireboltNumericParameters.length != providedParameters.length) {
+      throw new Error(
+        `Number of parameters in the query (${fireboltNumericParameters.length}) does not match the number of named parameters provided (${providedParameters.length}).`
+      );
+    }
+    fireboltNumericParameters.forEach(param => {
+      if (!providedParameters.includes(param)) {
+        throw new Error(
+          `Parameter "${param}" is missing from the named parameters.`
+        );
+      }
+    });
+  }
+
+  private getExecuteQueryOptionsForPreparedStatement(
+    executeQueryOptions: ExecuteQueryOptions
+  ): ExecuteQueryOptions {
+    const queryParameters = Object.entries(
+      executeQueryOptions.namedParameters || {}
+    ).map(([key, value]) => ({ name: key, value }));
+
+    return {
+      settings: {
+        ...executeQueryOptions.settings,
+        query_parameters: JSON.stringify(queryParameters)
+      },
+      ...executeQueryOptions
+    };
   }
 
   private async getAsyncQueryInfo(token: string) {

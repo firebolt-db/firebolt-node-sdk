@@ -183,8 +183,6 @@ export abstract class Connection {
     query: string,
     executeQueryOptions: ExecuteQueryOptions
   ): Promise<{ formattedQuery: string; response: Response }> {
-    const { httpClient } = this.context;
-
     executeQueryOptions.response = {
       ...defaultResponseSettings,
       ...(executeQueryOptions.response ?? {})
@@ -206,6 +204,16 @@ export abstract class Connection {
         namedParameters
       );
     }
+
+    return await this.executeQuery(formattedQuery, executeQueryOptions, setKey);
+  }
+
+  protected async executeQuery(
+    formattedQuery: string,
+    executeQueryOptions: ExecuteQueryOptions,
+    setKey = ""
+  ) {
+    const { httpClient } = this.context;
 
     const body = formattedQuery;
     const url = this.getRequestUrl(executeQueryOptions);
