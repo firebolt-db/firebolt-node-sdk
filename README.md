@@ -125,9 +125,11 @@ console.log(rows)
 * <a href="#usage">Usage</a>
   * <a href="#create-connection">Create connection</a>
     * <a href="#connectionoptions">ConnectionOptions</a>
-    * <a href="#accesstoken">AccessToken</a>
-    * <a href="#clientcredentials">Client credentials</a>
-    * <a href="#enginename">engineName</a>
+      * <a href="#accesstoken">AccessToken</a>
+      * <a href="#clientcredentials">Client credentials</a>
+      * <a href="#enginename">engineName</a>
+      * <a href="#token-caching">Token caching</a>
+      * <a href="#serverSidePreparedStatementConnectionOption">Server-side prepared statement</a>
   * <a href="#test-connection">Test connection</a>
   * <a href="#engine-url">Engine URL</a>
   * <a href="#execute-query">Execute query</a>
@@ -146,14 +148,21 @@ console.log(rows)
   * <a href="#engine-management">Engine management</a>
     * <a href="#getbyname">getByName</a>
     * <a href="#engine">Engine</a>
-      * <a href="#start">start</a>
-      * <a href="#stop">stop</a>
+      * <a href="#start">Start</a>
+      * <a href="#stop">Stop</a>
+      * <a href="#create-engine">Engine create</a>
+      * <a href="#attach-to-database">Attach to database</a>
+      * <a href="#delete-engine">Engine delete</a>
   * <a href="#database-management">Database management</a>
     * <a href="#database-getbyname">getByName</a>
     * <a href="#database">Database</a>
+    * <a href="#create-database">Database create</a>
+    * <a href="#get-attached-engines">Get attached engines</a>
+    * <a href="#delete-database">Database delete</a>
 * <a href="#recipes">Recipes</a>
   * <a href="#streaming-results">Streaming results</a>
   * <a href="#custom-stream-transformers">Custom stream transformers</a>
+  * <a href="#in-memory-stream">In-memory stream</a>
 * <a href="#special-considerations">Special Considerations</a>
 
 <a id="About"></a>
@@ -193,13 +202,9 @@ type ConnectionOptions = {
   engineName?: string;
   engineEndpoint?: string;
   account?: string;
+  useServerSidePreparedStatement?: boolean;
 };
 ```
-
-
-<a id="enginename"></a>
-#### engineName
-You can omit `engineName` and execute AQL queries on such connection.
 
 <a id="accesstoken"></a>
 #### AccessToken
@@ -234,6 +239,10 @@ const connection = await firebolt.connect({
 });
 ```
 
+<a id="enginename"></a>
+#### engineName
+You can omit `engineName` and execute AQL queries on such connection.
+
 <a id="token-caching"></a>
 #### Token caching
 Driver implements a caching mechanism for access tokens. If you are using the same client id or secret for multiple connections, the driver will cache the access token and reuse it for subsequent connections.
@@ -248,6 +257,23 @@ const connection = await firebolt.connect({
   account: 'account_name',
   database: 'database',
   useCache: false
+});
+```
+
+<a id="serverSidePreparedStatementConnectionOption"></a>
+#### Server-side prepared statement
+Driver has the option to use server-side prepared statements, so all parameters are set on the server side, preventing SQL injection attacks.
+This behavior can be enabled by setting `useServerSidePreparedStatement` to `true` in the connection options, otherwise, prepared statements will retain default behavior and queries will be formatted client side.
+```typescript
+const connection = await firebolt.connect({
+  auth: {
+    client_id: 'b1c4918c-e07e-4ab2-868b-9ae84f208d26',
+    client_secret: 'secret',
+  },
+  engineName: 'engine_name',
+  account: 'account_name',
+  database: 'database',
+  useServerSidePreparedStatement: true
 });
 ```
 
@@ -291,7 +317,7 @@ const statement = await connection.execute(query, {
 
 ```typescript
 export type ExecuteQueryOptions = {
-  parameters:? unknown[];
+  parameters?: unknown[];
   settings?: QuerySettings;
   response?: ResponseSettings;
 };
@@ -444,8 +470,82 @@ const token = statement.asyncQueryToken; // can only be fetched for async query
 await connection.cancelAsyncQuery(token);
 ```
 
+<a id="serverSidePreparedStatement"></a>
+## Server-side prepared statement
+
+Firebolt supports server-side prepared statement execution. This feature allows for safer execution of parameterized queries by escaping parameters on the server side. This is useful for preventing SQL injection attacks.
+
+<a id="difference-server-side-client-side-prepared-statement"></a>
+### Difference between client-side and server-side prepared statement
+
+The main difference between client-side and server-side prepared statement is the way parameters appear in queries. In client-side prepared statement, parameters are inserted in place of `?` symbols in the case of normal parameters, or `:name` in the case of named parameters.
+In server-side prepared statement, parameters are represented by `$number` tokens.
+
+```typescript
+//client-side prepared statement with normal parameters
+const statement = await connection.execute("select ?, ?", {
+  parameters: ["foo", 1]
+});
+```
+```typescript
+//client-side prepared statement with named parameters
+const statement = await connection.execute("select :foo, :bar", {
+  namedParameters: { foo: "foo", bar: 123 }
+});
+```
+```typescript
+//server-side prepared statement via parameters field of ExecuteQueryOptions
+const statement = await connection.execute("select $1, $2", {
+  parameters: ["foo", 1]
+});
+```
+```typescript
+//server-side prepared statement via namedParameters field of ExecuteQueryOptions
+const statement = await connection.execute("select $1, $2", {
+  namedParameters: { $1: "foo", $2: 123 }
+});
+```
+
+<a id="server-side-prepared-statement-parameters"></a>
+### Usage with parameters field
+
+When using the `parameters` field, the driver will automatically set the number value to the corresponding `$number` token in the query.
+
+```typescript
+// Even though the query contains $1 twice, we only need to set it once
+const statement = await connection.execute("select $1, $1", {
+  parameters: ["foo"]
+});
+
+// The order is important, so the first parameter will be set to $1 and the second to $2
+const statement1 = await connection.execute("select $2, $1", {
+  parameters: ["foo", 1]
+});
+
+const statement2 = await connection.execute("select $1, $2", {
+  parameters: ["foo", 1]
+});
+// statement1 and statement2 will NOT produce the same query
+```
+
+<a id="server-side-prepared-statement-named-parameters"></a>
+### Usage with namedParameters field
+
+When using the `namedParameters` field, the driver will use the value provided as the name of the parameter when sending the query to the server.
+Considering this, we can more easily recognize the parameters in the query.
+
+```typescript
+const statement = await connection.execute("select $1, $2", {
+  namedParameters: { $1: "foo", $2: 123 }
+});
+// The order is not important, so we can set the parameters in any order
+const statement1 = await connection.execute("select $2, $1", {
+  namedParameters: { $2: "foo", $1: 123 }
+});
+```
+
 <a id="engine-management"></a>
-### Engine management
+## Engine management
 
 Engines can be managed by using the `resourceManager` object.
 
@@ -457,7 +557,7 @@ const enginesService = firebolt.resourceManager.engine
 ```
 
 <a id="getbyname"></a>
-#### getByName
+### getByName
 
 Returns engine using engine name.
 
@@ -469,7 +569,7 @@ const engine = await firebolt.resourceManager.engine.getByName("engine_name")
 ```
 
 <a id="engine"></a>
-#### Engine
+### Engine
 
 | Property                 | Type                                      | Notes |
 |--------------------------|-------------------------------------------|-------|
@@ -478,7 +578,7 @@ const engine = await firebolt.resourceManager.engine.getByName("engine_name")
 | `current_status_summary` | `string`                                  |       |
 
 <a id="start"></a>
-##### Start
+#### Start
 
 Starts an engine.
 
@@ -491,7 +591,7 @@ await engine.start()
 ```
 
 <a id="stop"></a>
-##### Stop
+#### Stop
 
 Stops an engine.
 
@@ -504,7 +604,7 @@ await engine.stop()
 ```
 
 <a id="create-engine"></a>
-##### Engine create
+#### Engine create
 
 Creates an engine.
 
@@ -516,7 +616,7 @@ const engine = await firebolt.resourceManager.engine.create("engine_name");
 ```
 
 <a id="attach-to-database"></a>
-##### Attach to database
+#### Attach to database
 
 Attaches an engine to a database.
 
@@ -528,7 +628,7 @@ const engine = await firebolt.resourceManager.engine.attachToDatabase("engine_na
 ```
 
 <a id="delete-engine"></a>
-##### Engine delete
+#### Engine delete
 
 Deletes an engine.
 
@@ -574,7 +674,7 @@ const database = await firebolt.resourceManager.database.getByName("database_nam
 
 
 <a id="create-database"></a>
-##### Database create
+#### Database create
 
 Creates a database.
 
@@ -586,7 +686,7 @@ const database = await firebolt.resourceManager.database.create("database_name")
 ```
 
 <a id="get-attached-engines"></a>
-##### Get attached engines
+#### Get attached engines
 
 Get engines attached to a database.
 
@@ -599,7 +699,7 @@ const engines = database.getAttachedEngines();
 ```
 
 <a id="delete-database"></a>
-##### Database delete
+#### Database delete
 
 Deletes a database.
 
