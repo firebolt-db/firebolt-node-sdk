@@ -1,15 +1,16 @@
 import BigNumber from "bignumber.js";
-import { Firebolt } from "../../../src";
+import { ConnectionOptions, Firebolt } from "../../../src";
+import { PreparedStatementParamStyle } from "../../../src/types";
 
-const connectionParams = {
+const connectionParams: ConnectionOptions = {
   auth: {
     client_id: process.env.FIREBOLT_CLIENT_ID as string,
     client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
   },
-  account: process.env.FIREBOLT_ACCOUNT as string,
-  database: process.env.FIREBOLT_DATABASE as string,
-  engineName: process.env.FIREBOLT_ENGINE_NAME as string,
-  useServerSidePreparedStatement: true
+  account: process.env.FIREBOLT_ACCOUNT,
+  database: process.env.FIREBOLT_DATABASE,
+  engineName: process.env.FIREBOLT_ENGINE_NAME,
+  preparedStatementParamStyle: "fb_numeric"
 };
 
 jest.setTimeout(250000);

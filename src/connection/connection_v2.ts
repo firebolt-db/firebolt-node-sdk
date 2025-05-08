@@ -129,7 +129,7 @@ export class ConnectionV2 extends BaseConnection {
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<Statement> {
-    if (this.options.useServerSidePreparedStatement) {
+    if (this.options.preparedStatementParamStyle === "fb_numeric") {
       return this.executePreparedStatement(query, executeQueryOptions);
     }
     return super.execute(query, executeQueryOptions);

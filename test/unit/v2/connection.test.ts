@@ -720,7 +720,7 @@ describe("Connection V2", () => {
         client_secret: "dummy"
       },
       account: "my_account",
-      useServerSidePreparedStatement: true
+      preparedStatementParamStyle: "fb_numeric"
     };
 
     const connection = await firebolt.connect(connectionParams);
@@ -781,7 +781,7 @@ describe("Connection V2", () => {
         client_secret: "dummy"
       },
       account: "my_account",
-      useServerSidePreparedStatement: true
+      preparedStatementParamStyle: "fb_numeric"
     };
 
     const connection = await firebolt.connect(connectionParams);
@@ -840,7 +840,7 @@ describe("Connection V2", () => {
         client_secret: "dummy"
       },
       account: "my_account",
-      useServerSidePreparedStatement: true
+      preparedStatementParamStyle: "fb_numeric"
     };
 
     const connection = await firebolt.connect(connectionParams);
@@ -906,7 +906,7 @@ describe("Connection V2", () => {
         client_secret: "dummy"
       },
       account: "my_account",
-      useServerSidePreparedStatement: true
+      preparedStatementParamStyle: "fb_numeric"
     };
 
     const connection = await firebolt.connect(connectionParams);
@@ -965,7 +965,7 @@ describe("Connection V2", () => {
         client_secret: "dummy"
       },
       account: "my_account",
-      useServerSidePreparedStatement: true
+      preparedStatementParamStyle: "fb_numeric"
     };
 
     const connection = await firebolt.connect(connectionParams);
@@ -1023,7 +1023,7 @@ describe("Connection V2", () => {
         client_secret: "dummy"
       },
       account: "my_account",
-      useServerSidePreparedStatement: true
+      preparedStatementParamStyle: "fb_numeric"
     };
 
     const connection = await firebolt.connect(connectionParams);
@@ -1080,7 +1080,7 @@ describe("Connection V2", () => {
         client_secret: "dummy"
       },
       account: "my_account",
-      useServerSidePreparedStatement: true
+      preparedStatementParamStyle: "fb_numeric"
     };
 
     const connection = await firebolt.connect(connectionParams);
@@ -1142,7 +1142,7 @@ describe("Connection V2", () => {
         client_secret: "dummy"
       },
       account: "my_account",
-      useServerSidePreparedStatement: true
+      preparedStatementParamStyle: "fb_numeric"
     };
 
     const connection = await firebolt.connect(connectionParams);

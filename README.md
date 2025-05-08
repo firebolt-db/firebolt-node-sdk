@@ -196,13 +196,15 @@ type ClientCredentialsAuth = {
   client_secret: string;
 };
 
+type PreparedStatementParamStyle = "native" | "fb_numeric";
+
 type ConnectionOptions = {
   auth: AccessTokenAuth | ServiceAccountAuth;
   database: string;
   engineName?: string;
   engineEndpoint?: string;
   account?: string;
-  useServerSidePreparedStatement?: boolean;
+  preparedStatementParamStyle?: PreparedStatementParamStyle;
 };
 ```
 
@@ -263,7 +265,7 @@ const connection = await firebolt.connect({
 <a id="serverSidePreparedStatementConnectionOption"></a>
 #### Server-side prepared statement
 Driver has the option to use server-side prepared statements, so all parameters are set on the server side, preventing SQL injection attacks.
-This behavior can be enabled by setting `useServerSidePreparedStatement` to `true` in the connection options, otherwise, prepared statements will retain default behavior and queries will be formatted client side.
+This behavior can be enabled by setting `preparedStatementParamStyle` to `fb_numeric` in the connection options, otherwise, prepared statements will retain default behavior(same behavior if value is set to `native`) and queries will be formatted client side.
 ```typescript
 const connection = await firebolt.connect({
   auth: {
@@ -273,7 +275,7 @@ const connection = await firebolt.connect({
   engineName: 'engine_name',
   account: 'account_name',
   database: 'database',
-  useServerSidePreparedStatement: true
+  preparedStatementParamStyle: 'fb_numeric'
 });
 ```
 
