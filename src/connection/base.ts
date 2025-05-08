@@ -179,10 +179,10 @@ export abstract class Connection {
 
   abstract cancelAsyncQuery(token: string): Promise<void>;
 
-  protected async prepareAndExecuteQuery(
+  protected prepareQuery(
     query: string,
     executeQueryOptions: ExecuteQueryOptions
-  ): Promise<{ formattedQuery: string; response: Response }> {
+  ): { formattedQuery: string; setKey: string } {
     executeQueryOptions.response = {
       ...defaultResponseSettings,
       ...(executeQueryOptions.response ?? {})
@@ -205,13 +205,14 @@ export abstract class Connection {
       );
     }
 
-    return await this.executeQuery(formattedQuery, executeQueryOptions, setKey);
+    return { formattedQuery, setKey };
   }
 
   protected async executeQuery(
     formattedQuery: string,
     executeQueryOptions: ExecuteQueryOptions,
-    setKey = ""
+    setKey = "",
+    returnResponse = false
   ) {
     const { httpClient } = this.context;
 
@@ -229,7 +230,14 @@ export abstract class Connection {
     try {
       const response = await request.ready();
       await this.processHeaders(response.headers);
-      return { formattedQuery, response };
+      if (returnResponse) {
+        return { response, text: "" };
+      }
+
+      const text = await response.text();
+      await this.throwErrorIfErrorBody(text, response);
+
+      return { response, text };
     } catch (error) {
       // In case it was a set query, remove set parameter if query fails
       if (setKey.length > 0) {
@@ -241,17 +249,42 @@ export abstract class Connection {
     }
   }
 
+  protected async prepareAndExecuteQuery(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions,
+    returnResponse = false
+  ): Promise<{
+    formattedQuery: string;
+    response: Response;
+    text: string;
+  }> {
+    const { formattedQuery, setKey } = this.prepareQuery(
+      query,
+      executeQueryOptions
+    );
+    const { response, text } = await this.executeQuery(
+      formattedQuery,
+      executeQueryOptions,
+      setKey,
+      returnResponse
+    );
+
+    return {
+      formattedQuery,
+      response,
+      text
+    };
+  }
+
   async execute(
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<Statement> {
-    const { formattedQuery, response } = await this.prepareAndExecuteQuery(
+    const { formattedQuery, text } = await this.prepareAndExecuteQuery(
       query,
       executeQueryOptions
     );
 
-    const text = await response.text();
-    await this.throwErrorIfErrorBody(text, response);
     return new Statement(this.context, {
       query: formattedQuery,
       text,

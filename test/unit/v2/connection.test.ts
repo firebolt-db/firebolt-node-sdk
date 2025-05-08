@@ -676,7 +676,7 @@ describe("Connection V2", () => {
     );
   });
 
-  it("prepared statement with correct parameters", async () => {
+  it("named parameter: prepared statement with correct parameters", async () => {
     const firebolt = Firebolt({
       apiEndpoint
     });
@@ -686,22 +686,30 @@ describe("Connection V2", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         async (req, res, ctx) => {
-          return res(
-            ctx.json({
-              meta: [
-                {
-                  name: "?column?",
-                  type: "int"
-                },
-                {
-                  name: "?column?",
-                  type: "long"
-                }
-              ],
-              data: [[1, "2"]],
-              rows: 1
-            })
-          );
+          if (
+            req.url.searchParams.get("query_parameters") ===
+            JSON.stringify([
+              { name: "$1", value: 1 },
+              { name: "$2", value: 2 }
+            ])
+          ) {
+            return res(
+              ctx.json({
+                meta: [
+                  {
+                    name: "?column?",
+                    type: "int"
+                  },
+                  {
+                    name: "?column?",
+                    type: "long"
+                  }
+                ],
+                data: [[1, "2"]],
+                rows: 1
+              })
+            );
+          }
         }
       )
     );
@@ -716,16 +724,13 @@ describe("Connection V2", () => {
     };
 
     const connection = await firebolt.connect(connectionParams);
-    const streamStatement = await connection.execute(
-      "SELECT $1::int, $2::long",
-      {
-        namedParameters: {
-          $1: 1,
-          $2: 2
-        }
+    const statement = await connection.execute("SELECT $1::int, $2::long", {
+      namedParameters: {
+        $1: 1,
+        $2: 2
       }
-    );
-    const { data, meta } = await streamStatement.fetchResult();
+    });
+    const { data, meta } = await statement.fetchResult();
     expect(data[0]).toEqual([1, new BigNumber(2)]);
     expect(meta).toEqual([
       {
@@ -738,12 +743,37 @@ describe("Connection V2", () => {
       }
     ]);
   });
-  it("prepared statement with less parameters provided", async () => {
+  it("named parameter: prepared statement with less parameters provided", async () => {
     const firebolt = Firebolt({
       apiEndpoint
     });
 
     setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          if (
+            req.url.searchParams.get("query_parameters") ===
+            JSON.stringify([{ name: "$1", value: 1 }])
+          ) {
+            return res(
+              ctx.json({
+                errors: [
+                  {
+                    description:
+                      "Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
+                  }
+                ],
+                statistics: {
+                  elapsed: 0.0
+                }
+              })
+            );
+          }
+        }
+      )
+    );
 
     const connectionParams: ConnectionOptions = {
       auth: {
@@ -762,15 +792,47 @@ describe("Connection V2", () => {
         }
       })
     ).rejects.toThrow(
-      "Number of parameters in the query (2) does not match the number of named parameters provided (1)."
+      "- Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
     );
   });
-  it("prepared statement with more parameters provided", async () => {
+  it("named parameter: prepared statement with more parameters provided", async () => {
     const firebolt = Firebolt({
       apiEndpoint
     });
 
     setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          if (
+            req.url.searchParams.get("query_parameters") ===
+            JSON.stringify([
+              { name: "$1", value: 1 },
+              { name: "$2", value: 1 },
+              { name: "$3", value: 1 }
+            ])
+          ) {
+            return res(
+              ctx.json({
+                meta: [
+                  {
+                    name: "?column?",
+                    type: "int"
+                  },
+                  {
+                    name: "?column?",
+                    type: "long"
+                  }
+                ],
+                data: [[1, "2"]],
+                rows: 1
+              })
+            );
+          }
+        }
+      )
+    );
 
     const connectionParams: ConnectionOptions = {
       auth: {
@@ -782,24 +844,61 @@ describe("Connection V2", () => {
     };
 
     const connection = await firebolt.connect(connectionParams);
-    await expect(
-      connection.execute("SELECT $1::int, $2::long", {
-        namedParameters: {
-          $1: 1,
-          $2: 1,
-          $3: 1
-        }
-      })
-    ).rejects.toThrow(
-      "Number of parameters in the query (2) does not match the number of named parameters provided (3)."
-    );
+    const statement = await connection.execute("SELECT $1::int, $2::long", {
+      namedParameters: {
+        $1: 1,
+        $2: 1,
+        $3: 1
+      }
+    });
+
+    const { data, meta } = await statement.fetchResult();
+    expect(data[0]).toEqual([1, new BigNumber(2)]);
+    expect(meta).toEqual([
+      {
+        name: "?column?",
+        type: "int"
+      },
+      {
+        name: "?column?",
+        type: "long"
+      }
+    ]);
   });
-  it("prepared statement with correct number of parameters provided, but wrong name", async () => {
+  it("named parameter: prepared statement with correct number of parameters provided, but wrong name", async () => {
     const firebolt = Firebolt({
       apiEndpoint
     });
 
     setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          if (
+            req.url.searchParams.get("query_parameters") ===
+            JSON.stringify([
+              { name: "$1", value: 1 },
+              { name: "$4", value: 1 }
+            ])
+          ) {
+            return res(
+              ctx.json({
+                errors: [
+                  {
+                    description:
+                      "Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
+                  }
+                ],
+                statistics: {
+                  elapsed: 0.0
+                }
+              })
+            );
+          }
+        }
+      )
+    );
 
     const connectionParams: ConnectionOptions = {
       auth: {
@@ -818,6 +917,241 @@ describe("Connection V2", () => {
           $4: 1
         }
       })
-    ).rejects.toThrow('Parameter "$2" is missing from the named parameters.');
+    ).rejects.toThrow(
+      "- Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
+    );
+  });
+  it("normal parameter: prepared statement with correct parameters", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          if (
+            req.url.searchParams.get("query_parameters") ===
+            JSON.stringify([
+              { name: "$1", value: 1 },
+              { name: "$2", value: 2 }
+            ])
+          ) {
+            return res(
+              ctx.json({
+                meta: [
+                  {
+                    name: "?column?",
+                    type: "int"
+                  },
+                  {
+                    name: "?column?",
+                    type: "long"
+                  }
+                ],
+                data: [[1, "2"]],
+                rows: 1
+              })
+            );
+          }
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account",
+      useServerSidePreparedStatement: true
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    const statement = await connection.execute("SELECT $1::int, $2::long", {
+      parameters: [1, 2]
+    });
+    const { data, meta } = await statement.fetchResult();
+    expect(data[0]).toEqual([1, new BigNumber(2)]);
+    expect(meta).toEqual([
+      {
+        name: "?column?",
+        type: "int"
+      },
+      {
+        name: "?column?",
+        type: "long"
+      }
+    ]);
+  });
+  it("normal parameter: prepared statement with less parameters provided", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          if (
+            req.url.searchParams.get("query_parameters") ===
+            JSON.stringify([{ name: "$1", value: 1 }])
+          ) {
+            return res(
+              ctx.json({
+                errors: [
+                  {
+                    description:
+                      "Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
+                  }
+                ],
+                statistics: {
+                  elapsed: 0.0
+                }
+              })
+            );
+          }
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account",
+      useServerSidePreparedStatement: true
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(
+      connection.execute("SELECT $1::int, $2::long", {
+        parameters: [1]
+      })
+    ).rejects.toThrow(
+      "- Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
+    );
+  });
+  it("normal parameter: prepared statement with more parameters provided", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          if (
+            req.url.searchParams.get("query_parameters") ===
+            JSON.stringify([
+              { name: "$1", value: 1 },
+              { name: "$2", value: 2 },
+              { name: "$3", value: 3 }
+            ])
+          ) {
+            return res(
+              ctx.json({
+                meta: [
+                  {
+                    name: "?column?",
+                    type: "int"
+                  },
+                  {
+                    name: "?column?",
+                    type: "long"
+                  }
+                ],
+                data: [[1, "2"]],
+                rows: 1
+              })
+            );
+          }
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account",
+      useServerSidePreparedStatement: true
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    const statement = await connection.execute("SELECT $1::int, $2::long", {
+      parameters: [1, 2, 3]
+    });
+
+    const { data, meta } = await statement.fetchResult();
+    expect(data[0]).toEqual([1, new BigNumber(2)]);
+    expect(meta).toEqual([
+      {
+        name: "?column?",
+        type: "int"
+      },
+      {
+        name: "?column?",
+        type: "long"
+      }
+    ]);
+  });
+  it("normal parameter: prepared statement with correct number of parameters provided, but wrong name", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          if (
+            req.url.searchParams.get("query_parameters") ===
+            JSON.stringify([
+              { name: "$1", value: 1 },
+              { name: "$2", value: 2 }
+            ])
+          ) {
+            return res(
+              ctx.json({
+                errors: [
+                  {
+                    description:
+                      "Line 1, Column 17: Query referenced positional parameter $34, but it was not set"
+                  }
+                ],
+                statistics: {
+                  elapsed: 0.0
+                }
+              })
+            );
+          }
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      account: "my_account",
+      useServerSidePreparedStatement: true
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(
+      connection.execute("SELECT $1::int, $34::long", {
+        parameters: [1, 2]
+      })
+    ).rejects.toThrow(
+      "- Line 1, Column 17: Query referenced positional parameter $34, but it was not set"
+    );
   });
 });

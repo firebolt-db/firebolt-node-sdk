@@ -91,13 +91,11 @@ export class ConnectionV2 extends BaseConnection {
       // can't have an async set query
       throw new Error("SET statements cannot be executed asynchronously.");
     }
-    const { formattedQuery, response } = await this.prepareAndExecuteQuery(
+    const { formattedQuery, text } = await this.prepareAndExecuteQuery(
       query,
       asyncExecuteQueryOptions
     );
 
-    const text = await response.text();
-    await this.throwErrorIfErrorBody(text, response);
     return new AsyncStatement(this.context, {
       query: formattedQuery,
       text,
@@ -109,13 +107,17 @@ export class ConnectionV2 extends BaseConnection {
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<StreamStatement> {
-    const { response } = await this.prepareAndExecuteQuery(query, {
-      ...executeQueryOptions,
-      settings: {
-        ...executeQueryOptions?.settings,
-        output_format: OutputFormat.JSON_LINES
-      }
-    });
+    const { response } = await this.prepareAndExecuteQuery(
+      query,
+      {
+        ...executeQueryOptions,
+        settings: {
+          ...executeQueryOptions?.settings,
+          output_format: OutputFormat.JSON_LINES
+        }
+      },
+      true
+    );
 
     return new StreamStatement({
       response,
@@ -137,14 +139,11 @@ export class ConnectionV2 extends BaseConnection {
     query: string,
     executeQueryOptions: ExecuteQueryOptions
   ): Promise<Statement> {
-    this.checkParameters(query, executeQueryOptions.namedParameters);
-    const { response } = await this.executeQuery(
+    const { text } = await this.executeQuery(
       query,
       this.getExecuteQueryOptionsForPreparedStatement(executeQueryOptions)
     );
 
-    const text = await response.text();
-    await this.throwErrorIfErrorBody(text, response);
     return new Statement(this.context, {
       query: query,
       text,
@@ -152,33 +151,24 @@ export class ConnectionV2 extends BaseConnection {
     });
   }
 
-  private checkParameters(
-    query: string,
-    namedParameters: Record<string, unknown> | undefined
-  ) {
-    const fireboltNumericParameters =
-      this.queryFormatter.getFireboltNumericParameters(query);
-    const providedParameters = Object.keys(namedParameters || {});
-    if (fireboltNumericParameters.length != providedParameters.length) {
-      throw new Error(
-        `Number of parameters in the query (${fireboltNumericParameters.length}) does not match the number of named parameters provided (${providedParameters.length}).`
-      );
-    }
-    fireboltNumericParameters.forEach(param => {
-      if (!providedParameters.includes(param)) {
-        throw new Error(
-          `Parameter "${param}" is missing from the named parameters.`
-        );
-      }
-    });
-  }
-
   private getExecuteQueryOptionsForPreparedStatement(
     executeQueryOptions: ExecuteQueryOptions
   ): ExecuteQueryOptions {
-    const queryParameters = Object.entries(
-      executeQueryOptions.namedParameters || {}
-    ).map(([key, value]) => ({ name: key, value }));
+    let queryParameters;
+    if (!executeQueryOptions.parameters) {
+      queryParameters = Object.entries(
+        executeQueryOptions.namedParameters || {}
+      ).map(([key, value]) => ({ name: key, value }));
+    } else if (!executeQueryOptions.namedParameters) {
+      queryParameters = executeQueryOptions.parameters.map((value, index) => ({
+        name: `$${index + 1}`,
+        value
+      }));
+    } else {
+      throw new Error(
+        "Server-side prepared statement can only use either parameters or namedParameters"
+      );
+    }
 
     return {
       settings: {

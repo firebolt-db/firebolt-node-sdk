@@ -220,20 +220,6 @@ export abstract class QueryFormatter {
     return query;
   }
 
-  getFireboltNumericParameters(query: string): string[] {
-    const regex = /'[^']*'|"[^"]*"|\/\*[\s\S]*?\*\/|--.*|(\$[0-9]+)/g;
-
-    let match;
-    const params = [];
-
-    while ((match = regex.exec(query)) !== null) {
-      if (match[1]) {
-        params.push(match[1]);
-      }
-    }
-    return params;
-  }
-
   isSetStatement(query: string): boolean {
     return query.trim().toLowerCase().startsWith(SET_PREFIX);
   }
