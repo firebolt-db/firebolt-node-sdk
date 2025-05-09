@@ -347,4 +347,22 @@ describe("prepared statement", () => {
       /Line 1, Column 12: Query referenced positional parameter \$2, but it was not set/
     );
   });
+  it("normal query: should execute fine", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+
+    const statement = await connection.execute("SELECT 1::long");
+
+    const { data, meta } = await statement.fetchResult();
+    expect(data[0]).toEqual([new BigNumber(1)]);
+    expect(meta).toEqual([
+      {
+        name: "?column?",
+        type: "long"
+      }
+    ]);
+  });
 });
