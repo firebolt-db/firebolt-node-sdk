@@ -6,6 +6,7 @@ import { Cache, inMemoryCache, noneCache } from "../common/tokenCache";
 import { ExecuteQueryOptions, OutputFormat } from "../types";
 import { AsyncStatement } from "../statement/async";
 import { StreamStatement } from "../statement/stream";
+import { Statement } from "../statement";
 
 export class ConnectionV2 extends BaseConnection {
   private get account(): string {
@@ -90,13 +91,11 @@ export class ConnectionV2 extends BaseConnection {
       // can't have an async set query
       throw new Error("SET statements cannot be executed asynchronously.");
     }
-    const { formattedQuery, response } = await this.prepareAndExecuteQuery(
+    const { formattedQuery, text } = await this.prepareAndExecuteQuery(
       query,
       asyncExecuteQueryOptions
     );
 
-    const text = await response.text();
-    await this.throwErrorIfErrorBody(text, response);
     return new AsyncStatement(this.context, {
       query: formattedQuery,
       text,
@@ -108,18 +107,76 @@ export class ConnectionV2 extends BaseConnection {
     query: string,
     executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<StreamStatement> {
-    const { response } = await this.prepareAndExecuteQuery(query, {
-      ...executeQueryOptions,
-      settings: {
-        ...executeQueryOptions?.settings,
-        output_format: OutputFormat.JSON_LINES
-      }
-    });
+    const { response } = await this.prepareAndExecuteQuery(
+      query,
+      {
+        ...executeQueryOptions,
+        settings: {
+          ...executeQueryOptions?.settings,
+          output_format: OutputFormat.JSON_LINES
+        }
+      },
+      true
+    );
 
     return new StreamStatement({
       response,
       executeQueryOptions
     });
+  }
+
+  async execute(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions = {}
+  ): Promise<Statement> {
+    if (this.options.preparedStatementParamStyle === "fb_numeric") {
+      return this.executePreparedStatement(query, executeQueryOptions);
+    }
+    return super.execute(query, executeQueryOptions);
+  }
+
+  private async executePreparedStatement(
+    query: string,
+    executeQueryOptions: ExecuteQueryOptions
+  ): Promise<Statement> {
+    const { text } = await this.executeQuery(
+      query,
+      this.getExecuteQueryOptionsForPreparedStatement(executeQueryOptions)
+    );
+
+    return new Statement(this.context, {
+      query: query,
+      text,
+      executeQueryOptions
+    });
+  }
+
+  private getExecuteQueryOptionsForPreparedStatement(
+    executeQueryOptions: ExecuteQueryOptions
+  ): ExecuteQueryOptions {
+    let queryParameters;
+    if (!executeQueryOptions.parameters) {
+      queryParameters = Object.entries(
+        executeQueryOptions.namedParameters || {}
+      ).map(([key, value]) => ({ name: key, value }));
+    } else if (!executeQueryOptions.namedParameters) {
+      queryParameters = executeQueryOptions.parameters.map((value, index) => ({
+        name: `$${index + 1}`,
+        value
+      }));
+    } else {
+      throw new Error(
+        "Server-side prepared statement can only use either parameters or namedParameters"
+      );
+    }
+
+    return {
+      settings: {
+        ...executeQueryOptions.settings,
+        query_parameters: JSON.stringify(queryParameters)
+      },
+      ...executeQueryOptions
+    };
   }
 
   private async getAsyncQueryInfo(token: string) {

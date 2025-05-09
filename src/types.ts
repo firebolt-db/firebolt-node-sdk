@@ -84,6 +84,8 @@ export type ServiceAccountAuth = {
 
 export type AuthOptions = UsernamePasswordAuth | ServiceAccountAuth;
 
+export type PreparedStatementParamStyle = "native" | "fb_numeric";
+
 export type ConnectionOptions = {
   database?: string;
   engineName?: string;
@@ -92,6 +94,7 @@ export type ConnectionOptions = {
   account?: string;
   auth: AuthOptions;
   useCache?: boolean;
+  preparedStatementParamStyle?: PreparedStatementParamStyle;
 };
 
 export type FireboltClientOptions = {
