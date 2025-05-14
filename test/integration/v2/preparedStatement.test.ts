@@ -112,7 +112,7 @@ describe("prepared statement", () => {
     expect(meta.map((m: any) => m.type)).toEqual([
       "int", // $1
       "long", // $2
-      "decimal", // $3
+      "decimal(38, 4)", // $3
       "float", // $4
       "double", // $5
       "array(int null)", // $6
@@ -286,7 +286,7 @@ describe("prepared statement", () => {
     expect(meta.map((m: any) => m.type)).toEqual([
       "int", // $1
       "long", // $2
-      "decimal", // $3
+      "decimal(38, 4)", // $3
       "float", // $4
       "double", // $5
       "array(int null)", // $6

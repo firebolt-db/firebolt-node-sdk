@@ -1,7 +1,31 @@
-import { getInnerType } from "../../src/statement/dataTypes";
+import { getFireboltType, getInnerType } from "../../src/statement/dataTypes";
 import { getStructTypes } from "../../src/statement/dataTypes";
 
-describe("getInnerType function", () => {
+describe("getFireboltType function", () => {
+  it("should return the firebolt type for a nullable type", () => {
+    const type = "nullable(int)";
+    const result = getFireboltType(type);
+    expect(result).toBe("nullable(int)");
+  });
+
+  it("should return the firebolt type for an array type", () => {
+    const type = "array(int)";
+    const result = getFireboltType(type);
+    expect(result).toBe("array(int)");
+  });
+
+  it("should return the firebolt type for a nullable array type", () => {
+    const type = "array(int null) null";
+    const result = getFireboltType(type);
+    expect(result).toBe("array(int null) null");
+  });
+
+  it("should return the firebolt type for a nullable array integer type", () => {
+    const type = "array(integer null) null";
+    const result = getFireboltType(type);
+    expect(result).toBe("array(int null) null");
+  });
+
   it("should return the inner type for a nullable type", () => {
     const type = "nullable(int)";
     const result = getInnerType(type);
@@ -14,15 +38,21 @@ describe("getInnerType function", () => {
     expect(result).toBe("int");
   });
 
-  it("should return the inner type for a nested nullable type", () => {
-    const type = "nullable(nullable(int))";
+  it("should return the inner type for a nullable array type", () => {
+    const type = "array(int null) null";
     const result = getInnerType(type);
-    expect(result).toBe("int");
+    expect(result).toBe("int null");
+  });
+
+  it("should return the inner type for a nullable array integer type", () => {
+    const type = "array(integer null) null";
+    const result = getInnerType(type);
+    expect(result).toBe("int null");
   });
 
   it("should return the original type if no complex type is found", () => {
     const type = "int";
-    const result = getInnerType(type);
+    const result = getFireboltType(type);
     expect(result).toBe("int");
   });
 });
