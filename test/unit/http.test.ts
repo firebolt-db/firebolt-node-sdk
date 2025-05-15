@@ -31,9 +31,6 @@ const authHandlerV1 = rest.post(
   }
 );
 
-// Increase Jest timeout for tests that might involve timeouts
-jest.setTimeout(10000);
-
 describe.each([
   ["v1", authHandlerV1, { username: "user", password: "fake_password" }],
   ["v2", authHandlerV2, { client_id: "user", client_secret: "fake_password" }]
