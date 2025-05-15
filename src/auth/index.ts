@@ -6,12 +6,22 @@ import {
   ServiceAccountAuth,
   UsernamePasswordAuth
 } from "../types";
-import { TokenKey, inMemoryCache, noneCache } from "../common/tokenCache";
-import ReadWriteLock from "rwlock";
+import {
+  TokenKey,
+  inMemoryCache,
+  noneCache,
+  rwLock
+} from "../common/tokenCache";
 
 type Login = {
   access_token: string;
   token_type: string;
+  expires_in: number;
+};
+
+type TokenInfo = {
+  access_token: string;
+  // seconds until expiration
   expires_in: number;
 };
 
@@ -23,7 +33,9 @@ export class Authenticator {
   options: ConnectionOptions;
 
   accessToken?: string;
-  private readonly rwlock = new ReadWriteLock();
+  // Expiration time is half way to the actual expiration time
+  // to allow for some buffer time before the token expires
+  tokenExpirationTime?: number;
 
   constructor(context: Context, options: ConnectionOptions) {
     context.httpClient.authenticator = this;
@@ -62,23 +74,40 @@ export class Authenticator {
   }
 
   private setToken(token: string, expiresIn: number) {
+    // Set expiration to half of the expiresIn value
+    // to allow for some buffer time before the token expires
+    const expirationTimeMs = Date.now() + (expiresIn * 1000) / 2;
     this.accessToken = token;
+    this.tokenExpirationTime = expirationTimeMs;
+    // Update cache
     const key = this.getCacheKey();
-    key && this.getCache().set(key, { token, expiration: expiresIn });
+    key &&
+      this.getCache().set(key, { token, tokenExpiryTimeMs: expirationTimeMs });
   }
 
-  private getCachedToken(): string | undefined {
+  private getCachedTokenInfo():
+    | { token: string; tokenExpiryTimeMs: number }
+    | undefined {
     const key = this.getCacheKey();
-    return key ? this.getCache().get(key)?.token : undefined;
-  }
+    if (!key) return undefined;
 
-  getHeaders() {
-    if (this.accessToken) {
+    const cachedTokenInfo = this.getCache().get(key);
+    // Check if token exists and is not expired
+    if (cachedTokenInfo && Date.now() < cachedTokenInfo.tokenExpiryTimeMs) {
       return {
-        Authorization: `Bearer ${this.accessToken}`
+        token: cachedTokenInfo.token,
+        tokenExpiryTimeMs: cachedTokenInfo.tokenExpiryTimeMs
       };
     }
-    return {};
+
+    return undefined;
+  }
+
+  async getToken(): Promise<string | undefined> {
+    if (this.tokenExpirationTime && this.tokenExpirationTime < Date.now()) {
+      await this.authenticate();
+    }
+    return this.accessToken;
   }
 
   private static getAuthEndpoint(apiEndpoint: string) {
@@ -94,7 +123,9 @@ export class Authenticator {
     return myURL.toString();
   }
 
-  private async authenticateUsernamePassword(auth: UsernamePasswordAuth) {
+  private async authenticateUsernamePassword(
+    auth: UsernamePasswordAuth
+  ): Promise<TokenInfo> {
     const { httpClient, apiEndpoint } = this.context;
     const { username, password } = auth;
     const url = `${apiEndpoint}/${USERNAME_PASSWORD_LOGIN}`;
@@ -103,19 +134,21 @@ export class Authenticator {
       password
     });
 
-    this.accessToken = undefined;
-
+    // Expiration is in seconds
     const { access_token, expires_in } = await httpClient
       .request<Login>("POST", url, {
         body,
-        retry: false
+        retry: false,
+        noAuth: true
       })
       .ready();
 
-    this.setToken(access_token, expires_in);
+    return { access_token, expires_in };
   }
 
-  private async authenticateServiceAccount(auth: ServiceAccountAuth) {
+  private async authenticateServiceAccount(
+    auth: ServiceAccountAuth
+  ): Promise<TokenInfo> {
     const { httpClient, apiEndpoint } = this.context;
     const { client_id, client_secret } = auth;
 
@@ -128,19 +161,19 @@ export class Authenticator {
     });
     const url = `${authEndpoint}${SERVICE_ACCOUNT_LOGIN}`;
 
-    this.accessToken = undefined;
-
+    // Expiration is in seconds
     const { access_token, expires_in } = await httpClient
       .request<Login>("POST", url, {
         retry: false,
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         },
-        body: params
+        body: params,
+        noAuth: true
       })
       .ready();
 
-    this.setToken(access_token, expires_in);
+    return { access_token, expires_in };
   }
 
   isUsernamePassword() {
@@ -163,19 +196,44 @@ export class Authenticator {
     // Try to get token from cache using read lock
     const cachedToken = await this.tryGetCachedToken();
     if (cachedToken) {
-      this.accessToken = cachedToken;
+      this.accessToken = cachedToken.token;
+      this.tokenExpirationTime = cachedToken.tokenExpiryTimeMs;
       return;
     }
-
     // No cached token, acquire write lock and authenticate
     await this.acquireWriteLockAndAuthenticate();
   }
 
-  private async tryGetCachedToken(): Promise<string | undefined> {
+  async reAuthenticate(): Promise<void> {
+    // Acquire write lock, clear cache and authenticate
     return new Promise((resolve, reject) => {
-      this.rwlock.readLock(releaseReadLock => {
+      rwLock.writeLock(async releaseWriteLock => {
         try {
-          const cachedToken = this.getCachedToken();
+          // Clear the cache under write lock
+          const key = this.getCacheKey();
+          key && this.getCache().clear(key);
+
+          // Perform authentication directly rather than calling acquireWriteLockAndAuthenticate
+          // since we already have the write lock
+          await this.performAuthentication();
+
+          resolve();
+        } catch (error) {
+          reject(error instanceof Error ? error : new Error(String(error)));
+        } finally {
+          releaseWriteLock();
+        }
+      });
+    });
+  }
+
+  private async tryGetCachedToken(): Promise<
+    { token: string; tokenExpiryTimeMs: number } | undefined
+  > {
+    return new Promise((resolve, reject) => {
+      rwLock.readLock(releaseReadLock => {
+        try {
+          const cachedToken = this.getCachedTokenInfo();
           resolve(cachedToken);
         } catch (error) {
           reject(error instanceof Error ? error : new Error(String(error)));
@@ -188,15 +246,15 @@ export class Authenticator {
 
   private async acquireWriteLockAndAuthenticate(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.rwlock.writeLock(async releaseWriteLock => {
+      rwLock.writeLock(async releaseWriteLock => {
         try {
           // Double-check cache in case another thread authenticated while waiting
-          const cachedToken = this.getCachedToken();
-          if (cachedToken) {
-            this.accessToken = cachedToken;
+          const cachedTokenInfo = this.getCachedTokenInfo();
+          if (cachedTokenInfo) {
+            this.accessToken = cachedTokenInfo.token;
+            this.tokenExpirationTime = cachedTokenInfo.tokenExpiryTimeMs;
             return resolve();
           }
-
           await this.performAuthentication();
 
           resolve();
@@ -212,14 +270,20 @@ export class Authenticator {
   private async performAuthentication(): Promise<void> {
     const options = this.options.auth || this.options;
 
+    let auth: TokenInfo;
+
     if (this.isUsernamePassword()) {
-      return this.authenticateUsernamePassword(options as UsernamePasswordAuth);
+      auth = await this.authenticateUsernamePassword(
+        options as UsernamePasswordAuth
+      );
+    } else if (this.isServiceAccount()) {
+      auth = await this.authenticateServiceAccount(
+        options as ServiceAccountAuth
+      );
+    } else {
+      throw new Error("Please provide valid auth credentials");
     }
 
-    if (this.isServiceAccount()) {
-      return this.authenticateServiceAccount(options as ServiceAccountAuth);
-    }
-
-    throw new Error("Please provide valid auth credentials");
+    this.setToken(auth.access_token, auth.expires_in);
   }
 }

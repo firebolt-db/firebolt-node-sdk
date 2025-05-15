@@ -200,7 +200,7 @@ describe.each([
           ctx.json({
             access_token: "fake_access_token",
             refresh_token: "fake_refresh_token",
-            expires_in: -100
+            expires_in: 1 // 1 second
           })
         );
       })
@@ -210,6 +210,8 @@ describe.each([
 
     await authenticator.authenticate();
     expect(authenticator.accessToken).toEqual("fake_access_token");
+    // Wait for token to expire
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await authenticator.authenticate();
     expect(authenticator.accessToken).toEqual("fake_access_token");
     expect(calls).toEqual(2);

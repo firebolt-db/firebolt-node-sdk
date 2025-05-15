@@ -1,3 +1,4 @@
+import ReadWriteLock from "rwlock";
 import { AccountInfo } from "../connection/connection_v1";
 
 export type TokenKey = {
@@ -8,7 +9,7 @@ export type TokenKey = {
 
 export type TokenRecord = {
   token: string;
-  expiration: number;
+  tokenExpiryTimeMs: number;
 };
 
 export type AccountKey = {
@@ -62,7 +63,6 @@ export class InMemoryCacheStorage<KeyType, RecordType> {
     const lookup = this.makeLookupString(key);
     const record = this.storage[lookup];
     if (!this.isValidRecord(record)) {
-      this.clear(key);
       return null;
     }
     return record;
@@ -84,11 +84,12 @@ export class InMemoryTokenCacheStorage extends InMemoryCacheStorage<
   TokenRecord
 > {
   protected isValidRecord(record: TokenRecord | undefined): boolean {
-    return typeof record != "undefined" && Date.now() < record.expiration;
+    return (
+      typeof record != "undefined" && Date.now() < record.tokenExpiryTimeMs
+    );
   }
 
   protected modifyRecord(record: TokenRecord): TokenRecord {
-    record.expiration = Date.now() + record.expiration;
     return record;
   }
 }
@@ -116,3 +117,4 @@ export class InMemoryCache implements Cache {
 
 export const inMemoryCache = new InMemoryCache();
 export const noneCache = new NoneCache();
+export const rwLock = new ReadWriteLock();
