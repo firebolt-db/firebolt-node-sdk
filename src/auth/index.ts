@@ -33,6 +33,8 @@ export class Authenticator {
   options: ConnectionOptions;
 
   accessToken?: string;
+  // Expiration time is half way to the actual expiration time
+  // to allow for some buffer time before the token expires
   tokenExpirationTime?: number;
 
   constructor(context: Context, options: ConnectionOptions) {
@@ -200,6 +202,29 @@ export class Authenticator {
     }
     // No cached token, acquire write lock and authenticate
     await this.acquireWriteLockAndAuthenticate();
+  }
+
+  async reAuthenticate(): Promise<void> {
+    // Acquire write lock, clear cache and authenticate
+    return new Promise((resolve, reject) => {
+      rwLock.writeLock(async releaseWriteLock => {
+        try {
+          // Clear the cache under write lock
+          const key = this.getCacheKey();
+          key && this.getCache().clear(key);
+
+          // Perform authentication directly rather than calling acquireWriteLockAndAuthenticate
+          // since we already have the write lock
+          await this.performAuthentication();
+
+          resolve();
+        } catch (error) {
+          reject(error instanceof Error ? error : new Error(String(error)));
+        } finally {
+          releaseWriteLock();
+        }
+      });
+    });
   }
 
   private async tryGetCachedToken(): Promise<
