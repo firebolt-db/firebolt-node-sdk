@@ -14,6 +14,7 @@ type RequestOptions = {
   body?: string;
   raw?: boolean;
   retry?: boolean;
+  auth?: boolean;
 };
 
 type ErrorResponse = {
@@ -84,8 +85,17 @@ export class NodeHttpClient {
     };
 
     const makeRequest = async () => {
-      if (this.authenticator) {
-        const authHeaders = await this.authenticator.getHeaders();
+      // No authentication for auth request
+      if (options?.auth !== false) {
+        const token = await this.authenticator.getToken();
+        if (!token) {
+          throw new AuthenticationError({
+            message: "Failed to get the access token when making a request."
+          });
+        }
+        const authHeaders = {
+          Authorization: `Bearer ${token}`
+        };
         Object.assign(headers, authHeaders);
       }
 
@@ -107,6 +117,9 @@ export class NodeHttpClient {
 
       if (response.status === 401 && retry) {
         try {
+          console.warn(
+            "Access token expired (401), refreshing access token and retrying request"
+          );
           this.authenticator.clearCache();
           await this.authenticator.authenticate();
         } catch (error) {
