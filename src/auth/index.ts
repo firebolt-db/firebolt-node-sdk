@@ -137,7 +137,7 @@ export class Authenticator {
       .request<Login>("POST", url, {
         body,
         retry: false,
-        auth: false
+        noAuth: true
       })
       .ready();
 
@@ -167,7 +167,7 @@ export class Authenticator {
           "Content-Type": "application/x-www-form-urlencoded"
         },
         body: params,
-        auth: false
+        noAuth: true
       })
       .ready();
 

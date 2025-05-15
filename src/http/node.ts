@@ -14,7 +14,7 @@ type RequestOptions = {
   body?: string;
   raw?: boolean;
   retry?: boolean;
-  auth?: boolean;
+  noAuth?: boolean;
 };
 
 type ErrorResponse = {
@@ -85,8 +85,8 @@ export class NodeHttpClient {
     };
 
     const makeRequest = async () => {
-      // No authentication for auth request
-      if (options?.auth !== false) {
+      // No authentication needed for auth request itself
+      if (!options?.noAuth) {
         const token = await this.authenticator.getToken();
         if (!token) {
           throw new AuthenticationError({
