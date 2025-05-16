@@ -5,9 +5,9 @@ import {
   isByteAType,
   isDateType,
   isNumberType,
-  getInnerType,
   getStructTypes,
-  isStructType
+  isStructType,
+  getInnerType
 } from "./dataTypes";
 import { hydrateDate } from "./hydrateDate";
 
