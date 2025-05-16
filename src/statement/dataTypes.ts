@@ -163,13 +163,11 @@ export const isByteAType = (type: string) => {
 };
 
 export const isDateType = (type: string) => {
-  return (
-    DATE_TYPES.indexOf(type) !== -1 || RegExp(/datetime64(.+)/i).exec(type)
-  );
+  return DATE_TYPES.indexOf(type) !== -1 || RegExp(DATETIME_TYPE).exec(type);
 };
 
 export const isFloatType = (type: string) => {
-  return FLOAT_TYPES.includes(type) || RegExp(/decimal(.+)/i).exec(type);
+  return FLOAT_TYPES.includes(type) || RegExp(DECIMAL_TYPE).exec(type);
 };
 
 export const isNumberType = (type: string) => {
