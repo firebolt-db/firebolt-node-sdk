@@ -110,8 +110,9 @@ export class Authenticator {
 
   async getToken(): Promise<string | undefined> {
     if (
-      this.tokenExpiryTimestampMs &&
-      this.tokenExpiryTimestampMs < Date.now()
+      (this.tokenExpiryTimestampMs &&
+        this.tokenExpiryTimestampMs < Date.now()) ||
+      !this.accessToken
     ) {
       await this.authenticate();
     }
