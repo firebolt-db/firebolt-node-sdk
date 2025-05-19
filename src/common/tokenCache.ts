@@ -9,7 +9,7 @@ export type TokenKey = {
 
 export type TokenRecord = {
   token: string;
-  tokenExpiryTimeMs: number;
+  tokenExpiryTimestampMs: number;
 };
 
 export type AccountKey = {
@@ -85,7 +85,7 @@ export class InMemoryTokenCacheStorage extends InMemoryCacheStorage<
 > {
   protected isValidRecord(record: TokenRecord | undefined): boolean {
     return (
-      typeof record != "undefined" && Date.now() < record.tokenExpiryTimeMs
+      typeof record != "undefined" && Date.now() < record.tokenExpiryTimestampMs
     );
   }
 

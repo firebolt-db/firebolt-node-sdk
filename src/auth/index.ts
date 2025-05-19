@@ -8,6 +8,7 @@ import {
 } from "../types";
 import {
   TokenKey,
+  TokenRecord,
   inMemoryCache,
   noneCache,
   rwLock
@@ -35,7 +36,7 @@ export class Authenticator {
   accessToken?: string;
   // Expiration time is half way to the actual expiration time
   // to allow for some buffer time before the token expires
-  tokenExpirationTime?: number;
+  tokenExpiryTimestampMs?: number;
 
   constructor(context: Context, options: ConnectionOptions) {
     context.httpClient.authenticator = this;
@@ -76,27 +77,31 @@ export class Authenticator {
   private setToken(token: string, expiresIn: number) {
     // Set expiration to half of the expiresIn value
     // to allow for some buffer time before the token expires
-    const expirationTimeMs = Date.now() + (expiresIn * 1000) / 2;
+    const tokenExpiryTimestampMs = Date.now() + (expiresIn * 1000) / 2;
     this.accessToken = token;
-    this.tokenExpirationTime = expirationTimeMs;
+    this.tokenExpiryTimestampMs = tokenExpiryTimestampMs;
     // Update cache
     const key = this.getCacheKey();
     key &&
-      this.getCache().set(key, { token, tokenExpiryTimeMs: expirationTimeMs });
+      this.getCache().set(key, {
+        token,
+        tokenExpiryTimestampMs
+      });
   }
 
-  private getCachedTokenInfo():
-    | { token: string; tokenExpiryTimeMs: number }
-    | undefined {
+  private getCachedTokenInfo(): TokenRecord | undefined {
     const key = this.getCacheKey();
     if (!key) return undefined;
 
     const cachedTokenInfo = this.getCache().get(key);
     // Check if token exists and is not expired
-    if (cachedTokenInfo && Date.now() < cachedTokenInfo.tokenExpiryTimeMs) {
+    if (
+      cachedTokenInfo &&
+      Date.now() < cachedTokenInfo.tokenExpiryTimestampMs
+    ) {
       return {
         token: cachedTokenInfo.token,
-        tokenExpiryTimeMs: cachedTokenInfo.tokenExpiryTimeMs
+        tokenExpiryTimestampMs: cachedTokenInfo.tokenExpiryTimestampMs
       };
     }
 
@@ -104,7 +109,10 @@ export class Authenticator {
   }
 
   async getToken(): Promise<string | undefined> {
-    if (this.tokenExpirationTime && this.tokenExpirationTime < Date.now()) {
+    if (
+      this.tokenExpiryTimestampMs &&
+      this.tokenExpiryTimestampMs < Date.now()
+    ) {
       await this.authenticate();
     }
     return this.accessToken;
@@ -197,7 +205,7 @@ export class Authenticator {
     const cachedToken = await this.tryGetCachedToken();
     if (cachedToken) {
       this.accessToken = cachedToken.token;
-      this.tokenExpirationTime = cachedToken.tokenExpiryTimeMs;
+      this.tokenExpiryTimestampMs = cachedToken.tokenExpiryTimestampMs;
       return;
     }
     // No cached token, acquire write lock and authenticate
@@ -227,9 +235,7 @@ export class Authenticator {
     });
   }
 
-  private async tryGetCachedToken(): Promise<
-    { token: string; tokenExpiryTimeMs: number } | undefined
-  > {
+  private async tryGetCachedToken(): Promise<TokenRecord | undefined> {
     return new Promise((resolve, reject) => {
       rwLock.readLock(releaseReadLock => {
         try {
@@ -252,7 +258,8 @@ export class Authenticator {
           const cachedTokenInfo = this.getCachedTokenInfo();
           if (cachedTokenInfo) {
             this.accessToken = cachedTokenInfo.token;
-            this.tokenExpirationTime = cachedTokenInfo.tokenExpiryTimeMs;
+            this.tokenExpiryTimestampMs =
+              cachedTokenInfo.tokenExpiryTimestampMs;
             return resolve();
           }
           await this.performAuthentication();

@@ -103,12 +103,12 @@ export class NodeHttpClient {
     const handleErrorResponse = async (response: Response): Promise<never> => {
       const contentType = response.headers.get("content-type");
 
-      if (contentType && contentType.includes("application/json")) {
+      if (contentType?.includes("application/json")) {
         const text = await response.text();
         let json = {};
         try {
           json = JSON.parse(text);
-        } catch (e) {
+        } catch {
           json = {
             code: response.status,
             message: text
