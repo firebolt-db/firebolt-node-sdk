@@ -56,6 +56,7 @@ const getMappedType = (innerType: string) => {
   if (RegExp(DECIMAL_TYPE).exec(type) || RegExp(NUMERIC_TYPE).exec(type)) {
     return `${typeMapping.decimal}${nullableSuffix}`;
   }
+  return null;
 };
 
 const DATE_TYPES = withNullableTypes([
