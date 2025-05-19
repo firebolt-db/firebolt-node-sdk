@@ -89,19 +89,19 @@ export class Authenticator {
       });
   }
 
-  private getCachedTokenInfo(): TokenRecord | undefined {
+  private getCachedTokenRecord(): TokenRecord | undefined {
     const key = this.getCacheKey();
     if (!key) return undefined;
 
-    const cachedTokenInfo = this.getCache().get(key);
+    const cachedTokenRecord = this.getCache().get(key);
     // Check if token exists and is not expired
     if (
-      cachedTokenInfo &&
-      Date.now() < cachedTokenInfo.tokenExpiryTimestampMs
+      cachedTokenRecord &&
+      Date.now() < cachedTokenRecord.tokenExpiryTimestampMs
     ) {
       return {
-        token: cachedTokenInfo.token,
-        tokenExpiryTimestampMs: cachedTokenInfo.tokenExpiryTimestampMs
+        token: cachedTokenRecord.token,
+        tokenExpiryTimestampMs: cachedTokenRecord.tokenExpiryTimestampMs
       };
     }
 
@@ -202,7 +202,7 @@ export class Authenticator {
 
   async authenticate(): Promise<void> {
     // Try to get token from cache using read lock
-    const cachedToken = await this.tryGetCachedToken();
+    const cachedToken = await this.tryGetCachedTokenRecord();
     if (cachedToken) {
       this.accessToken = cachedToken.token;
       this.tokenExpiryTimestampMs = cachedToken.tokenExpiryTimestampMs;
@@ -235,12 +235,12 @@ export class Authenticator {
     });
   }
 
-  private async tryGetCachedToken(): Promise<TokenRecord | undefined> {
+  private async tryGetCachedTokenRecord(): Promise<TokenRecord | undefined> {
     return new Promise((resolve, reject) => {
       rwLock.readLock(releaseReadLock => {
         try {
-          const cachedToken = this.getCachedTokenInfo();
-          resolve(cachedToken);
+          const cachedTokenRecord = this.getCachedTokenRecord();
+          resolve(cachedTokenRecord);
         } catch (error) {
           reject(error instanceof Error ? error : new Error(String(error)));
         } finally {
@@ -255,7 +255,7 @@ export class Authenticator {
       rwLock.writeLock(async releaseWriteLock => {
         try {
           // Double-check cache in case another thread authenticated while waiting
-          const cachedTokenInfo = this.getCachedTokenInfo();
+          const cachedTokenInfo = this.getCachedTokenRecord();
           if (cachedTokenInfo) {
             this.accessToken = cachedTokenInfo.token;
             this.tokenExpiryTimestampMs =
