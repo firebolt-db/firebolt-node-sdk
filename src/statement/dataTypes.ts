@@ -50,15 +50,11 @@ const getMappedType = (innerType: string) => {
   if (mappedType) {
     return `${mappedType}${nullableSuffix}`;
   }
-  const timestampPrecision =
-    RegExp(DATETIME_TYPE).exec(type) || RegExp(TIMESTAMP_TYPE).exec(type);
-  if (timestampPrecision) {
-    return `${typeMapping.timestamp}${timestampPrecision[1]}${nullableSuffix}`;
+  if (RegExp(DATETIME_TYPE).exec(type) || RegExp(TIMESTAMP_TYPE).exec(type)) {
+    return `${typeMapping.timestamp}${nullableSuffix}`;
   }
-  const decimalPrecision =
-    RegExp(DECIMAL_TYPE).exec(type) || RegExp(NUMERIC_TYPE).exec(type);
-  if (decimalPrecision) {
-    return `${typeMapping.decimal}${decimalPrecision[1]}${nullableSuffix}`;
+  if (RegExp(DECIMAL_TYPE).exec(type) || RegExp(NUMERIC_TYPE).exec(type)) {
+    return `${typeMapping.decimal}${nullableSuffix}`;
   }
 };
 
