@@ -1,7 +1,7 @@
 import { HttpsAgent } from "agentkeepalive";
 
 import Abort from "abort-controller";
-import fetch from "node-fetch";
+import fetch, { Response } from "node-fetch";
 import { AbortSignal } from "node-fetch/externals";
 import { assignProtocol, systemInfoString } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
@@ -14,6 +14,8 @@ type RequestOptions = {
   body?: string;
   raw?: boolean;
   retry?: boolean;
+  noAuth?: boolean;
+  retriedErrors?: Set<number>; // Add tracking for retried error status codes
 };
 
 type ErrorResponse = {
@@ -74,7 +76,12 @@ export class NodeHttpClient {
     ready: () => Promise<T>;
     abort: () => void;
   } {
-    const { headers = {}, body, retry = true } = options || {};
+    const {
+      headers = {},
+      body,
+      retry = true,
+      retriedErrors = new Set<number>()
+    } = options || {};
     const controller = new AbortController();
     const agent = this.getAgent(url);
 
@@ -83,15 +90,61 @@ export class NodeHttpClient {
       agent.destroy();
     };
 
-    const makeRequest = async () => {
-      if (this.authenticator) {
-        const authHeaders = await this.authenticator.getHeaders();
-        Object.assign(headers, authHeaders);
+    const addAuthHeaders = async (requestHeaders: Record<string, string>) => {
+      if (options?.noAuth) return requestHeaders;
+
+      const token = await this.authenticator.getToken();
+      if (!token) {
+        throw new AuthenticationError({
+          message: "Failed to get the access token when making a request."
+        });
       }
 
-      const withProtocol = assignProtocol(url);
+      return {
+        ...requestHeaders,
+        Authorization: `Bearer ${token}`
+      };
+    };
 
-      const userAgent = headers["user-agent"] || DEFAULT_USER_AGENT;
+    const handleErrorResponse = async (response: Response): Promise<never> => {
+      const contentType = response.headers.get("content-type");
+
+      if (contentType?.includes("application/json")) {
+        const text = await response.text();
+        let json = {};
+        try {
+          json = JSON.parse(text);
+        } catch {
+          json = {
+            code: response.status,
+            message: text
+          };
+        }
+        const { message = DEFAULT_ERROR, code } = json as ErrorResponse;
+        throw new ApiError({
+          message,
+          code,
+          status: response.status,
+          raw: json,
+          url
+        });
+      } else {
+        const text = await response.text();
+        const message = text || DEFAULT_ERROR;
+        throw new ApiError({
+          message,
+          code: "",
+          status: response.status,
+          url
+        });
+      }
+    };
+
+    const makeRequest = async () => {
+      const headersWithAuth = await addAuthHeaders(headers);
+      const withProtocol = assignProtocol(url);
+      const userAgent = headersWithAuth["user-agent"] || DEFAULT_USER_AGENT;
+
       const response = await fetch(withProtocol, {
         agent,
         signal: controller.signal as AbortSignal,
@@ -100,65 +153,44 @@ export class NodeHttpClient {
           "user-agent": userAgent,
           "Content-Type": "application/json",
           [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
-          ...headers
+          ...headersWithAuth
         },
         body
       });
 
-      if (response.status === 401 && retry) {
+      if (
+        (response.status === 401 || response.status === 403) &&
+        retry &&
+        !retriedErrors.has(response.status)
+      ) {
         try {
-          this.authenticator.clearCache();
-          await this.authenticator.authenticate();
+          console.warn(
+            `Access token expired (${response.status}), refreshing access token and retrying request`
+          );
+          await this.authenticator.reAuthenticate();
         } catch (error) {
           throw new AuthenticationError({
             message: "Failed to refresh access token"
           });
         }
 
-        // Manually unpack options because of typing issues
-        // Force set retry to false to avoid infinite loop
+        // Track this error status as retried
+        const updatedRetriedErrors = new Set(retriedErrors);
+        updatedRetriedErrors.add(response.status);
+
+        // Retry with updated tracking but keep retry=true to allow retrying different errors
         const request = this.request<T>(method, url, {
           headers: options?.headers ?? {},
           body: options?.body,
           raw: options?.raw,
-          retry: false
+          retry: true,
+          retriedErrors: updatedRetriedErrors
         });
         return request.ready();
       }
 
       if (response.status > 300) {
-        const contentType = response.headers.get("content-type");
-
-        if (contentType && contentType.includes("application/json")) {
-          const text = await response.text();
-          let json = {};
-          try {
-            const parsed = JSON.parse(text);
-            json = parsed;
-          } catch (e) {
-            json = {
-              code: response.status,
-              message: text
-            };
-          }
-          const { message = DEFAULT_ERROR, code } = json as ErrorResponse;
-          throw new ApiError({
-            message,
-            code,
-            status: response.status,
-            raw: json,
-            url
-          });
-        } else {
-          const text = await response.text();
-          const message = text || DEFAULT_ERROR;
-          throw new ApiError({
-            message,
-            code: "",
-            status: response.status,
-            url
-          });
-        }
+        return handleErrorResponse(response);
       }
 
       if (options?.raw) {
@@ -169,9 +201,8 @@ export class NodeHttpClient {
       return parsed as T;
     };
 
-    const promise = makeRequest();
-
     const ready = () => promise as Promise<T>;
+    const promise = makeRequest();
 
     return {
       abort,

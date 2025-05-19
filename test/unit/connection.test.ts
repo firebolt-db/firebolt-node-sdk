@@ -522,6 +522,44 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
     await connection.execute("SELECT 1", { settings: { param: "value" } });
   });
 
+  it("handles 401/403 gracefully", async () => {
+    let numberOfCalls = 0;
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        expect(req.headers.get("Authorization")).toEqual(
+          "Bearer fake_access_token"
+        );
+        numberOfCalls++;
+        if (numberOfCalls == 1) {
+          return res(ctx.status(401));
+        }
+        if (numberOfCalls == 2) {
+          return res(ctx.status(403));
+        }
+        if (numberOfCalls == 3 && body.startsWith("SELECT 1")) {
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+    await connection.execute("SELECT 1");
+    expect(numberOfCalls).toEqual(3);
+  });
 
   it("handles invalid set statements correctly", async () => {
     let searchParamsUsed = new URLSearchParams();

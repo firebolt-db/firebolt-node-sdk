@@ -200,7 +200,7 @@ describe.each([
           ctx.json({
             access_token: "fake_access_token",
             refresh_token: "fake_refresh_token",
-            expires_in: -100
+            expires_in: 1 // 1 second
           })
         );
       })
@@ -210,6 +210,8 @@ describe.each([
 
     await authenticator.authenticate();
     expect(authenticator.accessToken).toEqual("fake_access_token");
+    // Wait for token to expire
+    await new Promise(resolve => setTimeout(resolve, 1000));
     await authenticator.authenticate();
     expect(authenticator.accessToken).toEqual("fake_access_token");
     expect(calls).toEqual(2);
@@ -378,5 +380,46 @@ describe.each([
 
     await Promise.all(promises);
     expect(calls).toEqual(1);
+  });
+  it("getToken runs authenticate when token expired or when there's no access token", async () => {
+    const authenticator = new Authenticator(
+      { httpClient, apiEndpoint, logger },
+      {
+        auth,
+        account: "my_account",
+        useCache: false
+      }
+    );
+
+    let calls = 0;
+
+    server.use(
+      rest.post(authUrl, (req, res, ctx) => {
+        calls++;
+        return res(
+          ctx.json({
+            access_token: calls === 1 ? "fake_access_token_1" : "fake_access_token_2",
+            expires_in: 3600 // 1 hour
+          })
+        );
+      })
+    );
+
+    // Case 1: No access token yet
+    expect(authenticator.accessToken).toBeFalsy();
+    const token1 = await authenticator.getToken();
+    expect(token1).toEqual("fake_access_token_1");
+    expect(calls).toEqual(1);
+
+    // Case 2: Token has expired - set expiry timestamp to past
+    authenticator.tokenExpiryTimestampMs = Date.now() - 1000; // Set to 1 second in the past
+    const token2 = await authenticator.getToken();
+    expect(token2).toEqual("fake_access_token_2");
+    expect(calls).toEqual(2);
+
+    // Case 3: Token is still valid
+    const token3 = await authenticator.getToken();
+    expect(token3).toEqual("fake_access_token_2");
+    expect(calls).toEqual(2); // No new authentication call
   });
 });
