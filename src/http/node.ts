@@ -15,6 +15,7 @@ type RequestOptions = {
   raw?: boolean;
   retry?: boolean;
   noAuth?: boolean;
+  retriedErrors?: Set<number>; // Add tracking for retried error status codes
 };
 
 type ErrorResponse = {
@@ -75,7 +76,12 @@ export class NodeHttpClient {
     ready: () => Promise<T>;
     abort: () => void;
   } {
-    const { headers = {}, body, retry = true } = options || {};
+    const {
+      headers = {},
+      body,
+      retry = true,
+      retriedErrors = new Set<number>()
+    } = options || {};
     const controller = new AbortController();
     const agent = this.getAgent(url);
 
@@ -152,7 +158,11 @@ export class NodeHttpClient {
         body
       });
 
-      if ((response.status === 401 || response.status === 403) && retry) {
+      if (
+        (response.status === 401 || response.status === 403) &&
+        retry &&
+        !retriedErrors.has(response.status)
+      ) {
         try {
           console.warn(
             `Access token expired (${response.status}), refreshing access token and retrying request`
@@ -164,13 +174,17 @@ export class NodeHttpClient {
           });
         }
 
-        // Manually unpack options because of typing issues
-        // Force set retry to false to avoid infinite loop
+        // Track this error status as retried
+        const updatedRetriedErrors = new Set(retriedErrors);
+        updatedRetriedErrors.add(response.status);
+
+        // Retry with updated tracking but keep retry=true to allow retrying different errors
         const request = this.request<T>(method, url, {
           headers: options?.headers ?? {},
           body: options?.body,
           raw: options?.raw,
-          retry: false
+          retry: true,
+          retriedErrors: updatedRetriedErrors
         });
         return request.ready();
       }
