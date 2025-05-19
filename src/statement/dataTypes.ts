@@ -34,27 +34,30 @@ const typeMapping = {
   bytea: "bytea"
 };
 
-const getMappedType = (innerType: string) => {
-  const type = typeMapping[innerType as keyof typeof typeMapping];
-  if (type) {
-    return type;
-  }
-  if (
-    RegExp(/datetime64(.+)/i).exec(innerType) ||
-    RegExp(/timestamp_ext(.+)/i).exec(innerType)
-  ) {
-    return typeMapping.timestamp;
-  }
-  if (
-    RegExp(/decimal(.+)/i).exec(innerType) ||
-    RegExp(/numeric(.+)/i).exec(innerType)
-  ) {
-    return typeMapping.decimal;
-  }
-};
-
-const COMPLEX_TYPE = /^(nullable|array)\((.+)\)/;
+const COMPLEX_TYPE = /^(nullable|array)\((.+)\)( null)?/;
 const STRUCT_TYPE = /^(struct)\((.+)\)/;
+const NULLABLE_TYPE = /^(.+)( null)$/;
+const DATETIME_TYPE = /datetime64(.+)/i;
+const TIMESTAMP_TYPE = /timestamp_ext(.+)/i;
+const DECIMAL_TYPE = /decimal(.+)/i;
+const NUMERIC_TYPE = /numeric(.+)/i;
+
+const getMappedType = (innerType: string) => {
+  const match = NULLABLE_TYPE.exec(innerType);
+  const type = match ? match[1] : innerType;
+  const nullableSuffix = match ? " null" : "";
+  const mappedType = typeMapping[type as keyof typeof typeMapping];
+  if (mappedType) {
+    return `${mappedType}${nullableSuffix}`;
+  }
+  if (RegExp(DATETIME_TYPE).exec(type) || RegExp(TIMESTAMP_TYPE).exec(type)) {
+    return `${typeMapping.timestamp}${nullableSuffix}`;
+  }
+  if (RegExp(DECIMAL_TYPE).exec(type) || RegExp(NUMERIC_TYPE).exec(type)) {
+    return `${typeMapping.decimal}${nullableSuffix}`;
+  }
+  return null;
+};
 
 const DATE_TYPES = withNullableTypes([
   "pg_date",
@@ -89,20 +92,30 @@ export const STRING_TYPES = withNullableTypes(["string", "text"]);
 
 export const BYTEA_TYPES = withNullableTypes(["bytea"]);
 
-//todo fix nullable types FIR-45354
 export const getFireboltType = (type: string): string => {
   const key = type.toLowerCase();
-  const match = key.match(COMPLEX_TYPE);
+  const match = RegExp(COMPLEX_TYPE).exec(key);
   if (match) {
-    const [_, outerType, innerType] = match;
-    if (innerType.match(COMPLEX_TYPE)) {
-      return getFireboltType(innerType);
-    }
-    const mappedType = getMappedType(innerType);
-    return mappedType ? `${outerType}(${mappedType})` : key;
+    const [, outerType, innerType, nullable] = match;
+    const fireboltType = getFireboltType(innerType);
+
+    return fireboltType
+      ? `${outerType}(${fireboltType})${nullable ?? ""}`
+      : key;
   }
   const mappedType = getMappedType(key);
-  return mappedType || key;
+  return mappedType ?? key;
+};
+
+export const getInnerType = (type: string): string => {
+  const key = type.toLowerCase();
+  const match = RegExp(COMPLEX_TYPE).exec(key);
+  if (match) {
+    const [, , innerType] = match;
+    return getFireboltType(innerType);
+  }
+  const mappedType = getMappedType(key);
+  return mappedType ?? key;
 };
 
 const trimElement = (element: string) =>
@@ -142,31 +155,16 @@ export const getStructTypes = (type: string): Record<string, string> => {
   return {};
 };
 
-export const getInnerType = (type: string): string => {
-  const key = type.toLowerCase();
-  const match = key.match(COMPLEX_TYPE);
-  if (match) {
-    const [_, _outerType, innerType] = match;
-    if (innerType.match(COMPLEX_TYPE)) {
-      return getInnerType(innerType);
-    }
-    const mappedType = getMappedType(innerType);
-    return mappedType || innerType;
-  }
-  const mappedType = getMappedType(key);
-  return mappedType || key;
-};
-
 export const isByteAType = (type: string) => {
   return BYTEA_TYPES.indexOf(type) !== -1;
 };
 
 export const isDateType = (type: string) => {
-  return DATE_TYPES.indexOf(type) !== -1 || type.match(/datetime64(.+)/i);
+  return DATE_TYPES.indexOf(type) !== -1 || RegExp(DATETIME_TYPE).exec(type);
 };
 
 export const isFloatType = (type: string) => {
-  return FLOAT_TYPES.includes(type) || type.match(/decimal(.+)/i);
+  return FLOAT_TYPES.includes(type) || RegExp(DECIMAL_TYPE).exec(type);
 };
 
 export const isNumberType = (type: string) => {

@@ -189,13 +189,15 @@ describe("test type casting on fetch", () => {
         "        true                                                      as col_boolean,\n" +
         "        null::bool                                                as col_boolean_null,\n" +
         "        [1,2,3,4]                                                 as col_array,\n" +
-        // "        null::array(int)                                          as col_array_null,\n" +
+        "        null::array(int)                                          as col_array_null,\n" +
         "        '1231232.123459999990457054844258706536'::decimal(38, 30) as col_decimal,\n" +
-        // "        null::decimal(38, 30)                                     as col_decimal_null,\n" +
+        "        null::decimal(38, 30)                                     as col_decimal_null,\n" +
         "        'abc123'::bytea                                           as col_bytea,\n" +
         "        null::bytea                                               as col_bytea_null,\n" +
         "        'point(1 2)'::geography                                   as col_geography,\n" +
-        "        null::geography                                           as col_geography_null,"
+        "        null::geography                                           as col_geography_null,\n" +
+        "        [[1,2],[null,2],null]::array(array(int))                  as col_arr_arr,\n" +
+        "        null::array(array(int))                                   as col_arr_arr_null"
     );
     const { data, meta } = await statement.fetchResult();
     const metaObjects = [
@@ -218,14 +220,15 @@ describe("test type casting on fetch", () => {
       { name: "col_boolean", type: "boolean" },
       { name: "col_boolean_null", type: "boolean null" },
       { name: "col_array", type: "array(int)" },
-      // { name: "col_array_null", type: "array(int) null" },
-      // { name: "col_decimal", type: "decimal(38, 30)" },
+      { name: "col_array_null", type: "array(int) null" },
       { name: "col_decimal", type: "decimal" },
-      // { name: "col_decimal_null", type: "decimal(38, 30) null" },
+      { name: "col_decimal_null", type: "decimal null" },
       { name: "col_bytea", type: "bytea" },
       { name: "col_bytea_null", type: "bytea null" },
       { name: "col_geography", type: "geography" },
-      { name: "col_geography_null", type: "geography null" }
+      { name: "col_geography_null", type: "geography null" },
+      { name: "col_arr_arr", type: "array(array(int null) null)" },
+      { name: "col_arr_arr_null", type: "array(array(int)) null" }
     ];
     for (let i = 0; i < meta.length; i++) {
       expect(meta[i]).toEqual(metaObjects[i]);
@@ -261,29 +264,27 @@ describe("test type casting on fetch", () => {
         "        true                                                      as col_boolean,\n" +
         "        null::bool                                                as col_boolean_null,\n" +
         "        [1,2,3,4]                                                 as col_array,\n" +
-        // "        null::array(int)                                          as col_array_null,\n" +
+        "        null::array(int)                                          as col_array_null,\n" +
         "        '1231232.123459999990457054844258706536'::decimal(38, 30) as col_decimal,\n" +
-        // "        null::decimal(38, 30)                                     as col_decimal_null,\n" +
+        "        null::decimal(38, 30)                                     as col_decimal_null,\n" +
         "        'abc123'::bytea                                           as col_bytea,\n" +
         "        null::bytea                                               as col_bytea_null,\n" +
         "        'point(1 2)'::geography                                   as col_geography,\n" +
-        "        null::geography                                           as col_geography_null,"
+        "        null::geography                                           as col_geography_null,\n" +
+        "        [[1,2],[null,2],null]::array(array(int))                  as col_arr_arr,\n" +
+        "        null::array(array(int))                                   as col_arr_arr_null"
     );
     const { data } = await statement.streamResult();
     const [meta] = await stream.once(data, "meta");
     const metaObjects = [
       { name: "col_int", type: "int" },
-      // { name: "col_int_null", type: "int null" },
-      { name: "col_int_null", type: "integer null" },
+      { name: "col_int_null", type: "int null" },
       { name: "col_long", type: "long" },
-      // { name: "col_long_null", type: "long null" },
-      { name: "col_long_null", type: "bigint null" },
+      { name: "col_long_null", type: "long null" },
       { name: "col_float", type: "float" },
-      // { name: "col_float_null", type: "float null" },
-      { name: "col_float_null", type: "real null" },
+      { name: "col_float_null", type: "float null" },
       { name: "col_double", type: "double" },
-      // { name: "col_double_null", type: "double null" },
-      { name: "col_double_null", type: "double precision null" },
+      { name: "col_double_null", type: "double null" },
       { name: "col_text", type: "text" },
       { name: "col_text_null", type: "text null" },
       { name: "col_date", type: "date" },
@@ -295,14 +296,15 @@ describe("test type casting on fetch", () => {
       { name: "col_boolean", type: "boolean" },
       { name: "col_boolean_null", type: "boolean null" },
       { name: "col_array", type: "array(int)" },
-      // { name: "col_array_null", type: "array(int) null" },
-      // { name: "col_decimal", type: "decimal(38, 30)" },
+      { name: "col_array_null", type: "array(int) null" },
       { name: "col_decimal", type: "decimal" },
-      // { name: "col_decimal_null", type: "decimal(38, 30) null" },
+      { name: "col_decimal_null", type: "decimal null" },
       { name: "col_bytea", type: "bytea" },
       { name: "col_bytea_null", type: "bytea null" },
       { name: "col_geography", type: "geography" },
-      { name: "col_geography_null", type: "geography null" }
+      { name: "col_geography_null", type: "geography null" },
+      { name: "col_arr_arr", type: "array(array(int null) null)" },
+      { name: "col_arr_arr_null", type: "array(array(int)) null" }
     ];
     for (let i = 0; i < meta.length; i++) {
       expect(meta[i]).toEqual(metaObjects[i]);
