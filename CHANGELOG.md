@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.13.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.12.1...v1.13.0) (2025-05-19)
+
+
+### Features
+
+* FIR-44270 Support server side prepared statements ([#140](https://github.com/firebolt-db/firebolt-node-sdk/issues/140)) ([82a3b01](https://github.com/firebolt-db/firebolt-node-sdk/commit/82a3b017deab4bc0dcc52a37d76819ac45b37e35))
+
+
+### Bug Fixes
+
+* **FIR-46131:** Atomic authentication mechanism and token expiry ([#142](https://github.com/firebolt-db/firebolt-node-sdk/issues/142)) ([b47123e](https://github.com/firebolt-db/firebolt-node-sdk/commit/b47123e75d316238939881119b6940c672317b3c))
+
 ### [1.12.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.12.0...v1.12.1) (2025-04-29)
 
 
