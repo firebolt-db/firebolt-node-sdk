@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.13.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.13.0...v1.13.1) (2025-07-21)
+
+
+### Bug Fixes
+
+* FIR-45354 Add null suffix to Firebolt types ([#141](https://github.com/firebolt-db/firebolt-node-sdk/issues/141)) ([b47b841](https://github.com/firebolt-db/firebolt-node-sdk/commit/b47b841d41d5dd86974a3c0b9b925c8a599c0e6d))
+
 ## [1.13.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.12.1...v1.13.0) (2025-05-19)
 
 
