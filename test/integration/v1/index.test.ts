@@ -209,4 +209,42 @@ describe("integration test", () => {
 
     data.pipe(process.stdout);
   });
+
+  describe("Transaction methods", () => {
+    it("throws error for begin transaction", async () => {
+      const firebolt = Firebolt({
+        apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+      });
+
+      const connection = await firebolt.connect(connectionParams);
+
+      await expect(connection.begin()).rejects.toThrow(
+        "Transaction management is not supported in this Firebolt version."
+      );
+    });
+
+    it("throws error for commit", async () => {
+      const firebolt = Firebolt({
+        apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+      });
+
+      const connection = await firebolt.connect(connectionParams);
+
+      await expect(connection.commit()).rejects.toThrow(
+        "Transaction management is not supported in this Firebolt version."
+      );
+    });
+
+    it("throws error for rollback", async () => {
+      const firebolt = Firebolt({
+        apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+      });
+
+      const connection = await firebolt.connect(connectionParams);
+
+      await expect(connection.rollback()).rejects.toThrow(
+        "Transaction management is not supported in this Firebolt version."
+      );
+    });
+  });
 });

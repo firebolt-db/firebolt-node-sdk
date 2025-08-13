@@ -28,7 +28,7 @@ const DEFAULT_ERROR = "Server error";
 const DEFAULT_USER_AGENT = systemInfoString();
 
 const PROTOCOL_VERSION_HEADER = "Firebolt-Protocol-Version";
-const PROTOCOL_VERSION = "2.3";
+const PROTOCOL_VERSION = "2.4";
 const createSocket = HttpsAgent.prototype.createSocket;
 
 const agentOptions = {

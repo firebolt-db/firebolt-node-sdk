@@ -1154,4 +1154,123 @@ describe("Connection V2", () => {
       "- Line 1, Column 17: Query referenced positional parameter $34, but it was not set"
     );
   });
+
+  describe("Transaction methods", () => {
+    let transactionQueries: string[] = [];
+
+    beforeEach(() => {
+      transactionQueries = [];
+      server.use(
+        rest.post(
+          `https://id.fake.firebolt.io/oauth/token`,
+          (req, res, ctx) => {
+            return res(
+              ctx.json({
+                access_token: "fake_access_token"
+              })
+            );
+          }
+        ),
+        rest.get(
+          `https://api.fake.firebolt.io/web/v3/account/my_account/engineUrl`,
+          (req, res, ctx) => {
+            return res(
+              ctx.json({
+                engineUrl: "https://some_system_engine.com"
+              })
+            );
+          }
+        ),
+        rest.post(
+          `https://some_system_engine.com/${QUERY_URL}`,
+          async (req, res, ctx) => {
+            const body = await req.text();
+            transactionQueries.push(body);
+            return res(ctx.json(engineUrlResponse));
+          }
+        )
+      );
+    });
+
+    it("executes BEGIN TRANSACTION query", async () => {
+      const firebolt = Firebolt({
+        apiEndpoint
+      });
+
+      const connectionParams: ConnectionOptions = {
+        auth: {
+          client_id: "dummy",
+          client_secret: "dummy"
+        },
+        account: "my_account"
+      };
+
+      const connection = await firebolt.connect(connectionParams);
+      await connection.begin();
+
+      expect(transactionQueries).toContain("BEGIN TRANSACTION");
+    });
+
+    it("executes COMMIT query", async () => {
+      const firebolt = Firebolt({
+        apiEndpoint
+      });
+
+      const connectionParams: ConnectionOptions = {
+        auth: {
+          client_id: "dummy",
+          client_secret: "dummy"
+        },
+        account: "my_account"
+      };
+
+      const connection = await firebolt.connect(connectionParams);
+      await connection.commit();
+
+      expect(transactionQueries).toContain("COMMIT");
+    });
+
+    it("executes ROLLBACK query", async () => {
+      const firebolt = Firebolt({
+        apiEndpoint
+      });
+
+      const connectionParams: ConnectionOptions = {
+        auth: {
+          client_id: "dummy",
+          client_secret: "dummy"
+        },
+        account: "my_account"
+      };
+
+      const connection = await firebolt.connect(connectionParams);
+      await connection.rollback();
+
+      expect(transactionQueries).toContain("ROLLBACK");
+    });
+
+    it("handles full transaction lifecycle", async () => {
+      const firebolt = Firebolt({
+        apiEndpoint
+      });
+
+      const connectionParams: ConnectionOptions = {
+        auth: {
+          client_id: "dummy",
+          client_secret: "dummy"
+        },
+        account: "my_account"
+      };
+
+      const connection = await firebolt.connect(connectionParams);
+
+      await connection.begin();
+      await connection.execute("INSERT INTO test_table VALUES (1)");
+      await connection.commit();
+
+      expect(transactionQueries).toContain("BEGIN TRANSACTION");
+      expect(transactionQueries).toContain("INSERT INTO test_table VALUES (1)");
+      expect(transactionQueries).toContain("COMMIT");
+    });
+  });
 });
