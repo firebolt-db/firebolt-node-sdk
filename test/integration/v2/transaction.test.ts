@@ -24,7 +24,7 @@ describe("v2 transaction integration tests", () => {
     await connection.execute(`
       CREATE FACT TABLE IF NOT EXISTS transaction_test (
         id              LONG,
-        name            VARCHAR(100)
+        name            TEXT
       )
     `);
   });
@@ -58,7 +58,7 @@ describe("v2 transaction integration tests", () => {
     expect(count).toBe(expected);
   };
 
-  it("should remove transaction id on commit", async () => {
+  it("should commit transaction", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
@@ -74,7 +74,7 @@ describe("v2 transaction integration tests", () => {
     await checkRecordCountByIdInAnotherTransaction(1, 1);
   });
 
-  it("should remove transaction id on rollback", async () => {
+  it("should rollback transaction", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
@@ -90,7 +90,7 @@ describe("v2 transaction integration tests", () => {
     await checkRecordCountByIdInAnotherTransaction(2, 0);
   });
 
-  it("should commit transaction when switching to auto commit", async () => {
+  it("should commit transaction using transaction control methods", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
@@ -108,31 +108,7 @@ describe("v2 transaction integration tests", () => {
     await checkRecordCountByIdInAnotherTransaction(3, 1);
   });
 
-  it("should handle sequential transactions", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-    const connection = await firebolt.connect(connectionParams);
-
-    // First transaction
-    await connection.begin();
-    await connection.execute("INSERT INTO transaction_test VALUES (4, 'test')");
-    await checkRecordCountByIdInAnotherTransaction(4, 0);
-    await connection.commit();
-
-    await checkRecordCountByIdInAnotherTransaction(4, 1);
-
-    // Second transaction
-    await connection.begin();
-    await connection.execute("INSERT INTO transaction_test VALUES (5, 'test')");
-    await checkRecordCountByIdInAnotherTransaction(5, 0);
-    await connection.commit();
-
-    await checkRecordCountByIdInAnotherTransaction(4, 1);
-    await checkRecordCountByIdInAnotherTransaction(5, 1);
-  });
-
-  it("should rollback transaction successfully", async () => {
+  it("should rollback transaction using transaction control methods", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
@@ -141,14 +117,38 @@ describe("v2 transaction integration tests", () => {
     await connection.begin();
 
     // Start transaction
-    await connection.execute("INSERT INTO transaction_test VALUES (6, 'test')");
+    await connection.execute("INSERT INTO transaction_test VALUES (4, 'test')");
 
-    await checkRecordCountByIdInAnotherTransaction(6, 0);
+    await checkRecordCountByIdInAnotherTransaction(4, 0);
 
     // Rollback
     await connection.rollback();
 
+    await checkRecordCountByIdInAnotherTransaction(4, 0);
+  });
+
+  it("should handle sequential transactions", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+    const connection = await firebolt.connect(connectionParams);
+
+    // First transaction
+    await connection.begin();
+    await connection.execute("INSERT INTO transaction_test VALUES (5, 'test')");
+    await checkRecordCountByIdInAnotherTransaction(5, 0);
+    await connection.commit();
+
+    await checkRecordCountByIdInAnotherTransaction(5, 1);
+
+    // Second transaction
+    await connection.begin();
+    await connection.execute("INSERT INTO transaction_test VALUES (6, 'test')");
     await checkRecordCountByIdInAnotherTransaction(6, 0);
+    await connection.commit();
+
+    await checkRecordCountByIdInAnotherTransaction(5, 1);
+    await checkRecordCountByIdInAnotherTransaction(6, 1);
   });
 
   it("should work with prepared statements", async () => {
@@ -172,7 +172,7 @@ describe("v2 transaction integration tests", () => {
     await checkRecordCountByIdInAnotherTransaction(7, 1);
   });
 
-  it("should not commit transaction when connection closes on auto commit true", async () => {
+  it("should not commit transaction when connection closes", async () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
@@ -186,22 +186,6 @@ describe("v2 transaction integration tests", () => {
     connection = await firebolt.connect(connectionParams);
 
     await checkRecordCountByIdInAnotherTransaction(8, 0);
-  });
-
-  it("should not commit transaction when connection closes on auto commit false", async () => {
-    const firebolt = Firebolt({
-      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
-    });
-    let connection = await firebolt.connect(connectionParams);
-
-    await connection.begin();
-    await connection.execute("INSERT INTO transaction_test VALUES (9, 'test')");
-    await checkRecordCountByIdInAnotherTransaction(9, 0);
-
-    // Simulate connection close by creating a new connection
-    connection = await firebolt.connect(connectionParams);
-
-    await checkRecordCountByIdInAnotherTransaction(9, 0);
   });
 
   it("should throw exception when starting transaction during transaction", async () => {
@@ -250,7 +234,7 @@ describe("v2 transaction integration tests", () => {
 
     await connection.begin();
 
-    const createTableSQL = `CREATE FACT TABLE ${tableName} (id LONG, name VARCHAR(100))`;
+    const createTableSQL = `CREATE FACT TABLE ${tableName} (id LONG, name TEXT)`;
     const insertSQL = `INSERT INTO ${tableName} (id, name) VALUES (0, 'some_text')`;
     const checkTableSQL = `SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '${tableName}'`;
     const selectSQL = `SELECT * FROM ${tableName}`;
@@ -293,7 +277,7 @@ describe("v2 transaction integration tests", () => {
 
     await connection.begin();
 
-    const createTableSQL = `CREATE FACT TABLE ${tableName} (id LONG, name VARCHAR(100))`;
+    const createTableSQL = `CREATE FACT TABLE ${tableName} (id LONG, name TEXT)`;
     const insertSQL = `INSERT INTO ${tableName} (id, name) VALUES (0, 'some_text')`;
     const checkTableSQL = `SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '${tableName}'`;
 
@@ -318,7 +302,7 @@ describe("v2 transaction integration tests", () => {
   it("should handle parallel transactions", async () => {
     const tableName = "parallel_transactions_test";
     const dropTableSQL = `DROP TABLE IF EXISTS ${tableName} CASCADE`;
-    const createTableSQL = `CREATE FACT TABLE IF NOT EXISTS ${tableName} (id LONG, name VARCHAR(100))`;
+    const createTableSQL = `CREATE FACT TABLE IF NOT EXISTS ${tableName} (id LONG, name TEXT)`;
     const insertSQL = `INSERT INTO ${tableName} (id, name) VALUES (?, ?)`;
     const selectSQL = `SELECT * FROM ${tableName} ORDER BY id`;
 

@@ -22,11 +22,6 @@ export const defaultResponseSettings = {
 };
 
 const updateParametersHeader = "Firebolt-Update-Parameters";
-const allowedUpdateParameters = [
-  "database",
-  "transaction_id",
-  "transaction_sequence_id"
-];
 const updateEndpointHeader = "Firebolt-Update-Endpoint";
 const resetSessionHeader = "Firebolt-Reset-Session";
 const removeParametersHeader = "Firebolt-Remove-Parameters";
@@ -113,9 +108,7 @@ export abstract class Connection {
       .split(",")
       .reduce((acc: Record<string, string>, param) => {
         const [key, value] = param.split("=");
-        if (allowedUpdateParameters.includes(key)) {
-          acc[key] = value.trim();
-        }
+        acc[key] = value.trim();
         return acc;
       }, {});
     this.parameters = {
