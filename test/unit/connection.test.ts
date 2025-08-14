@@ -291,7 +291,7 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
     expect(paramsUsed).toHaveProperty("engine", "dummy");
     // Extra params in USE DATABASE are ignored
     // But in USE ENGINE, they are used
-    expect(paramsUsed).not.toHaveProperty("other_param");
+    expect(paramsUsed).toHaveProperty("other_param", "2");
     expect(paramsUsed).toHaveProperty("another_eng_param", "1");
   });
 
