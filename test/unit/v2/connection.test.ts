@@ -274,6 +274,129 @@ describe("Connection V2", () => {
     expect(engineUrlCalls).toBe(2);
   });
 
+  it("handles remove parameters header for transaction_id in v2", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    let requestParameters = new URLSearchParams();
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          const body = await req.text();
+          requestParameters = req.url.searchParams;
+
+          if (body === "COMMIT") {
+            // Simulate Firebolt removing transaction_id after COMMIT
+            return res(
+              ctx.json({ data: [], meta: [] }),
+              ctx.set("Firebolt-Remove-Parameters", "transaction_id")
+            );
+          }
+          if (body === "BEGIN TRANSACTION") {
+            // Simulate Firebolt adding transaction_id after BEGIN
+            return res(
+              ctx.json({ data: [], meta: [] }),
+              ctx.set("Firebolt-Update-Parameters", "transaction_id=tx_12345")
+            );
+          }
+          return res(ctx.json({ data: [], meta: [] }));
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+
+    // Start transaction - should add transaction_id
+    await connection.execute("BEGIN TRANSACTION");
+
+    // Execute a query to check parameters
+    await connection.execute("SELECT 1");
+    expect(requestParameters.get("transaction_id")).toBe("tx_12345");
+
+    // Commit transaction - should remove transaction_id
+    await connection.execute("COMMIT");
+
+    // Execute another query to verify transaction_id is removed
+    await connection.execute("SELECT 2");
+    expect(requestParameters.get("transaction_id")).toBeNull();
+  });
+
+  it("handles remove parameters header with multiple parameters in v2", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint
+    });
+
+    let requestParameters = new URLSearchParams();
+    setupMockServer(server);
+    server.use(
+      rest.post(
+        `https://some_system_engine.com/${QUERY_URL}`,
+        async (req, res, ctx) => {
+          const body = await req.text();
+          requestParameters = req.url.searchParams;
+
+          if (body === "ROLLBACK") {
+            // Simulate removing multiple transaction-related parameters
+            return res(
+              ctx.json({ data: [], meta: [] }),
+              ctx.set(
+                "Firebolt-Remove-Parameters",
+                "transaction_id,lock_timeout,isolation_level"
+              )
+            );
+          }
+          if (body === "SELECT 1") {
+            // Add multiple parameters
+            return res(
+              ctx.json({ data: [], meta: [] }),
+              ctx.set("Firebolt-Update-Parameters", "transaction_id=tx_abc")
+            );
+          }
+          return res(ctx.json({ data: [], meta: [] }));
+        }
+      )
+    );
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      account: "my_account"
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+
+    // Add parameters
+    await connection.execute("SELECT 1");
+
+    // Verify parameters are present
+    await connection.execute("SELECT 2");
+    expect(requestParameters.get("transaction_id")).toBe("tx_abc");
+
+    // Rollback - should remove multiple parameters
+    await connection.execute("ROLLBACK");
+
+    // Verify parameters are removed
+    await connection.execute("SELECT 3");
+    expect(requestParameters.get("transaction_id")).toBeNull();
+    // Database should still be present as it's not in the remove list
+    expect(requestParameters.get("database")).toBe("dummy");
+  });
+
   it("executes async query successfully", async () => {
     const firebolt = Firebolt({
       apiEndpoint
