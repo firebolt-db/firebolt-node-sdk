@@ -218,4 +218,16 @@ export class ConnectionV2 extends BaseConnection {
     const settings = { internal: [{ auto_start_stop_control: "ignore" }] };
     await this.execute("select 1", { settings });
   }
+
+  async begin(): Promise<void> {
+    await this.execute("BEGIN TRANSACTION");
+  }
+
+  async commit(): Promise<void> {
+    await this.execute("COMMIT");
+  }
+
+  async rollback(): Promise<void> {
+    await this.execute("ROLLBACK");
+  }
 }

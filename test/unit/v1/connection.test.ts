@@ -291,4 +291,29 @@ describe("Connection v1", () => {
       /.*not supported.*/
     );
   });
+
+  it("verify transaction methods throw an error", async () => {
+    const firebolt = Firebolt({ apiEndpoint });
+
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        username: "user",
+        password: "pass"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: accountName
+    };
+
+    const connection = await firebolt.connect(connectionParams);
+    await expect(connection.begin()).rejects.toThrow(
+      "Transaction management is not supported in this Firebolt version."
+    );
+    await expect(connection.commit()).rejects.toThrow(
+      "Transaction management is not supported in this Firebolt version."
+    );
+    await expect(connection.rollback()).rejects.toThrow(
+      "Transaction management is not supported in this Firebolt version."
+    );
+  });
 });

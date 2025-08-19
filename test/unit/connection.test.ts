@@ -33,6 +33,34 @@ const emptyResponse = {
   rows: 0
 };
 
+class MockConnection extends ConnectionV2 {
+  updateParameters(params: Record<string, string>) {
+    this.parameters = {
+      ...this.parameters,
+      ...params
+    };
+  }
+}
+
+// A hack to allow updating connection parameters stored internally
+async function mockConnect(connectionOptions: ConnectionOptions) {
+  const context = {
+    logger: new Logger(),
+    httpClient: new NodeHttpClient(),
+    apiEndpoint
+  };
+  const queryFormatter = new QueryFormatter();
+  const auth = new Authenticator(context, connectionOptions);
+  const connection = new MockConnection(
+    queryFormatter,
+    context,
+    connectionOptions
+  );
+  await auth.authenticate();
+  await connection.resolveEngineEndpoint();
+  return connection;
+}
+
 function resetServerHandlers(server: any) {
   server.use(
     rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
@@ -291,7 +319,7 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
     expect(paramsUsed).toHaveProperty("engine", "dummy");
     // Extra params in USE DATABASE are ignored
     // But in USE ENGINE, they are used
-    expect(paramsUsed).not.toHaveProperty("other_param");
+    expect(paramsUsed).toHaveProperty("other_param", "2");
     expect(paramsUsed).toHaveProperty("another_eng_param", "1");
   });
 
@@ -420,34 +448,6 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
       })
     );
 
-    class MockConnection extends ConnectionV2 {
-      updateParameters(params: Record<string, string>) {
-        this.parameters = {
-          ...this.parameters,
-          ...params
-        };
-      }
-    }
-
-    // A hack to allow updating connection parameters stored internally
-    async function mockConnect(connectionOptions: ConnectionOptions) {
-      const context = {
-        logger: new Logger(),
-        httpClient: new NodeHttpClient(),
-        apiEndpoint
-      };
-      const queryFormatter = new QueryFormatter();
-      const auth = new Authenticator(context, connectionOptions);
-      const connection = new MockConnection(
-        queryFormatter,
-        context,
-        connectionOptions
-      );
-      await auth.authenticate();
-      await connection.resolveEngineEndpoint();
-      return connection;
-    }
-
     const connection = await mockConnect(connectionParams);
     connection.updateParameters({ param: "value" });
 
@@ -459,6 +459,247 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
 
     await connection.execute("SELECT 2");
     expect(searchParamsUsed.get("param")).toEqual(null);
+    expect(searchParamsUsed.get("database")).toEqual("dummy");
+  });
+
+  it("handles remove parameters header", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+
+    let searchParamsUsed = new URLSearchParams();
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("SELECT 1")) {
+          // First query - return with remove parameters header
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set("Firebolt-Remove-Parameters", "param1,param2")
+          );
+        }
+        if (body.startsWith("SELECT 2")) {
+          searchParamsUsed = req.url.searchParams;
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connection = await mockConnect(connectionParams);
+    connection.updateParameters({
+      param1: "value1",
+      param2: "value2",
+      param3: "value3"
+    });
+
+    // Execute query that triggers remove parameters header
+    await connection.execute("SELECT 1");
+
+    // Execute another query to check parameters
+    await connection.execute("SELECT 2");
+
+    expect(searchParamsUsed.get("param1")).toEqual(null);
+    expect(searchParamsUsed.get("param2")).toEqual(null);
+    expect(searchParamsUsed.get("param3")).toEqual("value3");
+    expect(searchParamsUsed.get("database")).toEqual("dummy");
+  });
+
+  it("handles remove parameters header with whitespace", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+
+    let searchParamsUsed = new URLSearchParams();
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("SELECT 1")) {
+          // Return with remove parameters header containing whitespace
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set("Firebolt-Remove-Parameters", " param1 , param2 , param3 ")
+          );
+        }
+        if (body.startsWith("SELECT 2")) {
+          searchParamsUsed = req.url.searchParams;
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connection = await mockConnect(connectionParams);
+    connection.updateParameters({
+      param1: "value1",
+      param2: "value2",
+      param3: "value3",
+      param4: "value4"
+    });
+
+    // Execute query that triggers remove parameters header
+    await connection.execute("SELECT 1");
+
+    // Execute another query to check parameters
+    await connection.execute("SELECT 2");
+
+    expect(searchParamsUsed.get("param1")).toEqual(null);
+    expect(searchParamsUsed.get("param2")).toEqual(null);
+    expect(searchParamsUsed.get("param3")).toEqual(null);
+    expect(searchParamsUsed.get("param4")).toEqual("value4");
+    expect(searchParamsUsed.get("database")).toEqual("dummy");
+  });
+
+  it("handles remove parameters header with non-existent parameters", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+
+    let searchParamsUsed = new URLSearchParams();
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("SELECT 1")) {
+          // Remove both existing and non-existent parameters
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set(
+              "Firebolt-Remove-Parameters",
+              "existing_param,non_existent_param"
+            )
+          );
+        }
+        if (body.startsWith("SELECT 2")) {
+          searchParamsUsed = req.url.searchParams;
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connection = await mockConnect(connectionParams);
+    connection.updateParameters({
+      existing_param: "value1",
+      other_param: "value2"
+    });
+
+    // Execute query that triggers remove parameters header
+    await connection.execute("SELECT 1");
+
+    // Execute another query to check parameters
+    await connection.execute("SELECT 2");
+
+    expect(searchParamsUsed.get("existing_param")).toEqual(null);
+    expect(searchParamsUsed.get("non_existent_param")).toEqual(null);
+    expect(searchParamsUsed.get("other_param")).toEqual("value2");
+    expect(searchParamsUsed.get("database")).toEqual("dummy");
+  });
+
+  it("handles remove parameters header with single parameter", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+
+    let searchParamsUsed = new URLSearchParams();
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("SELECT 1")) {
+          // Remove single parameter
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set("Firebolt-Remove-Parameters", "transaction_id")
+          );
+        }
+        if (body.startsWith("SELECT 2")) {
+          searchParamsUsed = req.url.searchParams;
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connection = await mockConnect(connectionParams);
+    connection.updateParameters({
+      transaction_id: "tx_123",
+      other_param: "value"
+    });
+
+    // Execute query that triggers remove parameters header
+    await connection.execute("SELECT 1");
+
+    // Execute another query to check parameters
+    await connection.execute("SELECT 2");
+
+    expect(searchParamsUsed.get("transaction_id")).toEqual(null);
+    expect(searchParamsUsed.get("other_param")).toEqual("value");
+    expect(searchParamsUsed.get("database")).toEqual("dummy");
+  });
+
+  it("handles empty remove parameters header", async () => {
+    const connectionParams: ConnectionOptions = {
+      auth: {
+        client_id: "dummy",
+        client_secret: "dummy"
+      },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    };
+
+    let searchParamsUsed = new URLSearchParams();
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("SELECT 1")) {
+          // Empty remove parameters header
+          return res(
+            ctx.json(selectOneResponse),
+            ctx.set("Firebolt-Remove-Parameters", "")
+          );
+        }
+        if (body.startsWith("SELECT 2")) {
+          searchParamsUsed = req.url.searchParams;
+          return res(ctx.json(selectOneResponse));
+        }
+      })
+    );
+
+    const connection = await mockConnect(connectionParams);
+    connection.updateParameters({
+      param1: "value1",
+      param2: "value2"
+    });
+
+    // Execute query that triggers empty remove parameters header
+    await connection.execute("SELECT 1");
+
+    // Execute another query to check parameters
+    await connection.execute("SELECT 2");
+
+    // All parameters should still be present
+    expect(searchParamsUsed.get("param1")).toEqual("value1");
+    expect(searchParamsUsed.get("param2")).toEqual("value2");
     expect(searchParamsUsed.get("database")).toEqual("dummy");
   });
 

@@ -103,4 +103,22 @@ export class ConnectionV1 extends BaseConnection {
       "Stream execution is not supported in this Firebolt version."
     );
   }
+
+  async begin(): Promise<void> {
+    throw new Error(
+      "Transaction management is not supported in this Firebolt version."
+    );
+  }
+
+  async commit(): Promise<void> {
+    throw new Error(
+      "Transaction management is not supported in this Firebolt version."
+    );
+  }
+
+  async rollback(): Promise<void> {
+    throw new Error(
+      "Transaction management is not supported in this Firebolt version."
+    );
+  }
 }

@@ -145,6 +145,11 @@ console.log(rows)
     * <a href="#execute-async-query">Execute Async Query</a>
     * <a href="#check-async-query-status">Check Async Query Status</a>
     * <a href="#cancel-async-query">Cancel Async Query</a>
+  * <a href="#transaction-management">Transaction management</a>
+    * <a href="#transaction-methods">Transaction methods</a>
+    * <a href="#basic-transaction-usage">Basic transaction usage</a>
+    * <a href="#transaction-error-handling">Error handling</a>
+    * <a href="#transaction-isolation">Transaction isolation</a>
   * <a href="#engine-management">Engine management</a>
     * <a href="#getbyname">getByName</a>
     * <a href="#engine">Engine</a>
@@ -470,6 +475,140 @@ Cancels a running asynchronous query. Use this if you need to stop a long-runnin
 ```typescript
 const token = statement.asyncQueryToken; // can only be fetched for async query
 await connection.cancelAsyncQuery(token);
+```
+
+<a id="transaction-management"></a>
+## Transaction management
+
+Firebolt's Node.js SDK supports database transactions, allowing you to group multiple operations into atomic units of work. Transactions ensure data consistency and provide the ability to rollback changes if needed.
+
+<a id="transaction-methods"></a>
+### Transaction methods
+
+The SDK provides three main methods for transaction management:
+
+```typescript
+await connection.begin();    // Start a new transaction
+await connection.commit();   // Commit the current transaction
+await connection.rollback(); // Rollback the current transaction
+```
+
+<a id="basic-transaction-usage"></a>
+### Basic transaction usage
+
+The following example demonstrates a basic transaction that inserts data and commits the changes:
+
+```typescript
+import { Firebolt } from 'firebolt-sdk'
+
+const firebolt = Firebolt();
+const connection = await firebolt.connect({
+  auth: {
+    client_id: process.env.FIREBOLT_CLIENT_ID,
+    client_secret: process.env.FIREBOLT_CLIENT_SECRET,
+  },
+  account: process.env.FIREBOLT_ACCOUNT,
+  database: process.env.FIREBOLT_DATABASE,
+  engineName: process.env.FIREBOLT_ENGINE_NAME
+});
+
+// Start a transaction
+await connection.begin();
+
+try {
+  // Perform multiple operations
+  await connection.execute(`
+    INSERT INTO users (id, name, age) VALUES (1, 'Alice', 30)
+  `);
+  
+  await connection.execute(`
+    INSERT INTO users (id, name, age) VALUES (2, 'Bob', 25)
+  `);
+  
+  // Commit the transaction
+  await connection.commit();
+  console.log('Transaction committed successfully');
+} catch (error) {
+  // Rollback on error
+  await connection.rollback();
+  console.error('Transaction rolled back due to error:', error);
+}
+```
+
+#### Transaction with prepared statements
+
+Transactions work seamlessly with prepared statements:
+
+```typescript
+await connection.begin();
+
+try {
+  // Use prepared statements within transactions
+  await connection.execute(
+    'INSERT INTO users (id, name, age) VALUES (?, ?, ?)',
+    { parameters: [4, 'Diana', 28] }
+  );
+  
+  await connection.execute(
+    'UPDATE users SET age = ? WHERE id = ?',
+    { parameters: [29, 4] }
+  );
+  
+  await connection.commit();
+} catch (error) {
+  await connection.rollback();
+  throw error;
+}
+```
+
+<a id="transaction-error-handling"></a>
+### Error handling
+
+#### Transaction state errors
+
+The SDK will throw errors for invalid transaction operations:
+
+```typescript
+try {
+  // This will throw an error if no transaction is active
+  await connection.commit();
+} catch (error) {
+  console.error('Cannot commit: no transaction in progress');
+}
+
+try {
+  await connection.begin();
+  // This will throw an error if a transaction is already active
+  await connection.begin();
+} catch (error) {
+  console.error('Cannot begin: transaction already in progress');
+}
+```
+
+<a id="transaction-isolation"></a>
+### Transaction isolation
+
+Transactions in Firebolt provide isolation between concurrent operations. Changes made within a transaction are not visible to other connections until the transaction is committed:
+
+```typescript
+// Connection 1 - Start transaction and insert data
+const connection1 = await firebolt.connect(connectionOptions);
+await connection1.begin();
+await connection1.execute("INSERT INTO users (id, name) VALUES (5, 'Eve')");
+
+// Connection 2 - Cannot see uncommitted data
+const connection2 = await firebolt.connect(connectionOptions);
+const statement = await connection2.execute('SELECT COUNT(*) FROM users WHERE id = 5');
+const { data } = await statement.fetchResult();
+console.log('Count from connection 2:', data[0][0]); // Should show 0
+
+// Connection 1 - Commit transaction
+await connection1.commit();
+
+// Connection 2 - Now can see committed data
+const statement2 = await connection2.execute('SELECT COUNT(*) FROM users WHERE id = 5');
+const { data: data2 } = await statement2.fetchResult();
+console.log('Count after commit:', data2[0][0]); // Should show 1
 ```
 
 <a id="serverSidePreparedStatement"></a>

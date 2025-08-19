@@ -114,7 +114,7 @@ describe.each([
     );
     server.use(
       rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
-        expect(req.headers.get("Firebolt-Protocol-Version")).toEqual("2.3");
+        expect(req.headers.get("Firebolt-Protocol-Version")).toEqual("2.4");
         return res(ctx.json({ ok: true }));
       })
     );
@@ -398,7 +398,8 @@ describe.each([
         calls++;
         return res(
           ctx.json({
-            access_token: calls === 1 ? "fake_access_token_1" : "fake_access_token_2",
+            access_token:
+              calls === 1 ? "fake_access_token_1" : "fake_access_token_2",
             expires_in: 3600 // 1 hour
           })
         );

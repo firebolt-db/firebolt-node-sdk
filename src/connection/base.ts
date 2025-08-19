@@ -22,9 +22,9 @@ export const defaultResponseSettings = {
 };
 
 const updateParametersHeader = "Firebolt-Update-Parameters";
-const allowedUpdateParameters = ["database"];
 const updateEndpointHeader = "Firebolt-Update-Endpoint";
 const resetSessionHeader = "Firebolt-Reset-Session";
+const removeParametersHeader = "Firebolt-Remove-Parameters";
 const immutableParameters = ["database", "account_id", "output_format"];
 const testConnectionQuery = "SELECT 1";
 
@@ -108,15 +108,21 @@ export abstract class Connection {
       .split(",")
       .reduce((acc: Record<string, string>, param) => {
         const [key, value] = param.split("=");
-        if (allowedUpdateParameters.includes(key)) {
-          acc[key] = value.trim();
-        }
+        acc[key] = value.trim();
         return acc;
       }, {});
     this.parameters = {
       ...this.parameters,
       ...updateParameters
     };
+  }
+
+  private handleRemoveParametersHeader(headerValue: string) {
+    const removeParameters = headerValue.split(",");
+
+    removeParameters.forEach(key => {
+      delete this.parameters[key.trim()];
+    });
   }
 
   private handleResetSessionHeader() {
@@ -160,6 +166,11 @@ export abstract class Connection {
     const updateEndpointValue = headers.get(updateEndpointHeader);
     if (updateEndpointValue) {
       await this.handleUpdateEndpointHeader(updateEndpointValue);
+    }
+
+    const removeParametersValue = headers.get(removeParametersHeader);
+    if (removeParametersValue) {
+      this.handleRemoveParametersHeader(removeParametersValue);
     }
   }
 
