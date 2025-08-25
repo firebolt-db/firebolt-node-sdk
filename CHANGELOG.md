@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.14.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.13.1...v1.14.0) (2025-08-25)
+
+
+### Features
+
+* FIR-46459 support Firebolt-Remove-Parameters header in node sdk ([#144](https://github.com/firebolt-db/firebolt-node-sdk/issues/144)) ([08fec2a](https://github.com/firebolt-db/firebolt-node-sdk/commit/08fec2a59fa722a17f7ee094b6c9fd12cd732cb1))
+
 ### [1.13.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.13.0...v1.13.1) (2025-07-21)
 
 
