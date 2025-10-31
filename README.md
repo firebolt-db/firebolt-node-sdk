@@ -313,11 +313,18 @@ const statement = await connection.execute(query, executeQueryOptions);
 
 ### Execute Query with set flags
 
+This approach is useful if you want to modify the execution of a particular query, for example setting a timeout or modifying a time zone for date calculations.
+
 ```typescript
 const statement = await connection.execute(query, {
-  settings: { query_id: 'hello' }
+  settings: { statement_timeout: 1000 }
 });
 ```
+Full list of flags that can be passed here is available on this documentation [page](https://docs.firebolt.io/reference/system-settings).
+
+**Note:** the flags set in this way will be active only for the duration of the query. If you require a session-level flag, which would apply to all the queries executed on this connection, use the SQL syntax to set it:
+
+```await connection.execute("SET statement_timeout=1000")```
 
 <a id="executequeryoptions"></a>
 ### ExecuteQueryOptions
@@ -377,8 +384,8 @@ The previous query will produce: `select 'foo', 123` query
 | output_format |          | JSON_COMPACT | Specifies format of selected data |
 
 You can also use `QuerySettings` to specify set flags.
-For example: `{ query_id: 'hello' }`
-
+For example: `{ statement_timeout: 1000 }`
+Full list of available settings can be found on this [page](https://docs.firebolt.io/reference/system-settings).
 
 <a id="executequeryresponse"></a>
 ### ResponseSettings
