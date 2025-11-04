@@ -1,3 +1,4 @@
+import exp from "node:constants";
 import { Firebolt } from "../../../src";
 import stream, { TransformCallback } from "node:stream";
 
@@ -81,7 +82,7 @@ describe("streams", () => {
         super({
           objectMode: true,
           transform(
-            row: any,
+            row: unknown,
             encoding: BufferEncoding,
             callback: TransformCallback
           ) {
@@ -249,5 +250,140 @@ describe("streams", () => {
     expect(rows[0]).toEqual([1, "test_data_1"]);
 
     console.log(`Pipeline test: processed ${processedCount} rows successfully`);
+  });
+  it("stream with different data types and memory management", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+    const connection = await firebolt.connect(connectionParams);
+
+    // Generate a query with various data types
+    const seriesNum = 100000;
+    const generateLargeResultQuery = (rows: number) => `
+      SELECT 
+        i as id,
+        'user_' || i::string as username,
+        'email_' || i::string || '@example.com' as email,
+        CASE WHEN i % 2 = 0 THEN 'active' ELSE 'inactive' END as status,
+        CAST('100000000000000000' as BIGINT) as big_number,
+        '2024-01-01'::date + (i % 365) as created_date,
+        RANDOM() * 1000 as score,
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' as description
+      FROM generate_series(1, ${rows}) as i
+    `;
+
+    const statement = await connection.executeStream(
+      generateLargeResultQuery(seriesNum),
+      {
+        response: {
+          normalizeData: true,
+          bigNumberAsString: false
+        }
+      }
+    );
+
+    const { data } = await statement.streamResult();
+
+    // Buffer pool configuration
+    const poolSize = 8192; // 8KB
+    const poolBuffer = Buffer.allocUnsafe(poolSize);
+    const newlineCode = 0x0a; // '\n' character code
+
+    // Track memory usage
+    const initialMemory = process.memoryUsage();
+    let maxMemoryUsed = initialMemory.heapUsed;
+    let rowCount = 0;
+
+    // Create a JSON transform stream with minimal allocation
+    const jsonTransform = new stream.Transform({
+      objectMode: true,
+      highWaterMark: 1, // Limit buffering - critical for memory
+      transform(
+        row: unknown,
+        encoding: BufferEncoding,
+        callback: (error?: Error | null) => void
+      ) {
+        try {
+          rowCount++;
+
+          if (rowCount % 5000 === 0) {
+            const currentMemory = process.memoryUsage();
+            maxMemoryUsed = Math.max(maxMemoryUsed, currentMemory.heapUsed);
+          }
+
+          // Verify data types are correct for normalized data
+          if (rowCount === 1) {
+            const typedRow = row as Record<string, unknown>;
+            expect(typeof typedRow.id).toBe("number");
+            expect(typeof typedRow.username).toBe("string");
+            expect(typeof typedRow.email).toBe("string");
+            expect(typeof typedRow.status).toBe("string");
+            expect(typeof typedRow.big_number).toBe("number");
+            expect(typedRow.created_date instanceof Date).toBe(true);
+            expect(typeof typedRow.score).toBe("number");
+            expect(typeof typedRow.description).toBe("string");
+          }
+
+          const json = JSON.stringify(row);
+          const jsonLen = Buffer.byteLength(json);
+          const totalLen = jsonLen + 1;
+
+          let buffer: Buffer;
+          if (totalLen <= poolSize) {
+            // Use pool for small rows - no allocation
+            poolBuffer.write(json, 0, jsonLen);
+            poolBuffer[jsonLen] = newlineCode;
+            buffer = poolBuffer.subarray(0, totalLen);
+          } else {
+            // Allocate for large rows
+            buffer = Buffer.allocUnsafe(totalLen);
+            buffer.write(json, 0, jsonLen);
+            buffer[jsonLen] = newlineCode;
+          }
+
+          this.push(buffer);
+          callback();
+        } catch (err) {
+          callback(err as Error);
+        }
+      }
+    });
+
+    // Create a moderate backpressure stream
+    let processedChunks = 0;
+    const outputStream = new stream.Transform({
+      highWaterMark: 1,
+      transform(chunk, encoding, callback) {
+        processedChunks++;
+
+        // Simulate occasional slow processing with minimal delays
+        if (processedChunks % 1000 === 0) {
+          setTimeout(() => {
+            callback();
+          }, 1); // 1ms delay
+        } else {
+          callback();
+        }
+      }
+    });
+
+    // Use pipeline for proper backpressure handling
+    await stream.promises.pipeline(data, jsonTransform, outputStream);
+
+    // Verify everything worked correctly
+    expect(rowCount).toBe(seriesNum);
+    expect(processedChunks).toBeGreaterThan(0);
+
+    // Memory usage should remain reasonable with proper streaming
+    const memoryGrowth =
+      (maxMemoryUsed - initialMemory.heapUsed) / (1024 * 1024);
+    expect(memoryGrowth).toBeLessThan(100); // Allow reasonable memory for complex data types with various field types
+
+    console.log(
+      `Data types streaming test: processed ${rowCount} rows with various data types, ` +
+        `memory growth: ${memoryGrowth.toFixed(
+          2
+        )} MB, processed chunks: ${processedChunks}`
+    );
   });
 });
