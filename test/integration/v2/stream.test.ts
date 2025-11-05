@@ -1,5 +1,6 @@
 import { Firebolt } from "../../../src";
 import stream, { TransformCallback } from "node:stream";
+import BigNumber from "bignumber.js";
 
 const connectionParams = {
   auth: {
@@ -156,17 +157,17 @@ describe("streams", () => {
   });
   it("check data types", async () => {
     const seriesNum = 2;
-    const generateLargeResultQuery = (rows: number) => `
+    const query = `
       SELECT 
-        i as id,
-        'user_' || i::string as username,
-        'email_' || i::string || '@example.com' as email,
-        CASE WHEN i % 2 = 0 THEN 'active' ELSE 'inactive' END as status,
-        CAST('100000000000000000' as BIGINT) as big_number,
-        '2024-01-01'::date + (i % 365) as created_date,
-        RANDOM() * 1000 as score,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' as description
-      FROM generate_series(1, ${rows}) as i
+      i as id,
+      'user_' || i::string as username,
+      'email_' || i::string || '@example.com' as email,
+      CASE WHEN i % 2 = 0 THEN true ELSE false END as status,
+      CAST('100000000000000000' as BIGINT) as big_number,
+      '2024-01-01'::date + (i % 365) as created_date,
+      RANDOM() * 1000 as score,
+      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' as description
+      FROM generate_series(1, ${seriesNum}) as i
     `;
 
     const firebolt = Firebolt({
@@ -175,65 +176,56 @@ describe("streams", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.executeStream(
-      generateLargeResultQuery(seriesNum),
-      {
-        response: {
-          normalizeData: true
-        }
+    const statement = await connection.executeStream(query, {
+      response: {
+        normalizeData: true,
+        bigNumberAsString: false
       }
-    );
+    });
 
     const { data } = await statement.streamResult();
-    let rowCount = 0;
-    // const meta = await stream.once(data, "meta");
-    data.on("meta", meta => {
-      console.log("Meta:", meta);
+    const rows: unknown[] = [];
+    data.on("meta", m => {
+      expect(m).toEqual([
+        { name: "id", type: "int" },
+        { name: "username", type: "text" },
+        { name: "email", type: "text" },
+        { name: "status", type: "boolean" },
+        { name: "big_number", type: "long" },
+        { name: "created_date", type: "date" },
+        { name: "score", type: "double" },
+        { name: "description", type: "text" }
+      ]);
     });
-    // console.log("Meta:", meta);
-    // expect(meta).toEqual([
-    //   { name: "id", type: "int" },
-    //   { name: "username", type: "text" },
-    //   { name: "email", type: "text" },
-    //   { name: "status", type: "text" },
-    //   { name: "big_number", type: "bigint" },
-    //   { name: "created_date", type: "date" },
-    //   { name: "score", type: "double precision" },
-    //   { name: "description", type: "text" }
-    // ]);
 
     data.on("data", row => {
-      rowCount++;
-      // Verify first row data types
-      if (rowCount === 1) {
-        expect(typeof row[0]).toBe("number"); // id
-        expect(typeof row[1]).toBe("string"); // username
-        expect(typeof row[2]).toBe("string"); // email
-        expect(typeof row[3]).toBe("string"); // status
-        expect(typeof row[4]).toBe("number"); // big_number (should be handled as number or BigNumber)
-        expect(row[5]).toBeInstanceOf(Date); // created_date
-        expect(typeof row[6]).toBe("number"); // score
-        expect(typeof row[7]).toBe("string"); // description
-
-        // Verify actual values for first row
-        expect(row[0]).toBe(1);
-        expect(row[1]).toBe("user_1");
-        expect(row[2]).toBe("email_1@example.com");
-        expect(row[3]).toBe("inactive"); // i=1, 1%2=1, so 'inactive'
-        expect(row[4]).toBe(100000000000000000);
-        expect(row[5]).toEqual(new Date("2024-01-02")); // 2024-01-01 + 1 day
-        expect(typeof row[6]).toBe("number");
-        expect(row[7]).toBe(
-          "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-        );
-      }
+      rows.push(row);
     });
 
     await new Promise(resolve => {
       data.on("end", () => {
-        expect(rowCount).toEqual(seriesNum);
         resolve(null);
       });
     });
+
+    // Perform assertions after collecting all rows
+    console.log("Collected rows:", rows);
+    console.log("Number of rows:", rows.length);
+    expect(rows).toHaveLength(seriesNum);
+    expect(rows.length).toBeGreaterThan(0);
+
+    // Verify first row data types
+    const firstRow = rows[0] as Record<string, unknown>;
+
+    // Verify actual values for first row
+    expect(firstRow["id"]).toBe(1);
+    expect(firstRow["username"]).toBe("user_1");
+    expect(firstRow["email"]).toBe("email_1@example.com");
+    expect(firstRow["status"]).toBe(false); // i=1, 1%2=1, so 'inactive'
+    expect(firstRow["big_number"]).toEqual(new BigNumber("100000000000000000"));
+    expect(firstRow["created_date"]).toEqual(new Date("2024-01-02")); // 2024-01-01 + 1 day
+    expect(firstRow["description"]).toBe(
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+    );
   });
 });
