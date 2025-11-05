@@ -16,7 +16,7 @@ export class ServerSideStream extends Readable {
   private finished = false;
   private processingData = false;
   private readlineInterfacePaused = false;
-  private readonly maxPendingRows = 10; // Limit pending rows to prevent memory buildup
+  private readonly maxPendingRows = 5; // Limit pending rows to prevent memory buildup
 
   constructor(
     private readonly response: Response,
