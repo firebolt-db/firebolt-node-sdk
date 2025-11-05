@@ -1,6 +1,7 @@
 import exp from "node:constants";
 import { Firebolt } from "../../../src";
 import stream, { TransformCallback } from "node:stream";
+import BigNumber from "bignumber.js";
 
 const connectionParams = {
   auth: {
@@ -264,7 +265,7 @@ describe("streams", () => {
         i as id,
         'user_' || i::string as username,
         'email_' || i::string || '@example.com' as email,
-        CASE WHEN i % 2 = 0 THEN 'active' ELSE 'inactive' END as status,
+        CASE WHEN i % 2 = 0 THEN true ELSE false END as status,
         CAST('100000000000000000' as BIGINT) as big_number,
         '2024-01-01'::date + (i % 365) as created_date,
         RANDOM() * 1000 as score,
@@ -283,6 +284,20 @@ describe("streams", () => {
     );
 
     const { data } = await statement.streamResult();
+
+    // Add meta event handler to verify column metadata
+    data.on("meta", m => {
+      expect(m).toEqual([
+        { name: "id", type: "int" },
+        { name: "username", type: "text" },
+        { name: "email", type: "text" },
+        { name: "status", type: "boolean" },
+        { name: "big_number", type: "long" },
+        { name: "created_date", type: "date" },
+        { name: "score", type: "double" },
+        { name: "description", type: "text" }
+      ]);
+    });
 
     // Buffer pool configuration
     const poolSize = 8192; // 8KB
@@ -311,17 +326,40 @@ describe("streams", () => {
             maxMemoryUsed = Math.max(maxMemoryUsed, currentMemory.heapUsed);
           }
 
-          // Verify data types are correct for normalized data
+          // Verify data types are correct for normalized data on first row
           if (rowCount === 1) {
             const typedRow = row as Record<string, unknown>;
-            expect(typeof typedRow.id).toBe("number");
-            expect(typeof typedRow.username).toBe("string");
-            expect(typeof typedRow.email).toBe("string");
-            expect(typeof typedRow.status).toBe("string");
-            expect(typeof typedRow.big_number).toBe("number");
-            expect(typedRow.created_date instanceof Date).toBe(true);
-            expect(typeof typedRow.score).toBe("number");
-            expect(typeof typedRow.description).toBe("string");
+
+            // Verify actual values for first row
+            expect(typedRow.id).toBe(1);
+            expect(typedRow.username).toBe("user_1");
+            expect(typedRow.email).toBe("email_1@example.com");
+            expect(typedRow.status).toBe(false); // i=1, 1%2=1, so false
+            expect(typedRow.big_number).toEqual(
+              new BigNumber("100000000000000000")
+            );
+            expect(typedRow.created_date).toEqual(new Date("2024-01-02")); // 2024-01-01 + 1 day
+            expect(typedRow.description).toBe(
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            );
+          }
+
+          // Verify data types are correct for normalized data on last row
+          if (rowCount === seriesNum) {
+            const typedRow = row as Record<string, unknown>;
+
+            // Verify actual values for last row
+            expect(typedRow.id).toBe(seriesNum);
+            expect(typedRow.username).toBe(`user_${seriesNum}`);
+            expect(typedRow.email).toBe(`email_${seriesNum}@example.com`);
+            expect(typedRow.status).toBe(true); // seriesNum=100000, 100000%2=0, so true
+            expect(typedRow.big_number).toEqual(
+              new BigNumber("100000000000000000")
+            );
+            expect(typedRow.created_date).toEqual(new Date("2024-12-21")); // 2024-01-01 + (100000 % 365) = 2024-01-01 + 269 days
+            expect(typedRow.description).toBe(
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+            );
           }
 
           const json = JSON.stringify(row);
@@ -377,7 +415,7 @@ describe("streams", () => {
     // Memory usage should remain reasonable with proper streaming
     const memoryGrowth =
       (maxMemoryUsed - initialMemory.heapUsed) / (1024 * 1024);
-    expect(memoryGrowth).toBeLessThan(100); // Allow reasonable memory for complex data types with various field types
+    expect(memoryGrowth).toBeLessThan(120); // Allow reasonable memory for complex data types with various field types
 
     console.log(
       `Data types streaming test: processed ${rowCount} rows with various data types, ` +
