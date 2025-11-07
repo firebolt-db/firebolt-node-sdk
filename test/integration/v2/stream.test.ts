@@ -395,9 +395,9 @@ describe("streams", () => {
 
     // Create a moderate backpressure stream
     let processedChunks = 0;
-    const outputStream = new stream.Transform({
+    const outputStream = new stream.Writable({
       highWaterMark: 1,
-      transform(chunk, encoding, callback) {
+      write(chunk, encoding, callback) {
         processedChunks++;
 
         // Simulate occasional slow processing with minimal delays
