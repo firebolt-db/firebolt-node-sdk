@@ -148,6 +148,12 @@ describe("streams", () => {
         }
       ]);
     });
+
+    // Consume data to prevent backpressure from blocking error messages
+    data.on("data", () => {
+      // Just consume the data, don't need to do anything with it
+    });
+
     const [error] = await stream.once(data, "error");
     expect(error.message).toEqual(
       "Result encountered an error: Line 1, Column 9: Division by zero\n" +
