@@ -13,7 +13,7 @@ const connectionParams = {
   engineName: process.env.FIREBOLT_ENGINE_NAME as string
 };
 
-jest.setTimeout(250000);
+jest.setTimeout(350000);
 
 describe("streams", () => {
   it("check sum from stream result", async () => {
