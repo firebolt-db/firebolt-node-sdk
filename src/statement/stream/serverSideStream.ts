@@ -1,6 +1,5 @@
 import { Readable } from "stream";
 import JSONbig from "json-bigint";
-import readline from "readline";
 import {
   getNormalizedMeta,
   normalizeResponseRowStreaming
@@ -11,73 +10,119 @@ import { Meta } from "../../meta";
 
 export class ServerSideStream extends Readable {
   private meta: Meta[] = [];
-  private readlineInterface: readline.Interface | null = null;
-  private pendingRows: Row[] = [];
+  private readonly pendingRows: Row[] = [];
   private finished = false;
   private processingData = false;
-  private readlineInterfacePaused = false;
+  private inputPaused = false;
   private readonly maxPendingRows = 5; // Limit pending rows to prevent memory buildup
+  private lineBuffer = "";
+  private sourceStream: NodeJS.ReadableStream | null = null;
 
   constructor(
     private readonly response: Response,
     private readonly executeQueryOptions: ExecuteQueryOptions
   ) {
     super({ objectMode: true });
-    this.setupReadline();
+    this.setupInputStream();
   }
 
-  private setupReadline() {
-    this.readlineInterface = readline.createInterface({
-      input: this.response.body,
-      crlfDelay: Infinity
+  private setupInputStream() {
+    this.sourceStream = this.response.body;
+
+    if (!this.sourceStream) {
+      this.destroy(new Error("Response body is null or undefined"));
+      return;
+    }
+
+    this.sourceStream.on("data", (chunk: Buffer) => {
+      this.handleData(chunk);
     });
 
-    const lineParser = (line: string) => {
-      try {
-        if (line.trim()) {
-          const parsed = JSONbig.parse(line);
-          if (parsed) {
-            if (parsed.message_type === "DATA") {
-              this.handleDataMessage(parsed);
-            } else if (parsed.message_type === "START") {
-              this.meta = getNormalizedMeta(parsed.result_columns);
-              this.emit("meta", this.meta);
-            } else if (parsed.message_type === "FINISH_SUCCESSFULLY") {
-              this.finished = true;
-              this.tryPushPendingData();
-            } else if (parsed.message_type === "FINISH_WITH_ERRORS") {
-              // Ensure readline interface is resumed before destroying to prevent hanging
-              if (this.readlineInterface && this.readlineInterfacePaused) {
-                this.readlineInterface.resume();
-                this.readlineInterfacePaused = false;
-              }
-              this.destroy(
-                new Error(
-                  `Result encountered an error: ${parsed.errors
-                    .map((error: { description: string }) => error.description)
-                    .join("\n")}`
-                )
-              );
-            }
-          } else {
-            this.destroy(new Error(`Result row could not be parsed: ${line}`));
-          }
-        }
-      } catch (err) {
-        this.destroy(err);
-      }
-    };
-
-    this.readlineInterface.on("line", lineParser);
-
-    this.readlineInterface.on("close", () => {
-      this.finished = true;
-      this.tryPushPendingData();
+    this.sourceStream.on("end", () => {
+      this.handleInputEnd();
     });
 
-    this.readlineInterface.on("error", err => {
+    this.sourceStream.on("error", (err: Error) => {
       this.destroy(err);
     });
+  }
+
+  private handleData(chunk: Buffer) {
+    // Convert chunk to string and add to line buffer
+    this.lineBuffer += chunk.toString();
+
+    // Process complete lines
+    let lineStart = 0;
+    let lineEnd = this.lineBuffer.indexOf("\n", lineStart);
+
+    while (lineEnd !== -1) {
+      const line = this.lineBuffer.slice(lineStart, lineEnd);
+      this.processLine(line.trim());
+
+      lineStart = lineEnd + 1;
+      lineEnd = this.lineBuffer.indexOf("\n", lineStart);
+    }
+
+    // Keep remaining partial line in buffer
+    this.lineBuffer = this.lineBuffer.slice(lineStart);
+
+    // Apply backpressure if we have too many pending rows
+    if (
+      this.pendingRows.length > this.maxPendingRows &&
+      this.sourceStream &&
+      !this.inputPaused &&
+      !this.processingData
+    ) {
+      this.sourceStream.pause();
+      this.inputPaused = true;
+    }
+  }
+
+  private handleInputEnd() {
+    // Process any remaining line in buffer
+    if (this.lineBuffer.trim()) {
+      this.processLine(this.lineBuffer.trim());
+      this.lineBuffer = "";
+    }
+
+    this.finished = true;
+    this.tryPushPendingData();
+  }
+
+  private processLine(line: string) {
+    if (!line) return;
+
+    try {
+      const parsed = JSONbig.parse(line);
+      if (parsed) {
+        if (parsed.message_type === "DATA") {
+          this.handleDataMessage(parsed);
+        } else if (parsed.message_type === "START") {
+          this.meta = getNormalizedMeta(parsed.result_columns);
+          this.emit("meta", this.meta);
+        } else if (parsed.message_type === "FINISH_SUCCESSFULLY") {
+          this.finished = true;
+          this.tryPushPendingData();
+        } else if (parsed.message_type === "FINISH_WITH_ERRORS") {
+          // Ensure source stream is resumed before destroying to prevent hanging
+          if (this.sourceStream && this.inputPaused) {
+            this.sourceStream.resume();
+            this.inputPaused = false;
+          }
+          this.destroy(
+            new Error(
+              `Result encountered an error: ${parsed.errors
+                .map((error: { description: string }) => error.description)
+                .join("\n")}`
+            )
+          );
+        }
+      } else {
+        this.destroy(new Error(`Result row could not be parsed: ${line}`));
+      }
+    } catch (err) {
+      this.destroy(err);
+    }
   }
 
   private handleDataMessage(parsed: { data: unknown[] }) {
@@ -91,18 +136,6 @@ export class ServerSideStream extends Readable {
 
       // Add to pending rows buffer
       this.pendingRows.push(...normalizedData);
-
-      // If we have too many pending rows, pause the readline interface to apply backpressure
-      // Only pause if we're not already processing and have significantly exceeded the limit
-      if (
-        this.pendingRows.length > this.maxPendingRows &&
-        this.readlineInterface &&
-        !this.readlineInterfacePaused &&
-        !this.processingData
-      ) {
-        this.readlineInterface.pause();
-        this.readlineInterfacePaused = true;
-      }
 
       // Try to push data immediately if not already processing
       if (!this.processingData) {
@@ -122,14 +155,14 @@ export class ServerSideStream extends Readable {
       const row = this.pendingRows.shift();
       const canContinue = this.push(row);
 
-      // If pending rows dropped below threshold, resume the readline interface
+      // If pending rows dropped below threshold, resume the source stream
       if (
         this.pendingRows.length <= this.maxPendingRows / 4 &&
-        this.readlineInterface &&
-        this.readlineInterfacePaused
+        this.sourceStream &&
+        this.inputPaused
       ) {
-        this.readlineInterface.resume();
-        this.readlineInterfacePaused = false;
+        this.sourceStream.resume();
+        this.inputPaused = false;
       }
 
       // If push returns false, stop pushing and wait for _read to be called
@@ -155,26 +188,33 @@ export class ServerSideStream extends Readable {
       this.tryPushPendingData();
     }
 
-    // Also resume readline interface if it was paused and we have capacity
+    // Also resume source stream if it was paused and we have capacity
     if (
-      this.readlineInterface &&
-      this.readlineInterfacePaused &&
+      this.sourceStream &&
+      this.inputPaused &&
       this.pendingRows.length < this.maxPendingRows / 2
     ) {
-      this.readlineInterface.resume();
-      this.readlineInterfacePaused = false;
+      this.sourceStream.resume();
+      this.inputPaused = false;
     }
   }
 
   _destroy(err: Error | null, callback: (error?: Error | null) => void) {
-    if (this.readlineInterface) {
-      // Resume interface if paused to ensure proper cleanup
-      if (this.readlineInterfacePaused) {
-        this.readlineInterface.resume();
-        this.readlineInterfacePaused = false;
+    if (this.sourceStream) {
+      // Resume stream if paused to ensure proper cleanup
+      if (this.inputPaused) {
+        this.sourceStream.resume();
+        this.inputPaused = false;
       }
-      this.readlineInterface.close();
-      this.readlineInterface = null;
+
+      // Only call destroy if it exists (for Node.js streams)
+      const destroyableStream = this.sourceStream as unknown as {
+        destroy?: () => void;
+      };
+      if (typeof destroyableStream.destroy === "function") {
+        destroyableStream.destroy();
+      }
+      this.sourceStream = null;
     }
     callback(err);
   }
