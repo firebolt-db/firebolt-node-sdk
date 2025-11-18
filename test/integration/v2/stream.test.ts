@@ -177,10 +177,12 @@ describe("streams", () => {
     const initialMemory = process.memoryUsage();
     let maxMemoryUsed = initialMemory.heapUsed;
     let rowCount = 0;
+    let idSum = 0;
 
     // Process data with simple event handlers (like existing tests)
-    data.on("data", () => {
+    data.on("data", row => {
       rowCount++;
+      idSum += row[0]; // Sum the id values for data integrity
 
       // Track memory usage periodically
       if (rowCount % 50 === 0) {
@@ -197,6 +199,10 @@ describe("streams", () => {
 
     // Verify the data was processed correctly
     expect(rowCount).toBe(1000000);
+    
+    // Verify data integrity with sum check
+    const expectedSum = (1000000 * 1000001) / 2; // Sum of 1 to 1,000,000
+    expect(idSum).toBe(expectedSum);
 
     // Memory usage should remain reasonable with proper streaming
     const memoryGrowth =

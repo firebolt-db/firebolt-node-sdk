@@ -74,6 +74,7 @@ describe("advanced stream tests", () => {
     const initialMemory = process.memoryUsage();
     let maxMemoryUsed = initialMemory.heapUsed;
     let rowCount = 0;
+    let idSum = 0; // Track sum of id column for data integrity verification
 
     // Create a JSON transform stream with minimal allocation
     const jsonTransform = new stream.Transform({
@@ -86,6 +87,11 @@ describe("advanced stream tests", () => {
       ) {
         try {
           rowCount++;
+
+          // Add the id to our sum for data integrity verification
+          const typedRow = row as Record<string, unknown>;
+          const id = typedRow.id as number;
+          idSum += id;
 
           if (rowCount % 5000 === 0) {
             const currentMemory = process.memoryUsage();
@@ -231,6 +237,10 @@ describe("advanced stream tests", () => {
     // Verify everything worked correctly
     expect(rowCount).toBe(seriesNum);
     expect(processedChunks).toBeGreaterThan(0);
+
+    // Verify data integrity: sum of 1 to N should be N*(N+1)/2
+    const expectedSum = (seriesNum * (seriesNum + 1)) / 2;
+    expect(idSum).toBe(expectedSum);
 
     // Verify the file was created and has content
     expect(fs.existsSync(tempFilePath)).toBe(true);
