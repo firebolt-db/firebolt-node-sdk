@@ -155,16 +155,6 @@ export class ServerSideStream extends Readable {
       const row = this.pendingRows.shift();
       const canContinue = this.push(row);
 
-      // If pending rows dropped below threshold, resume the source stream
-      if (
-        this.pendingRows.length <= this.maxPendingRows / 4 &&
-        this.sourceStream &&
-        this.inputPaused
-      ) {
-        this.sourceStream.resume();
-        this.inputPaused = false;
-      }
-
       // If push returns false, stop pushing and wait for _read to be called
       if (!canContinue) {
         this.processingData = false;
@@ -192,7 +182,7 @@ export class ServerSideStream extends Readable {
     if (
       this.sourceStream &&
       this.inputPaused &&
-      this.pendingRows.length < this.maxPendingRows / 2
+      this.pendingRows.length < this.maxPendingRows / 4
     ) {
       this.sourceStream.resume();
       this.inputPaused = false;
