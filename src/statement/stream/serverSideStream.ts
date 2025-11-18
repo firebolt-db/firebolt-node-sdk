@@ -14,7 +14,7 @@ export class ServerSideStream extends Readable {
   private finished = false;
   private processingData = false;
   private inputPaused = false;
-  private readonly maxPendingRows = 5; // Limit pending rows to prevent memory buildup
+  private readonly bufferGrowthThreshold = 10; // Stop adding to buffer when over this many rows are already in
   private lineBuffer = "";
   private sourceStream: NodeJS.ReadableStream | null = null;
 
@@ -68,7 +68,7 @@ export class ServerSideStream extends Readable {
 
     // Apply backpressure if we have too many pending rows
     if (
-      this.pendingRows.length > this.maxPendingRows &&
+      this.pendingRows.length > this.bufferGrowthThreshold &&
       this.sourceStream &&
       !this.inputPaused &&
       !this.processingData
@@ -182,7 +182,7 @@ export class ServerSideStream extends Readable {
     if (
       this.sourceStream &&
       this.inputPaused &&
-      this.pendingRows.length < this.maxPendingRows / 4
+      this.pendingRows.length < this.bufferGrowthThreshold
     ) {
       this.sourceStream.resume();
       this.inputPaused = false;

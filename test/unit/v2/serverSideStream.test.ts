@@ -17,17 +17,15 @@ describe("ServerSideStream", () => {
   });
 
   describe("backpressure and pause/resume functionality", () => {
-    it("should pause source stream when pending rows exceed maxPendingRows threshold", done => {
+    it("should pause source stream when pending rows exceed bufferGrowthThreshold", done => {
       const sourceStream = new PassThrough();
       mockResponse.body = sourceStream;
 
       let pauseCalled = false;
-      let pauseCallCount = 0;
 
-      // Mock the pause method on the response body (this is what ServerSideStream calls)
+      // Mock the pause method
       sourceStream.pause = jest.fn(() => {
         pauseCalled = true;
-        pauseCallCount++;
         return sourceStream;
       });
 
@@ -36,16 +34,9 @@ describe("ServerSideStream", () => {
         executeQueryOptions
       );
 
-      // Mock push to return false immediately to create backpressure from the start
-      // This should cause rows to accumulate in pendingRows
-      serverSideStream.push = jest.fn((_chunk: unknown) => {
-        // Always return false to simulate constant backpressure
-        return false;
-      });
-
       serverSideStream.on("error", done);
 
-      // First send the START message
+      // Send START message first
       sourceStream.write(
         JSON.stringify({
           message_type: "START",
@@ -53,24 +44,32 @@ describe("ServerSideStream", () => {
         }) + "\n"
       );
 
-      // Send fewer data messages but with multiple rows each
-      // Each data message can contain multiple rows in the data array
-      let dataMessages = "";
-      for (let i = 0; i < 3; i++) {
-        dataMessages +=
+      // Wait for start message to be processed, then setup backpressure
+      setTimeout(() => {
+        // Mock push to always return false to create backpressure
+        const originalPush = serverSideStream.push.bind(serverSideStream);
+        serverSideStream.push = jest.fn(chunk => {
+          if (chunk !== null) {
+            return false; // Always return false for data chunks
+          }
+          return originalPush(chunk); // Allow null (end) to pass through
+        });
+
+        // Send a large single data message with many rows to ensure we exceed threshold
+        const largeDataMessage =
           JSON.stringify({
             message_type: "DATA",
-            data: [[i * 3 + 0], [i * 3 + 1], [i * 3 + 2]]
+            data: Array.from({ length: 15 }, (_, i) => [i]) // 15 rows, exceeds threshold of 10
           }) + "\n";
-      }
-      sourceStream.write(dataMessages);
 
-      // Give the stream time to process and check if pause was called
-      setTimeout(() => {
-        expect(pauseCalled).toBe(true);
-        expect(pauseCallCount).toBeGreaterThan(0);
-        done();
-      }, 100);
+        sourceStream.write(largeDataMessage);
+
+        // Check after a delay
+        setTimeout(() => {
+          expect(pauseCalled).toBe(true);
+          done();
+        }, 50);
+      }, 10);
     });
 
     it("should resume source stream when pending rows drop below threshold", done => {
@@ -98,12 +97,7 @@ describe("ServerSideStream", () => {
 
       serverSideStream.on("error", done);
 
-      // Mock push to always return false to accumulate rows and trigger pause
-      serverSideStream.push = jest.fn(() => {
-        return false;
-      });
-
-      // Send START message
+      // Send START message first
       sourceStream.write(
         JSON.stringify({
           message_type: "START",
@@ -111,31 +105,45 @@ describe("ServerSideStream", () => {
         }) + "\n"
       );
 
-      // Send multiple DATA messages to exceed maxPendingRows threshold
-      let dataMessages = "";
-      for (let i = 0; i < 3; i++) {
-        dataMessages +=
+      setTimeout(() => {
+        // Mock push to always return false to accumulate rows and trigger pause
+        const originalPush = serverSideStream.push.bind(serverSideStream);
+        serverSideStream.push = jest.fn(chunk => {
+          if (chunk !== null) {
+            return false; // Always return false for data chunks to accumulate
+          }
+          return originalPush(chunk);
+        });
+
+        // Send large data message to exceed threshold and trigger pause
+        const largeDataMessage =
           JSON.stringify({
             message_type: "DATA",
-            data: [[i * 3 + 0], [i * 3 + 1], [i * 3 + 2]]
+            data: Array.from({ length: 15 }, (_, i) => [i])
           }) + "\n";
-      }
-      sourceStream.write(dataMessages);
 
-      setTimeout(() => {
-        expect(pauseCalled).toBe(true);
-
-        // Now test resume: change push to return true (allow processing)
-        serverSideStream.push = jest.fn(() => true);
-
-        // Call _read to trigger the resume condition check
-        serverSideStream._read();
+        sourceStream.write(largeDataMessage);
 
         setTimeout(() => {
-          expect(resumeCalled).toBe(true);
-          done();
+          expect(pauseCalled).toBe(true);
+
+          // Now test resume: change push to return true (allow processing)
+          serverSideStream.push = jest.fn(chunk => {
+            if (chunk !== null) {
+              return true; // Allow processing to drain buffer
+            }
+            return originalPush(chunk);
+          });
+
+          // Call _read to trigger the resume condition check
+          serverSideStream._read();
+
+          setTimeout(() => {
+            expect(resumeCalled).toBe(true);
+            done();
+          }, 50);
         }, 50);
-      }, 100);
+      }, 10);
     });
 
     it("should properly clean up on stream destruction", done => {
@@ -159,7 +167,7 @@ describe("ServerSideStream", () => {
       );
 
       // First pause the stream by creating backpressure
-      serverSideStream.push = jest.fn((_chunk: unknown) => {
+      serverSideStream.push = jest.fn(() => {
         return false; // Always return false to simulate backpressure
       });
 
@@ -172,15 +180,15 @@ describe("ServerSideStream", () => {
       );
 
       // Send data to trigger pause
-      let dataMessages = "";
-      for (let i = 0; i < 3; i++) {
-        dataMessages +=
+      // Send messages one at a time to trigger backpressure check between messages
+      for (let i = 0; i < 6; i++) {
+        const dataMessage =
           JSON.stringify({
             message_type: "DATA",
-            data: [[i * 3 + 0], [i * 3 + 1], [i * 3 + 2]]
+            data: [[i * 2 + 0], [i * 2 + 1]]
           }) + "\n";
+        sourceStream.write(dataMessage);
       }
-      sourceStream.write(dataMessages);
 
       setTimeout(() => {
         // Destroy the stream
@@ -220,18 +228,18 @@ describe("ServerSideStream", () => {
         }) + "\n"
       );
 
-      let dataMessages = "";
-      for (let i = 0; i < 3; i++) {
-        dataMessages +=
+      // Send data one message at a time to trigger pause
+      for (let i = 0; i < 12; i++) {
+        const dataMessage =
           JSON.stringify({
             message_type: "DATA",
-            data: [[i * 3 + 0]]
+            data: [[i]]
           }) + "\n";
+        sourceStream.write(dataMessage);
       }
 
       // Send error message
       setTimeout(() => {
-        sourceStream.write(dataMessages);
         sourceStream.write(
           JSON.stringify({
             message_type: "FINISH_WITH_ERRORS",
