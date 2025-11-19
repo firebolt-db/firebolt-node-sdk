@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.14.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.14.0...v1.14.1) (2025-11-19)
+
+
+### Bug Fixes
+
+* **FIR-50188:** memory leak in streaming ([#148](https://github.com/firebolt-db/firebolt-node-sdk/issues/148)) ([9f3eb53](https://github.com/firebolt-db/firebolt-node-sdk/commit/9f3eb53e5af93431d002f2250a8c00c55bb2e595))
+
 ## [1.14.0](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.13.1...v1.14.0) (2025-08-25)
 
 
