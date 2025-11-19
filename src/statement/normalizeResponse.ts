@@ -105,12 +105,14 @@ export const normalizeResponseRowStreaming = (
   const { response: { normalizeData = false } = {} } = executeQueryOptions;
 
   const hydrate = executeQueryOptions?.response?.hydrateRow || hydrateRow;
-
-  return data.map((row: Row) => {
-    const hydratedRow = hydrate(row, meta, executeQueryOptions);
+  const result: Row[] = new Array(data.length);
+  for (let i = 0; i < data.length; i++) {
+    const hydratedRow = hydrate(data[i], meta, executeQueryOptions);
     if (normalizeData) {
-      return normalizeRow(hydratedRow, meta, executeQueryOptions);
+      result[i] = normalizeRow(hydratedRow, meta, executeQueryOptions);
+    } else {
+      result[i] = hydratedRow;
     }
-    return hydratedRow;
-  });
+  }
+  return result;
 };
