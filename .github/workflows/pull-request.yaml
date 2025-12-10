@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     
     - name: Set up node.js
       uses: actions/setup-node@v4
@@ -31,8 +33,20 @@ jobs:
       run: |
         npm test -- --coverage test/unit
         
+    - name: Validate SonarCloud token
+      run: |
+        set -euo pipefail
+        response=$(curl -s -u "${{ secrets.SONARCLOUD_TOKEN }}:" "https://sonarcloud.io/api/authentication/validate")
+        echo "SonarCloud token validation response: $response"
+        if echo "$response" | grep -q '"valid":true'; then
+          echo "SonarCloud token is valid."
+        else
+          echo "SonarCloud token is invalid." >&2
+          exit 1
+        fi
+        
     - name: "Security Scan"
-      uses: SonarSource/sonarqube-scan-action@master
+      uses: SonarSource/sonarqube-scan-action@v7
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONARCLOUD_TOKEN }}
