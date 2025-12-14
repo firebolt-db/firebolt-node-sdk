@@ -57,9 +57,10 @@ jobs:
           npm run test:ci integration/v2
 
       # Need to pull the pages branch in order to fetch the previous runs
+      # Only run Allure reporting on the main repository, not forks
       - name: Get Allure history
         uses: actions/checkout@v6
-        if: always()
+        if: always() && github.repository == 'firebolt-db/firebolt-node-sdk'
         continue-on-error: true
         with:
             ref: gh-pages
@@ -67,7 +68,7 @@ jobs:
 
       - name: Allure Report
         uses: firebolt-db/action-allure-report@v1
-        if: always()
+        if: always() && github.repository == 'firebolt-db/firebolt-node-sdk'
         with:
             github-key: ${{ inputs.token || secrets.GITHUB_TOKEN }}
             test-type: integration
