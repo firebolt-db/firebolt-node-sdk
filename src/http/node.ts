@@ -178,7 +178,7 @@ export class NodeHttpClient {
                 statusText: res.statusMessage || "OK",
                 headers: new Headers(
                   Object.entries(res.headers).reduce((acc, [key, value]) => {
-                    if (value) {
+                    if (value !== undefined && value !== null) {
                       acc[key] = Array.isArray(value) ? value.join(", ") : String(value);
                     }
                     return acc;
@@ -227,7 +227,7 @@ export class NodeHttpClient {
                 statusText: res.statusMessage || "OK",
                 headers: new Headers(
                   Object.entries(res.headers).reduce((acc, [key, value]) => {
-                    if (value) {
+                    if (value !== undefined && value !== null) {
                       acc[key] = Array.isArray(value) ? value.join(", ") : String(value);
                     }
                     return acc;
