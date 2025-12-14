@@ -1,0 +1,60 @@
+name: 'Setup Firebolt Core'
+description: 'Start Firebolt Core in Docker and wait for it to be ready'
+inputs:
+  database:
+    description: 'Database name for Firebolt Core'
+    required: false
+    default: 'firebolt'
+  endpoint:
+    description: 'Firebolt Core endpoint'
+    required: false
+    default: 'http://localhost:3473'
+outputs:
+  database:
+    description: 'Database name'
+    value: ${{ inputs.database }}
+  endpoint:
+    description: 'Firebolt Core endpoint'
+    value: ${{ inputs.endpoint }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Create firebolt-core-data directory
+      shell: bash
+      run: mkdir -p ./firebolt-core-data
+
+    - name: Start Firebolt Core
+      shell: bash
+      run: |
+        docker run -d --rm --name firebolt-core \
+          --ulimit memlock=8589934592:8589934592 \
+          --security-opt seccomp=unconfined \
+          -p 127.0.0.1:3473:3473 \
+          -v $(pwd)/firebolt-core-data:/firebolt-core/volume \
+          ghcr.io/firebolt-db/firebolt-core:preview-rc
+
+    - name: Wait for Firebolt Core to be ready
+      shell: bash
+      run: |
+        echo "Waiting for Firebolt Core to be ready..."
+        timeout=60
+        elapsed=0
+        while [ $elapsed -lt $timeout ]; do
+          if curl -s ${{ inputs.endpoint }} > /dev/null 2>&1; then
+            echo "Firebolt Core is ready!"
+            exit 0
+          fi
+          echo "Waiting... ($elapsed/$timeout seconds)"
+          sleep 2
+          elapsed=$((elapsed + 2))
+        done
+        echo "Firebolt Core failed to start within $timeout seconds"
+        docker logs firebolt-core
+        exit 1
+
+    - name: Set outputs
+      shell: bash
+      run: |
+        echo "database=${{ inputs.database }}" >> $GITHUB_OUTPUT
+        echo "endpoint=${{ inputs.endpoint }}" >> $GITHUB_OUTPUT
+

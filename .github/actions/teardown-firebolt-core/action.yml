@@ -1,0 +1,9 @@
+name: 'Teardown Firebolt Core'
+description: 'Stop Firebolt Core Docker container'
+runs:
+  using: 'composite'
+  steps:
+    - name: Stop Firebolt Core
+      shell: bash
+      run: docker stop firebolt-core || true
+
