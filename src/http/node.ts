@@ -3,7 +3,7 @@ import http from "http";
 import https from "https";
 
 import Abort from "abort-controller";
-import { Response } from "node-fetch";
+import { Response, Headers } from "node-fetch";
 import { assignProtocol, systemInfoString } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
 import { Authenticator } from "../auth/managed";
@@ -161,13 +161,13 @@ export class NodeHttpClient {
             hostname: urlObj.hostname,
             port: urlObj.port || (isHttp ? 80 : 443),
             path: urlObj.pathname + urlObj.search,
-            method,
-            headers: {
-              "user-agent": userAgent,
-              "Content-Type": "application/json",
-              [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
-              ...headersWithAuth
-            },
+        method,
+        headers: {
+          "user-agent": userAgent,
+          "Content-Type": "application/json",
+          [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
+          ...headersWithAuth
+        },
             agent
           },
           res => {

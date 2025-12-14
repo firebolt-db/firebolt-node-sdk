@@ -55,11 +55,11 @@ export class FireboltClient {
       !("type" in connectionOptions.auth) ||
       (connectionOptions.auth as FireboltCoreAuth).type !== "firebolt-core"
     ) {
-      const resourceContext = {
-        connection,
-        ...connectionContext
-      };
-      this.resourceManager = new ResourceManager(resourceContext);
+    const resourceContext = {
+      connection,
+      ...connectionContext
+    };
+    this.resourceManager = new ResourceManager(resourceContext);
     }
 
     return connection;
