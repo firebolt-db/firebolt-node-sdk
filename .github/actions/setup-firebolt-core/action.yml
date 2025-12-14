@@ -41,7 +41,7 @@ runs:
         elapsed=0
         while [ $elapsed -lt $timeout ]; do
           # Try to connect and execute a simple query
-          response=$(curl -s -w "\n%{http_code}" -X POST "${{ inputs.endpoint }}/?database=default" \
+          response=$(curl -s -w "\n%{http_code}" -X POST "${{ inputs.endpoint }}/" \
             --data-binary "SELECT 1" 2>&1) || response=""
           http_code=$(echo "$response" | tail -n1)
           
