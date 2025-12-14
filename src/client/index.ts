@@ -13,11 +13,26 @@ import { NodeHttpClient } from "../http/node";
 export class FireboltClient {
   private options: FireboltClientOptions;
   private context: Context;
-  resourceManager?: ResourceManager;
+  private _resourceManager?: ResourceManager;
 
   constructor(context: Context, options: FireboltClientOptions) {
     this.context = context;
     this.options = options;
+  }
+
+  /**
+   * Getter for resourceManager that preserves backward compatibility.
+   * For managed Firebolt connections, this is always defined.
+   * For Firebolt Core connections, accessing this will throw an error.
+   */
+  get resourceManager(): ResourceManager {
+    if (!this._resourceManager) {
+      throw new Error(
+        "ResourceManager is not available for Firebolt Core connections. " +
+        "Use managed Firebolt authentication (client_id/client_secret) to access ResourceManager."
+      );
+    }
+    return this._resourceManager;
   }
 
   private async prepareConnection(connectionOptions: ConnectionOptions) {
@@ -59,7 +74,7 @@ export class FireboltClient {
         connection,
         ...connectionContext
       };
-      this.resourceManager = new ResourceManager(resourceContext);
+      this._resourceManager = new ResourceManager(resourceContext);
     }
 
     return connection;

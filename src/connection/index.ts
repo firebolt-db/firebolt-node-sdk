@@ -14,7 +14,10 @@ import { QueryFormatterV2 } from "../formatter/formatter_v2";
 export type { Connection } from "./base";
 
 export function makeConnection(context: Context, options: ConnectionOptions) {
-  if ((options.auth as FireboltCoreAuth).type === "firebolt-core") {
+  if (
+    "type" in options.auth &&
+    (options.auth as FireboltCoreAuth).type === "firebolt-core"
+  ) {
     const queryFormatter = new QueryFormatterV2();
     return new ConnectionCore(queryFormatter, context, options);
   } else if (

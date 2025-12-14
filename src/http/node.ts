@@ -1,18 +1,25 @@
-import { HttpsAgent } from "agentkeepalive";
+import AgentKeepAlive from "agentkeepalive";
+import http from "http";
+import https from "https";
 
 import Abort from "abort-controller";
-import fetch, { Response } from "node-fetch";
-import { AbortSignal } from "node-fetch/externals";
+import { Response } from "node-fetch";
 import { assignProtocol, systemInfoString } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
 import { Authenticator } from "../auth/managed";
 import { CoreAuthenticator } from "../auth/core";
 
+const { HttpsAgent } = AgentKeepAlive;
+type HttpAgent = typeof AgentKeepAlive;
+
 const AbortController = globalThis.AbortController || Abort;
+
+// Use public types to avoid exposing private agent types
+type AgentType = http.Agent | https.Agent;
 
 type RequestOptions = {
   headers: Record<string, string>;
-  body?: string;
+  body?: string | URLSearchParams;
   raw?: boolean;
   retry?: boolean;
   noAuth?: boolean;
@@ -52,20 +59,27 @@ HttpsAgent.prototype.createSocket = function (req, options, cb) {
 
 export class NodeHttpClient {
   authenticator!: Authenticator | CoreAuthenticator;
-  agentCache!: Map<string, HttpsAgent>;
+  private agentCache!: Map<string, AgentType>;
 
   constructor() {
     this.agentCache = new Map();
   }
 
-  getAgent = (url: string): HttpsAgent => {
-    const { hostname } = new URL(`https://${url}`);
-    if (this.agentCache.has(hostname)) {
-      return this.agentCache.get(hostname) as HttpsAgent;
+  getAgent = (url: string): AgentType => {
+    const withProtocol = assignProtocol(url);
+    const urlObj = new URL(withProtocol);
+    const isHttp = urlObj.protocol === "http:";
+    const hostname = urlObj.hostname;
+
+    const cacheKey = `${isHttp ? "http" : "https"}:${hostname}`;
+    if (this.agentCache.has(cacheKey)) {
+      return this.agentCache.get(cacheKey) as AgentType;
     }
 
-    const agent = new HttpsAgent(agentOptions);
-    this.agentCache.set(hostname, agent);
+    const agent = isHttp
+      ? new AgentKeepAlive(agentOptions)
+      : new HttpsAgent(agentOptions);
+    this.agentCache.set(cacheKey, agent);
     return agent;
   };
 
@@ -136,19 +150,126 @@ export class NodeHttpClient {
     const makeRequest = async () => {
       const headersWithAuth = await addAuthHeaders(headers);
       const withProtocol = assignProtocol(url);
+      const urlObj = new URL(withProtocol);
+      const isHttp = urlObj.protocol === "http:";
+      const requestModule = isHttp ? http : https;
       const userAgent = headersWithAuth["user-agent"] || DEFAULT_USER_AGENT;
 
-      const response = await fetch(withProtocol, {
-        agent,
-        signal: controller.signal as AbortSignal,
-        method,
-        headers: {
-          "user-agent": userAgent,
-          "Content-Type": "application/json",
-          [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
-          ...headersWithAuth
-        },
-        body
+      const response = await new Promise<Response>((resolve, reject) => {
+        const req = requestModule.request(
+          {
+            hostname: urlObj.hostname,
+            port: urlObj.port || (isHttp ? 80 : 443),
+            path: urlObj.pathname + urlObj.search,
+            method,
+            headers: {
+              "user-agent": userAgent,
+              "Content-Type": "application/json",
+              [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
+              ...headersWithAuth
+            },
+            agent
+          },
+          res => {
+            // For raw/streaming responses, don't consume the stream - pass it through
+            if (options?.raw) {
+              const response = {
+                status: res.statusCode || 200,
+                statusText: res.statusMessage || "OK",
+                headers: new Headers(
+                  Object.entries(res.headers).reduce((acc, [key, value]) => {
+                    if (value) {
+                      acc[key] = Array.isArray(value) ? value.join(", ") : String(value);
+                    }
+                    return acc;
+                  }, {} as Record<string, string>)
+                ),
+                ok: (res.statusCode || 200) >= 200 && (res.statusCode || 200) < 300,
+                body: res,
+                text: async () => {
+                  const chunks: Buffer[] = [];
+                  for await (const chunk of res) {
+                    chunks.push(Buffer.from(chunk));
+                  }
+                  return Buffer.concat(chunks as Uint8Array[]).toString();
+                },
+                json: async () => {
+                  const chunks: Buffer[] = [];
+                  for await (const chunk of res) {
+                    chunks.push(Buffer.from(chunk));
+                  }
+                  return JSON.parse(Buffer.concat(chunks as Uint8Array[]).toString() || "{}");
+                },
+                arrayBuffer: async () => {
+                  const chunks: Buffer[] = [];
+                  for await (const chunk of res) {
+                    chunks.push(Buffer.from(chunk));
+                  }
+                  return Buffer.concat(chunks as Uint8Array[]).buffer;
+                }
+              } as unknown as Response;
+
+              resolve(response);
+              return;
+            }
+
+            // For non-raw responses, consume the stream and parse
+            (async () => {
+              const chunks: Buffer[] = [];
+              for await (const chunk of res) {
+                chunks.push(Buffer.from(chunk));
+              }
+              const data = Buffer.concat(chunks as Uint8Array[]).toString();
+              const buffer = Buffer.concat(chunks as Uint8Array[]);
+
+              const response = {
+                status: res.statusCode || 200,
+                statusText: res.statusMessage || "OK",
+                headers: new Headers(
+                  Object.entries(res.headers).reduce((acc, [key, value]) => {
+                    if (value) {
+                      acc[key] = Array.isArray(value) ? value.join(", ") : String(value);
+                    }
+                    return acc;
+                  }, {} as Record<string, string>)
+                ),
+                ok: (res.statusCode || 200) >= 200 && (res.statusCode || 200) < 300,
+                body: undefined,
+                text: async () => data,
+                json: async () => JSON.parse(data || "{}"),
+                arrayBuffer: async () => buffer.buffer
+              } as unknown as Response;
+
+              resolve(response);
+            })();
+          }
+        );
+
+        req.on("error", error => {
+          const nodeError = error as NodeJS.ErrnoException;
+          const errorMessage = error.message || `Connection failed: ${nodeError.code || "unknown error"}`;
+          reject(
+            new ApiError({
+              message: errorMessage,
+              code: nodeError.code || "",
+              status: 0,
+              url: urlObj.toString()
+            })
+          );
+        });
+
+        if (controller.signal.aborted) {
+          req.destroy();
+          return;
+        }
+        controller.signal.addEventListener("abort", () => req.destroy());
+
+        if (body) {
+          // Convert URLSearchParams to string if needed
+          const bodyString = body instanceof URLSearchParams ? body.toString() : (body as string);
+          req.write(bodyString);
+        }
+        req.end();
       });
 
       if (
@@ -168,11 +289,9 @@ export class NodeHttpClient {
           });
         }
 
-        // Track this error status as retried
         const updatedRetriedErrors = new Set(retriedErrors);
         updatedRetriedErrors.add(response.status);
 
-        // Retry with updated tracking but keep retry=true to allow retrying different errors
         const request = this.request<T>(method, url, {
           headers: options?.headers ?? {},
           body: options?.body,
@@ -188,7 +307,7 @@ export class NodeHttpClient {
       }
 
       if (options?.raw) {
-        return response;
+        return response as unknown as T;
       }
 
       const parsed = await response.json();
