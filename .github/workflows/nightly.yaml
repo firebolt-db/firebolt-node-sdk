@@ -51,7 +51,7 @@ jobs:
         uses: ./.github/actions/setup-firebolt-core
         with:
           database: "firebolt"
-          endpoint: "http://localhost:3473"
+          endpoint: "http://127.0.0.1:3473"
 
       - name: Run Core integration tests
         if: matrix.os == 'ubuntu-latest'
