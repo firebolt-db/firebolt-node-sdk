@@ -24,8 +24,13 @@ export type {
   QueryResponse,
   QuerySettings,
   Context,
-  Row
+  Row,
+  FireboltCoreAuth
 } from "./types";
+
+export const FireboltCore = (): import("./types").FireboltCoreAuth => ({
+  type: "firebolt-core"
+});
 
 export { OutputFormat } from "./types";
 export { EngineStatusSummary } from "./service/engine/types";

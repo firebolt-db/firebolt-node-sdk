@@ -5,7 +5,8 @@ import fetch, { Response } from "node-fetch";
 import { AbortSignal } from "node-fetch/externals";
 import { assignProtocol, systemInfoString } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
-import { Authenticator } from "../auth";
+import { Authenticator } from "../auth/managed";
+import { CoreAuthenticator } from "../auth/core";
 
 const AbortController = globalThis.AbortController || Abort;
 
@@ -50,7 +51,7 @@ HttpsAgent.prototype.createSocket = function (req, options, cb) {
 };
 
 export class NodeHttpClient {
-  authenticator!: Authenticator;
+  authenticator!: Authenticator | CoreAuthenticator;
   agentCache!: Map<string, HttpsAgent>;
 
   constructor() {
@@ -91,19 +92,11 @@ export class NodeHttpClient {
     };
 
     const addAuthHeaders = async (requestHeaders: Record<string, string>) => {
-      if (options?.noAuth) return requestHeaders;
-
-      const token = await this.authenticator.getToken();
-      if (!token) {
-        throw new AuthenticationError({
-          message: "Failed to get the access token when making a request."
-        });
+      if (options?.noAuth) {
+        return requestHeaders;
       }
 
-      return {
-        ...requestHeaders,
-        Authorization: `Bearer ${token}`
-      };
+      return this.authenticator.addAuthHeaders(requestHeaders);
     };
 
     const handleErrorResponse = async (response: Response): Promise<never> => {
@@ -161,7 +154,8 @@ export class NodeHttpClient {
       if (
         (response.status === 401 || response.status === 403) &&
         retry &&
-        !retriedErrors.has(response.status)
+        !retriedErrors.has(response.status) &&
+        !this.authenticator.isFireboltCore()
       ) {
         try {
           console.warn(

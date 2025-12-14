@@ -1,5 +1,5 @@
 import { makeConnection } from "../connection";
-import { Authenticator } from "../auth";
+import { Authenticator } from "../auth/managed";
 import { CoreAuthenticator } from "../auth/core";
 import {
   Context,

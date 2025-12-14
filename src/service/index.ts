@@ -14,6 +14,11 @@ export class ResourceManager {
   constructor(context: ResourceManagerContext) {
     this.context = context;
     const { httpClient } = this.context;
+    if (httpClient.authenticator.isFireboltCore()) {
+      throw new Error(
+        "ResourceManager is not supported for Firebolt Core connections"
+      );
+    }
     if (httpClient.authenticator.isServiceAccount()) {
       this.engine = new EngineServiceV2(this.context);
       this.database = new DatabaseServiceV2(this.context);

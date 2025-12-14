@@ -1,7 +1,7 @@
 import { Logger } from "./logger";
 import { HttpClient } from "./http";
 import { ResourceManager } from "./service";
-import { FireboltCore } from "./core";
+import { FireboltClient } from "./client";
 import { FireboltClientOptions, ResourceManagerOptions } from "./types";
 
 type Dependencies = {
@@ -45,7 +45,7 @@ export const FireboltClient = (dependencies: Dependencies) => {
   return (options: FireboltClientOptions = {}) => {
     const context = getContext(options, dependencies);
 
-    return new FireboltCore(context, options);
+    return new FireboltClient(context, options);
   };
 };
 

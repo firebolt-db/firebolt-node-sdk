@@ -82,7 +82,14 @@ export type ServiceAccountAuth = {
   client_secret: string;
 };
 
-export type AuthOptions = UsernamePasswordAuth | ServiceAccountAuth;
+export type FireboltCoreAuth = {
+  type: "firebolt-core";
+};
+
+export type AuthOptions =
+  | UsernamePasswordAuth
+  | ServiceAccountAuth
+  | FireboltCoreAuth;
 
 export type PreparedStatementParamStyle = "native" | "fb_numeric";
 
