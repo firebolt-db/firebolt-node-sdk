@@ -77,11 +77,11 @@ runs:
         echo "Creating database '${{ inputs.database }}' ..."
         # Create the database using a SQL command
         response=$(curl -s -w "\n%{http_code}" -X POST "${{ inputs.endpoint }}/?database=default" \
-          --data-binary "CREATE DATABASE \"${{ inputs.database }}\"" 2>&1)
+          --data-binary "CREATE DATABASE IF NOT EXISTS \"${{ inputs.database }}\"" 2>&1)
         http_code=$(echo "$response" | tail -n1)
         
         if [ "$http_code" = "200" ]; then
-          echo "Database '${{ inputs.database }}' created"
+          echo "Database '${{ inputs.database }}' created or already exists"
         else
           echo "Warning: Database creation returned HTTP $http_code"
           echo "Response: $response"
