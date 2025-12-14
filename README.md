@@ -21,7 +21,11 @@ yarn add firebolt-sdk
 
 ### Authentication
 
-After installation, you must authenticate before you can use the SDK to establish connections, run queries, and manage database resources. The following code example sets up a connection using your Firebolt service account credentials:
+After installation, you must authenticate before you can use the SDK to establish connections, run queries, and manage database resources. The SDK supports two authentication methods:
+
+#### Managed Firebolt (Service Account)
+
+The following code example sets up a connection using your Firebolt service account credentials:
 
 ```typescript
 const connection = await firebolt.connect({
@@ -40,6 +44,22 @@ In the previous code example, the following apply:
 * `engineName` is the name of the engine which you want to run your queries on.
 * `database` is the target databaset to store your tables.
 * `account` is the [account](https://docs.firebolt.io/Overview/organizations-accounts.html#accounts) within your organisation. Your account is not the same as your user name.
+
+#### Firebolt Core (Self-Hosted)
+
+For self-hosted Firebolt Core instances, no authentication is required. Simply use `FireboltCore()` as the auth method:
+
+```typescript
+import { Firebolt, FireboltCore } from 'firebolt-sdk'
+
+const connection = await firebolt.connect({
+  auth: FireboltCore(),
+  database: 'database',
+  engineEndpoint: 'http://localhost:3473', // Required for Core
+});
+```
+
+**Note:** Firebolt Core connections require `engineEndpoint` to be specified. Resource management (engines, databases) and async queries are not available for Core connections.
 
 ### Example
 
@@ -203,11 +223,15 @@ type ClientCredentialsAuth = {
 
 type PreparedStatementParamStyle = "native" | "fb_numeric";
 
+type FireboltCoreAuth = {
+  type: "firebolt-core";
+};
+
 type ConnectionOptions = {
-  auth: AccessTokenAuth | ServiceAccountAuth;
+  auth: AccessTokenAuth | ServiceAccountAuth | FireboltCoreAuth;
   database: string;
   engineName?: string;
-  engineEndpoint?: string;
+  engineEndpoint?: string; // Required for Firebolt Core connections
   account?: string;
   preparedStatementParamStyle?: PreparedStatementParamStyle;
 };
@@ -249,6 +273,28 @@ const connection = await firebolt.connect({
 <a id="enginename"></a>
 #### engineName
 You can omit `engineName` and execute AQL queries on such connection.
+
+<a id="firebolt-core"></a>
+#### Firebolt Core
+For self-hosted Firebolt Core instances, use `FireboltCore()` authentication and provide `engineEndpoint`:
+
+```typescript
+import { Firebolt, FireboltCore } from 'firebolt-sdk'
+
+const connection = await firebolt.connect({
+  auth: FireboltCore(),
+  database: 'database',
+  engineEndpoint: 'http://localhost:3473', // Required for Core
+});
+```
+
+**Important notes for Firebolt Core:**
+- No authentication credentials are required
+- `engineEndpoint` is required (must be specified)
+- Resource management (`resourceManager`) is not available
+- Async queries (`executeAsync`) are not supported
+- Transactions (`begin`, `commit`, `rollback`) are not supported
+- Streaming queries (`executeStream`) are supported
 
 <a id="token-caching"></a>
 #### Token caching

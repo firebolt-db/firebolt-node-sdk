@@ -21,7 +21,11 @@ runs:
   steps:
     - name: Create firebolt-core-data directory
       shell: bash
-      run: mkdir -p ./firebolt-core-data
+      run: |
+        mkdir -p ./firebolt-core-data
+        # Firebolt Core runs as user 1111:1111, so we need to set ownership
+        sudo chown -R 1111:1111 ./firebolt-core-data
+        sudo chmod 755 ./firebolt-core-data
 
     - name: Start Firebolt Core
       shell: bash
@@ -37,7 +41,7 @@ runs:
       shell: bash
       run: |
         echo "Waiting for Firebolt Core to be ready..."
-        timeout=120
+        timeout=30
         elapsed=0
         while [ $elapsed -lt $timeout ]; do
           # Try to connect and execute a simple query
