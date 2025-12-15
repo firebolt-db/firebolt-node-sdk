@@ -66,7 +66,7 @@ jobs:
       shell: bash
 
     - name: GitHub release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         generate_release_notes: true
         tag_name: ${{ steps.tag_generation.outputs.new_tag }}
