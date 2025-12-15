@@ -215,6 +215,8 @@ export class ConnectionV2 extends BaseConnection {
   }
 
   async testConnection() {
+    // Test the connection without starting the engine
+    // Will fail if the engine is stopped even with auto-start enabled
     const settings = { internal: [{ auto_start_stop_control: "ignore" }] };
     await this.execute("select 1", { settings });
   }

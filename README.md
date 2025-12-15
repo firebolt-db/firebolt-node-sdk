@@ -292,7 +292,7 @@ Test the connection using the following example script:
 const firebolt = Firebolt();
 await firebolt.testConnection(connectionOptions)
 ```
-which will perform authentication and a simple `select 1` query
+which will perform authentication and a simple `select 1` query. This method is designed to verify the connection end-to-end and will fail if an engine is stopped, even if it's set to auto-start. In order to start a stopped engine with auto-start enabled submit a query via `connection.execute`.
 
 <a id="engine-url"></a>
 ### Engine URL
