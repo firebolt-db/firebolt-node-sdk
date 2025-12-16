@@ -26,35 +26,27 @@ describe("struct array integration tests", () => {
         [{'ARN': 'test1'}, {'ARN': 'test2'}] AS ef2
     `;
 
-    // Check that the fix works correctly
-
     const statement = await connection.execute(complexQuery, {
       response: { normalizeData: true }
     });
     const { data, meta } = await statement.fetchResult();
 
-    // Verify the query executes successfully
-    expect(data).toBeDefined();
-    expect(meta).toBeDefined();
     expect(meta.length).toBe(3); // ef0, ef1, ef2 columns
-
-    // Verify column names
     expect(meta[0].name).toBe("ef0");
     expect(meta[1].name).toBe("ef1");
     expect(meta[2].name).toBe("ef2");
+    expect(meta[0].type).toBe("text");
+    expect(meta[1].type).toBe("text");
+    expect(meta[2].type).toBe("array(struct(ARN text))");
 
-    // Verify the struct array is correctly parsed
-    if (data.length > 0) {
-      const row = data[0];
+    const row = data[0];
 
-      expect(row.ef0).toBe("value1");
-      expect(row.ef1).toBe("value2");
-      expect(Array.isArray(row.ef2)).toBe(true);
-      expect(row.ef2).toHaveLength(2);
+    expect(row.ef0).toBe("value1");
+    expect(row.ef1).toBe("value2");
+    expect(Array.isArray(row.ef2)).toBe(true);
+    expect(row.ef2).toHaveLength(2);
 
-      // Verify struct values are correctly parsed
-      expect(row.ef2[0]).toEqual({ ARN: "test1" });
-      expect(row.ef2[1]).toEqual({ ARN: "test2" });
-    }
+    expect(row.ef2[0]).toEqual({ ARN: "test1" });
+    expect(row.ef2[1]).toEqual({ ARN: "test2" });
   });
 });
