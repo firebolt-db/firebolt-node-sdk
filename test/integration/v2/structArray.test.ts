@@ -1,0 +1,60 @@
+import { Firebolt } from "../../../src/index";
+
+const connectionParams = {
+  auth: {
+    client_id: process.env.FIREBOLT_CLIENT_ID as string,
+    client_secret: process.env.FIREBOLT_CLIENT_SECRET as string
+  },
+  account: process.env.FIREBOLT_ACCOUNT as string,
+  database: process.env.FIREBOLT_DATABASE as string
+};
+
+jest.setTimeout(500000);
+
+describe("struct array integration tests", () => {
+  it("should correctly parse ARRAY(STRUCT()) with case-insensitive field mapping", async () => {
+    const firebolt = Firebolt({
+      apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
+    });
+
+    const connection = await firebolt.connect(connectionParams);
+
+    const complexQuery = `
+      SELECT 
+        'value1' AS ef0,
+        'value2' AS ef1,
+        [{'ARN': 'test1'}, {'ARN': 'test2'}] AS ef2
+    `;
+
+    // Check that the fix works correctly
+
+    const statement = await connection.execute(complexQuery, {
+      response: { normalizeData: true }
+    });
+    const { data, meta } = await statement.fetchResult();
+
+    // Verify the query executes successfully
+    expect(data).toBeDefined();
+    expect(meta).toBeDefined();
+    expect(meta.length).toBe(3); // ef0, ef1, ef2 columns
+
+    // Verify column names
+    expect(meta[0].name).toBe("ef0");
+    expect(meta[1].name).toBe("ef1");
+    expect(meta[2].name).toBe("ef2");
+
+    // Verify the struct array is correctly parsed
+    if (data.length > 0) {
+      const row = data[0];
+
+      expect(row.ef0).toBe("value1");
+      expect(row.ef1).toBe("value2");
+      expect(Array.isArray(row.ef2)).toBe(true);
+      expect(row.ef2).toHaveLength(2);
+
+      // Verify struct values are correctly parsed
+      expect(row.ef2[0]).toEqual({ arn: "test1" });
+      expect(row.ef2[1]).toEqual({ arn: "test2" });
+    }
+  });
+});

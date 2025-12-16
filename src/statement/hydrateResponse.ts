@@ -30,13 +30,25 @@ const hydrateStruct = (
 ): Record<string, unknown> => {
   const hydratedStruct: Record<string, unknown> = {};
   const innerTypes = getStructTypes(type);
+
+  // Create a case-insensitive lookup map for the actual value keys
+  const valueLookup: Record<string, string> = {};
+  for (const actualKey of Object.keys(value)) {
+    valueLookup[actualKey.toLowerCase()] = actualKey;
+  }
+
   // if number of keys does not match, return value as is
   if (Object.keys(innerTypes).length !== Object.keys(value).length) {
     return value;
   }
-  for (const [key, innerType] of Object.entries(innerTypes)) {
-    hydratedStruct[key] = getHydratedValue(
-      value[key],
+
+  for (const [expectedKey, innerType] of Object.entries(innerTypes)) {
+    // Find the actual key using case-insensitive lookup
+    const actualKey = valueLookup[expectedKey.toLowerCase()];
+    const actualValue = actualKey ? value[actualKey] : value[expectedKey];
+
+    hydratedStruct[expectedKey] = getHydratedValue(
+      actualValue,
       innerType,
       executeQueryOptions
     );
