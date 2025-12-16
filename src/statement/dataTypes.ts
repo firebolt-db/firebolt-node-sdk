@@ -34,9 +34,9 @@ const typeMapping = {
   bytea: "bytea"
 };
 
-const COMPLEX_TYPE = /^(nullable|array)\((.+)\)( null)?/;
-const STRUCT_TYPE = /^(struct)\((.+)\)/;
-const NULLABLE_TYPE = /^(.+)( null)$/;
+const COMPLEX_TYPE = /^(nullable|array)\((.+)\)( null)?/i;
+const STRUCT_TYPE = /^(struct)\((.+)\)/i;
+const NULLABLE_TYPE = /^(.+)( null)$/i;
 const DATETIME_TYPE = /datetime64(.+)/i;
 const TIMESTAMP_TYPE = /timestamp_ext(.+)/i;
 const DECIMAL_TYPE = /decimal(.+)/i;
@@ -93,29 +93,27 @@ export const STRING_TYPES = withNullableTypes(["string", "text"]);
 export const BYTEA_TYPES = withNullableTypes(["bytea"]);
 
 export const getFireboltType = (type: string): string => {
-  const key = type.toLowerCase();
-  const match = RegExp(COMPLEX_TYPE).exec(key);
+  const match = new RegExp(COMPLEX_TYPE).exec(type);
   if (match) {
     const [, outerType, innerType, nullable] = match;
     const fireboltType = getFireboltType(innerType);
 
     return fireboltType
       ? `${outerType}(${fireboltType})${nullable ?? ""}`
-      : key;
+      : type;
   }
-  const mappedType = getMappedType(key);
-  return mappedType ?? key;
+  const mappedType = getMappedType(type);
+  return mappedType ?? type;
 };
 
 export const getInnerType = (type: string): string => {
-  const key = type.toLowerCase();
-  const match = RegExp(COMPLEX_TYPE).exec(key);
+  const match = new RegExp(COMPLEX_TYPE).exec(type);
   if (match) {
     const [, , innerType] = match;
     return getFireboltType(innerType);
   }
-  const mappedType = getMappedType(key);
-  return mappedType ?? key;
+  const mappedType = getMappedType(type);
+  return mappedType ?? type;
 };
 
 const trimElement = (element: string) =>

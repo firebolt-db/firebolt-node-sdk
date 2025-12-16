@@ -53,8 +53,8 @@ describe("struct array integration tests", () => {
       expect(row.ef2).toHaveLength(2);
 
       // Verify struct values are correctly parsed
-      expect(row.ef2[0]).toEqual({ arn: "test1" });
-      expect(row.ef2[1]).toEqual({ arn: "test2" });
+      expect(row.ef2[0]).toEqual({ ARN: "test1" });
+      expect(row.ef2[1]).toEqual({ ARN: "test2" });
     }
   });
 });
