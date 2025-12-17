@@ -9,6 +9,11 @@ on:
       tag:
         required: false
         description: 'Prerelease tag name. Leave empty for regular release.'
+      skip-npm-publish:
+        description: 'Skip npm publish step'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   integration-tests:
@@ -48,6 +53,7 @@ jobs:
         npm run release ${{ github.event.inputs.majorRelease != '' && format('-- --release-as {0}', github.event.inputs.majorRelease) || '' }} ${{ github.event.inputs.tag != '' && format('--prerelease {0}', github.event.inputs.tag) || '' }}
 
     - name: Publish to npm
+      if: github.event.inputs.skip-npm-publish != 'true'
       run: |
         echo //registry.npmjs.org/:_authToken=${{secrets.NPM_PUBLISH_KEY}} >> .npmrc
         echo email=${{ secrets.NPM_EMAIL }} >> .npmrc
