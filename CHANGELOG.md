@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.14.2](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.14.1...v1.14.2) (2025-12-17)
+
+
+### Bug Fixes
+
+* FIR-51447 fix struct parsing ([#157](https://github.com/firebolt-db/firebolt-node-sdk/issues/157)) ([82eb006](https://github.com/firebolt-db/firebolt-node-sdk/commit/82eb0063b7675aeae3bd1a7365727900ac7ba13c))
+
 ### [1.14.1](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.14.0...v1.14.1) (2025-11-19)
 
 
