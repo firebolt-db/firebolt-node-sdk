@@ -30,10 +30,12 @@ const hydrateStruct = (
 ): Record<string, unknown> => {
   const hydratedStruct: Record<string, unknown> = {};
   const innerTypes = getStructTypes(type);
+
   // if number of keys does not match, return value as is
   if (Object.keys(innerTypes).length !== Object.keys(value).length) {
     return value;
   }
+
   for (const [key, innerType] of Object.entries(innerTypes)) {
     hydratedStruct[key] = getHydratedValue(
       value[key],

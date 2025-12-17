@@ -371,6 +371,14 @@ describe("parse values", () => {
     const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
     expect(res["s"]).toEqual({ a: { "c d": null } });
   });
+  it("parses nested struct with capital keys single struct correctly", () => {
+    const row = {
+      s: { A: { "C d": null } }
+    };
+    const meta = [{ name: "s", type: "struct(A struct(`C d` text null))" }];
+    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    expect(res["s"]).toEqual({ A: { "C d": null } });
+  });
   it("parses nested struct with single struct mixed quoting", () => {
     const row = {
       s: { a: { e: "test", "c d": null } }
@@ -389,6 +397,41 @@ describe("parse values", () => {
     const meta = [{ name: "s", type: "struct(a array(int), b text" }];
     const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
     expect(res["s"]).toEqual({ a: [1, 2], b: "hello" });
+  });
+
+  it("handles case-insensitive struct field mapping", () => {
+    // Basic struct with case mismatch
+    const row1 = { s: { ARN: "test-arn-value", Id: 123 } };
+    const meta1 = [{ name: "s", type: "struct(ARN text, Id int)" }];
+    const res1: Record<string, Record<string, any>> = hydrateRow(
+      row1,
+      meta1,
+      {}
+    );
+    expect(res1["s"]).toEqual({ ARN: "test-arn-value", Id: 123 });
+  });
+
+  it("handles nested structs with case-insensitive mapping", () => {
+    const row = {
+      s: {
+        A: [1, 2],
+        B: {
+          ARn: "nested-arn",
+          Name: "nested-name"
+        }
+      }
+    };
+    const meta = [
+      { name: "s", type: "struct(A array(int), B struct(ARn text, Name text))" }
+    ];
+    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    expect(res["s"]).toEqual({
+      A: [1, 2],
+      B: {
+        ARn: "nested-arn",
+        Name: "nested-name"
+      }
+    });
   });
 });
 
