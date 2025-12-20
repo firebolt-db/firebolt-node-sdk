@@ -4,11 +4,11 @@ import { CoreAuthenticator } from "../auth/core";
 import {
   Context,
   ConnectionOptions,
-  FireboltClientOptions,
-  FireboltCoreAuth
+  FireboltClientOptions
 } from "../types";
 import { ResourceManager } from "../service";
 import { NodeHttpClient } from "../http/node";
+import { isFireboltCoreAuth } from "../common/auth";
 
 export class FireboltClient {
   private options: FireboltClientOptions;
@@ -47,11 +47,9 @@ export class FireboltClient {
     };
 
     // Use CoreAuthenticator for Core, regular Authenticator for managed Firebolt
-    const auth =
-      "type" in connectionOptions.auth &&
-      (connectionOptions.auth as FireboltCoreAuth).type === "firebolt-core"
-        ? new CoreAuthenticator(connectionContext, connectionOptions)
-        : new Authenticator(connectionContext, connectionOptions);
+    const auth = isFireboltCoreAuth(connectionOptions.auth)
+      ? new CoreAuthenticator(connectionContext, connectionOptions)
+      : new Authenticator(connectionContext, connectionOptions);
 
     const connection = makeConnection(connectionContext, connectionOptions);
     await auth.authenticate();
@@ -66,10 +64,7 @@ export class FireboltClient {
     );
 
     // Only create ResourceManager for managed Firebolt (not Core)
-    if (
-      !("type" in connectionOptions.auth) ||
-      (connectionOptions.auth as FireboltCoreAuth).type !== "firebolt-core"
-    ) {
+    if (!isFireboltCoreAuth(connectionOptions.auth)) {
       const resourceContext = {
         connection,
         ...connectionContext
