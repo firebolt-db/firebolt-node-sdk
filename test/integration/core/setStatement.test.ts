@@ -13,37 +13,54 @@ describe("SET statements", () => {
     const firebolt = Firebolt();
     const connection = await firebolt.connect(connectionParams);
 
-    // SET statements don't return data, just verify they execute without error
-    // Use a setting that Core supports (statement_timeout is commonly supported)
-    await connection.execute("SET statement_timeout=10000");
-    const statement = await connection.execute("SELECT 1");
+    // SET timezone and verify it affects subsequent queries
+    await connection.execute("SET timezone = 'Europe/Berlin'");
+    
+    // Verify the timezone setting is applied by checking timestamp conversion
+    const statement = await connection.execute(
+      "SELECT '2025-12-15 16:00:00+00'::timestamptz::TEXT"
+    );
     const { data } = await statement.fetchResult();
 
-    expect(data[0][0]).toEqual(1);
+    // Europe/Berlin is UTC+1, so 16:00:00 UTC becomes 17:00:00+01
+    expect(data[0][0]).toContain("17:00:00+01");
   });
 
   it("SET statement affects subsequent queries", async () => {
     const firebolt = Firebolt();
     const connection = await firebolt.connect(connectionParams);
 
-    // Use a setting that Core supports
-    await connection.execute("SET statement_timeout=5000");
-    const statement = await connection.execute("SELECT 1");
+    // Set timezone to Europe/Bucharest
+    await connection.execute("SET timezone = 'Europe/Bucharest'");
+    
+    // Verify the timezone setting affects the query result
+    const statement = await connection.execute(
+      "SELECT '2025-12-15 16:00:00+00'::timestamptz::TEXT"
+    );
     const { data } = await statement.fetchResult();
 
-    expect(data[0][0]).toEqual(1);
+    // Europe/Bucharest is UTC+2, so 16:00:00 UTC becomes 18:00:00+02
+    expect(data[0][0]).toContain("18:00:00+02");
   });
 
   it("handles multiple SET statements", async () => {
     const firebolt = Firebolt();
     const connection = await firebolt.connect(connectionParams);
 
-    await connection.execute("SET statement_timeout=10000");
-    await connection.execute("SET max_threads=1");
-    const statement = await connection.execute("SELECT 1");
+    // Set multiple settings
+    await connection.execute("SET timezone = 'Europe/Berlin'");
+    await connection.execute("SET max_result_rows=5");
+    
+    // Verify the timezone setting is still applied after multiple SET statements
+    const statement = await connection.execute(
+      "SELECT '2025-12-15 16:00:00+00'::timestamptz::TEXT FROM generate_series(1, 10)"
+    );
     const { data } = await statement.fetchResult();
 
-    expect(data[0][0]).toEqual(1);
+    // Europe/Berlin is UTC+1, so 16:00:00 UTC becomes 17:00:00+01
+    expect(data[0][0]).toContain("17:00:00+01");
+    // Ensure that there are only five result rows
+    expect(data.length).toBe(5);
   });
 });
 
