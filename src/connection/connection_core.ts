@@ -57,17 +57,5 @@ export class ConnectionCore extends BaseConnection {
   async cancelAsyncQuery(token: string): Promise<void> {
     throw new Error("Async queries are not supported in Firebolt Core");
   }
-
-  async begin(): Promise<void> {
-    throw new Error("Transactions are not supported in Firebolt Core");
-  }
-
-  async commit(): Promise<void> {
-    throw new Error("Transactions are not supported in Firebolt Core");
-  }
-
-  async rollback(): Promise<void> {
-    throw new Error("Transactions are not supported in Firebolt Core");
-  }
 }
 

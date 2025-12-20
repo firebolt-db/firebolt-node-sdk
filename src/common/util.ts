@@ -4,10 +4,7 @@ import os from "os";
 import { ConnectorVersion } from "../types";
 
 export const assignProtocol = (url: string) => {
-  if (url.startsWith("http")) {
-    return url;
-  }
-  return `https://${url}`;
+  return url.startsWith("http") ? url : `https://${url}`;
 };
 
 export const isDataQuery = (query: string): boolean => {
