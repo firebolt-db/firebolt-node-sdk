@@ -9,7 +9,7 @@ on:
         type: string
 
 jobs:
-  tests:
+  core-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
@@ -23,29 +23,18 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Setup Firebolt Core
-        id: setup-core
-        uses: ./.github/actions/setup-firebolt-core
-        with:
-          database: "firebolt"
-          endpoint: "http://127.0.0.1:3473"
-
       - name: Run Core integration tests
-        env:
-          FIREBOLT_DATABASE: ${{ steps.setup-core.outputs.database }}
-          FIREBOLT_CORE_ENDPOINT: ${{ steps.setup-core.outputs.endpoint }}
-        run: |
-          npm run test:ci integration/core
+        uses: ./.github/actions/run-core-integration-tests
 
-      - name: Teardown Firebolt Core
-        if: always()
-        uses: ./.github/actions/teardown-firebolt-core
-
+  allure-report:
+    needs: core-tests
+    runs-on: ubuntu-latest
+    if: always() && github.repository == 'firebolt-db/firebolt-node-sdk'
+    steps:
       # Need to pull the pages branch in order to fetch the previous runs
       # Only run Allure reporting on the main repository, not forks
       - name: Get Allure history
         uses: actions/checkout@v4
-        if: always() && github.repository == 'firebolt-db/firebolt-node-sdk'
         continue-on-error: true
         with:
             ref: gh-pages
@@ -53,7 +42,6 @@ jobs:
 
       - name: Allure Report
         uses: firebolt-db/action-allure-report@v1
-        if: always() && github.repository == 'firebolt-db/firebolt-node-sdk'
         with:
             github-key: ${{ inputs.token || secrets.GITHUB_TOKEN }}
             test-type: integration-core

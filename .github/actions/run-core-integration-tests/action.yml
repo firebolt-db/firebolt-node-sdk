@@ -1,0 +1,33 @@
+name: 'Run Core Integration Tests'
+description: 'Setup, run, and teardown Firebolt Core integration tests'
+inputs:
+  database:
+    description: 'Database name for Firebolt Core'
+    required: false
+    default: 'firebolt'
+  endpoint:
+    description: 'Firebolt Core endpoint'
+    required: false
+    default: 'http://127.0.0.1:3473'
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Firebolt Core
+      id: setup-core
+      uses: ./.github/actions/setup-firebolt-core
+      with:
+        database: ${{ inputs.database }}
+        endpoint: ${{ inputs.endpoint }}
+
+    - name: Run Core integration tests
+      shell: bash
+      env:
+        FIREBOLT_DATABASE: ${{ steps.setup-core.outputs.database }}
+        FIREBOLT_CORE_ENDPOINT: ${{ steps.setup-core.outputs.endpoint }}
+      run: |
+        npm run test:ci integration/core
+
+    - name: Teardown Firebolt Core
+      if: always()
+      uses: ./.github/actions/teardown-firebolt-core
+

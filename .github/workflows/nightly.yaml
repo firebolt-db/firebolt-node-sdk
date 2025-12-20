@@ -45,29 +45,12 @@ jobs:
         run: |
           npm run test:ci integration/v2
 
-      - name: Setup Firebolt Core
-        if: matrix.os == 'ubuntu-latest'
-        id: setup-core
-        uses: ./.github/actions/setup-firebolt-core
-        with:
-          database: "firebolt"
-          endpoint: "http://127.0.0.1:3473"
-
       - name: Run Core integration tests
         if: matrix.os == 'ubuntu-latest'
-        env:
-          FIREBOLT_DATABASE: ${{ steps.setup-core.outputs.database }}
-          FIREBOLT_CORE_ENDPOINT: ${{ steps.setup-core.outputs.endpoint }}
-        run: |
-          npm run test:ci integration/core
-
-      - name: Teardown Firebolt Core
-        if: matrix.os == 'ubuntu-latest'
-        uses: ./.github/actions/teardown-firebolt-core
+        uses: ./.github/actions/run-core-integration-tests
 
       - name: Slack Notify of failure
         if: failure()
-        id: slack
         uses: firebolt-db/action-slack-nightly-notify@v1
         with:
           os: ${{ matrix.os }}
