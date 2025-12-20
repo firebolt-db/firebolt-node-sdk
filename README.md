@@ -293,7 +293,6 @@ const connection = await firebolt.connect({
 - `engineEndpoint` is required (must be specified)
 - Resource management (`resourceManager`) is not available
 - Async queries (`executeAsync`) are not supported
-- Transactions (`begin`, `commit`, `rollback`) are not supported
 - Streaming queries (`executeStream`) are supported
 
 <a id="token-caching"></a>

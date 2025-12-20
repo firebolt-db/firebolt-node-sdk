@@ -57,7 +57,7 @@ Use `CompositeError` for multiple errors. Custom errors: `AccountNotFoundError`,
 ## Important Details
 
 - **Prepared statements**: `native` (default, client-side `?`/`:name`) vs `fb_numeric` (server-side `$1`/`$2`)
-- **Transactions**: `begin()`, `commit()`, `rollback()` on Connection (state per connection). **Not supported in Core** - methods throw errors.
+- **Transactions**: `begin()`, `commit()`, `rollback()` on Connection (state per connection).
 - **Async queries**: `async: true` setting → token for `isAsyncQueryRunning()`, `isAsyncQuerySuccessful()`, `cancelAsyncQuery()`. **Not supported in Core** - methods throw errors.
 - **ResourceManager**: Available for V1/V2 managed connections. **Not available in Core** - accessing `resourceManager` throws error.
 - **Result hydration**: SQL types → JS types (dates, BigNumber for large ints, normalization)

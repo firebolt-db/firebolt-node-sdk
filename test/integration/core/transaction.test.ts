@@ -170,5 +170,36 @@ describe("transactions", () => {
     await checkRecordCountByIdInAnotherTransaction(9, 1);
     await checkRecordCountByIdInAnotherTransaction(10, 1);
   });
+
+  it("should not allow concurrent write transactions", async () => {
+    const firebolt = Firebolt();
+    const connection1 = await firebolt.connect(connectionParams);
+    const connection2 = await firebolt.connect(connectionParams);
+
+    // Start first transaction with a write operation
+    await connection1.begin();
+    await connection1.execute("INSERT INTO transaction_test VALUES (11, 'first')");
+
+    // Attempt to start a second concurrent write transaction
+    // Core does not support multiple concurrent write transactions, so this should fail
+    // The error may occur when trying to begin() or when trying to execute the write operation
+    let secondTransactionFailed = false;
+    try {
+      await connection2.begin();
+      await connection2.execute("INSERT INTO transaction_test VALUES (12, 'second')");
+    } catch (error) {
+      secondTransactionFailed = true;
+      // Verify that the second transaction did not succeed
+      await checkRecordCountByIdInAnotherTransaction(12, 0);
+    }
+
+    expect(secondTransactionFailed).toBe(true);
+
+    // Clean up: rollback the first transaction
+    await connection1.rollback();
+    
+    // Verify the first transaction's data was rolled back
+    await checkRecordCountByIdInAnotherTransaction(11, 0);
+  });
 });
 
