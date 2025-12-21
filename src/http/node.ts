@@ -247,7 +247,11 @@ export class NodeHttpClient {
 
         req.on("error", error => {
           const nodeError = error as NodeJS.ErrnoException;
-          const errorMessage = error.message || `Connection failed: ${nodeError.code || "unknown error"}`;
+          // Check if this error was caused by a user-initiated abort
+          const isAborted = controller.signal.aborted;
+          const errorMessage = isAborted
+            ? "The user aborted a request."
+            : error.message || `Connection failed: ${nodeError.code || "unknown error"}`;
           reject(
             new ApiError({
               message: errorMessage,
