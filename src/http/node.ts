@@ -1,6 +1,4 @@
 import AgentKeepAlive from "agentkeepalive";
-import http from "http";
-import https from "https";
 
 import Abort from "abort-controller";
 import fetch, { Response } from "node-fetch";
@@ -10,12 +8,11 @@ import { Authenticator } from "../auth/managed";
 import { CoreAuthenticator } from "../auth/core";
 
 const { HttpsAgent } = AgentKeepAlive;
-type HttpAgent = typeof AgentKeepAlive;
+const HttpAgent = AgentKeepAlive;
 
 const AbortController = globalThis.AbortController || Abort;
 
-// Use public types to avoid exposing private agent types
-type AgentType = http.Agent | https.Agent;
+type AgentType = InstanceType<typeof HttpAgent> | InstanceType<typeof HttpsAgent>;
 
 type RequestOptions = {
   headers: Record<string, string>;
@@ -65,7 +62,7 @@ export class NodeHttpClient {
     this.agentCache = new Map();
   }
 
-  getAgent = (url: string): AgentType => {
+  private getAgent = (url: string): AgentType => {
     const withProtocol = assignProtocol(url);
     const urlObj = new URL(withProtocol);
     const isHttp = urlObj.protocol === "http:";
@@ -77,7 +74,7 @@ export class NodeHttpClient {
     }
 
     const agent = isHttp
-      ? new AgentKeepAlive(agentOptions)
+      ? new HttpAgent(agentOptions)
       : new HttpsAgent(agentOptions);
     this.agentCache.set(cacheKey, agent);
     return agent;
