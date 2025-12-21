@@ -3,7 +3,7 @@ import http from "http";
 import https from "https";
 
 import Abort from "abort-controller";
-import { Response, Headers } from "node-fetch";
+import fetch, { Response } from "node-fetch";
 import { assignProtocol, systemInfoString } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
 import { Authenticator } from "../auth/managed";
@@ -150,17 +150,11 @@ export class NodeHttpClient {
     const makeRequest = async () => {
       const headersWithAuth = await addAuthHeaders(headers);
       const withProtocol = assignProtocol(url);
-      const urlObj = new URL(withProtocol);
-      const isHttp = urlObj.protocol === "http:";
-      const requestModule = isHttp ? http : https;
       const userAgent = headersWithAuth["user-agent"] || DEFAULT_USER_AGENT;
 
-      const response = await new Promise<Response>((resolve, reject) => {
-        const req = requestModule.request(
-          {
-            hostname: urlObj.hostname,
-            port: urlObj.port || (isHttp ? 80 : 443),
-            path: urlObj.pathname + urlObj.search,
+      const response = await fetch(withProtocol, {
+        agent,
+        signal: controller.signal as any,
         method,
         headers: {
           "user-agent": userAgent,
@@ -168,112 +162,7 @@ export class NodeHttpClient {
           [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
           ...headersWithAuth
         },
-            agent
-          },
-          res => {
-            // For raw/streaming responses, don't consume the stream - pass it through
-            if (options?.raw) {
-              const response = {
-                status: res.statusCode || 200,
-                statusText: res.statusMessage || "OK",
-                headers: new Headers(
-                  Object.entries(res.headers).reduce((acc, [key, value]) => {
-                    if (value !== undefined && value !== null) {
-                      acc[key] = Array.isArray(value) ? value.join(", ") : String(value);
-                    }
-                    return acc;
-                  }, {} as Record<string, string>)
-                ),
-                ok: (res.statusCode || 200) >= 200 && (res.statusCode || 200) < 300,
-                body: res,
-                text: async () => {
-                  const chunks: Buffer[] = [];
-                  for await (const chunk of res) {
-                    chunks.push(Buffer.from(chunk));
-                  }
-                  return Buffer.concat(chunks as Uint8Array[]).toString();
-                },
-                json: async () => {
-                  const chunks: Buffer[] = [];
-                  for await (const chunk of res) {
-                    chunks.push(Buffer.from(chunk));
-                  }
-                  return JSON.parse(Buffer.concat(chunks as Uint8Array[]).toString() || "{}");
-                },
-                arrayBuffer: async () => {
-                  const chunks: Buffer[] = [];
-                  for await (const chunk of res) {
-                    chunks.push(Buffer.from(chunk));
-                  }
-                  return Buffer.concat(chunks as Uint8Array[]).buffer;
-                }
-              } as unknown as Response;
-
-              resolve(response);
-              return;
-            }
-
-            // For non-raw responses, consume the stream and parse
-            (async () => {
-              const chunks: Buffer[] = [];
-              for await (const chunk of res) {
-                chunks.push(Buffer.from(chunk));
-              }
-              const data = Buffer.concat(chunks as Uint8Array[]).toString();
-              const buffer = Buffer.concat(chunks as Uint8Array[]);
-
-              const response = {
-                status: res.statusCode || 200,
-                statusText: res.statusMessage || "OK",
-                headers: new Headers(
-                  Object.entries(res.headers).reduce((acc, [key, value]) => {
-                    if (value !== undefined && value !== null) {
-                      acc[key] = Array.isArray(value) ? value.join(", ") : String(value);
-                    }
-                    return acc;
-                  }, {} as Record<string, string>)
-                ),
-                ok: (res.statusCode || 200) >= 200 && (res.statusCode || 200) < 300,
-                body: undefined,
-                text: async () => data,
-                json: async () => JSON.parse(data || "{}"),
-                arrayBuffer: async () => buffer.buffer
-              } as unknown as Response;
-
-              resolve(response);
-            })();
-          }
-        );
-
-        req.on("error", error => {
-          const nodeError = error as NodeJS.ErrnoException;
-          // Check if this error was caused by a user-initiated abort
-          const isAborted = controller.signal.aborted;
-          const errorMessage = isAborted
-            ? "The user aborted a request."
-            : error.message || `Connection failed: ${nodeError.code || "unknown error"}`;
-          reject(
-            new ApiError({
-              message: errorMessage,
-              code: nodeError.code || "",
-              status: 0,
-              url: urlObj.toString()
-            })
-          );
-        });
-
-        if (controller.signal.aborted) {
-          req.destroy();
-          return;
-        }
-        controller.signal.addEventListener("abort", () => req.destroy());
-
-        if (body) {
-          // Convert URLSearchParams to string if needed
-          const bodyString = body instanceof URLSearchParams ? body.toString() : (body as string);
-          req.write(bodyString);
-        }
-        req.end();
+        body
       });
 
       if (
