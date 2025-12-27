@@ -44,7 +44,7 @@ describe.each([
 
         await firebolt.connect(connectionOptions);
 
-        const engine = await firebolt.resourceManager.engine.getByName(
+          const engine = await firebolt.resourceManager.engine.getByName(
           process.env.FIREBOLT_ENGINE_NAME as string
         );
 
@@ -69,7 +69,7 @@ describe.each([
 
         await firebolt.connect(connectionOptions);
 
-        const engine = await firebolt.resourceManager.engine.getByName(
+          const engine = await firebolt.resourceManager.engine.getByName(
           process.env.FIREBOLT_ENGINE_NAME as string
         );
 

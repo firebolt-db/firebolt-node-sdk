@@ -20,9 +20,6 @@ describe("geography", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    await connection.execute("SET advanced_mode=1");
-    await connection.execute("SET enable_geography=true");
-
     const statement = await connection.execute(
       "select 'POINT(1 1)'::geography;"
     );

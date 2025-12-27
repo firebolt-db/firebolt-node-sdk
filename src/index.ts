@@ -2,6 +2,7 @@
 import { FireboltClient, ResourceClient } from "./firebolt";
 import { NodeHttpClient } from "./http/node";
 import { Logger } from "./logger/node";
+import type { FireboltCoreAuth } from "./types";
 
 export const Firebolt = FireboltClient({
   logger: Logger,
@@ -24,8 +25,13 @@ export type {
   QueryResponse,
   QuerySettings,
   Context,
-  Row
+  Row,
+  FireboltCoreAuth
 } from "./types";
+
+export const FireboltCore = (): FireboltCoreAuth => ({
+  type: "firebolt-core"
+});
 
 export { OutputFormat } from "./types";
 export { EngineStatusSummary } from "./service/engine/types";

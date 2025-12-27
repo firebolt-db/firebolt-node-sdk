@@ -45,9 +45,12 @@ jobs:
         run: |
           npm run test:ci integration/v2
 
+      - name: Run Core integration tests
+        if: matrix.os == 'ubuntu-latest'
+        uses: ./.github/actions/run-core-integration-tests
+
       - name: Slack Notify of failure
         if: failure()
-        id: slack
         uses: firebolt-db/action-slack-nightly-notify@v1
         with:
           os: ${{ matrix.os }}

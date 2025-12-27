@@ -1,0 +1,96 @@
+name: 'Setup Firebolt Core'
+description: 'Start Firebolt Core in Docker and wait for it to be ready'
+inputs:
+  database:
+    description: 'Database name for Firebolt Core'
+    required: false
+    default: 'firebolt'
+  endpoint:
+    description: 'Firebolt Core endpoint'
+    required: false
+    default: 'http://127.0.0.1:3473'
+outputs:
+  database:
+    description: 'Database name'
+    value: ${{ inputs.database }}
+  endpoint:
+    description: 'Firebolt Core endpoint'
+    value: ${{ inputs.endpoint }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Create firebolt-core-data directory
+      shell: bash
+      run: |
+        mkdir -p ./firebolt-core-data
+        # Firebolt Core runs as user 1111:1111, so we need to set ownership
+        sudo chown -R 1111:1111 ./firebolt-core-data
+        sudo chmod 755 ./firebolt-core-data
+
+    - name: Start Firebolt Core
+      shell: bash
+      run: |
+        docker run -d --rm --name firebolt-core \
+          --ulimit memlock=8589934592:8589934592 \
+          --security-opt seccomp=unconfined \
+          -p 127.0.0.1:3473:3473 \
+          -v $(pwd)/firebolt-core-data:/firebolt-core/volume \
+          ghcr.io/firebolt-db/firebolt-core:preview-rc
+
+    - name: Wait for Firebolt Core to be ready
+      shell: bash
+      run: |
+        echo "Waiting for Firebolt Core to be ready..."
+        timeout=30
+        elapsed=0
+        while [ $elapsed -lt $timeout ]; do
+          # Try to connect and execute a simple query
+          response=$(curl -s -w "\n%{http_code}" -X POST "${{ inputs.endpoint }}/" \
+            --data-binary "SELECT 1" 2>&1) || response=""
+          http_code=$(echo "$response" | tail -n1)
+          
+          if [ "$http_code" = "200" ]; then
+            echo "Firebolt Core is ready!"
+            break
+          fi
+          echo "Waiting... ($elapsed/$timeout seconds) - HTTP $http_code"
+          sleep 3
+          elapsed=$((elapsed + 3))
+        done
+        
+        if [ $elapsed -ge $timeout ]; then
+          echo "Firebolt Core failed to start within $timeout seconds"
+          echo "Container logs:"
+          docker logs firebolt-core || true
+          echo "Container status:"
+          docker ps -a | grep firebolt-core || true
+          exit 1
+        fi
+        
+        # Give Core a bit more time to fully initialize
+        echo "Core is responding, waiting additional 5 seconds for full initialization..."
+        sleep 5
+
+    - name: Create database if it doesn't exist
+      shell: bash
+      run: |
+        echo "Creating database '${{ inputs.database }}' ..."
+        # Create the database using a SQL command
+        response=$(curl -s -w "\n%{http_code}" -X POST "${{ inputs.endpoint }}/?database=default" \
+          --data-binary "CREATE DATABASE IF NOT EXISTS \"${{ inputs.database }}\"" 2>&1)
+        http_code=$(echo "$response" | tail -n1)
+        
+        if [ "$http_code" = "200" ]; then
+          echo "Database '${{ inputs.database }}' created or already exists"
+        else
+          echo "Warning: Database creation returned HTTP $http_code"
+          echo "Response: $response"
+          exit 1
+        fi
+
+    - name: Set outputs
+      shell: bash
+      run: |
+        echo "database=${{ inputs.database }}" >> $GITHUB_OUTPUT
+        echo "endpoint=${{ inputs.endpoint }}" >> $GITHUB_OUTPUT
+

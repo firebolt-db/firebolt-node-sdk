@@ -1,17 +1,22 @@
-import { HttpsAgent } from "agentkeepalive";
+import AgentKeepAlive from "agentkeepalive";
 
 import Abort from "abort-controller";
 import fetch, { Response } from "node-fetch";
-import { AbortSignal } from "node-fetch/externals";
 import { assignProtocol, systemInfoString } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
-import { Authenticator } from "../auth";
+import { Authenticator } from "../auth/managed";
+import { CoreAuthenticator } from "../auth/core";
+
+const { HttpsAgent } = AgentKeepAlive;
+const HttpAgent = AgentKeepAlive;
 
 const AbortController = globalThis.AbortController || Abort;
 
+type AgentType = InstanceType<typeof HttpAgent> | InstanceType<typeof HttpsAgent>;
+
 type RequestOptions = {
   headers: Record<string, string>;
-  body?: string;
+  body?: string | URLSearchParams;
   raw?: boolean;
   retry?: boolean;
   noAuth?: boolean;
@@ -50,21 +55,28 @@ HttpsAgent.prototype.createSocket = function (req, options, cb) {
 };
 
 export class NodeHttpClient {
-  authenticator!: Authenticator;
-  agentCache!: Map<string, HttpsAgent>;
+  authenticator!: Authenticator | CoreAuthenticator;
+  private agentCache!: Map<string, AgentType>;
 
   constructor() {
     this.agentCache = new Map();
   }
 
-  getAgent = (url: string): HttpsAgent => {
-    const { hostname } = new URL(`https://${url}`);
-    if (this.agentCache.has(hostname)) {
-      return this.agentCache.get(hostname) as HttpsAgent;
+  private getAgent = (url: string): AgentType => {
+    const withProtocol = assignProtocol(url);
+    const urlObj = new URL(withProtocol);
+    const isHttp = urlObj.protocol === "http:";
+    const hostname = urlObj.hostname;
+
+    const cacheKey = `${isHttp ? "http" : "https"}:${hostname}`;
+    if (this.agentCache.has(cacheKey)) {
+      return this.agentCache.get(cacheKey) as AgentType;
     }
 
-    const agent = new HttpsAgent(agentOptions);
-    this.agentCache.set(hostname, agent);
+    const agent = isHttp
+      ? new HttpAgent(agentOptions)
+      : new HttpsAgent(agentOptions);
+    this.agentCache.set(cacheKey, agent);
     return agent;
   };
 
@@ -91,19 +103,11 @@ export class NodeHttpClient {
     };
 
     const addAuthHeaders = async (requestHeaders: Record<string, string>) => {
-      if (options?.noAuth) return requestHeaders;
-
-      const token = await this.authenticator.getToken();
-      if (!token) {
-        throw new AuthenticationError({
-          message: "Failed to get the access token when making a request."
-        });
+      if (options?.noAuth) {
+        return requestHeaders;
       }
 
-      return {
-        ...requestHeaders,
-        Authorization: `Bearer ${token}`
-      };
+      return this.authenticator.addAuthHeaders(requestHeaders);
     };
 
     const handleErrorResponse = async (response: Response): Promise<never> => {
@@ -147,7 +151,7 @@ export class NodeHttpClient {
 
       const response = await fetch(withProtocol, {
         agent,
-        signal: controller.signal as AbortSignal,
+        signal: controller.signal as any,
         method,
         headers: {
           "user-agent": userAgent,
@@ -161,7 +165,8 @@ export class NodeHttpClient {
       if (
         (response.status === 401 || response.status === 403) &&
         retry &&
-        !retriedErrors.has(response.status)
+        !retriedErrors.has(response.status) &&
+        !this.authenticator.isFireboltCore()
       ) {
         try {
           console.warn(
@@ -174,11 +179,9 @@ export class NodeHttpClient {
           });
         }
 
-        // Track this error status as retried
         const updatedRetriedErrors = new Set(retriedErrors);
         updatedRetriedErrors.add(response.status);
 
-        // Retry with updated tracking but keep retry=true to allow retrying different errors
         const request = this.request<T>(method, url, {
           headers: options?.headers ?? {},
           body: options?.body,
@@ -194,7 +197,7 @@ export class NodeHttpClient {
       }
 
       if (options?.raw) {
-        return response;
+        return response as unknown as T;
       }
 
       const parsed = await response.json();

@@ -324,6 +324,18 @@ export abstract class Connection {
     return !!contentType?.includes("application/json");
   }
 
+  async begin(): Promise<void> {
+    await this.execute("BEGIN TRANSACTION");
+  }
+
+  async commit(): Promise<void> {
+    await this.execute("COMMIT");
+  }
+
+  async rollback(): Promise<void> {
+    await this.execute("ROLLBACK");
+  }
+
   async destroy() {
     for (const request of this.activeRequests) {
       request.abort();
