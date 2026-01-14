@@ -28,6 +28,9 @@ const hydrateStruct = (
   type: string,
   executeQueryOptions: ExecuteQueryOptions
 ): Record<string, unknown> => {
+  if (!value) {
+    return value;
+  }
   const hydratedStruct: Record<string, unknown> = {};
   const innerTypes = getStructTypes(type);
 

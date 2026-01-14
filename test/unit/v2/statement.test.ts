@@ -433,6 +433,26 @@ describe("parse values", () => {
       }
     });
   });
+
+  it("handles null struct value with normalization", () => {
+    const row = {
+      s: null
+    };
+    const meta = [{ name: "s", type: "struct(a int, b text) null" }];
+    const res: Record<string, any> = hydrateRow(row, meta, {});
+    expect(res["s"]).toBeNull();
+  });
+
+  it("handles null struct value without normalization (array format)", () => {
+    const row = [null, "value2"];
+    const meta = [
+      { name: "s", type: "struct(a int, b text) null" },
+      { name: "col2", type: "text" }
+    ];
+    const res = hydrateRow(row, meta, {}) as unknown[];
+    expect(res[0]).toBeNull();
+    expect(res[1]).toBe("value2");
+  });
 });
 
 describe("set statements", () => {
