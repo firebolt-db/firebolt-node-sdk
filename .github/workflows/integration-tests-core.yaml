@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up node.js
         uses: actions/setup-node@v6
@@ -34,7 +34,7 @@ jobs:
       # Need to pull the pages branch in order to fetch the previous runs
       # Only run Allure reporting on the main repository, not forks
       - name: Get Allure history
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         continue-on-error: true
         with:
             ref: gh-pages
