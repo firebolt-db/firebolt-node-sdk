@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.14.4](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.14.3...v1.14.4) (2026-01-15)
+
+
+### Bug Fixes
+
+* FIR-51861 null pointer when hydrating null struct ([#161](https://github.com/firebolt-db/firebolt-node-sdk/issues/161)) ([87c81e6](https://github.com/firebolt-db/firebolt-node-sdk/commit/87c81e6dd40c788d9ed1861ef7c52cd786fa65ef))
+
 ### [1.14.3](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.14.2...v1.14.3) (2026-01-04)
 
 ### [1.14.2](https://github.com/firebolt-db/firebolt-node-sdk/compare/v1.14.1...v1.14.2) (2025-12-17)
