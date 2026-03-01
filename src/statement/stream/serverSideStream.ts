@@ -13,7 +13,6 @@ export class ServerSideStream extends Readable {
   private readonly pendingRows: Row[] = [];
   private finished = false;
   private processingData = false;
-  private inputPaused = false;
   private readonly bufferGrowthThreshold = 10; // Stop adding to buffer when over this many rows are already in
   private lineBuffer = "";
   private sourceStream: NodeJS.ReadableStream | null = null;
@@ -70,11 +69,10 @@ export class ServerSideStream extends Readable {
     if (
       this.pendingRows.length > this.bufferGrowthThreshold &&
       this.sourceStream &&
-      !this.inputPaused &&
+      !this.sourceStream.isPaused() &&
       !this.processingData
     ) {
       this.sourceStream.pause();
-      this.inputPaused = true;
     }
   }
 
@@ -95,27 +93,31 @@ export class ServerSideStream extends Readable {
     try {
       const parsed = JSONbig.parse(line);
       if (parsed) {
-        if (parsed.message_type === "DATA") {
-          this.handleDataMessage(parsed);
-        } else if (parsed.message_type === "START") {
-          this.meta = getNormalizedMeta(parsed.result_columns);
-          this.emit("meta", this.meta);
-        } else if (parsed.message_type === "FINISH_SUCCESSFULLY") {
-          this.finished = true;
-          this.tryPushPendingData();
-        } else if (parsed.message_type === "FINISH_WITH_ERRORS") {
-          // Ensure source stream is resumed before destroying to prevent hanging
-          if (this.sourceStream && this.inputPaused) {
-            this.sourceStream.resume();
-            this.inputPaused = false;
-          }
-          this.destroy(
-            new Error(
-              `Result encountered an error: ${parsed.errors
-                .map((error: { description: string }) => error.description)
-                .join("\n")}`
-            )
-          );
+        switch (parsed.message_type) {
+          case "DATA":
+            this.handleDataMessage(parsed);
+            break;
+          case "START":
+            this.meta = getNormalizedMeta(parsed.result_columns);
+            this.emit("meta", this.meta);
+            break;
+          case "FINISH_SUCCESSFULLY":
+            this.finished = true;
+            this.tryPushPendingData();
+            break;
+          case "FINISH_WITH_ERRORS":
+            // Ensure source stream is resumed before destroying to prevent hanging
+            if (this.sourceStream && this.sourceStream.isPaused()) {
+              this.sourceStream.resume();
+            }
+            this.destroy(
+              new Error(
+                `Result encountered an error: ${parsed.errors
+                  .map((error: { description: string }) => error.description)
+                  .join("\n")}`
+              )
+            );
+            break;
         }
       } else {
         this.destroy(new Error(`Result row could not be parsed: ${line}`));
@@ -137,10 +139,8 @@ export class ServerSideStream extends Readable {
       // Add to pending rows buffer
       this.pendingRows.push(...normalizedData);
 
-      // Try to push data immediately if not already processing
-      if (!this.processingData) {
-        this.tryPushPendingData();
-      }
+      // Try to push pending data immediately
+      this.tryPushPendingData();
     }
   }
 
@@ -157,8 +157,7 @@ export class ServerSideStream extends Readable {
 
       // If push returns false, stop pushing and wait for _read to be called
       if (!canContinue) {
-        this.processingData = false;
-        return;
+        break;
       }
     }
 
@@ -172,29 +171,26 @@ export class ServerSideStream extends Readable {
     this.processingData = false;
   }
 
+  // Called when the stream is ready for more data.
   _read() {
-    // Called when the stream is ready for more data
-    if (!this.processingData && this.pendingRows.length > 0) {
-      this.tryPushPendingData();
-    }
+    // If there is pending data, push it first
+    this.tryPushPendingData();
 
-    // Also resume source stream if it was paused and we have capacity
+    // Resume source stream if it was paused and we have capacity
     if (
       this.sourceStream &&
-      this.inputPaused &&
+      this.sourceStream.isPaused() &&
       this.pendingRows.length < this.bufferGrowthThreshold
     ) {
       this.sourceStream.resume();
-      this.inputPaused = false;
     }
   }
 
   _destroy(err: Error | null, callback: (error?: Error | null) => void) {
     if (this.sourceStream) {
       // Resume stream if paused to ensure proper cleanup
-      if (this.inputPaused) {
+      if (this.sourceStream.isPaused()) {
         this.sourceStream.resume();
-        this.inputPaused = false;
       }
 
       // Only call destroy if it exists (for Node.js streams)
