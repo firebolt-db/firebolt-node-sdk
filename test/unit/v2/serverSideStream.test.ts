@@ -81,18 +81,25 @@ describe("ServerSideStream", () => {
         executeQueryOptions
       );
 
+      let isPaused = false;
       let pauseCalled = false;
       let resumeCalled = false;
 
       // Set up mocks AFTER ServerSideStream is created to avoid initialization issues
       sourceStream.pause = jest.fn(() => {
         pauseCalled = true;
+        isPaused = true;
         return sourceStream;
       });
 
       sourceStream.resume = jest.fn(() => {
         resumeCalled = true;
+        isPaused = false;
         return sourceStream;
+      });
+
+      sourceStream.isPaused = jest.fn(() => {
+        return isPaused;
       });
 
       serverSideStream.on("error", done);
@@ -185,7 +192,7 @@ describe("ServerSideStream", () => {
         const dataMessage =
           JSON.stringify({
             message_type: "DATA",
-            data: [[i * 2 + 0], [i * 2 + 1]]
+            data: [[i * 2], [i * 2 + 1]]
           }) + "\n";
         sourceStream.write(dataMessage);
       }
@@ -199,6 +206,56 @@ describe("ServerSideStream", () => {
         expect(sourceStream.destroy).toHaveBeenCalled();
         done();
       }, 50);
+    });
+
+    it("should end stream when rows exceed highWaterMark and push returns false on last pending row", async () => {
+      const sourceStream = new PassThrough();
+      mockResponse.body = sourceStream;
+
+      const serverSideStream = new ServerSideStream(
+        mockResponse as never,
+        executeQueryOptions
+      );
+
+      const totalRows = 20;
+
+      // Send START message
+      sourceStream.write(
+        JSON.stringify({
+          message_type: "START",
+          result_columns: [{ name: "id", type: "integer" }]
+        }) + "\n"
+      );
+
+      // Send all rows in a single DATA message so pendingRows accumulates > highWaterMark (16)
+      sourceStream.write(
+        JSON.stringify({
+          message_type: "DATA",
+          data: Array.from({ length: totalRows }, (_, idx) => [idx])
+        }) + "\n"
+      );
+
+      // Send FINISH message
+      sourceStream.write(
+        JSON.stringify({
+          message_type: "FINISH_SUCCESSFULLY"
+        }) + "\n"
+      );
+
+      sourceStream.end();
+
+      // Wait for handleInputEnd to fire (sourceStream 'end' event).
+      // This ensures tryPushPendingData runs while the buffer is still full,
+      // hitting backpressure and returning without calling push(null).
+      await new Promise(r => setTimeout(r, 50));
+
+      // Consume the stream
+      const dataEvents: unknown[] = [];
+      for await (const row of serverSideStream) {
+        dataEvents.push(row);
+      }
+
+      expect(dataEvents).toHaveLength(totalRows);
     });
 
     it("should handle error messages and cleanup properly", done => {
