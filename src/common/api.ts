@@ -50,6 +50,8 @@ export const ACCOUNT_BINDINGS_URL = (accountId: string) =>
 
 export const ENGINES_BY_IDS_URL = "core/v1/engines:getByIds";
 
+export const RESOLVE_ORGANIZATION = "web/v3/resolveOrganization";
+
 export type EdgeResult<T> = {
   cursor: string;
   node: T;
