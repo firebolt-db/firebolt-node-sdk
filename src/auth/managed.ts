@@ -14,6 +14,7 @@ import {
   noneCache,
   rwLock
 } from "../common/tokenCache";
+import { resolveJwt } from "./jwt";
 
 type Login = {
   access_token: string;
@@ -297,6 +298,14 @@ export class Authenticator {
   }
 
   private async performAuthentication(): Promise<void> {
+    // Check for a JWT (env var or file) before OAuth
+    const jwt = resolveJwt();
+    if (jwt && jwt.token !== this.accessToken) {
+      this.accessToken = jwt.token;
+      this.tokenExpiryTimestampMs = jwt.expiresAtMs;
+      return;
+    }
+
     const options = this.options.auth || this.options;
 
     let auth: TokenInfo;
