@@ -49,4 +49,3 @@ export class CoreAuthenticator {
     return requestHeaders;
   }
 }
-
