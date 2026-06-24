@@ -1,7 +1,7 @@
 import { ACCOUNT, ACCOUNT_BY_NAME } from "../common/api";
 import { Connection as BaseConnection } from "./base";
 import { ResourceManager } from "../service";
-import { ExecuteQueryOptions } from "../types";
+import { ExecuteQueryOptions, LegacyConnectionOptions } from "../types";
 import { AsyncStatement } from "../statement/async";
 import { StreamStatement } from "../statement/stream";
 
@@ -9,7 +9,7 @@ export interface AccountInfo {
   id: string;
 }
 
-export class ConnectionV1 extends BaseConnection {
+export class ConnectionV1 extends BaseConnection<LegacyConnectionOptions> {
   protected accountInfo: AccountInfo | undefined;
 
   async resolveEngineEndpoint() {

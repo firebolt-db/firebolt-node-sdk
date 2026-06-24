@@ -3,12 +3,27 @@ import { ACCOUNT_SYSTEM_ENGINE, QUERY_URL } from "../common/api";
 
 import { Connection as BaseConnection } from "./base";
 import { Cache, inMemoryCache, noneCache } from "../common/tokenCache";
-import { ExecuteQueryOptions, OutputFormat } from "../types";
+import {
+  ConnectionOptions,
+  Context,
+  ExecuteQueryOptions,
+  LegacyConnectionOptions,
+  OutputFormat
+} from "../types";
 import { AsyncStatement } from "../statement/async";
 import { StreamStatement } from "../statement/stream";
 import { Statement } from "../statement";
+import { QueryFormatter } from "../formatter/base";
 
-export class ConnectionV2 extends BaseConnection {
+export class ConnectionV2 extends BaseConnection<LegacyConnectionOptions> {
+  constructor(
+    queryFormatter: QueryFormatter,
+    context: Context,
+    options: ConnectionOptions
+  ) {
+    super(queryFormatter, context, options as LegacyConnectionOptions);
+  }
+
   private get account(): string {
     if (!this.options.account) {
       throw new Error("Account name is required");

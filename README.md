@@ -227,12 +227,30 @@ type FireboltCoreAuth = {
   type: "firebolt-core";
 };
 
+type SSLMode =
+  | "disable"
+  | "allow"
+  | "prefer"
+  | "require"
+  | "verify-ca"
+  | "verify-full";
+
 type ConnectionOptions = {
   auth: AccessTokenAuth | ServiceAccountAuth | FireboltCoreAuth;
   database: string;
   engineName?: string;
   engineEndpoint?: string; // Required for Firebolt Core connections
   account?: string;
+  preparedStatementParamStyle?: PreparedStatementParamStyle;
+};
+
+type DiscoveryConnectionOptions = {
+  host: string;
+  port?: number;
+  database?: string;
+  engine?: string;
+  settings?: QuerySettings;
+  ssl_mode?: SSLMode;
   preparedStatementParamStyle?: PreparedStatementParamStyle;
 };
 ```
@@ -294,6 +312,24 @@ const connection = await firebolt.connect({
 - Resource management (`resourceManager`) is not available
 - Async queries (`executeAsync`) are not supported
 - Streaming queries (`executeStream`) are supported
+
+#### Discovery-based Firebolt
+New Firebolt deployments can be reached through the discovery-based connection
+shape by providing `host`. The SDK fetches `/.well-known/firebolt`, resolves the
+query endpoint from the discovery document, and sends `database`, `engine`, and
+connection `settings` as query parameters.
+
+```typescript
+const connection = await firebolt.connect({
+  host: 'localhost:3473',
+  ssl_mode: 'disable',
+  database: 'database',
+  engine: 'engine_name',
+});
+```
+
+The legacy `auth`, `account`, and `engineEndpoint` options continue to use the
+existing connection flows.
 
 <a id="token-caching"></a>
 #### Token caching

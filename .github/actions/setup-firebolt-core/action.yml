@@ -16,31 +16,41 @@ outputs:
   endpoint:
     description: 'Firebolt Core endpoint'
     value: ${{ inputs.endpoint }}
+  host:
+    description: 'Firebolt host for discovery-based connections'
+    value: ${{ steps.setup-outputs.outputs.host }}
 runs:
   using: 'composite'
   steps:
-    - name: Create firebolt-core-data directory
+    - name: Install Firebolt
       shell: bash
       run: |
-        mkdir -p ./firebolt-core-data
-        # Firebolt Core runs as user 1111:1111, so we need to set ownership
-        sudo chown -R 1111:1111 ./firebolt-core-data
-        sudo chmod 755 ./firebolt-core-data
+        bash <(curl -s https://get.firebolt.io/) <<< "n"
 
-    - name: Start Firebolt Core
+    - name: Create firebolt-data directory
       shell: bash
       run: |
-        docker run -d --rm --name firebolt-core \
+        mkdir -p -m 777 ./firebolt-data
+        sudo chmod 777 ./firebolt-data
+
+    - name: Start Firebolt
+      shell: bash
+      run: |
+        ENGINE_REPO="${ENGINE_REPO:-ghcr.io/firebolt-db/engine}"
+        ENGINE_TAG="${ENGINE_TAG:-dev}"
+        FIREBOLT_USER="${FIREBOLT_USER:-firebolt}"
+        docker run -d --rm --name firebolt \
+          --user "$FIREBOLT_USER" \
           --ulimit memlock=8589934592:8589934592 \
           --security-opt seccomp=unconfined \
           -p 127.0.0.1:3473:3473 \
-          -v $(pwd)/firebolt-core-data:/firebolt-core/volume \
-          ghcr.io/firebolt-db/firebolt-core:preview-rc
+          -v "$(pwd)/firebolt-data:/var/lib/firebolt" \
+          "$ENGINE_REPO:$ENGINE_TAG"
 
-    - name: Wait for Firebolt Core to be ready
+    - name: Wait for Firebolt to be ready
       shell: bash
       run: |
-        echo "Waiting for Firebolt Core to be ready..."
+        echo "Waiting for Firebolt to be ready..."
         timeout=30
         elapsed=0
         while [ $elapsed -lt $timeout ]; do
@@ -59,16 +69,16 @@ runs:
         done
         
         if [ $elapsed -ge $timeout ]; then
-          echo "Firebolt Core failed to start within $timeout seconds"
+          echo "Firebolt failed to start within $timeout seconds"
           echo "Container logs:"
-          docker logs firebolt-core || true
+          docker logs firebolt || true
           echo "Container status:"
-          docker ps -a | grep firebolt-core || true
+          docker ps -a | grep firebolt || true
           exit 1
         fi
         
-        # Give Core a bit more time to fully initialize
-        echo "Core is responding, waiting additional 5 seconds for full initialization..."
+        # Give Firebolt a bit more time to fully initialize
+        echo "Firebolt is responding, waiting additional 5 seconds for full initialization..."
         sleep 5
 
     - name: Create database if it doesn't exist
@@ -89,8 +99,14 @@ runs:
         fi
 
     - name: Set outputs
+      id: setup-outputs
       shell: bash
       run: |
+        endpoint="${{ inputs.endpoint }}"
+        host="${endpoint#http://}"
+        host="${host#https://}"
+        host="${host%%/*}"
         echo "database=${{ inputs.database }}" >> $GITHUB_OUTPUT
         echo "endpoint=${{ inputs.endpoint }}" >> $GITHUB_OUTPUT
+        echo "host=$host" >> $GITHUB_OUTPUT
 

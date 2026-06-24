@@ -1,10 +1,14 @@
 import { Response } from "node-fetch";
 import { Connection as BaseConnection } from "./base";
-import { ExecuteQueryOptions, OutputFormat } from "../types";
+import {
+  ExecuteQueryOptions,
+  LegacyConnectionOptions,
+  OutputFormat
+} from "../types";
 import { AsyncStatement } from "../statement/async";
 import { StreamStatement } from "../statement/stream";
 
-export class ConnectionCore extends BaseConnection {
+export class ConnectionCore extends BaseConnection<LegacyConnectionOptions> {
   async resolveEngineEndpoint(): Promise<string> {
     if (!this.options.engineEndpoint) {
       throw new Error("engineEndpoint is required for Firebolt Core connections");

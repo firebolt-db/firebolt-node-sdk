@@ -5,5 +5,5 @@ runs:
   steps:
     - name: Stop Firebolt Core
       shell: bash
-      run: docker stop firebolt-core || true
+      run: docker stop firebolt firebolt-core || true
 

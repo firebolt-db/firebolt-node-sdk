@@ -24,6 +24,7 @@ runs:
       env:
         FIREBOLT_DATABASE: ${{ steps.setup-core.outputs.database }}
         FIREBOLT_CORE_ENDPOINT: ${{ steps.setup-core.outputs.endpoint }}
+        FIREBOLT_HOST: ${{ steps.setup-core.outputs.host }}
       run: |
         npm run test:ci integration/core
 

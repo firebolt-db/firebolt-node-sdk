@@ -2,7 +2,8 @@ import {
   ExecuteQueryOptions,
   ConnectionOptions,
   OutputFormat,
-  Context
+  Context,
+  QuerySettings
 } from "../types";
 import { Statement } from "../statement";
 import { generateUserAgent } from "../common/util";
@@ -25,13 +26,42 @@ const updateParametersHeader = "Firebolt-Update-Parameters";
 const updateEndpointHeader = "Firebolt-Update-Endpoint";
 const resetSessionHeader = "Firebolt-Reset-Session";
 const removeParametersHeader = "Firebolt-Remove-Parameters";
-const immutableParameters = ["database", "account_id", "output_format"];
+const immutableParameters = [
+  "database",
+  "engine",
+  "account_id",
+  "output_format"
+];
 const testConnectionQuery = "SELECT 1";
 
-export abstract class Connection {
+export const settingsToParameters = (
+  settings?: QuerySettings
+): Record<string, string> => {
+  return Object.entries(settings ?? {}).reduce<Record<string, string>>(
+    (acc, [key, value]) => {
+      if (key === "internal") {
+        // Unwrap internal settings from array
+        const internalSettings = value as Record<string, string | number>[];
+        internalSettings.forEach(setting => {
+          Object.entries(setting).forEach(([internalKey, internalValue]) => {
+            acc[internalKey] = internalValue.toString();
+          });
+        });
+      } else if (value !== undefined) {
+        acc[key] = value.toString();
+      }
+      return acc;
+    },
+    {}
+  );
+};
+
+export abstract class Connection<
+  TConnectionOptions extends ConnectionOptions = ConnectionOptions
+> {
   protected context: Context;
   protected queryFormatter: QueryFormatter;
-  protected options: ConnectionOptions;
+  protected options: TConnectionOptions;
   protected userAgent: string;
   protected parameters: Record<string, string>;
   engineEndpoint!: string;
@@ -40,14 +70,17 @@ export abstract class Connection {
   constructor(
     queryFormatter: QueryFormatter,
     context: Context,
-    options: ConnectionOptions
+    options: TConnectionOptions
   ) {
     this.context = context;
     this.options = options;
     this.queryFormatter = queryFormatter;
+    const connectionSettings =
+      "settings" in options ? settingsToParameters(options.settings) : {};
     this.parameters = {
       ...(options.database ? { database: options.database } : {}),
-      ...defaultQuerySettings
+      ...defaultQuerySettings,
+      ...connectionSettings
     };
     this.userAgent = generateUserAgent(
       options.additionalParameters?.userClients,
@@ -82,23 +115,7 @@ export abstract class Connection {
   ): Record<string, string | undefined> {
     const { settings } = executeQueryOptions;
 
-    // convert all settings values to string
-    const strSettings = Object.entries(settings ?? {}).reduce<
-      Record<string, string>
-    >((acc, [key, value]) => {
-      if (key === "internal") {
-        // Unwrap internal settings from array
-        const internalSettings = value as Record<string, string | number>[];
-        internalSettings.forEach(setting => {
-          Object.entries(setting).forEach(([internalKey, internalValue]) => {
-            acc[internalKey] = internalValue.toString();
-          });
-        });
-      } else if (value !== undefined) {
-        acc[key] = value.toString();
-      }
-      return acc;
-    }, {});
+    const strSettings = settingsToParameters(settings);
 
     return { ...this.parameters, ...strSettings };
   }

@@ -4,6 +4,7 @@ import { AuthenticationError } from "../common/errors";
 import {
   Context,
   ConnectionOptions,
+  LegacyConnectionOptions,
   ServiceAccountAuth,
   UsernamePasswordAuth
 } from "../types";
@@ -45,16 +46,24 @@ export class Authenticator {
     this.options = options;
   }
 
+  private getLegacyOptions(): LegacyConnectionOptions {
+    return this.options as LegacyConnectionOptions;
+  }
+
+  private getAuthOptions(): LegacyConnectionOptions["auth"] | ConnectionOptions {
+    return this.getLegacyOptions().auth || this.options;
+  }
+
   private getCacheKey(): TokenKey | undefined {
     if (this.isUsernamePassword()) {
-      const auth = this.options.auth as UsernamePasswordAuth;
+      const auth = this.getLegacyOptions().auth as UsernamePasswordAuth;
       return {
         clientId: auth.username,
         secret: auth.password,
         apiEndpoint: this.context.apiEndpoint
       };
     } else if (this.isServiceAccount()) {
-      const auth = this.options.auth as ServiceAccountAuth;
+      const auth = this.getLegacyOptions().auth as ServiceAccountAuth;
       return {
         clientId: auth.client_id,
         secret: auth.client_secret,
@@ -65,7 +74,7 @@ export class Authenticator {
   }
 
   private getCache() {
-    return this.options.useCache ?? true
+    return this.getLegacyOptions().useCache ?? true
       ? inMemoryCache.tokenStorage
       : noneCache.tokenStorage;
   }
@@ -187,7 +196,7 @@ export class Authenticator {
   }
 
   isUsernamePassword() {
-    const options = this.options.auth || this.options;
+    const options = this.getAuthOptions();
     return !!(
       (options as UsernamePasswordAuth).username &&
       (options as UsernamePasswordAuth).password
@@ -195,7 +204,7 @@ export class Authenticator {
   }
 
   isServiceAccount() {
-    const options = this.options.auth || this.options;
+    const options = this.getAuthOptions();
     return !!(
       (options as ServiceAccountAuth).client_id &&
       (options as ServiceAccountAuth).client_secret
@@ -297,7 +306,7 @@ export class Authenticator {
   }
 
   private async performAuthentication(): Promise<void> {
-    const options = this.options.auth || this.options;
+    const options = this.getAuthOptions();
 
     let auth: TokenInfo;
 

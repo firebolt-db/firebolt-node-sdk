@@ -26,7 +26,10 @@ export type {
   QuerySettings,
   Context,
   Row,
-  FireboltCoreAuth
+  FireboltCoreAuth,
+  DiscoveryConnectionOptions,
+  LegacyConnectionOptions,
+  SSLMode
 } from "./types";
 
 export const FireboltCore = (): FireboltCoreAuth => ({

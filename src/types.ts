@@ -93,7 +93,15 @@ export type AuthOptions =
 
 export type PreparedStatementParamStyle = "native" | "fb_numeric";
 
-export type ConnectionOptions = {
+export type SSLMode =
+  | "disable"
+  | "allow"
+  | "prefer"
+  | "require"
+  | "verify-ca"
+  | "verify-full";
+
+export type LegacyConnectionOptions = {
   database?: string;
   engineName?: string;
   engineEndpoint?: string;
@@ -103,6 +111,22 @@ export type ConnectionOptions = {
   useCache?: boolean;
   preparedStatementParamStyle?: PreparedStatementParamStyle;
 };
+
+export type DiscoveryConnectionOptions = {
+  host: string;
+  port?: number;
+  database?: string;
+  engine?: string;
+  engineName?: string;
+  settings?: QuerySettings;
+  ssl_mode?: SSLMode;
+  additionalParameters?: AdditionalConnectionParameters;
+  preparedStatementParamStyle?: PreparedStatementParamStyle;
+};
+
+export type ConnectionOptions =
+  | LegacyConnectionOptions
+  | DiscoveryConnectionOptions;
 
 export type FireboltClientOptions = {
   logger?: LoggerOptions;
