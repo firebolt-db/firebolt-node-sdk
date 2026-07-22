@@ -795,8 +795,19 @@ describe("Connection V2", () => {
       });
     const [error] = await stream.once(data, "error");
     expect(error.message).toEqual(
-      "Result encountered an error: Line 1, Column 9: syntax error, unexpected identifier, expecting end of file select *1;"
+      "Line 1, Column 9: syntax error, unexpected identifier, expecting end of file select *1;" +
+        ' at {"failing_line":1,"start_offset":9}'
     );
+    expect(error.errors).toEqual([
+      {
+        description:
+          "Line 1, Column 9: syntax error, unexpected identifier, expecting end of file select *1;",
+        location: {
+          failing_line: 1,
+          start_offset: 9
+        }
+      }
+    ]);
   });
 
   it("named parameter: prepared statement with correct parameters", async () => {
@@ -915,7 +926,7 @@ describe("Connection V2", () => {
         }
       })
     ).rejects.toThrow(
-      "- Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
+      "Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
     );
   });
   it("named parameter: prepared statement with more parameters provided", async () => {
@@ -1041,7 +1052,7 @@ describe("Connection V2", () => {
         }
       })
     ).rejects.toThrow(
-      "- Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
+      "Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
     );
   });
   it("normal parameter: prepared statement with correct parameters", async () => {
@@ -1155,7 +1166,7 @@ describe("Connection V2", () => {
         parameters: [1]
       })
     ).rejects.toThrow(
-      "- Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
+      "Line 1, Column 17: Query referenced positional parameter $2, but it was not set"
     );
   });
   it("normal parameter: prepared statement with more parameters provided", async () => {
@@ -1274,7 +1285,7 @@ describe("Connection V2", () => {
         parameters: [1, 2]
       })
     ).rejects.toThrow(
-      "- Line 1, Column 17: Query referenced positional parameter $34, but it was not set"
+      "Line 1, Column 17: Query referenced positional parameter $34, but it was not set"
     );
   });
 

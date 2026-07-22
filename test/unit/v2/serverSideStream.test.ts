@@ -2,6 +2,7 @@ import { PassThrough } from "stream";
 import { Response } from "node-fetch";
 import { ServerSideStream } from "../../../src/statement/stream/serverSideStream";
 import { ExecuteQueryOptions } from "../../../src/types";
+import { StreamError } from "../../../src/common/errors";
 
 describe("ServerSideStream", () => {
   let mockResponse: Partial<Response>;
@@ -268,8 +269,7 @@ describe("ServerSideStream", () => {
       );
 
       serverSideStream.on("error", (error: Error) => {
-        // Check that error handling resumed the stream for cleanup
-        expect(error.message).toContain("Result encountered an error");
+        expect(error.message).toContain("Test error");
         done();
       });
 
@@ -412,6 +412,7 @@ describe("ServerSideStream", () => {
       );
 
       serverSideStream.on("error", (error: Error) => {
+        expect(error).toBeInstanceOf(StreamError);
         expect(error.message).toBe("Response body is null or undefined");
         done();
       });
@@ -433,6 +434,136 @@ describe("ServerSideStream", () => {
 
       // Send malformed JSON
       sourceStream.write("{ invalid json }\n");
+    });
+
+    it("should surface structured errors on FINISH_WITH_ERRORS", done => {
+      const sourceStream = new PassThrough();
+      mockResponse.body = sourceStream;
+
+      const serverSideStream = new ServerSideStream(
+        mockResponse as never,
+        executeQueryOptions
+      );
+
+      serverSideStream.on("data", () => {
+        // consume
+      });
+
+      serverSideStream.on("error", (error: Error) => {
+        expect(error).toBeInstanceOf(StreamError);
+        expect((error as StreamError).errors).toEqual([
+          { code: "42000", description: "Boom" }
+        ]);
+
+        expect(error.message).toContain("Boom");
+        expect(error.message).toContain("42000");
+        done();
+      });
+
+      sourceStream.write(
+        JSON.stringify({
+          message_type: "START",
+          result_columns: [{ name: "id", type: "integer" }]
+        }) + "\n"
+      );
+      sourceStream.write(
+        JSON.stringify({
+          message_type: "FINISH_WITH_ERRORS",
+          errors: [{ code: "42000", description: "Boom" }]
+        }) + "\n"
+      );
+    });
+
+    it("should not throw or emit an empty message when FINISH_WITH_ERRORS has no errors field", done => {
+      const sourceStream = new PassThrough();
+      mockResponse.body = sourceStream;
+
+      const serverSideStream = new ServerSideStream(
+        mockResponse as never,
+        executeQueryOptions
+      );
+
+      serverSideStream.on("data", () => {
+        // consume
+      });
+
+      serverSideStream.on("error", (error: Error) => {
+        expect(error).toBeInstanceOf(StreamError);
+        expect(error.message.trim().length).toBeGreaterThan(0);
+        expect(error.message).toContain("Unknown streaming error");
+        done();
+      });
+
+      sourceStream.write(
+        JSON.stringify({
+          message_type: "START",
+          result_columns: [{ name: "id", type: "integer" }]
+        }) + "\n"
+      );
+      // No `errors` field at all
+      sourceStream.write(
+        JSON.stringify({ message_type: "FINISH_WITH_ERRORS" }) + "\n"
+      );
+    });
+
+    it("should error when the stream closes before a terminal message", done => {
+      const sourceStream = new PassThrough();
+      mockResponse.body = sourceStream;
+
+      const serverSideStream = new ServerSideStream(
+        mockResponse as never,
+        executeQueryOptions
+      );
+
+      let endedCleanly = false;
+      serverSideStream.on("data", () => {
+        // consume
+      });
+      serverSideStream.on("end", () => {
+        endedCleanly = true;
+      });
+      serverSideStream.on("error", (error: Error) => {
+        expect(error).toBeInstanceOf(StreamError);
+        expect(error.message).toContain("connection closed unexpectedly");
+        expect(endedCleanly).toBe(false);
+        done();
+      });
+
+      sourceStream.write(
+        JSON.stringify({
+          message_type: "START",
+          result_columns: [{ name: "id", type: "integer" }]
+        }) + "\n"
+      );
+      sourceStream.write(
+        JSON.stringify({ message_type: "DATA", data: [[1]] }) + "\n"
+      );
+      // Close without FINISH_SUCCESSFULLY / FINISH_WITH_ERRORS
+      sourceStream.end();
+    });
+
+    it("should prefix raw source stream errors with a descriptive message", done => {
+      const sourceStream = new PassThrough();
+      mockResponse.body = sourceStream;
+
+      const serverSideStream = new ServerSideStream(
+        mockResponse as never,
+        executeQueryOptions
+      );
+
+      serverSideStream.on("data", () => {
+        // consume
+      });
+      serverSideStream.on("error", (error: Error) => {
+        expect(error).toBeInstanceOf(StreamError);
+        expect(error.message).toContain(
+          "Connection error while streaming results"
+        );
+        expect(error.message).toContain("socket hang up");
+        done();
+      });
+
+      sourceStream.emit("error", new Error("socket hang up"));
     });
 
     it("should handle partial lines in buffer correctly", done => {

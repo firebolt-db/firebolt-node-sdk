@@ -154,11 +154,20 @@ describe("streams", () => {
     });
 
     const [error] = await stream.once(data, "error");
+
     expect(error.message).toEqual(
-      "Result encountered an error: Line 1, Column 9: Division by zero\n" +
+      "Line 1, Column 9: Division by zero\n" +
         "select 1/(i-100000) as a from generate_series(1,...\n" +
         "        ^"
     );
+    expect(error.errors).toEqual([
+      {
+        description:
+          "Line 1, Column 9: Division by zero\n" +
+          "select 1/(i-100000) as a from generate_series(1,...\n" +
+          "        ^"
+      }
+    ]);
   });
   it("stream backpressure and memory management", async () => {
     const firebolt = Firebolt({
