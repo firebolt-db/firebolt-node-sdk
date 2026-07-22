@@ -14,7 +14,16 @@ const errorMessages: Record<number, string> = {
   [INVALID_PARAMETERS]: "Parameters should be array"
 };
 
-export class ApiError extends Error {
+// Generic base-class error that all errors inherit.
+export class FireboltError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = this.constructor.name;
+    this.stack = undefined;
+  }
+}
+
+export class ApiError extends FireboltError {
   message: string;
   status: number;
   code: string;
@@ -66,7 +75,7 @@ type ErrorBody = {
   };
 };
 
-export class CompositeError extends Error {
+export class CompositeError extends FireboltError {
   message: string;
   errors: Array<ErrorBody>;
 
@@ -76,7 +85,11 @@ export class CompositeError extends Error {
       const name = error.name ? `${error.name} ` : "";
       const code = error.code ? `(${error.code}) ` : "";
       const source = error.source ? `${error.source} ` : "";
-      const description = error.description ? `- ${error.description}` : "";
+      const description = error.description
+        ? error.source
+          ? `- ${error.description}`
+          : `${error.description}`
+        : "";
       const resolution = error.resolution
         ? `, resolution: ${error.resolution}`
         : "";
@@ -84,7 +97,7 @@ export class CompositeError extends Error {
       const location = error.location
         ? ` at ${JSON.stringify(error.location)}`
         : "";
-      // "{severity}: {name} ({code}) - {source}, {description}, resolution: {resolution} at {location} see {helpLink}"
+      // "{severity}: {name} ({code}) {source} - {description}, resolution: {resolution} at {location} see {helpLink}"
       return `${severity}${name}${code}${source}${description}${resolution}${location}${helpLink}`;
     });
     const formattedMessage = `${parsedErrors.join(",\n")}`;
@@ -94,52 +107,59 @@ export class CompositeError extends Error {
   }
 }
 
+// Raised while consuming a server-side result stream.
+export class StreamError extends CompositeError {
+  constructor(errors?: Array<ErrorBody>) {
+    const hasContent = (error?: ErrorBody) =>
+      !!(error && (error.description || error.name || error.code));
+    const normalized =
+      Array.isArray(errors) && errors.some(hasContent)
+        ? errors.map(error =>
+            hasContent(error)
+              ? error
+              : { ...error, description: "Unknown streaming error" }
+          )
+        : [{ description: "Unknown streaming error" }];
+    super(normalized);
+  }
+}
+
 export class ArgumentError extends Error {
-  message: string;
   code: number;
 
   constructor({ code }: { code: number }) {
     const message = errorMessages[code];
     super(message);
-    this.message = message;
+    this.name = this.constructor.name;
     this.code = code;
   }
 }
 
-export class AuthenticationError extends Error {
-  message: string;
+export class AuthenticationError extends FireboltError {
   constructor({ message }: { message: string }) {
     super(message);
-    this.message = message;
   }
 }
 
-export class AccessError extends Error {
-  message: string;
+export class AccessError extends FireboltError {
   constructor({ message }: { message: string }) {
     super(message);
-    this.message = message;
   }
 }
 
-export class ConnectionError extends Error {
-  message: string;
+export class ConnectionError extends FireboltError {
   constructor({ message }: { message: string }) {
     super(message);
-    this.message = message;
   }
 }
 
-export class DeprecationError extends Error {
-  message: string;
+export class DeprecationError extends FireboltError {
   constructor({ message }: { message: string }) {
     super(message);
-    this.message = message;
   }
 }
 
-export class AccountNotFoundError extends Error {
-  message: string;
+export class AccountNotFoundError extends FireboltError {
   constructor({ account_name }: { account_name: string }) {
     const message =
       `Account '${account_name}' does not exist ` +
@@ -148,6 +168,5 @@ export class AccountNotFoundError extends Error {
       "service account has the correct RBAC permissions and " +
       "is linked to a user.";
     super(message);
-    this.message = message;
   }
 }

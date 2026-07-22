@@ -191,8 +191,8 @@ describe("Connection", () => {
 
     const connection = await firebolt.connect(connectionParams);
     await expect(connection.execute("SELECT 'blue'::int,k")).rejects.toThrow(
-      `ERROR: CAST_ERROR (CMP0001) - Can't cast string to int,
-INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120,"endOffset":135}`
+      `ERROR: CAST_ERROR (CMP0001) Can't cast string to int,
+INFO: SYNTAX_ERROR Unexpected character at {"failingLine":42,"startOffset":120,"endOffset":135}`
     );
   });
 
@@ -244,8 +244,8 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
 
     const connection = await firebolt.connect(connectionParams);
     await expect(connection.execute("SELECT 'blue'::int,k")).rejects.toThrow(
-      `ERROR: CAST_ERROR (CMP0001) - Can't cast string to int,
-INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120,"endOffset":135}`
+      `ERROR: CAST_ERROR (CMP0001) Can't cast string to int,
+INFO: SYNTAX_ERROR Unexpected character at {"failingLine":42,"startOffset":120,"endOffset":135}`
     );
   });
   it("Doesn't break if parsing is impossible", async () => {

@@ -46,3 +46,16 @@ export {
 
 export type { Connection } from "./connection";
 export type { Meta } from "./meta";
+
+export {
+  FireboltError,
+  ApiError,
+  CompositeError,
+  StreamError,
+  ArgumentError,
+  AuthenticationError,
+  AccessError,
+  ConnectionError,
+  DeprecationError,
+  AccountNotFoundError
+} from "./common/errors";
