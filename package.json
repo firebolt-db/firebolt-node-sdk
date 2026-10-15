@@ -4,11 +4,14 @@
   "description": "Official firebolt Node.JS sdk",
   "main": "./build/src/index.js",
   "types": "./build/src/index.d.ts",
+  "bin": {
+    "firebolt-auth": "./build/src/cli/firebolt-auth.js"
+  },
   "engines": {
     "node": ">=16.0"
   },
   "scripts": {
-    "build": "rm -fr ./build && tsc -p tsconfig.lib.json",
+    "build": "rm -fr ./build && tsc -p tsconfig.lib.json && chmod +x ./build/src/cli/firebolt-auth.js",
     "release": "standard-version",
     "test": "jest",
     "test:ci": "node --expose-gc ./node_modules/.bin/jest --ci --bail",
@@ -46,6 +49,7 @@
     "@types/json-bigint": "^1.0.1",
     "abort-controller": "^3.0.0",
     "agentkeepalive": "^4.5.0",
+    "commander": "^14.0.3",
     "json-bigint": "^1.0.0",
     "node-fetch": "^2.6.6",
     "rwlock": "^5.0.0"
