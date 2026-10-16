@@ -15,14 +15,28 @@ on:
         default: false
         type: boolean
 
+permissions: {}
+
 jobs:
   integration-tests:
+    permissions:
+      contents: write # Allure Report publishes to gh-pages
+      statuses: write # Allure Report sets the report commit status
+      pages: read # Allure Report reads the GitHub Pages URL
     uses: ./.github/workflows/integration-tests.yaml
-    secrets: inherit
+    secrets:
+      FIREBOLT_STG_USERNAME: ${{ secrets.FIREBOLT_STG_USERNAME }}
+      FIREBOLT_STG_PASSWORD: ${{ secrets.FIREBOLT_STG_PASSWORD }}
+      SERVICE_ID_STG: ${{ secrets.SERVICE_ID_STG }}
+      SERVICE_SECRET_STG: ${{ secrets.SERVICE_SECRET_STG }}
+      FIREBOLT_CLIENT_ID_STG_NEW_IDN: ${{ secrets.FIREBOLT_CLIENT_ID_STG_NEW_IDN }}
+      FIREBOLT_CLIENT_SECRET_STG_NEW_IDN: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
 
   publish:
     runs-on: ubuntu-latest
     needs: integration-tests
+    permissions:
+      contents: write # softprops/action-gh-release creates the release with GITHUB_TOKEN
     steps:    
     - name: Create GitHub App token
       uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -33,15 +47,18 @@ jobs:
         permission-contents: write
 
     - name: Check out code
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0
         token: ${{ steps.app-token.outputs.token }}
+        # The release step pushes the version bump and tag.
+        persist-credentials: true
     
     - name: Set up node.js
-      uses: actions/setup-node@v7
+      uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
       with:
         node-version: '20'
+        package-manager-cache: false
     
     - name: Install dependencies
       run: |
@@ -57,16 +74,34 @@ jobs:
         npm run build
 
     - name: Release
+      env:
+        MAJOR_RELEASE: ${{ github.event.inputs.majorRelease }}
+        PRERELEASE_TAG: ${{ github.event.inputs.tag }}
+      shell: bash
       run: |
-        npm run release ${{ github.event.inputs.majorRelease != '' && format('-- --release-as {0}', github.event.inputs.majorRelease) || '' }} ${{ github.event.inputs.tag != '' && format('--prerelease {0}', github.event.inputs.tag) || '' }}
+        args=()
+        if [ -n "$MAJOR_RELEASE" ]; then args+=(-- --release-as "$MAJOR_RELEASE"); fi
+        if [ -n "$PRERELEASE_TAG" ]; then args+=(--prerelease "$PRERELEASE_TAG"); fi
+        npm run release "${args[@]}"
 
     - name: Publish to npm
       if: github.event.inputs.skip-npm-publish != 'true'
+      env:
+        NPM_PUBLISH_KEY: ${{ secrets.NPM_PUBLISH_KEY }}
+        NPM_EMAIL: ${{ secrets.NPM_EMAIL }}
+        PRERELEASE_TAG: ${{ github.event.inputs.tag }}
+      shell: bash
       run: |
-        echo //registry.npmjs.org/:_authToken=${{secrets.NPM_PUBLISH_KEY}} >> .npmrc
-        echo email=${{ secrets.NPM_EMAIL }} >> .npmrc
-        echo always-auth=true >> .npmrc
-        npm publish ${{ github.event.inputs.tag != '' && format('--tag {0}', github.event.inputs.tag) || '' }}
+        {
+          echo "//registry.npmjs.org/:_authToken=${NPM_PUBLISH_KEY}"
+          echo "email=${NPM_EMAIL}"
+          echo "always-auth=true"
+        } >> .npmrc
+        if [ -n "$PRERELEASE_TAG" ]; then
+          npm publish --tag "$PRERELEASE_TAG"
+        else
+          npm publish
+        fi
 
     - name: Push git tags
       run: |
@@ -76,11 +111,11 @@ jobs:
       id: tag_generation
       run: |
         NEW_TAG=$(git describe --tags --abbrev=0)
-        echo "new_tag=$NEW_TAG" >>  $GITHUB_OUTPUT
+        echo "new_tag=$NEW_TAG" >> "$GITHUB_OUTPUT"
       shell: bash
 
     - name: GitHub release
-      uses: softprops/action-gh-release@v3
+      uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
       with:
         generate_release_notes: true
         tag_name: ${{ steps.tag_generation.outputs.new_tag }}

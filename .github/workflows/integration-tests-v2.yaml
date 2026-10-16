@@ -18,17 +18,24 @@ on:
         required: false
         type: string
 
+permissions: {}
+
 jobs:
   tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Allure Report publishes to gh-pages
+      statuses: write # Allure Report sets the report commit status
+      pages: read # Allure Report reads the GitHub Pages URL
     steps:
       - name: Check out code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: 'firebolt-db/firebolt-node-sdk'
+          persist-credentials: false
 
       - name: Set up node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
 
@@ -37,7 +44,7 @@ jobs:
 
       - name: Setup database and engine
         id: setup
-        uses: firebolt-db/integration-testing-setup@v2
+        uses: firebolt-db/integration-testing-setup@813c4835ef38adcba3f8760e7afc21a3c7248023 # v2.6.2
         with:
           firebolt-client-id: ${{ secrets.FIREBOLT_CLIENT_ID_STG_NEW_IDN }}
           firebolt-client-secret: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
@@ -56,22 +63,15 @@ jobs:
         run: |
           npm run test:ci integration/v2
 
-      # Need to pull the pages branch in order to fetch the previous runs
-      # Only run Allure reporting on the main repository, not forks
-      - name: Get Allure history
-        uses: actions/checkout@v7
-        if: always() && github.repository == 'firebolt-db/firebolt-node-sdk'
-        continue-on-error: true
-        with:
-            ref: gh-pages
-            path: gh-pages
-
+      # Only run Allure reporting on the main repository, not forks.
+      # action-allure-report v2 checks out the pages branch for the history itself.
       - name: Allure Report
-        uses: firebolt-db/action-allure-report@v2
+        uses: firebolt-db/action-allure-report@8cdc116f65f6eca845a992e347e72b75ca8ccf5f # v2.1.1
         if: always() && github.repository == 'firebolt-db/firebolt-node-sdk'
         with:
-            github-key: ${{ inputs.token || secrets.GITHUB_TOKEN }}
-            test-type: integration
-            allure-dir: allure-results
-            pages-branch: gh-pages
-            repository-name: firebolt-node-sdk
+          github-token: ${{ inputs.token || secrets.GITHUB_TOKEN }}
+          pages-branch: gh-pages
+          mapping-json: |
+            {
+              "allure-results": "integration"
+            }
