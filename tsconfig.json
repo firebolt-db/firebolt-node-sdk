@@ -9,7 +9,8 @@
     "strict": true,
     "target": "es2018",
     "useUnknownInCatchVariables": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["node", "jest"]
   },
   "exclude": [
     "node_modules",

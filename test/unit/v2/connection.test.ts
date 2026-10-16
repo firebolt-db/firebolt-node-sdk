@@ -1,4 +1,4 @@
-import { setupServer, SetupServerApi } from "msw/node";
+import { setupServer, SetupServer } from "msw/node";
 import BigNumber from "bignumber.js";
 import { rest } from "msw";
 import { Firebolt } from "../../../src";
@@ -35,7 +35,7 @@ const asyncQueryResponse = {
 };
 
 // Helper function to setup mock server with auth
-const setupMockServer = (server: SetupServerApi) => {
+const setupMockServer = (server: SetupServer) => {
   server.use(
     rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
       return res(

@@ -51,7 +51,7 @@ export class EngineModel {
       return { engine: this };
     }
 
-    let interval: NodeJS.Timer;
+    let interval: NodeJS.Timeout;
     await new Promise<void>(resolve => {
       interval = setInterval(() => {
         // wrap in async function to use await

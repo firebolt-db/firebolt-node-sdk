@@ -529,7 +529,7 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
           // Return with remove parameters header containing whitespace
           return res(
             ctx.json(selectOneResponse),
-            ctx.set("Firebolt-Remove-Parameters", " param1 , param2 , param3 ")
+            ctx.set("Firebolt-Remove-Parameters", "param1 , param2 ,  param3")
           );
         }
         if (body.startsWith("SELECT 2")) {
