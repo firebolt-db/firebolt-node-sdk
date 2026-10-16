@@ -221,7 +221,7 @@ describe("database service", () => {
     expect(
       resourceManager.database.getDefaultEndpointByName("dummy")
     ).rejects.toThrow(DeprecationError);
-    expect(resourceManager.database.getById("111")).rejects.toThrow(
+    await expect(resourceManager.database.getById("111")).rejects.toThrow(
       DeprecationError
     );
   });

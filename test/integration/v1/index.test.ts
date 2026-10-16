@@ -117,8 +117,10 @@ describe("integration test", () => {
     const st1 = connection.execute("SELECT 1");
     const st2 = connection.execute("SELECT 2");
     await connection.destroy();
-    expect(st1).rejects.toThrow("The user aborted a request.");
-    expect(st2).rejects.toThrow("The user aborted a request.");
+    await Promise.all([
+      expect(st1).rejects.toThrow("The user aborted a request."),
+      expect(st2).rejects.toThrow("The user aborted a request.")
+    ]);
   });
 
   it("stream", async () => {
