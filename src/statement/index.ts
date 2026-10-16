@@ -55,9 +55,7 @@ export class Statement {
     } catch (error) {
       const isData = isDataQuery(this.query);
       if (isData || (response.length && !isData)) {
-        // shortcut: Error `cause` needs lib es2022 (target is es2018); attach it when the target is raised
-        // eslint-disable-next-line preserve-caught-error
-        throw new Error("Failed to parse response");
+        throw new Error("Failed to parse response", { cause: error });
       }
       return {
         data: null,

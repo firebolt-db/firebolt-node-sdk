@@ -218,7 +218,7 @@ describe("database service", () => {
       }
     });
     const resourceManager = firebolt.resourceManager;
-    expect(
+    await expect(
       resourceManager.database.getDefaultEndpointByName("dummy")
     ).rejects.toThrow(DeprecationError);
     await expect(resourceManager.database.getById("111")).rejects.toThrow(

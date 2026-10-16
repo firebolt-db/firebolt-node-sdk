@@ -287,6 +287,31 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
       ).resolves.not.toThrow();
     }
   });
+
+  it("keeps the parse error as cause when the response is not JSON", async () => {
+    server.use(
+      rest.post(`https://some_engine.com`, async (req, res, ctx) => {
+        const body = await req.text();
+        if (body.startsWith("SELECT 'blue'::int")) {
+          return res(ctx.status(200), ctx.body("{invalid json}"));
+        }
+        return res(ctx.json(selectOneResponse));
+      })
+    );
+    const firebolt = Firebolt({ apiEndpoint });
+    const connection = await firebolt.connect({
+      auth: { client_id: "dummy", client_secret: "dummy" },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    });
+
+    const statement = await connection.execute("SELECT 'blue'::int");
+    await expect(statement.fetchResult()).rejects.toMatchObject({
+      message: "Failed to parse response",
+      cause: expect.objectContaining({ name: "SyntaxError" })
+    });
+  });
   it("database and engine", async () => {
     let paramsUsed = {};
     server.use(

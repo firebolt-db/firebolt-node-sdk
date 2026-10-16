@@ -19,7 +19,7 @@ describe("streams", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    expect(() =>
+    await expect(() =>
       connection.executeStream(
         `select 1 from generate_series(1, 250000000)` //~1 GB response
       )
