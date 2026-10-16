@@ -18,6 +18,7 @@ export class ApiError extends Error {
   message: string;
   status: number;
   code: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw server error payload, exposed on the public ApiError
   raw?: any;
   url: string;
 
@@ -32,6 +33,7 @@ export class ApiError extends Error {
     status: number;
     code: string;
     url: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw server error payload, exposed on the public ApiError
     raw?: any;
   }) {
     const formattedMessage = `

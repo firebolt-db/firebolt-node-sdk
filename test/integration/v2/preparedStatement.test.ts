@@ -1,6 +1,5 @@
 import BigNumber from "bignumber.js";
 import { ConnectionOptions, Firebolt } from "../../../src";
-import { PreparedStatementParamStyle } from "../../../src/types";
 
 const connectionParams: ConnectionOptions = {
   auth: {
@@ -109,7 +108,7 @@ describe("prepared statement", () => {
     expect(data[0][7]).toEqual("Hello Firebolt!"); // string
 
     // Check metadata for types
-    expect(meta.map((m: any) => m.type)).toEqual([
+    expect(meta.map(m => m.type)).toEqual([
       "int", // $1
       "long", // $2
       "decimal", // $3
@@ -283,7 +282,7 @@ describe("prepared statement", () => {
     expect(data[0][7]).toEqual("Hello Firebolt!"); // string
 
     // Check metadata for types
-    expect(meta.map((m: any) => m.type)).toEqual([
+    expect(meta.map(m => m.type)).toEqual([
       "int", // $1
       "long", // $2
       "decimal", // $3

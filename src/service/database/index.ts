@@ -17,13 +17,13 @@ export class DatabaseService {
     this._catalogName = undefined;
   }
 
-  async getDefaultEndpointByName(name: string): Promise<string> {
+  async getDefaultEndpointByName(_name: string): Promise<string> {
     throw new DeprecationError({
       message: "Default engines are no longer supported"
     });
   }
 
-  async getById(databaseId: string): Promise<DatabaseModel> {
+  async getById(_databaseId: string): Promise<DatabaseModel> {
     throw new DeprecationError({
       message: "Can't call getById as database IDs are deprecated"
     });
@@ -33,7 +33,7 @@ export class DatabaseService {
     if (!this._catalogName) {
       const query = "SELECT count(*) FROM information_schema.catalogs";
       try {
-        const statement = await this.context.connection.execute(query);
+        await this.context.connection.execute(query);
       } catch (error) {
         if (error instanceof ApiError || error instanceof CompositeError) {
           this._catalogName = "database";

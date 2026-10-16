@@ -340,7 +340,11 @@ describe("parse values", () => {
     const meta = [
       { name: "s", type: "struct(a array(int null), b bytea null)" }
     ];
-    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    const res: Record<string, Record<string, unknown>> = hydrateRow(
+      row,
+      meta,
+      {}
+    );
     expect(res["s"]).toEqual({ a: [1, 2], b: Buffer.from("hello_world") });
   });
   it("parses nested struct into object", () => {
@@ -350,7 +354,11 @@ describe("parse values", () => {
     const meta = [
       { name: "s", type: "struct(a array(int null), b struct(c text))" }
     ];
-    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    const res: Record<string, Record<string, unknown>> = hydrateRow(
+      row,
+      meta,
+      {}
+    );
     expect(res["s"]).toEqual({ a: [1, 2], b: { c: "hello" } });
   });
   it("parses nested struct with nulls correctly", () => {
@@ -360,7 +368,11 @@ describe("parse values", () => {
     const meta = [
       { name: "s", type: "struct(a array(int null), b struct(c text null))" }
     ];
-    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    const res: Record<string, Record<string, unknown>> = hydrateRow(
+      row,
+      meta,
+      {}
+    );
     expect(res["s"]).toEqual({ a: [1, null], b: { c: null } });
   });
   it("parses nested struct with single struct correctly", () => {
@@ -368,7 +380,11 @@ describe("parse values", () => {
       s: { a: { "c d": null } }
     };
     const meta = [{ name: "s", type: "struct(a struct(`c d` text null))" }];
-    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    const res: Record<string, Record<string, unknown>> = hydrateRow(
+      row,
+      meta,
+      {}
+    );
     expect(res["s"]).toEqual({ a: { "c d": null } });
   });
   it("parses nested struct with capital keys single struct correctly", () => {
@@ -376,7 +392,11 @@ describe("parse values", () => {
       s: { A: { "C d": null } }
     };
     const meta = [{ name: "s", type: "struct(A struct(`C d` text null))" }];
-    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    const res: Record<string, Record<string, unknown>> = hydrateRow(
+      row,
+      meta,
+      {}
+    );
     expect(res["s"]).toEqual({ A: { "C d": null } });
   });
   it("parses nested struct with single struct mixed quoting", () => {
@@ -386,7 +406,11 @@ describe("parse values", () => {
     const meta = [
       { name: "s", type: "struct(a struct(e text,`c d` text null))" }
     ];
-    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    const res: Record<string, Record<string, unknown>> = hydrateRow(
+      row,
+      meta,
+      {}
+    );
     expect(res["s"]).toEqual({ a: { e: "test", "c d": null } });
   });
   it("does not break on malformed struct", () => {
@@ -395,7 +419,11 @@ describe("parse values", () => {
     };
     // Missing closing parenthesis
     const meta = [{ name: "s", type: "struct(a array(int), b text" }];
-    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    const res: Record<string, Record<string, unknown>> = hydrateRow(
+      row,
+      meta,
+      {}
+    );
     expect(res["s"]).toEqual({ a: [1, 2], b: "hello" });
   });
 
@@ -403,7 +431,7 @@ describe("parse values", () => {
     // Basic struct with case mismatch
     const row1 = { s: { ARN: "test-arn-value", Id: 123 } };
     const meta1 = [{ name: "s", type: "struct(ARN text, Id int)" }];
-    const res1: Record<string, Record<string, any>> = hydrateRow(
+    const res1: Record<string, Record<string, unknown>> = hydrateRow(
       row1,
       meta1,
       {}
@@ -424,7 +452,11 @@ describe("parse values", () => {
     const meta = [
       { name: "s", type: "struct(A array(int), B struct(ARn text, Name text))" }
     ];
-    const res: Record<string, Record<string, any>> = hydrateRow(row, meta, {});
+    const res: Record<string, Record<string, unknown>> = hydrateRow(
+      row,
+      meta,
+      {}
+    );
     expect(res["s"]).toEqual({
       A: [1, 2],
       B: {
@@ -439,7 +471,7 @@ describe("parse values", () => {
       s: null
     };
     const meta = [{ name: "s", type: "struct(a int, b text) null" }];
-    const res: Record<string, any> = hydrateRow(row, meta, {});
+    const res: Record<string, unknown> = hydrateRow(row, meta, {});
     expect(res["s"]).toBeNull();
   });
 

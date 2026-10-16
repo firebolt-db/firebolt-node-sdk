@@ -1,4 +1,3 @@
-import exp from "node:constants";
 import { Firebolt } from "../../../src";
 import stream, { TransformCallback } from "node:stream";
 

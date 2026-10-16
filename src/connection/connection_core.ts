@@ -1,4 +1,3 @@
-import { Response } from "node-fetch";
 import { Connection as BaseConnection } from "./base";
 import { ExecuteQueryOptions, OutputFormat } from "../types";
 import { AsyncStatement } from "../statement/async";
@@ -21,7 +20,7 @@ export class ConnectionCore extends BaseConnection {
 
   async executeAsync(
     query: string,
-    executeQueryOptions: ExecuteQueryOptions = {}
+    _executeQueryOptions: ExecuteQueryOptions = {}
   ): Promise<AsyncStatement> {
     throw new Error("Async queries are not supported in Firebolt Core");
   }
@@ -48,15 +47,15 @@ export class ConnectionCore extends BaseConnection {
     });
   }
 
-  async isAsyncQueryRunning(token: string): Promise<boolean> {
+  async isAsyncQueryRunning(_token: string): Promise<boolean> {
     throw new Error("Async queries are not supported in Firebolt Core");
   }
 
-  async isAsyncQuerySuccessful(token: string): Promise<boolean | undefined> {
+  async isAsyncQuerySuccessful(_token: string): Promise<boolean | undefined> {
     throw new Error("Async queries are not supported in Firebolt Core");
   }
 
-  async cancelAsyncQuery(token: string): Promise<void> {
+  async cancelAsyncQuery(_token: string): Promise<void> {
     throw new Error("Async queries are not supported in Firebolt Core");
   }
 }

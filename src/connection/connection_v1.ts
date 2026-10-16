@@ -68,27 +68,27 @@ export class ConnectionV1 extends BaseConnection {
   }
 
   // Async methods
-  async isAsyncQueryRunning(token: string): Promise<boolean> {
+  async isAsyncQueryRunning(_token: string): Promise<boolean> {
     throw new Error(
       "Asynchronous query running check is not supported in this Firebolt version."
     );
   }
 
-  async isAsyncQuerySuccessful(token: string): Promise<boolean | undefined> {
+  async isAsyncQuerySuccessful(_token: string): Promise<boolean | undefined> {
     throw new Error(
       "Asynchronous query success check is not supported in this Firebolt version."
     );
   }
 
-  async cancelAsyncQuery(token: string): Promise<void> {
+  async cancelAsyncQuery(_token: string): Promise<void> {
     throw new Error(
       "Asynchronous query cancellation is not supported in this Firebolt version."
     );
   }
 
   async executeAsync(
-    query: string,
-    executeQueryOptions?: ExecuteQueryOptions
+    _query: string,
+    _executeQueryOptions?: ExecuteQueryOptions
   ): Promise<AsyncStatement> {
     throw new Error(
       "Asynchronous execution is not supported in this Firebolt version."
@@ -96,8 +96,8 @@ export class ConnectionV1 extends BaseConnection {
   }
 
   async executeStream(
-    query: string,
-    executeQueryOptions?: ExecuteQueryOptions
+    _query: string,
+    _executeQueryOptions?: ExecuteQueryOptions
   ): Promise<StreamStatement> {
     throw new Error(
       "Stream execution is not supported in this Firebolt version."

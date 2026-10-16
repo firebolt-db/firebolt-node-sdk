@@ -1,6 +1,5 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Logger } from "../../../src/logger/node";
 import { Firebolt, FireboltResourceManager } from "../../../src";
 import {
   ACCOUNT_BINDINGS_URL,
@@ -18,7 +17,6 @@ import {
 } from "../../../src/common/api";
 
 const apiEndpoint = "fake.api.com";
-const logger = new Logger();
 const engineObject = {
   id: {
     engine_id: "123",

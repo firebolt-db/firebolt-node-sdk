@@ -32,15 +32,15 @@ export class NoneCacheStorage<KeyType, RecordType> implements CacheStorage<
   KeyType,
   RecordType
 > {
-  get(key: KeyType): RecordType | null {
+  get(_key: KeyType): RecordType | null {
     return null;
   }
 
-  set(key: KeyType, record: RecordType): void {
+  set(_key: KeyType, _record: RecordType): void {
     // Do nothing
   }
 
-  clear(key: KeyType): void {
+  clear(_key: KeyType): void {
     // Do nothing
   }
 }
@@ -52,7 +52,7 @@ export class InMemoryCacheStorage<KeyType, RecordType> {
     return JSON.stringify(key);
   }
 
-  protected isValidRecord(record: RecordType | undefined): boolean {
+  protected isValidRecord(_record: RecordType | undefined): boolean {
     return true;
   }
 

@@ -1,4 +1,4 @@
-import { Firebolt } from "../../../src";
+import { Connection, Firebolt } from "../../../src";
 
 const connectionParams = {
   auth: {
@@ -176,14 +176,14 @@ describe("v2 transaction integration tests", () => {
     const firebolt = Firebolt({
       apiEndpoint: process.env.FIREBOLT_API_ENDPOINT as string
     });
-    let connection = await firebolt.connect(connectionParams);
+    const connection = await firebolt.connect(connectionParams);
 
     await connection.execute("BEGIN TRANSACTION");
     await connection.execute("INSERT INTO transaction_test VALUES (8, 'test')");
     await checkRecordCountByIdInAnotherTransaction(8, 0);
 
     // Simulate connection close by creating a new connection
-    connection = await firebolt.connect(connectionParams);
+    await firebolt.connect(connectionParams);
 
     await checkRecordCountByIdInAnotherTransaction(8, 0);
   });
@@ -351,7 +351,7 @@ describe("v2 transaction integration tests", () => {
   });
 
   const validateSingleResult = async (
-    connection: any,
+    connection: Connection,
     selectSQL: string,
     expectedId: number,
     expectedName: string

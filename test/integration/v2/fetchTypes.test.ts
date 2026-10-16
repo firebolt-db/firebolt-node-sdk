@@ -194,7 +194,7 @@ describe("test type casting on fetch", () => {
         "        [[1,2],[null,2],null]::array(array(int))                  as col_arr_arr,\n" +
         "        null::array(array(int))                                   as col_arr_arr_null"
     );
-    const { data, meta } = await statement.fetchResult();
+    const { meta } = await statement.fetchResult();
     const metaObjects = [
       { name: "col_int", type: "int" },
       { name: "col_int_null", type: "int null" },

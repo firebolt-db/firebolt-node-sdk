@@ -1,4 +1,4 @@
-import { setupServer } from "msw/node";
+import { setupServer, SetupServer } from "msw/node";
 import { rest } from "msw";
 import { Firebolt } from "../../src";
 import { QueryFormatterV2 as QueryFormatter } from "../../src/formatter/formatter_v2";
@@ -61,7 +61,7 @@ async function mockConnect(connectionOptions: ConnectionOptions) {
   return connection;
 }
 
-function resetServerHandlers(server: any) {
+function resetServerHandlers(server: SetupServer) {
   server.use(
     rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
       return res(

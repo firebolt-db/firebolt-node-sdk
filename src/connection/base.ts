@@ -202,7 +202,7 @@ export abstract class Connection {
     const { parameters, namedParameters } = executeQueryOptions;
 
     let setKey = "",
-      setValue = "",
+      setValue: string,
       formattedQuery: string;
     if (this.queryFormatter.isSetStatement(query)) {
       [setKey, setValue] = this.queryFormatter.splitSetStatement(query);

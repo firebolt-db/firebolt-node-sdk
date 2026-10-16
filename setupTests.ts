@@ -1,3 +1,4 @@
+import * as dotenv from "dotenv";
 import * as path from "path";
-/* eslint-disable @typescript-eslint/no-var-requires */
-require("dotenv").config({ path: path.resolve("./.env") });
+
+dotenv.config({ path: path.resolve("./.env") });

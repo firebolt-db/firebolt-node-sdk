@@ -55,6 +55,8 @@ export class Statement {
     } catch (error) {
       const isData = isDataQuery(this.query);
       if (isData || (response.length && !isData)) {
+        // shortcut: Error `cause` needs lib es2022 (target is es2018); attach it when the target is raised
+        // eslint-disable-next-line preserve-caught-error
         throw new Error("Failed to parse response");
       }
       return {
@@ -67,7 +69,7 @@ export class Statement {
     return json;
   }
 
-  async streamResult(options?: StreamOptions) {
+  async streamResult(_options?: StreamOptions) {
     // Streaming is not supported right now in Firebolt
     // This is a placeholder for future implementation
     const parsed = this.handleParseResponse(this.text);
@@ -89,6 +91,7 @@ export class Statement {
   }
 
   async fetchResult(): Promise<{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- row data is shaped by the query; public fetchResult type
     data: any;
     meta: Meta[];
     statistics: Statistics | null;

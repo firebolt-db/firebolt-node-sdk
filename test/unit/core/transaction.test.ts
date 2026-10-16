@@ -37,7 +37,7 @@ describe("Transaction Core", () => {
   });
 
   it("executes BEGIN TRANSACTION query", async () => {
-    let executedQueries: string[] = [];
+    const executedQueries: string[] = [];
     server.use(
       rest.post(engineEndpoint, async (req, res, ctx) => {
         const body = await req.text();
@@ -54,7 +54,7 @@ describe("Transaction Core", () => {
   });
 
   it("executes COMMIT query", async () => {
-    let executedQueries: string[] = [];
+    const executedQueries: string[] = [];
     server.use(
       rest.post(engineEndpoint, async (req, res, ctx) => {
         const body = await req.text();
@@ -71,7 +71,7 @@ describe("Transaction Core", () => {
   });
 
   it("executes ROLLBACK query", async () => {
-    let executedQueries: string[] = [];
+    const executedQueries: string[] = [];
     server.use(
       rest.post(engineEndpoint, async (req, res, ctx) => {
         const body = await req.text();
@@ -88,7 +88,7 @@ describe("Transaction Core", () => {
   });
 
   it("handles full transaction lifecycle", async () => {
-    let executedQueries: string[] = [];
+    const executedQueries: string[] = [];
     server.use(
       rest.post(engineEndpoint, async (req, res, ctx) => {
         const body = await req.text();
@@ -110,7 +110,7 @@ describe("Transaction Core", () => {
   });
 
   it("handles rollback in transaction lifecycle", async () => {
-    let executedQueries: string[] = [];
+    const executedQueries: string[] = [];
     server.use(
       rest.post(engineEndpoint, async (req, res, ctx) => {
         const body = await req.text();

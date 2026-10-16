@@ -184,7 +184,7 @@ export class ConnectionV2 extends BaseConnection {
 
     const statement = await this.execute(query);
     const { data, meta } = await statement.fetchResult();
-    const result: Record<string, any> = {};
+    const result: Record<string, unknown> = {};
     if (data.length > 0) {
       meta.forEach((field, index) => {
         result[field.name] = data[0][index];

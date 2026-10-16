@@ -1,7 +1,7 @@
 import AgentKeepAlive from "agentkeepalive";
 
 import Abort from "abort-controller";
-import fetch, { Response } from "node-fetch";
+import fetch, { RequestInit, Response } from "node-fetch";
 import { assignProtocol, systemInfoString } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
 import { Authenticator } from "../auth/managed";
@@ -116,7 +116,7 @@ export class NodeHttpClient {
 
       if (contentType?.includes("application/json")) {
         const text = await response.text();
-        let json = {};
+        let json: object;
         try {
           json = JSON.parse(text);
         } catch {
@@ -152,7 +152,7 @@ export class NodeHttpClient {
 
       const response = await fetch(withProtocol, {
         agent,
-        signal: controller.signal as any,
+        signal: controller.signal as RequestInit["signal"],
         method,
         headers: {
           "user-agent": userAgent,

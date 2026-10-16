@@ -37,7 +37,7 @@ export class EngineService {
     return status;
   }
 
-  async getById(engineId: string) {
+  async getById(_engineId: string) {
     throw new DeprecationError({
       message: "Can't call getById as engine IDs are deprecated"
     });

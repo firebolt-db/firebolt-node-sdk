@@ -350,7 +350,6 @@ describe("engine service", () => {
   });
 
   it("does not start engine that errors out", async () => {
-    let startEngineCalled = false;
     const expectedEngine = "some_engine";
     const refreshEngineResponse = {
       meta: [
@@ -367,9 +366,6 @@ describe("engine service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          if (String(req.body)?.startsWith("START ENGINE " + expectedEngine)) {
-            startEngineCalled = true;
-          }
           if (String(req.body)?.startsWith("SELECT status")) {
             return res(ctx.json(refreshEngineResponse));
           } else {
@@ -393,7 +389,6 @@ describe("engine service", () => {
   });
 
   it("does not start engine that has unexpected status", async () => {
-    let startEngineCalled = false;
     const expectedEngine = "some_engine";
     const refreshEngineResponse = {
       meta: [
@@ -410,9 +405,6 @@ describe("engine service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          if (String(req.body)?.startsWith("START ENGINE " + expectedEngine)) {
-            startEngineCalled = true;
-          }
           if (String(req.body)?.startsWith("SELECT status")) {
             return res(ctx.json(refreshEngineResponse));
           } else {
