@@ -1045,18 +1045,39 @@ When using the Firebolt Node.js SDK, keep the following considerations in mind:
 - **Environment variables**: Always store sensitive credentials (like `client_id` and `client_secret`) in environment variables rather than hardcoding them in your source code.
 
 ## Development process
-### Actions before
-### Setup env variables
 
-  ```sh
-  cp .env.example .env
-  ```
-  
-## Execute tests
+### Setup
 
-  ```sh
-    npm test
-  ```
+Requires Node.js >= 20.
+
+```sh
+npm install
+cp .env.example .env  # credentials for integration tests
+```
+
+### Before committing
+
+Run the same checks as CI (`.github/workflows/pull-request.yaml`):
+
+```sh
+npm run type-check   # TypeScript compile check
+npm run lint         # ESLint, including Prettier formatting
+npm test -- test/unit
+```
+
+To fix lint and formatting issues automatically:
+
+```sh
+npm run lint -- --fix
+```
+
+### Integration tests
+
+Integration tests run against a real Firebolt account and need the variables from `.env`:
+
+```sh
+npm test -- test/integration
+```
 
 ## License
 
