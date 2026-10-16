@@ -16,8 +16,13 @@ on:
         required: true
       FIREBOLT_CLIENT_SECRET_STG_NEW_IDN:
         required: true
+
+permissions: {}
+
 jobs:
   integration-test-v1:
+    permissions:
+      contents: read
     uses: ./.github/workflows/integration-tests-v1.yaml
     secrets:
       FIREBOLT_STG_USERNAME: ${{ secrets.FIREBOLT_STG_USERNAME }}
@@ -25,10 +30,16 @@ jobs:
       SERVICE_ID_STG: ${{ secrets.SERVICE_ID_STG }}
       SERVICE_SECRET_STG: ${{ secrets.SERVICE_SECRET_STG }}
   integration-test-v2:
+    permissions:
+      contents: write
+      statuses: write
     uses: ./.github/workflows/integration-tests-v2.yaml
     secrets:
       FIREBOLT_CLIENT_ID_STG_NEW_IDN: ${{ secrets.FIREBOLT_CLIENT_ID_STG_NEW_IDN }}
       FIREBOLT_CLIENT_SECRET_STG_NEW_IDN: ${{ secrets.FIREBOLT_CLIENT_SECRET_STG_NEW_IDN }}
   integration-test-core:
+    permissions:
+      contents: write
+      statuses: write
     uses: ./.github/workflows/integration-tests-core.yaml
 

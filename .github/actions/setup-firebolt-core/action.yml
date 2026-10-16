@@ -39,13 +39,15 @@ runs:
 
     - name: Wait for Firebolt Core to be ready
       shell: bash
+      env:
+        ENDPOINT: ${{ inputs.endpoint }}
       run: |
         echo "Waiting for Firebolt Core to be ready..."
         timeout=30
         elapsed=0
         while [ $elapsed -lt $timeout ]; do
           # Try to connect and execute a simple query
-          response=$(curl -s -w "\n%{http_code}" -X POST "${{ inputs.endpoint }}/" \
+          response=$(curl -s -w "\n%{http_code}" -X POST "${ENDPOINT}/" \
             --data-binary "SELECT 1" 2>&1) || response=""
           http_code=$(echo "$response" | tail -n1)
           
@@ -73,15 +75,18 @@ runs:
 
     - name: Create database if it doesn't exist
       shell: bash
+      env:
+        ENDPOINT: ${{ inputs.endpoint }}
+        DATABASE: ${{ inputs.database }}
       run: |
-        echo "Creating database '${{ inputs.database }}' ..."
+        echo "Creating database '${DATABASE}' ..."
         # Create the database using a SQL command
-        response=$(curl -s -w "\n%{http_code}" -X POST "${{ inputs.endpoint }}/?database=default" \
-          --data-binary "CREATE DATABASE IF NOT EXISTS \"${{ inputs.database }}\"" 2>&1)
+        response=$(curl -s -w "\n%{http_code}" -X POST "${ENDPOINT}/?database=default" \
+          --data-binary "CREATE DATABASE IF NOT EXISTS \"${DATABASE}\"" 2>&1)
         http_code=$(echo "$response" | tail -n1)
         
         if [ "$http_code" = "200" ]; then
-          echo "Database '${{ inputs.database }}' created or already exists"
+          echo "Database '${DATABASE}' created or already exists"
         else
           echo "Warning: Database creation returned HTTP $http_code"
           echo "Response: $response"
@@ -90,7 +95,10 @@ runs:
 
     - name: Set outputs
       shell: bash
+      env:
+        ENDPOINT: ${{ inputs.endpoint }}
+        DATABASE: ${{ inputs.database }}
       run: |
-        echo "database=${{ inputs.database }}" >> $GITHUB_OUTPUT
-        echo "endpoint=${{ inputs.endpoint }}" >> $GITHUB_OUTPUT
+        echo "database=${DATABASE}" >> "$GITHUB_OUTPUT"
+        echo "endpoint=${ENDPOINT}" >> "$GITHUB_OUTPUT"
 

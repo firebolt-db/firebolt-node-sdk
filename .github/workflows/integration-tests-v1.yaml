@@ -11,15 +11,22 @@ on:
         required: true
       SERVICE_SECRET_STG:
         required: true
+
+permissions: {}
+
 jobs:
   tests:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Check out code
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '20'
 
@@ -28,7 +35,7 @@ jobs:
 
       - name: Setup database and engine
         id: setup
-        uses: firebolt-db/integration-testing-setup@v1
+        uses: firebolt-db/integration-testing-setup@eb35b7719247c93392cb3a8aa4f554a4c11a770b # v1.0.3
         with:
           firebolt-username: ${{ secrets.FIREBOLT_STG_USERNAME }}
           firebolt-password: ${{ secrets.FIREBOLT_STG_PASSWORD }}
