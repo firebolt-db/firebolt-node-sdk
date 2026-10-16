@@ -1,4 +1,8 @@
 import { DatabaseModelInterface } from "../database/types";
+import {
+  Engine as EngineV1,
+  EngineStatusSummary as EngineStatusSummaryV1
+} from "./v1/types";
 
 export type Engine = {
   name: string;
@@ -40,7 +44,7 @@ export enum EngineStatusSummary {
   UNSPECIFIED = "ENGINE_STATUS_SUMMARY_UNSPECIFIED",
   UPGRADING = "ENGINE_STATUS_SUMMARY_UPGRADING",
   REPAIRING = "ENGINE_STATUS_SUMMARY_REPAIRING",
-  STARTING_INITIALIZING = "ENGINE_STATUS_SUMMARY_STARTING_INITIALIZING",
+  STARTING_INITIALIZING = "ENGINE_STATUS_SUMMARY_STARTING_INITIALIZING"
 }
 
 export enum EngineType {
@@ -68,11 +72,11 @@ export type CreateEngineOptions = {
 export interface EngineModelInterface {
   name: string;
   endpoint: string;
-  current_status_summary: EngineStatusSummary;
-  start(): Promise<{ engine: Engine }>;
-  startAndWait(): Promise<{ engine: Engine }>;
-  stop(): Promise<{ engine: Engine }>;
-  restart(): Promise<{ engine: Engine }>;
+  current_status_summary: EngineStatusSummary | EngineStatusSummaryV1;
+  start(): Promise<{ engine: Engine | EngineV1 }>;
+  startAndWait(): Promise<{ engine: Engine | EngineV1 }>;
+  stop(): Promise<{ engine: Engine | EngineV1 }>;
+  restart(): Promise<{ engine: Engine | EngineV1 }>;
   delete(): Promise<void>;
 }
 

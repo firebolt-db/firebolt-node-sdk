@@ -1,4 +1,4 @@
-import { setupServer, SetupServerApi } from "msw/node";
+import { setupServer, SetupServer } from "msw/node";
 import { rest } from "msw";
 import { ConnectionOptions, Firebolt } from "../../../src";
 import { ConnectionV1 } from "../../../src/connection/connection_v1";
@@ -38,7 +38,7 @@ const defaultAccountResponse = {
   }
 };
 
-function resetServerHandlers(server: SetupServerApi) {
+function resetServerHandlers(server: SetupServer) {
   server.use(
     // Authentication
     rest.post(`https://${apiEndpoint}/auth/v1/login`, (req, res, ctx) => {
@@ -140,7 +140,7 @@ describe("Connection v1", () => {
     server.use(
       rest.post(`https://some_engine.com/`, (req, res, ctx) => {
         const urlParams = Object.fromEntries(req.url.searchParams.entries());
-        expect(urlParams).not.toContain("auto_start_stop_control");
+        expect(urlParams).not.toHaveProperty("auto_start_stop_control");
         return res(ctx.json(selectOneResponse));
       })
     );

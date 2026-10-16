@@ -179,9 +179,9 @@ describe("database service", () => {
       }
     });
     const resourceManager = firebolt.resourceManager;
-    await expect(
-      resourceManager.database.getByName("some_db")
-    ).rejects.toThrowError(ConnectionError);
+    await expect(resourceManager.database.getByName("some_db")).rejects.toThrow(
+      ConnectionError
+    );
   });
 
   it("gets all dbs", async () => {
@@ -220,8 +220,8 @@ describe("database service", () => {
     const resourceManager = firebolt.resourceManager;
     expect(
       resourceManager.database.getDefaultEndpointByName("dummy")
-    ).rejects.toThrowError(DeprecationError);
-    expect(resourceManager.database.getById("111")).rejects.toThrowError(
+    ).rejects.toThrow(DeprecationError);
+    expect(resourceManager.database.getById("111")).rejects.toThrow(
       DeprecationError
     );
   });
@@ -271,9 +271,8 @@ describe("database service", () => {
     const db = await resourceManager.database.create("some_db", options);
     expect(db).toBeTruthy();
     expect(db.name).toEqual("some_db");
-    const other_engine = await resourceManager.engine.create(
-      "some_other_engine"
-    );
+    const other_engine =
+      await resourceManager.engine.create("some_other_engine");
     await resourceManager.engine.attachToDatabase(other_engine, db);
     const engines = await db.getAttachedEngines();
     expect(engines[0].endpoint).toEqual(engine.endpoint);

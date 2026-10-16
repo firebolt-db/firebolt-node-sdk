@@ -7,7 +7,7 @@ import {
 } from "../../../src/formatter/base";
 import { QueryFormatterV2 as QueryFormatter } from "../../../src/formatter/formatter_v2";
 import { hydrateRow } from "../../../src/statement/hydrateResponse";
-import "allure-jest";
+import * as allure from "allure-js-commons";
 
 describe("query formatting v2", () => {
   it("format", () => {
