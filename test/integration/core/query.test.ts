@@ -53,4 +53,3 @@ describe("query execution", () => {
     expect(data[0][0]).toEqual(42);
   });
 });
-

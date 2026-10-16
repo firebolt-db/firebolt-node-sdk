@@ -11,10 +11,7 @@ import {
 export function isFireboltCoreAuth(
   auth: AuthOptions
 ): auth is FireboltCoreAuth {
-  return (
-    "type" in auth &&
-    (auth as FireboltCoreAuth).type === "firebolt-core"
-  );
+  return "type" in auth && (auth as FireboltCoreAuth).type === "firebolt-core";
 }
 
 /**
@@ -24,10 +21,7 @@ export function isServiceAccountAuth(
   auth: AuthOptions
 ): auth is ServiceAccountAuth {
   const serviceAuth = auth as ServiceAccountAuth;
-  return !!(
-    serviceAuth.client_id &&
-    serviceAuth.client_secret
-  );
+  return !!(serviceAuth.client_id && serviceAuth.client_secret);
 }
 
 /**
@@ -37,9 +31,5 @@ export function isUsernamePasswordAuth(
   auth: AuthOptions
 ): auth is UsernamePasswordAuth {
   const usernameAuth = auth as UsernamePasswordAuth;
-  return !!(
-    usernameAuth.username &&
-    usernameAuth.password
-  );
+  return !!(usernameAuth.username && usernameAuth.password);
 }
-

@@ -14,5 +14,4 @@ describe("Connection Core", () => {
       "engineEndpoint is required for Firebolt Core connections"
     );
   });
-
 });

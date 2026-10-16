@@ -12,7 +12,8 @@ const HttpAgent = AgentKeepAlive;
 
 const AbortController = globalThis.AbortController || Abort;
 
-type AgentType = InstanceType<typeof HttpAgent> | InstanceType<typeof HttpsAgent>;
+type AgentType =
+  InstanceType<typeof HttpAgent> | InstanceType<typeof HttpsAgent>;
 
 type RequestOptions = {
   headers: Record<string, string>;

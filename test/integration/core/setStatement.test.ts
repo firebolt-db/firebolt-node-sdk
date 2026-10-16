@@ -15,7 +15,7 @@ describe("SET statements", () => {
 
     // SET timezone and verify it affects subsequent queries
     await connection.execute("SET timezone = 'Europe/Berlin'");
-    
+
     // Verify the timezone setting is applied by checking timestamp conversion
     const statement = await connection.execute(
       "SELECT '2025-12-15 16:00:00+00'::timestamptz::TEXT"
@@ -32,7 +32,7 @@ describe("SET statements", () => {
 
     // Set timezone to Europe/Bucharest
     await connection.execute("SET timezone = 'Europe/Bucharest'");
-    
+
     // Verify the timezone setting affects the query result
     const statement = await connection.execute(
       "SELECT '2025-12-15 16:00:00+00'::timestamptz::TEXT"
@@ -50,7 +50,7 @@ describe("SET statements", () => {
     // Set multiple settings
     await connection.execute("SET timezone = 'Europe/Berlin'");
     await connection.execute("SET max_result_rows=5");
-    
+
     // Verify the timezone setting is still applied after multiple SET statements
     const statement = await connection.execute(
       "SELECT '2025-12-15 16:00:00+00'::timestamptz::TEXT FROM generate_series(1, 10)"
@@ -63,4 +63,3 @@ describe("SET statements", () => {
     expect(data.length).toBe(5);
   });
 });
-

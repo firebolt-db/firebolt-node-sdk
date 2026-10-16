@@ -70,4 +70,3 @@ describe("connection management", () => {
     await expect(statementPromise).rejects.toThrow();
   });
 });
-

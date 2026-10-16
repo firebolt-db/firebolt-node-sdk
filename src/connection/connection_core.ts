@@ -7,7 +7,9 @@ import { StreamStatement } from "../statement/stream";
 export class ConnectionCore extends BaseConnection {
   async resolveEngineEndpoint(): Promise<string> {
     if (!this.options.engineEndpoint) {
-      throw new Error("engineEndpoint is required for Firebolt Core connections");
+      throw new Error(
+        "engineEndpoint is required for Firebolt Core connections"
+      );
     }
     this.engineEndpoint = this.options.engineEndpoint;
     return this.engineEndpoint;
@@ -58,4 +60,3 @@ export class ConnectionCore extends BaseConnection {
     throw new Error("Async queries are not supported in Firebolt Core");
   }
 }
-

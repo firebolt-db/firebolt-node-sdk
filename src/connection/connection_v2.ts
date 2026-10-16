@@ -17,7 +17,7 @@ export class ConnectionV2 extends BaseConnection {
   }
 
   private get cache(): Cache {
-    return this.options.useCache ?? true ? inMemoryCache : noneCache;
+    return (this.options.useCache ?? true) ? inMemoryCache : noneCache;
   }
 
   private async getSystemEngineEndpointAndParameters(): Promise<

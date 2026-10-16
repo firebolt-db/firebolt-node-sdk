@@ -28,9 +28,10 @@ export interface CacheStorage<KeyType, RecordType> {
   clear(key: KeyType): void;
 }
 
-export class NoneCacheStorage<KeyType, RecordType>
-  implements CacheStorage<KeyType, RecordType>
-{
+export class NoneCacheStorage<KeyType, RecordType> implements CacheStorage<
+  KeyType,
+  RecordType
+> {
   get(key: KeyType): RecordType | null {
     return null;
   }

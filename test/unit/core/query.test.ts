@@ -74,7 +74,9 @@ describe("Connection Core HTTP", () => {
 
     const firebolt = Firebolt();
     const connection = await firebolt.connect(connectionParams);
-    const statement =await connection.execute("SELECT ?", { parameters: [42] });
+    const statement = await connection.execute("SELECT ?", {
+      parameters: [42]
+    });
     const result = await statement.fetchResult();
 
     expect(result.data).toEqual([[42]]);
@@ -92,7 +94,9 @@ describe("Connection Core HTTP", () => {
 
     const firebolt = Firebolt();
     const connection = await firebolt.connect(connectionParams);
-    const statement = await connection.execute("SELECT 'a' UNION ALL SELECT 'b' UNION ALL SELECT 'c'");
+    const statement = await connection.execute(
+      "SELECT 'a' UNION ALL SELECT 'b' UNION ALL SELECT 'c'"
+    );
     const result = await statement.fetchResult();
 
     expect(result.data).toEqual([["a"], ["b"], ["c"]]);
@@ -226,11 +230,13 @@ describe("Connection Core HTTP", () => {
 
     const firebolt = Firebolt();
     const connection = await firebolt.connect(connectionParams);
-    const streamStatement = await connection.executeStream("SELECT 'a' UNION ALL SELECT 'b' UNION ALL SELECT 'c'");
-    
+    const streamStatement = await connection.executeStream(
+      "SELECT 'a' UNION ALL SELECT 'b' UNION ALL SELECT 'c'"
+    );
+
     const rows: string[] = [];
     const { data } = await streamStatement.streamResult();
-    
+
     await new Promise<void>(resolve => {
       data
         .on("data", row => {
@@ -245,6 +251,4 @@ describe("Connection Core HTTP", () => {
         });
     });
   });
-
 });
-

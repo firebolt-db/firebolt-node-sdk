@@ -36,7 +36,8 @@ describe("integration test", () => {
         database: process.env.FIREBOLT_DATABASE as string
         // Missing engineEndpoint
       })
-    ).rejects.toThrow("engineEndpoint is required for Firebolt Core connections");
+    ).rejects.toThrow(
+      "engineEndpoint is required for Firebolt Core connections"
+    );
   });
 });
-

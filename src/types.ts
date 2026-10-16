@@ -87,9 +87,7 @@ export type FireboltCoreAuth = {
 };
 
 export type AuthOptions =
-  | UsernamePasswordAuth
-  | ServiceAccountAuth
-  | FireboltCoreAuth;
+  UsernamePasswordAuth | ServiceAccountAuth | FireboltCoreAuth;
 
 export type PreparedStatementParamStyle = "native" | "fb_numeric";
 

@@ -110,9 +110,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engine = await firebolt.resourceManager.engine.getByName(
-      "some_engine"
-    );
+    const engine =
+      await firebolt.resourceManager.engine.getByName("some_engine");
     const {
       engine: { name: engine_name }
     } = await engine.start();
@@ -139,9 +138,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engine = await firebolt.resourceManager.engine.getByName(
-      "some_engine"
-    );
+    const engine =
+      await firebolt.resourceManager.engine.getByName("some_engine");
     const {
       engine: { name: engine_name }
     } = await engine.stop();
@@ -168,9 +166,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engine = await firebolt.resourceManager.engine.getByName(
-      "some_engine"
-    );
+    const engine =
+      await firebolt.resourceManager.engine.getByName("some_engine");
     const {
       engine: { name: engine_name }
     } = await engine.restart();
@@ -302,9 +299,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engines = await firebolt.resourceManager.engine.getByName(
-      "some_engine"
-    );
+    const engines =
+      await firebolt.resourceManager.engine.getByName("some_engine");
 
     expect(deleteCalled).toEqual(false);
     await engines.delete();
@@ -384,9 +380,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engines = await firebolt.resourceManager.engine.getByDB(
-      "some_database"
-    );
+    const engines =
+      await firebolt.resourceManager.engine.getByDB("some_database");
 
     expect(engines.length).toEqual(2);
     expect(engines[0].name).toEqual("123");

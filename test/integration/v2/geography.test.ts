@@ -27,6 +27,8 @@ describe("geography", () => {
     const { data, meta } = await statement.fetchResult();
     expect(meta[0].type).toEqual("geography");
     const row = data[0];
-    expect((row as unknown[])[0]).toEqual("0101000020E6100000FEFFFFFFFFFFEF3F000000000000F03F");
+    expect((row as unknown[])[0]).toEqual(
+      "0101000020E6100000FEFFFFFFFFFFEF3F000000000000F03F"
+    );
   });
 });

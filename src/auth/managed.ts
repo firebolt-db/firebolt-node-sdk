@@ -65,7 +65,7 @@ export class Authenticator {
   }
 
   private getCache() {
-    return this.options.useCache ?? true
+    return (this.options.useCache ?? true)
       ? inMemoryCache.tokenStorage
       : noneCache.tokenStorage;
   }

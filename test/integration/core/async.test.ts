@@ -24,9 +24,9 @@ describe("async queries", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    await expect(
-      connection.isAsyncQueryRunning("dummy-token")
-    ).rejects.toThrow("Async queries are not supported in Firebolt Core");
+    await expect(connection.isAsyncQueryRunning("dummy-token")).rejects.toThrow(
+      "Async queries are not supported in Firebolt Core"
+    );
   });
 
   it("throws error when checking async query success", async () => {
@@ -44,9 +44,8 @@ describe("async queries", () => {
 
     const connection = await firebolt.connect(connectionParams);
 
-    await expect(
-      connection.cancelAsyncQuery("dummy-token")
-    ).rejects.toThrow("Async queries are not supported in Firebolt Core");
+    await expect(connection.cancelAsyncQuery("dummy-token")).rejects.toThrow(
+      "Async queries are not supported in Firebolt Core"
+    );
   });
 });
-

@@ -154,9 +154,15 @@ describe("transactions", () => {
     await connection.begin();
 
     // Multiple statements within the same transaction
-    await connection.execute("INSERT INTO transaction_test VALUES (8, 'first')");
-    await connection.execute("INSERT INTO transaction_test VALUES (9, 'second')");
-    await connection.execute("INSERT INTO transaction_test VALUES (10, 'third')");
+    await connection.execute(
+      "INSERT INTO transaction_test VALUES (8, 'first')"
+    );
+    await connection.execute(
+      "INSERT INTO transaction_test VALUES (9, 'second')"
+    );
+    await connection.execute(
+      "INSERT INTO transaction_test VALUES (10, 'third')"
+    );
 
     // Verify none are visible yet
     await checkRecordCountByIdInAnotherTransaction(8, 0);
@@ -171,4 +177,3 @@ describe("transactions", () => {
     await checkRecordCountByIdInAnotherTransaction(10, 1);
   });
 });
-
