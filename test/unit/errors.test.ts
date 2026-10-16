@@ -32,7 +32,7 @@ describe("CompositeError", () => {
           severity: "medium"
         }
       ],
-      expectedMessage: "medium: (ERR1) - This is error 1"
+      expectedMessage: "medium: (ERR1) This is error 1"
     },
     {
       name: "should create a CompositeError with missing description",

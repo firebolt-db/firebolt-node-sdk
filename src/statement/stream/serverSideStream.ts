@@ -7,11 +7,13 @@ import {
 import { Response } from "node-fetch";
 import { ExecuteQueryOptions, Row } from "../../types";
 import { Meta } from "../../meta";
+import { StreamError } from "../../common/errors";
 
 export class ServerSideStream extends Readable {
   private meta: Meta[] = [];
   private readonly pendingRows: Row[] = [];
   private finished = false;
+  private sawTerminal = false; // Seen a terminal protocol message (FINISH_SUCCESSFULLY / FINISH_WITH_ERRORS)
   private processingData = false;
   private readonly bufferGrowthThreshold = 10; // Stop adding to buffer when over this many rows are already in
   private lineBuffer = "";
@@ -29,7 +31,9 @@ export class ServerSideStream extends Readable {
     this.sourceStream = this.response.body;
 
     if (!this.sourceStream) {
-      this.destroy(new Error("Response body is null or undefined"));
+      this.destroy(
+        new StreamError([{ description: "Response body is null or undefined" }])
+      );
       return;
     }
 
@@ -42,7 +46,13 @@ export class ServerSideStream extends Readable {
     });
 
     this.sourceStream.on("error", (err: Error) => {
-      this.destroy(err);
+      this.destroy(
+        new StreamError([
+          {
+            description: `Connection error while streaming results: ${err.message}`
+          }
+        ])
+      );
     });
   }
 
@@ -83,6 +93,25 @@ export class ServerSideStream extends Readable {
       this.lineBuffer = "";
     }
 
+    if (this.destroyed) {
+      return;
+    }
+
+    // The source closed without a terminal message; surface as error since
+    // results may be incomplete.
+    if (!this.sawTerminal) {
+      this.destroy(
+        new StreamError([
+          {
+            description:
+              "Stream ended before a terminal message was received; " +
+              "results may be incomplete (connection closed unexpectedly)"
+          }
+        ])
+      );
+      return;
+    }
+
     this.finished = true;
     this.tryPushPendingData();
   }
@@ -102,25 +131,25 @@ export class ServerSideStream extends Readable {
             this.emit("meta", this.meta);
             break;
           case "FINISH_SUCCESSFULLY":
+            this.sawTerminal = true;
             this.finished = true;
             this.tryPushPendingData();
             break;
           case "FINISH_WITH_ERRORS":
+            this.sawTerminal = true;
             // Ensure source stream is resumed before destroying to prevent hanging
             if (this.sourceStream && this.sourceStream.isPaused()) {
               this.sourceStream.resume();
             }
-            this.destroy(
-              new Error(
-                `Result encountered an error: ${parsed.errors
-                  .map((error: { description: string }) => error.description)
-                  .join("\n")}`
-              )
-            );
+            this.destroy(new StreamError(parsed.errors));
             break;
         }
       } else {
-        this.destroy(new Error(`Result row could not be parsed: ${line}`));
+        this.destroy(new StreamError([
+          {
+            description: `Result row could not be parsed: ${line}`
+          }
+        ]));
       }
     } catch (err) {
       this.destroy(err);
