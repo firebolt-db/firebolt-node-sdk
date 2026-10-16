@@ -34,6 +34,10 @@ updates:
     open-pull-requests-limit: 10
     cooldown:
       default-days: 7
+    ignore:
+      # Types must match the minimum supported Node (engines.node), or code using newer APIs type-checks but breaks for users.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
     groups:
       npm:
         patterns:
