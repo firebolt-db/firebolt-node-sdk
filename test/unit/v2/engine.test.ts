@@ -349,8 +349,7 @@ describe("engine service", () => {
     );
   });
 
-  it("does not start engine that errors out", async () => {
-    let startEngineCalled = false;
+  it("start rejects when engine is not found after START ENGINE", async () => {
     const expectedEngine = "some_engine";
     const refreshEngineResponse = {
       meta: [
@@ -367,9 +366,6 @@ describe("engine service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          if (String(req.body)?.startsWith("START ENGINE " + expectedEngine)) {
-            startEngineCalled = true;
-          }
           if (String(req.body)?.startsWith("SELECT status")) {
             return res(ctx.json(refreshEngineResponse));
           } else {
@@ -392,8 +388,7 @@ describe("engine service", () => {
     await expect(engine.start()).rejects.toThrow(ConnectionError);
   });
 
-  it("does not start engine that has unexpected status", async () => {
-    let startEngineCalled = false;
+  it("start rejects when engine reports an unexpected status", async () => {
     const expectedEngine = "some_engine";
     const refreshEngineResponse = {
       meta: [
@@ -410,9 +405,6 @@ describe("engine service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          if (String(req.body)?.startsWith("START ENGINE " + expectedEngine)) {
-            startEngineCalled = true;
-          }
           if (String(req.body)?.startsWith("SELECT status")) {
             return res(ctx.json(refreshEngineResponse));
           } else {
@@ -432,7 +424,7 @@ describe("engine service", () => {
     });
     const resourceManager = firebolt.resourceManager;
     const engine = await resourceManager.engine.getByName(expectedEngine);
-    expect(engine.start()).rejects.toThrow();
+    await expect(engine.start()).rejects.toThrow();
   });
 
   it("throws deprecation on restart", async () => {
@@ -446,7 +438,7 @@ describe("engine service", () => {
     });
     const resourceManager = firebolt.resourceManager;
     const engine = await resourceManager.engine.getByName("some_engine");
-    expect(engine.restart()).rejects.toThrow(DeprecationError);
+    await expect(engine.restart()).rejects.toThrow(DeprecationError);
   });
 
   it("create and delete engine", async () => {

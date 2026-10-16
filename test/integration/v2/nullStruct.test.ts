@@ -1,4 +1,4 @@
-import { Firebolt } from "../../../src/index";
+import { Connection, Firebolt } from "../../../src/index";
 
 const connectionParams = {
   auth: {
@@ -13,8 +13,8 @@ const connectionParams = {
 jest.setTimeout(500000);
 
 describe("null struct integration tests", () => {
-  let firebolt: any;
-  let connection: any;
+  let firebolt: ReturnType<typeof Firebolt>;
+  let connection: Connection;
 
   beforeAll(async () => {
     firebolt = Firebolt({

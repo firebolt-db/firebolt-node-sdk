@@ -13,7 +13,9 @@ describe("normalized data", () => {
     const firebolt = Firebolt();
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("SELECT 1 as id, 'test' as name");
+    const statement = await connection.execute(
+      "SELECT 1 as id, 'test' as name"
+    );
     const { data } = await statement.fetchResult();
 
     expect(Array.isArray(data[0])).toBe(true);
@@ -24,9 +26,12 @@ describe("normalized data", () => {
     const firebolt = Firebolt();
     const connection = await firebolt.connect(connectionParams);
 
-    const statement = await connection.execute("SELECT 1 as id, 'test' as name", {
-      response: { normalizeData: true }
-    });
+    const statement = await connection.execute(
+      "SELECT 1 as id, 'test' as name",
+      {
+        response: { normalizeData: true }
+      }
+    );
     const { data } = await statement.fetchResult();
 
     expect(typeof data[0]).toBe("object");
@@ -66,4 +71,3 @@ describe("normalized data", () => {
     expect(data[0]).toEqual({ id: 1, name: null });
   });
 });
-

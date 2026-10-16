@@ -1,6 +1,6 @@
 import { QueryFormatter } from "./base";
 
-const CHARS_GLOBAL_REGEXP = /[']/g; // eslint-disable-line no-control-regex
+const CHARS_GLOBAL_REGEXP = /[']/g;
 
 const CHARS_ESCAPE_MAP: Record<string, string> = {
   "'": "''"

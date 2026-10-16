@@ -67,7 +67,7 @@ export class DatabaseService {
     const databases: DatabaseModel[] = [];
     const { apiEndpoint, httpClient } = this.context;
 
-    let hasNextPage = false;
+    let hasNextPage: boolean;
     let cursor = "";
     do {
       const query = cursor

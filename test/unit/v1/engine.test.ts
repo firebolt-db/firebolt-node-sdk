@@ -1,6 +1,5 @@
 import { setupServer } from "msw/node";
 import { rest } from "msw";
-import { Logger } from "../../../src/logger/node";
 import { Firebolt, FireboltResourceManager } from "../../../src";
 import {
   ACCOUNT_BINDINGS_URL,
@@ -18,7 +17,6 @@ import {
 } from "../../../src/common/api";
 
 const apiEndpoint = "fake.api.com";
-const logger = new Logger();
 const engineObject = {
   id: {
     engine_id: "123",
@@ -110,9 +108,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engine = await firebolt.resourceManager.engine.getByName(
-      "some_engine"
-    );
+    const engine =
+      await firebolt.resourceManager.engine.getByName("some_engine");
     const {
       engine: { name: engine_name }
     } = await engine.start();
@@ -139,9 +136,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engine = await firebolt.resourceManager.engine.getByName(
-      "some_engine"
-    );
+    const engine =
+      await firebolt.resourceManager.engine.getByName("some_engine");
     const {
       engine: { name: engine_name }
     } = await engine.stop();
@@ -168,9 +164,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engine = await firebolt.resourceManager.engine.getByName(
-      "some_engine"
-    );
+    const engine =
+      await firebolt.resourceManager.engine.getByName("some_engine");
     const {
       engine: { name: engine_name }
     } = await engine.restart();
@@ -302,9 +297,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engines = await firebolt.resourceManager.engine.getByName(
-      "some_engine"
-    );
+    const engines =
+      await firebolt.resourceManager.engine.getByName("some_engine");
 
     expect(deleteCalled).toEqual(false);
     await engines.delete();
@@ -384,9 +378,8 @@ describe("engine service", () => {
         password: "password"
       }
     });
-    const engines = await firebolt.resourceManager.engine.getByDB(
-      "some_database"
-    );
+    const engines =
+      await firebolt.resourceManager.engine.getByDB("some_database");
 
     expect(engines.length).toEqual(2);
     expect(engines[0].name).toEqual("123");

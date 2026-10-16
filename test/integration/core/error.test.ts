@@ -52,4 +52,3 @@ describe("error handling", () => {
     ).rejects.toThrow();
   });
 });
-

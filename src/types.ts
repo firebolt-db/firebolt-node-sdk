@@ -39,6 +39,7 @@ export type QuerySettings = Record<
   async?: boolean;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- parsed rows are shaped by the query; public RowParser type
 export type RowParser = (row: string, isLastRow: boolean) => any;
 
 export type ResponseSettings = {
@@ -87,9 +88,7 @@ export type FireboltCoreAuth = {
 };
 
 export type AuthOptions =
-  | UsernamePasswordAuth
-  | ServiceAccountAuth
-  | FireboltCoreAuth;
+  UsernamePasswordAuth | ServiceAccountAuth | FireboltCoreAuth;
 
 export type PreparedStatementParamStyle = "native" | "fb_numeric";
 

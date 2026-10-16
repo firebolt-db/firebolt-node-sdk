@@ -65,14 +65,14 @@ export class Authenticator {
   }
 
   private getCache() {
-    return this.options.useCache ?? true
+    return (this.options.useCache ?? true)
       ? inMemoryCache.tokenStorage
       : noneCache.tokenStorage;
   }
 
   clearCache() {
     const key = this.getCacheKey();
-    key && this.getCache().clear(key);
+    if (key) this.getCache().clear(key);
   }
 
   private setToken(token: string, expiresIn: number) {
@@ -83,11 +83,12 @@ export class Authenticator {
     this.tokenExpiryTimestampMs = tokenExpiryTimestampMs;
     // Update cache
     const key = this.getCacheKey();
-    key &&
+    if (key) {
       this.getCache().set(key, {
         token,
         tokenExpiryTimestampMs
       });
+    }
   }
 
   private getCachedTokenRecord(): TokenRecord | undefined {
@@ -241,7 +242,7 @@ export class Authenticator {
         try {
           // Clear the cache under write lock
           const key = this.getCacheKey();
-          key && this.getCache().clear(key);
+          if (key) this.getCache().clear(key);
 
           // Perform authentication directly rather than calling acquireWriteLockAndAuthenticate
           // since we already have the write lock

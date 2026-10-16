@@ -8,6 +8,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "es2018",
+    "lib": ["es2018", "dom", "dom.iterable", "es2022.error"],
     "useUnknownInCatchVariables": false,
     "resolveJsonModule": true,
     "types": ["node", "jest"]

@@ -97,7 +97,7 @@ export class EngineService {
     const engines: EngineModel[] = [];
     const { apiEndpoint, httpClient } = this.context;
 
-    let hasNextPage = false;
+    let hasNextPage: boolean;
     let cursor = "";
     do {
       const query = cursor

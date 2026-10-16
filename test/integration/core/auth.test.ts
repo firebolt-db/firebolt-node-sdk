@@ -20,4 +20,3 @@ describe("auth", () => {
     expect(data[0][0]).toEqual(1);
   });
 });
-

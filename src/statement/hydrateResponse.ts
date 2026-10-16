@@ -53,6 +53,7 @@ const getHydratedValue = (
   value: unknown,
   type: string,
   executeQueryOptions: ExecuteQueryOptions
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- hydrated rows are shaped by the query
 ): any => {
   // strip null to ensure correct type checking in the following steps
   if (type.endsWith("null")) {

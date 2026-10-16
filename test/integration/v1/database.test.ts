@@ -93,9 +93,8 @@ describe("database integration", () => {
     expect(database.name).toEqual(process.env.FIREBOLT_DATABASE);
     const database_id = (database as DatabaseModel).id.database_id;
 
-    const database2 = await firebolt.resourceManager.database.getById(
-      database_id
-    );
+    const database2 =
+      await firebolt.resourceManager.database.getById(database_id);
     expect(database2.name).toEqual(process.env.FIREBOLT_DATABASE);
   });
 });

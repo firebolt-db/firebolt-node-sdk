@@ -35,13 +35,13 @@ export const withNullableTypes = (types: string[]) => {
   }, []);
 };
 
-export const checkArgumentExists = (expression: any, code: number) => {
+export const checkArgumentExists = (expression: unknown, code: number) => {
   if (!expression) {
     throw new ArgumentError({ code });
   }
 };
 
-export const checkArgumentValid = (expression: any, code: number) => {
+export const checkArgumentValid = (expression: unknown, code: number) => {
   if (!expression) {
     throw new ArgumentError({ code });
   }

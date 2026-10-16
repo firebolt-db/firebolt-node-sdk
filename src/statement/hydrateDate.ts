@@ -47,8 +47,7 @@ export const hydrateDate = (value: string) => {
   const tzHour = zeroPad(match[9] || "00", 2);
   const tzMin = zeroPad(match[10] || "00", 2);
 
-  // ignore tzsec
-  const tzSec = zeroPad(match[11] || "00", 2);
+  // tz seconds (match[11]) are ignored: Date offsets only support hours and minutes
 
   const date = `${year}-${month}-${day}T${hour}:${minute}:${second}.${msec}${sign}${tzHour}:${tzMin}`;
 

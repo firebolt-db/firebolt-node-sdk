@@ -50,7 +50,7 @@ describe("integration test", () => {
 ['2023-06-20 14:50:00'::TIMESTAMPNTZ, NULL] as nullable_ts_array;`
     );
 
-    const { data, meta } = await statement.fetchResult();
+    const { data } = await statement.fetchResult();
     expect(data.length).toEqual(1);
     const row = data[0];
     const [ts, ts_array, nullable_ts_array] = row as unknown[];

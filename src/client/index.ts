@@ -1,11 +1,7 @@
 import { makeConnection } from "../connection";
 import { Authenticator } from "../auth/managed";
 import { CoreAuthenticator } from "../auth/core";
-import {
-  Context,
-  ConnectionOptions,
-  FireboltClientOptions
-} from "../types";
+import { Context, ConnectionOptions, FireboltClientOptions } from "../types";
 import { ResourceManager } from "../service";
 import { NodeHttpClient } from "../http/node";
 import { isFireboltCoreAuth } from "../common/auth";
@@ -29,7 +25,7 @@ export class FireboltClient {
     if (!this._resourceManager) {
       throw new Error(
         "ResourceManager is not available for Firebolt Core connections. " +
-        "Use managed Firebolt authentication (client_id/client_secret) to access ResourceManager."
+          "Use managed Firebolt authentication (client_id/client_secret) to access ResourceManager."
       );
     }
     return this._resourceManager;
@@ -59,9 +55,8 @@ export class FireboltClient {
   }
 
   async connect(connectionOptions: ConnectionOptions) {
-    const { connection, connectionContext } = await this.prepareConnection(
-      connectionOptions
-    );
+    const { connection, connectionContext } =
+      await this.prepareConnection(connectionOptions);
 
     // Only create ResourceManager for managed Firebolt (not Core)
     if (!isFireboltCoreAuth(connectionOptions.auth)) {

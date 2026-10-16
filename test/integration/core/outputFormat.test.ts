@@ -1,4 +1,4 @@
-import { Firebolt, FireboltCore, OutputFormat } from "../../../src/index";
+import { Firebolt, FireboltCore } from "../../../src/index";
 
 const connectionParams = {
   auth: FireboltCore(),
@@ -68,4 +68,3 @@ describe("output formats", () => {
     });
   });
 });
-

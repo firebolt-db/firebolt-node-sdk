@@ -109,4 +109,3 @@ describe("prepared statements", () => {
     expect(data[0]).toEqual(["first", "second", "third"]);
   });
 });
-

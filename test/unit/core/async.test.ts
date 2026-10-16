@@ -40,4 +40,3 @@ describe("Async Queries Core", () => {
     );
   });
 });
-

@@ -131,4 +131,3 @@ describe("data types", () => {
     expect(data[0][0]).toEqual("12345.6789");
   });
 });
-

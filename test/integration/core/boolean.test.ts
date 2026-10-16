@@ -22,4 +22,3 @@ describe("boolean", () => {
     expect((row as unknown[])[0]).toEqual(true);
   });
 });
-

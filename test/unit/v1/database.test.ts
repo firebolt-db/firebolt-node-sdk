@@ -7,11 +7,9 @@ import {
   ACCOUNT_DATABASES,
   ACCOUNT_ENGINE_URL_BY_DATABASE_NAME,
   ACCOUNT_ENGINES,
-  QUERY_URL,
   REGIONS
 } from "../../../src/common/api";
 import { Firebolt } from "../../../src";
-import { ConnectionError, DeprecationError } from "../../../src/common/errors";
 import { CreateDatabaseOptions } from "../../../src/service/database/types";
 
 const apiEndpoint = "api.fake.firebolt.io";

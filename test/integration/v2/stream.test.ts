@@ -1,4 +1,3 @@
-import exp from "node:constants";
 import { Firebolt } from "../../../src";
 import stream, { TransformCallback } from "node:stream";
 
@@ -199,7 +198,7 @@ describe("streams", () => {
 
     // Verify the data was processed correctly
     expect(rowCount).toBe(1000000);
-    
+
     // Verify data integrity with sum check
     const expectedSum = (1000000 * 1000001) / 2; // Sum of 1 to 1,000,000
     expect(idSum).toBe(expectedSum);

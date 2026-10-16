@@ -46,11 +46,12 @@ export class AsyncStatement {
     return this.asyncToken;
   }
 
-  async streamResult(options?: StreamOptions) {
+  async streamResult(_options?: StreamOptions) {
     throw new Error("Method not allowed for async statements");
   }
 
   async fetchResult(): Promise<{
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- row data is shaped by the query; public fetchResult type
     data: any;
     meta: Meta[];
     statistics: Statistics | null;

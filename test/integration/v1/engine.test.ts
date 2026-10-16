@@ -1,7 +1,6 @@
 import { Firebolt, FireboltResourceManager } from "../../../src/index";
 import { assignProtocol } from "../../../src/common/util";
 import { EngineType, WarmupMethod } from "../../../src/service/engine/types";
-import { DatabaseService } from "../../../src/service/database/v1";
 
 const authOptions = {
   username: process.env.FIREBOLT_USERNAME as string,

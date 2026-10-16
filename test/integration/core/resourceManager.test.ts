@@ -19,4 +19,3 @@ describe("resource manager", () => {
     );
   });
 });
-

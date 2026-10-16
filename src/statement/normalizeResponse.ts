@@ -7,11 +7,13 @@ import {
 import { Meta } from "../meta";
 import { hydrateRow } from "./hydrateResponse";
 
+/* eslint-disable @typescript-eslint/no-explicit-any -- raw server JSON before normalization */
 type ParsedResponse = {
   data: any;
   statistics: any;
   meta: any;
 };
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 export const normalizeRow = (
   row: Row,
@@ -35,6 +37,7 @@ export const normalizeColumn = (column: { name: string; type: string }) => {
   return new Meta(column);
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw server JSON before normalization
 export const getNormalizedMeta = (meta: any[]): Meta[] => {
   if (!meta) {
     return [];
@@ -98,6 +101,7 @@ export const normalizeResponse = (
 };
 
 export const normalizeResponseRowStreaming = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- raw server JSON before normalization
   data: any[],
   executeQueryOptions: ExecuteQueryOptions,
   meta: Meta[]

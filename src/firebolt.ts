@@ -9,10 +9,6 @@ type Dependencies = {
   httpClient: HttpClient;
 };
 
-type ResourceManagerDependencies = {
-  logger: Logger;
-};
-
 const DEFAULT_API_ENDPOINT = "api.app.firebolt.io";
 
 const getContext = (

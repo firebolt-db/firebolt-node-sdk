@@ -110,7 +110,7 @@ describe("database service", () => {
     rest.post(
       `https://some_system_engine.com/${QUERY_URL}`,
       (req, res, ctx) => {
-        const body = (String(req.body) ?? "").toLowerCase();
+        const body = String(req.body ?? "").toLowerCase();
         if (body.includes("information_schema.tables")) {
           return res(ctx.json(testCatalogResponse));
         }
@@ -160,7 +160,7 @@ describe("database service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          const body = (String(req.body) ?? "").toLowerCase();
+          const body = String(req.body ?? "").toLowerCase();
           if (
             body.includes("select count(*) from information_schema.catalogs")
           ) {
@@ -218,10 +218,10 @@ describe("database service", () => {
       }
     });
     const resourceManager = firebolt.resourceManager;
-    expect(
+    await expect(
       resourceManager.database.getDefaultEndpointByName("dummy")
     ).rejects.toThrow(DeprecationError);
-    expect(resourceManager.database.getById("111")).rejects.toThrow(
+    await expect(resourceManager.database.getById("111")).rejects.toThrow(
       DeprecationError
     );
   });
@@ -232,7 +232,7 @@ describe("database service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          const body = (String(req.body) ?? "").toLowerCase();
+          const body = String(req.body ?? "").toLowerCase();
           if (
             body.includes("information_schema.engines") &&
             body.includes("some_engine")
@@ -327,7 +327,7 @@ describe("database service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          const body = (String(req.body) ?? "").toLowerCase();
+          const body = String(req.body ?? "").toLowerCase();
           if (body.includes("information_schema.catalogs")) {
             return res(ctx.status(500));
           } else if (body.includes("information_schema.databases")) {
@@ -348,7 +348,7 @@ describe("database service", () => {
       }
     });
     const resourceManager = firebolt.resourceManager;
-    const dbs = await resourceManager.database.getByName("name");
+    await resourceManager.database.getByName("name");
 
     expect(databasesTableUsed).toBeTruthy();
   });
@@ -361,7 +361,7 @@ describe("database service", () => {
       rest.post(
         `https://some_system_engine.com/${QUERY_URL}`,
         (req, res, ctx) => {
-          const body = (String(req.body) ?? "").toLowerCase();
+          const body = String(req.body ?? "").toLowerCase();
           if (body.includes("information_schema.catalogs")) {
             return res(ctx.status(500));
           } else if (body.includes("information_schema.databases")) {
@@ -382,7 +382,7 @@ describe("database service", () => {
       }
     });
     const resourceManager = firebolt.resourceManager;
-    const dbs = await resourceManager.database.getAll();
+    await resourceManager.database.getAll();
 
     expect(databasesTableUsed).toBeTruthy();
   });
