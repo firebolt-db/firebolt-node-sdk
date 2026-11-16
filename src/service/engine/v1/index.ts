@@ -10,6 +10,7 @@ import { ResourceManagerContextV1 } from "../../../types";
 import { EngineModel } from "./model";
 import { Engine, ID } from "./types";
 import { CreateEngineOptions } from "../types";
+import { CONTENT_TYPE } from "../../../http";
 import { DatabaseModel } from "../../database/v1/model";
 import {
   getCheapestInstance,
@@ -64,7 +65,10 @@ export class EngineService {
     });
     const url = `${apiEndpoint}/${ENGINES_BY_IDS_URL}`;
     const data = await httpClient
-      .request<{ engines: Engine[] }>("POST", url, { body: enginesPayload })
+      .request<{ engines: Engine[] }>("POST", url, {
+        body: enginesPayload,
+        contentType: CONTENT_TYPE.JSON
+      })
       .ready();
     return data.engines.map(engine => new EngineModel(this.context, engine));
   }
@@ -184,7 +188,10 @@ export class EngineService {
     });
     const url = `${apiEndpoint}/${ACCOUNT_ENGINES(await this.accountId)}`;
     const data = await httpClient
-      .request<{ engine: Engine }>("POST", url, { body: enginePayload })
+      .request<{ engine: Engine }>("POST", url, {
+        body: enginePayload,
+        contentType: CONTENT_TYPE.JSON
+      })
       .ready();
     return new EngineModel(this.context, data.engine);
   }
@@ -217,6 +224,8 @@ export class EngineService {
         }
       }
     });
-    await httpClient.request("POST", url, { body: payload }).ready();
+    await httpClient
+      .request("POST", url, { body: payload, contentType: CONTENT_TYPE.JSON })
+      .ready();
   }
 }

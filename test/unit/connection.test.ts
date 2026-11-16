@@ -312,6 +312,29 @@ INFO: SYNTAX_ERROR - Unexpected character at {"failingLine":42,"startOffset":120
       cause: expect.objectContaining({ name: "SyntaxError" })
     });
   });
+  it("sends queries as text/plain", async () => {
+    let contentType: string | null = null;
+    let body = "";
+    server.use(
+      rest.post("https://some_engine.com", async (req, res, ctx) => {
+        contentType = req.headers.get("content-type");
+        body = await req.text();
+        return res(ctx.status(200), ctx.json(selectOneResponse));
+      })
+    );
+
+    const connection = await Firebolt({ apiEndpoint }).connect({
+      auth: { client_id: "dummy", client_secret: "dummy" },
+      database: "dummy",
+      engineName: "dummy",
+      account: "my_account"
+    });
+    await connection.execute("SELECT 'ü' AS one");
+
+    expect(contentType).toEqual("text/plain; charset=utf-8");
+    expect(body).toEqual("SELECT 'ü' AS one");
+  });
+
   it("database and engine", async () => {
     let paramsUsed = {};
     server.use(

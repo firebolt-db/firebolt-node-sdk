@@ -1,6 +1,7 @@
 import { SERVICE_ACCOUNT_LOGIN, USERNAME_PASSWORD_LOGIN } from "../common/api";
 import { assignProtocol } from "../common/util";
 import { AuthenticationError } from "../common/errors";
+import { CONTENT_TYPE } from "../http";
 import {
   Context,
   ConnectionOptions,
@@ -149,6 +150,7 @@ export class Authenticator {
     const { access_token, expires_in } = await httpClient
       .request<Login>("POST", url, {
         body,
+        contentType: CONTENT_TYPE.JSON,
         retry: false,
         noAuth: true
       })
@@ -176,10 +178,8 @@ export class Authenticator {
     const { access_token, expires_in } = await httpClient
       .request<Login>("POST", url, {
         retry: false,
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
         body: params,
+        contentType: CONTENT_TYPE.FORM,
         noAuth: true
       })
       .ready();

@@ -6,6 +6,7 @@ import { assignProtocol, systemInfoString } from "../common/util";
 import { ApiError, AuthenticationError } from "../common/errors";
 import { Authenticator } from "../auth/managed";
 import { CoreAuthenticator } from "../auth/core";
+import { RequestOptions } from "./index";
 
 const { HttpsAgent } = AgentKeepAlive;
 const HttpAgent = AgentKeepAlive;
@@ -14,15 +15,6 @@ const AbortController = globalThis.AbortController || Abort;
 
 type AgentType =
   InstanceType<typeof HttpAgent> | InstanceType<typeof HttpsAgent>;
-
-type RequestOptions = {
-  headers: Record<string, string>;
-  body?: string | URLSearchParams;
-  raw?: boolean;
-  retry?: boolean;
-  noAuth?: boolean;
-  retriedErrors?: Set<number>; // Add tracking for retried error status codes
-};
 
 type ErrorResponse = {
   message: string;
@@ -92,6 +84,7 @@ export class NodeHttpClient {
     const {
       headers = {},
       body,
+      contentType,
       retry = true,
       retriedErrors = new Set<number>()
     } = options || {};
@@ -146,6 +139,11 @@ export class NodeHttpClient {
     };
 
     const makeRequest = async () => {
+      if (Object.keys(headers).some(h => h.toLowerCase() === "content-type")) {
+        throw new Error(
+          "Content-Type must be set with the contentType option, not in headers"
+        );
+      }
       const headersWithAuth = await addAuthHeaders(headers);
       const withProtocol = assignProtocol(url);
       const userAgent = headersWithAuth["user-agent"] || DEFAULT_USER_AGENT;
@@ -156,9 +154,9 @@ export class NodeHttpClient {
         method,
         headers: {
           "user-agent": userAgent,
-          "Content-Type": "application/json",
           [PROTOCOL_VERSION_HEADER]: PROTOCOL_VERSION,
-          ...headersWithAuth
+          ...headersWithAuth,
+          ...(contentType && { "Content-Type": contentType })
         },
         body
       });
@@ -185,7 +183,8 @@ export class NodeHttpClient {
 
         const request = this.request<T>(method, url, {
           headers: options?.headers ?? {},
-          body: options?.body,
+          body,
+          contentType,
           raw: options?.raw,
           retry: true,
           retriedErrors: updatedRetriedErrors
