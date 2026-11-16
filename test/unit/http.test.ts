@@ -2,6 +2,7 @@ import { setupServer } from "msw/node";
 import { rest } from "msw";
 import { Authenticator } from "../../src/auth";
 import { NodeHttpClient } from "../../src/http/node";
+import { CONTENT_TYPE } from "../../src/http";
 import { Logger } from "../../src/logger/node";
 import { AuthOptions } from "../../src/types";
 
@@ -122,7 +123,87 @@ describe.each([
     await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
   });
 
-  it("sends JSON content type by default", async () => {
+  it.each([
+    [
+      "text",
+      { body: "SELECT 1", contentType: CONTENT_TYPE.TEXT },
+      "text/plain; charset=utf-8",
+      "SELECT 1"
+    ],
+    [
+      "json",
+      { body: '{"a":1}', contentType: CONTENT_TYPE.JSON },
+      "application/json",
+      '{"a":1}'
+    ],
+    [
+      "form",
+      { body: new URLSearchParams({ a: "1" }), contentType: CONTENT_TYPE.FORM },
+      "application/x-www-form-urlencoded",
+      "a=1"
+    ],
+    ["no body", {}, null, ""]
+  ])(
+    "sends %s content type from the contentType option",
+    async (_, options, expectedContentType, expectedBody) => {
+      const httpClient = new NodeHttpClient();
+      const authenticator = new Authenticator(
+        { httpClient, apiEndpoint, logger },
+        {
+          auth,
+          account: "my_account"
+        }
+      );
+      let contentType: string | null = null;
+      let body = "";
+      server.use(
+        rest.post(`https://${apiEndpoint}/engines`, async (req, res, ctx) => {
+          contentType = req.headers.get("content-type");
+          body = await req.text();
+          return res(ctx.json({ ok: true }));
+        })
+      );
+      await authenticator.authenticate();
+      await httpClient
+        .request("POST", `${apiEndpoint}/engines`, options)
+        .ready();
+      expect(contentType).toEqual(expectedContentType);
+      expect(body).toEqual(expectedBody);
+    }
+  );
+
+  it.each(["Content-Type", "content-type"])(
+    "rejects %s in headers",
+    async header => {
+      const httpClient = new NodeHttpClient();
+      const authenticator = new Authenticator(
+        { httpClient, apiEndpoint, logger },
+        {
+          auth,
+          account: "my_account"
+        }
+      );
+      let calls = 0;
+      server.use(
+        rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
+          calls++;
+          return res(ctx.json({ ok: true }));
+        })
+      );
+      await authenticator.authenticate();
+      await expect(
+        httpClient
+          .request("POST", `${apiEndpoint}/engines`, {
+            headers: { [header]: "application/json" },
+            body: "SELECT 1"
+          })
+          .ready()
+      ).rejects.toThrow("contentType option");
+      expect(calls).toEqual(0);
+    }
+  );
+
+  it("keeps body and content type when retrying after 401", async () => {
     const httpClient = new NodeHttpClient();
     const authenticator = new Authenticator(
       { httpClient, apiEndpoint, logger },
@@ -131,24 +212,33 @@ describe.each([
         account: "my_account"
       }
     );
-    let contentType: string | null = null;
+    const requests: { contentType: string | null; body: string }[] = [];
     server.use(
-      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
-        contentType = req.headers.get("content-type");
+      rest.post(`https://${apiEndpoint}/engines`, async (req, res, ctx) => {
+        requests.push({
+          contentType: req.headers.get("content-type"),
+          body: await req.text()
+        });
+        if (requests.length === 1) {
+          return res(ctx.status(401));
+        }
         return res(ctx.json({ ok: true }));
       })
     );
     await authenticator.authenticate();
     await httpClient
       .request("POST", `${apiEndpoint}/engines`, {
-        headers: {},
-        body: JSON.stringify({ a: 1 })
+        body: '{"a":1}',
+        contentType: CONTENT_TYPE.JSON
       })
       .ready();
-    expect(contentType).toEqual("application/json");
+    expect(requests).toEqual([
+      { contentType: "application/json", body: '{"a":1}' },
+      { contentType: "application/json", body: '{"a":1}' }
+    ]);
   });
 
-  it("allows overriding content type", async () => {
+  it("sends login with the content type of its body", async () => {
     const httpClient = new NodeHttpClient();
     const authenticator = new Authenticator(
       { httpClient, apiEndpoint, logger },
@@ -159,19 +249,21 @@ describe.each([
     );
     let contentType: string | null = null;
     server.use(
-      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
+      rest.post(`https://${apiEndpoint}/auth/v1/login`, (req, res, ctx) => {
         contentType = req.headers.get("content-type");
-        return res(ctx.json({ ok: true }));
+        return res(ctx.json({ access_token: "fake_access_token" }));
+      }),
+      rest.post(`https://id.fake.firebolt.io/oauth/token`, (req, res, ctx) => {
+        contentType = req.headers.get("content-type");
+        return res(ctx.json({ access_token: "fake_access_token" }));
       })
     );
     await authenticator.authenticate();
-    await httpClient
-      .request("POST", `${apiEndpoint}/engines`, {
-        headers: { "Content-Type": "text/plain; charset=utf-8" },
-        body: "SELECT 1"
-      })
-      .ready();
-    expect(contentType).toEqual("text/plain; charset=utf-8");
+    expect(contentType).toEqual(
+      version === "v1"
+        ? "application/json"
+        : "application/x-www-form-urlencoded"
+    );
   });
 });
 

@@ -5,6 +5,7 @@ import {
   Context
 } from "../types";
 import { Statement } from "../statement";
+import { CONTENT_TYPE } from "../http";
 import { generateUserAgent } from "../common/util";
 import { CompositeError } from "../common/errors";
 import JSONbig from "json-bigint";
@@ -231,11 +232,9 @@ export abstract class Connection {
     const url = this.getRequestUrl(executeQueryOptions);
 
     const request = httpClient.request<Response>("POST", url, {
-      headers: {
-        "user-agent": this.userAgent,
-        "Content-Type": "text/plain; charset=utf-8"
-      },
+      headers: { "user-agent": this.userAgent },
       body,
+      contentType: CONTENT_TYPE.TEXT,
       raw: true
     });
 

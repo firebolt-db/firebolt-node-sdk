@@ -8,6 +8,7 @@ import { ResourceManagerContextV1 } from "../../../types";
 import { DatabaseModel } from "./model";
 import { ID, Database } from "./types";
 import { CreateDatabaseOptions } from "../types";
+import { CONTENT_TYPE } from "../../../http";
 import { resolveRegionKey } from "../../utils";
 import { ResourceManager } from "../../index";
 export class DatabaseService {
@@ -113,7 +114,10 @@ export class DatabaseService {
     });
     const url = `${apiEndpoint}/${ACCOUNT_DATABASES(await this.accountId)}`;
     const data = await httpClient
-      .request<{ database: Database }>("POST", url, { body: databasePayload })
+      .request<{ database: Database }>("POST", url, {
+        body: databasePayload,
+        contentType: CONTENT_TYPE.JSON
+      })
       .ready();
 
     const database = new DatabaseModel(this.context, data.database);
