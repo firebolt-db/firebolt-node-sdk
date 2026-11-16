@@ -172,7 +172,9 @@ describe("streams", () => {
 
     const { data } = await statement.streamResult();
 
-    // Track memory usage and verify proper data streaming
+    // Without a forced GC, heapUsed includes uncollected garbage from row
+    // parsing and depends on GC timing, so it can't detect retained memory.
+    global.gc?.();
     const initialMemory = process.memoryUsage();
     let maxMemoryUsed = initialMemory.heapUsed;
     let rowCount = 0;
@@ -183,8 +185,8 @@ describe("streams", () => {
       rowCount++;
       idSum += row[0]; // Sum the id values for data integrity
 
-      // Track memory usage periodically
-      if (rowCount % 50 === 0) {
+      if (global.gc && rowCount % 50000 === 0) {
+        global.gc();
         const currentMemory = process.memoryUsage();
         maxMemoryUsed = Math.max(maxMemoryUsed, currentMemory.heapUsed);
       }
@@ -207,8 +209,9 @@ describe("streams", () => {
     const memoryGrowth =
       (maxMemoryUsed - initialMemory.heapUsed) / (1024 * 1024);
 
-    // Memory growth should be minimal for this size dataset
-    expect(memoryGrowth).toBeLessThan(20);
+    if (global.gc) {
+      expect(memoryGrowth).toBeLessThan(20);
+    }
 
     console.log(
       `Streaming test: processed ${rowCount} rows, ` +
