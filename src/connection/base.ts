@@ -231,7 +231,10 @@ export abstract class Connection {
     const url = this.getRequestUrl(executeQueryOptions);
 
     const request = httpClient.request<Response>("POST", url, {
-      headers: { "user-agent": this.userAgent },
+      headers: {
+        "user-agent": this.userAgent,
+        "Content-Type": "text/plain; charset=utf-8"
+      },
       body,
       raw: true
     });

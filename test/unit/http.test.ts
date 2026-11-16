@@ -121,6 +121,58 @@ describe.each([
     await authenticator.authenticate();
     await httpClient.request("POST", `${apiEndpoint}/engines`).ready();
   });
+
+  it("sends JSON content type by default", async () => {
+    const httpClient = new NodeHttpClient();
+    const authenticator = new Authenticator(
+      { httpClient, apiEndpoint, logger },
+      {
+        auth,
+        account: "my_account"
+      }
+    );
+    let contentType: string | null = null;
+    server.use(
+      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
+        contentType = req.headers.get("content-type");
+        return res(ctx.json({ ok: true }));
+      })
+    );
+    await authenticator.authenticate();
+    await httpClient
+      .request("POST", `${apiEndpoint}/engines`, {
+        headers: {},
+        body: JSON.stringify({ a: 1 })
+      })
+      .ready();
+    expect(contentType).toEqual("application/json");
+  });
+
+  it("allows overriding content type", async () => {
+    const httpClient = new NodeHttpClient();
+    const authenticator = new Authenticator(
+      { httpClient, apiEndpoint, logger },
+      {
+        auth,
+        account: "my_account"
+      }
+    );
+    let contentType: string | null = null;
+    server.use(
+      rest.post(`https://${apiEndpoint}/engines`, (req, res, ctx) => {
+        contentType = req.headers.get("content-type");
+        return res(ctx.json({ ok: true }));
+      })
+    );
+    await authenticator.authenticate();
+    await httpClient
+      .request("POST", `${apiEndpoint}/engines`, {
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+        body: "SELECT 1"
+      })
+      .ready();
+    expect(contentType).toEqual("text/plain; charset=utf-8");
+  });
 });
 
 describe.each([
